@@ -1,0 +1,946 @@
+{
+  "frames": {
+    "fc_sigh_00000.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00001.png": {
+      "frame": {
+        "x": 69,
+        "y": 0,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00002.png": {
+      "frame": {
+        "x": 138,
+        "y": 0,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00003.png": {
+      "frame": {
+        "x": 207,
+        "y": 0,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00004.png": {
+      "frame": {
+        "x": 276,
+        "y": 0,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00005.png": {
+      "frame": {
+        "x": 345,
+        "y": 0,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00006.png": {
+      "frame": {
+        "x": 414,
+        "y": 0,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00007.png": {
+      "frame": {
+        "x": 483,
+        "y": 0,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00008.png": {
+      "frame": {
+        "x": 0,
+        "y": 82,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00009.png": {
+      "frame": {
+        "x": 69,
+        "y": 82,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00010.png": {
+      "frame": {
+        "x": 138,
+        "y": 82,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00011.png": {
+      "frame": {
+        "x": 207,
+        "y": 82,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00012.png": {
+      "frame": {
+        "x": 276,
+        "y": 82,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00013.png": {
+      "frame": {
+        "x": 345,
+        "y": 82,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00014.png": {
+      "frame": {
+        "x": 414,
+        "y": 82,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00015.png": {
+      "frame": {
+        "x": 483,
+        "y": 82,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00016.png": {
+      "frame": {
+        "x": 0,
+        "y": 164,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00017.png": {
+      "frame": {
+        "x": 69,
+        "y": 164,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00018.png": {
+      "frame": {
+        "x": 138,
+        "y": 164,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00019.png": {
+      "frame": {
+        "x": 207,
+        "y": 164,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00020.png": {
+      "frame": {
+        "x": 276,
+        "y": 164,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00021.png": {
+      "frame": {
+        "x": 345,
+        "y": 164,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00022.png": {
+      "frame": {
+        "x": 414,
+        "y": 164,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00023.png": {
+      "frame": {
+        "x": 483,
+        "y": 164,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00024.png": {
+      "frame": {
+        "x": 0,
+        "y": 246,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00025.png": {
+      "frame": {
+        "x": 69,
+        "y": 246,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00026.png": {
+      "frame": {
+        "x": 138,
+        "y": 246,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00027.png": {
+      "frame": {
+        "x": 207,
+        "y": 246,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00028.png": {
+      "frame": {
+        "x": 276,
+        "y": 246,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00029.png": {
+      "frame": {
+        "x": 345,
+        "y": 246,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00030.png": {
+      "frame": {
+        "x": 414,
+        "y": 246,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00031.png": {
+      "frame": {
+        "x": 483,
+        "y": 246,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00032.png": {
+      "frame": {
+        "x": 0,
+        "y": 328,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00033.png": {
+      "frame": {
+        "x": 69,
+        "y": 328,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00034.png": {
+      "frame": {
+        "x": 138,
+        "y": 328,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00035.png": {
+      "frame": {
+        "x": 207,
+        "y": 328,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00036.png": {
+      "frame": {
+        "x": 276,
+        "y": 328,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00037.png": {
+      "frame": {
+        "x": 345,
+        "y": 328,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00038.png": {
+      "frame": {
+        "x": 414,
+        "y": 328,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00039.png": {
+      "frame": {
+        "x": 483,
+        "y": 328,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00040.png": {
+      "frame": {
+        "x": 0,
+        "y": 410,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00041.png": {
+      "frame": {
+        "x": 69,
+        "y": 410,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00042.png": {
+      "frame": {
+        "x": 138,
+        "y": 410,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    },
+    "fc_sigh_00043.png": {
+      "frame": {
+        "x": 207,
+        "y": 410,
+        "w": 69,
+        "h": 82
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 2,
+        "w": 69,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 69,
+        "h": 84
+      }
+    }
+  },
+  "animations": {
+    "fc_sigh": [
+      "fc_sigh_00000.png",
+      "fc_sigh_00001.png",
+      "fc_sigh_00002.png",
+      "fc_sigh_00003.png",
+      "fc_sigh_00004.png",
+      "fc_sigh_00005.png",
+      "fc_sigh_00006.png",
+      "fc_sigh_00007.png",
+      "fc_sigh_00008.png",
+      "fc_sigh_00009.png",
+      "fc_sigh_00010.png",
+      "fc_sigh_00011.png",
+      "fc_sigh_00012.png",
+      "fc_sigh_00013.png",
+      "fc_sigh_00014.png",
+      "fc_sigh_00015.png",
+      "fc_sigh_00016.png",
+      "fc_sigh_00017.png",
+      "fc_sigh_00018.png",
+      "fc_sigh_00019.png",
+      "fc_sigh_00020.png",
+      "fc_sigh_00021.png",
+      "fc_sigh_00022.png",
+      "fc_sigh_00023.png",
+      "fc_sigh_00024.png",
+      "fc_sigh_00025.png",
+      "fc_sigh_00026.png",
+      "fc_sigh_00027.png",
+      "fc_sigh_00028.png",
+      "fc_sigh_00029.png",
+      "fc_sigh_00030.png",
+      "fc_sigh_00031.png",
+      "fc_sigh_00032.png",
+      "fc_sigh_00033.png",
+      "fc_sigh_00034.png",
+      "fc_sigh_00035.png",
+      "fc_sigh_00036.png",
+      "fc_sigh_00037.png",
+      "fc_sigh_00038.png",
+      "fc_sigh_00039.png",
+      "fc_sigh_00040.png",
+      "fc_sigh_00041.png",
+      "fc_sigh_00042.png",
+      "fc_sigh_00043.png"
+    ]
+  },
+  "meta": {
+    "app": "http://github.com/pixijs/assetpack",
+    "version": "1.0",
+    "image": "fc_sigh.webp",
+    "format": "RGBA8888",
+    "size": {
+      "w": 552,
+      "h": 492
+    },
+    "scale": 1,
+    "related_multi_packs": [],
+    "realImage": "fc_sigh.webp",
+    "placeholderApplied": false
+  }
+}

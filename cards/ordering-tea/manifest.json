@@ -1,0 +1,573 @@
+{
+  "name": "ordering-tea",
+  "version": "0.0.1",
+  "cards": [
+    {
+      "id": "login_card",
+      "entry": "login/index.esm.js",
+      "style": [
+        "login/index.css",
+        "report.css"
+      ],
+      "title": "登录卡片",
+      "description": "茶饮点单登录入口，输入手机号与验证码完成登录",
+      "paramsSchema": {
+        "type": "object",
+        "properties": {
+          "brand": {
+            "type": "string",
+            "description": "品牌标识"
+          },
+          "brand_name": {
+            "type": "string",
+            "description": "品牌展示名称"
+          },
+          "phone": {
+            "type": "string",
+            "description": "预填手机号（可选，缺省时为空）"
+          },
+          "privacy_agreement_url": {
+            "type": "string",
+            "description": "隐私协议链接"
+          },
+          "user_agreement_url": {
+            "type": "string",
+            "description": "用户协议链接"
+          }
+        }
+      },
+      "exampleParams": {
+        "brand": 1,
+        "brand_name": "瑞幸",
+        "phone": "13800138000",
+        "privacy_agreement_url": "https://privacy.qq.com/document/preview/6c3760b1810e436ca8bd122984cd5183",
+        "user_agreement_url": "https://rule.tencent.com/rule/202604280002"
+      },
+      "exampleOutput": {
+        "ok": true,
+        "userId": "mock_user_001",
+        "token": "mock_token_xxx",
+        "phone": "13800138000"
+      }
+    },
+    {
+      "id": "store_select_card",
+      "entry": "store-select/index.esm.js",
+      "style": [
+        "store-select/index.css",
+        "report.css",
+        "index.css"
+      ],
+      "title": "门店配送选择卡片",
+      "description": "展示常用门店，供用户进行选择",
+      "paramsSchema": {
+        "type": "object",
+        "properties": {
+          "brand": {
+            "type": "string",
+            "description": "品牌"
+          },
+          "stores": {
+            "type": "array",
+            "description": "品牌分店及地址",
+            "items": {
+              "type": "object",
+              "properties": {
+                "store_id": {
+                  "type": "string"
+                },
+                "store_name": {
+                  "type": "string"
+                },
+                "address": {
+                  "type": "string"
+                },
+                "distance_text": {
+                  "type": "string"
+                },
+                "is_open": {
+                  "type": "boolean"
+                },
+                "business_hours": {
+                  "type": "string"
+                },
+                "estimated_wait": {
+                  "type": "string"
+                },
+                "is_default": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "exampleParams": {
+        "brand": "1",
+        "brand_name": "瑞幸咖啡",
+        "stores": [
+          {
+            "store_id": "store_001",
+            "store_name": "田厦金牛广场店(N0.0168)",
+            "address": "南山区桃园路79号田厦金牛广场负二层02号",
+            "distance_text": "320m",
+            "is_open": true,
+            "business_hours": "07:00-22:00",
+            "estimated_wait": "15分钟",
+            "is_default": true
+          },
+          {
+            "store_id": "store_002",
+            "store_name": "南山愉康大厦临街店(N0.11721)",
+            "address": "南山区大汪山社区学府路14愉康大厦一层1号",
+            "distance_text": "580m",
+            "is_open": true,
+            "business_hours": "07:00-23:00",
+            "estimated_wait": "20分钟",
+            "is_default": false
+          },
+          {
+            "store_id": "store_003",
+            "store_name": "南山文体中心店(N0.23560)",
+            "address": "南山区南头街道62号南山文体中心内游泳馆一层Y103",
+            "distance_text": "1.2km",
+            "is_open": false,
+            "business_hours": "08:00-21:00",
+            "estimated_wait": "25分钟",
+            "is_default": false
+          }
+        ]
+      },
+      "exampleOutput": {
+        "store_id": "store_001",
+        "store_name": "田厦金牛广场店(N0.0168)",
+        "address": "南山区桃园路79号田厦金牛广场负二层02号",
+        "distance_text": "320m",
+        "is_open": true,
+        "business_hours": "07:00-22:00",
+        "estimated_wait": "15分钟",
+        "is_default": true
+      }
+    },
+    {
+      "id": "address_select_card",
+      "entry": "address-select/index.esm.js",
+      "style": [
+        "address-select/index.css",
+        "report.css",
+        "empty.css",
+        "index.css"
+      ],
+      "title": "收货地址选择卡片",
+      "description": "展示收货地址列表供用户选择，支持新增 / 编辑收货地址",
+      "paramsSchema": {
+        "type": "object",
+        "required": [
+          "brand"
+        ],
+        "properties": {
+          "brand": {
+            "type": "integer",
+            "enum": [
+              1
+            ],
+            "description": "品牌：1=瑞幸"
+          }
+        }
+      },
+      "exampleParams": {
+        "brand": 1
+      },
+      "exampleOutput": {
+        "ok": true,
+        "addressId": "1103752015"
+      }
+    },
+    {
+      "id": "place_order_card",
+      "entry": "place-order/index.esm.js",
+      "style": [
+        "place-order/index.css",
+        "report.css",
+        "empty.css"
+      ],
+      "title": "下单卡片",
+      "description": "渲染订单卡片并等待用户完成预览、确认和支付。商品列表已由 Agent 确定后调用。",
+      "paramsSchema": {
+        "type": "object",
+        "required": [
+          "brand",
+          "storeId",
+          "fulfillment",
+          "productList"
+        ],
+        "properties": {
+          "brand": {
+            "type": "integer",
+            "enum": [
+              1
+            ],
+            "description": "品牌：1=瑞幸"
+          },
+          "storeId": {
+            "type": "string",
+            "description": "门店 ID"
+          },
+          "fulfillment": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "description": "取餐方式：1=自取 2=外卖"
+          },
+          "addressId": {
+            "type": "string",
+            "description": "外卖地址 ID（外卖时使用）"
+          },
+          "conversationId": {
+            "type": "string",
+            "description": "会话 ID（用于轮询订单状态 + 草稿持久化维度）"
+          },
+          "productList": {
+            "type": "array",
+            "description": "待下单商品列表",
+            "items": {
+              "type": "object",
+              "properties": {
+                "itemId": {
+                  "type": "string",
+                  "description": "商品 ID"
+                },
+                "skuCode": {
+                  "type": "string",
+                  "description": "SKU 编码"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "商品名称"
+                },
+                "selectedOptions": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "option_id": {
+                        "type": "string"
+                      },
+                      "group_id": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "specSummary": {
+                  "type": "string",
+                  "description": "规格摘要，如「大杯/冰/半糖」"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "数量"
+                },
+                "unitPriceCents": {
+                  "type": "integer",
+                  "description": "单价（分）"
+                },
+                "originalPriceCents": {
+                  "type": "integer",
+                  "description": "原价（分，可选，用于划线价）"
+                },
+                "imageUrl": {
+                  "type": "string",
+                  "description": "商品图片 URL"
+                },
+                "options": {
+                  "type": "array",
+                  "description": "选中规格组合（透传给下单接口）",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "groupId": {
+                        "type": "string"
+                      },
+                      "optionId": {
+                        "type": "string"
+                      },
+                      "groupName": {
+                        "type": "string"
+                      },
+                      "optionName": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "directPay": {
+            "type": "boolean",
+            "description": "是否直接支付：true 时跳过商品选择直接进订单预览"
+          },
+          "storeName": {
+            "type": "string",
+            "description": "门店名称（展示用）"
+          },
+          "storeIcon": {
+            "type": "string",
+            "description": "门店 Logo（展示用）"
+          },
+          "address": {
+            "type": "object",
+            "description": "收货地址（外卖展示用）",
+            "properties": {
+              "address": {
+                "type": "string"
+              },
+              "address_detail": {
+                "type": "string"
+              },
+              "contact_name": {
+                "type": "string"
+              },
+              "contact_phone": {
+                "type": "string"
+              }
+            }
+          },
+          "scheduledTime": {
+            "type": "string",
+            "description": "预计送达/取餐时间文案"
+          },
+          "deliveryFeeCents": {
+            "type": "integer",
+            "description": "配送费（分）"
+          },
+          "packagingFeeCents": {
+            "type": "integer",
+            "description": "包装费（分）"
+          },
+          "discountCents": {
+            "type": "integer",
+            "description": "优惠金额（分）"
+          },
+          "couponLabel": {
+            "type": "string",
+            "description": "优惠券名称"
+          },
+          "expireSeconds": {
+            "type": "integer",
+            "description": "支付倒计时秒数"
+          }
+        }
+      },
+      "exampleParams": {
+        "brand": 1,
+        "storeId": "325353",
+        "fulfillment": 2,
+        "conversationId": "conv_001",
+        "directPay": false,
+        "storeName": "瑞幸咖啡(田厦金牛广场店)",
+        "storeIcon": "https://static.marvis.qq.com/wupload/2bbaxc49.png?imageMogr2/thumbnail/120x/format/webp",
+        "productList": [
+          {
+            "itemId": "4805",
+            "skuCode": "",
+            "name": "拿铁",
+            "selectedOptions": [
+              {
+                "option_id": "365",
+                "group_id": "64"
+              },
+              {
+                "option_id": "56",
+                "group_id": "17"
+              },
+              {
+                "option_id": "379",
+                "group_id": "50"
+              },
+              {
+                "option_id": "706",
+                "group_id": "113"
+              },
+              {
+                "option_id": "60",
+                "group_id": "18"
+              },
+              {
+                "option_id": "632",
+                "group_id": "102"
+              }
+            ],
+            "specSummary": "中杯/少少甜/标准冰/冰沙",
+            "quantity": 1,
+            "unitPriceCents": 990,
+            "originalPriceCents": 1700,
+            "imageUrl": "https://picsum.photos/seed/tea1/80/80"
+          },
+          {
+            "itemId": "1262",
+            "skuCode": "",
+            "name": "生椰拿铁(首创)",
+            "selectedOptions": [
+              {
+                "option_id": "365",
+                "group_id": "64"
+              },
+              {
+                "option_id": "56",
+                "group_id": "17"
+              },
+              {
+                "option_id": "379",
+                "group_id": "50"
+              },
+              {
+                "option_id": "706",
+                "group_id": "113"
+              },
+              {
+                "option_id": "60",
+                "group_id": "18"
+              },
+              {
+                "option_id": "632",
+                "group_id": "102"
+              }
+            ],
+            "specSummary": "中杯/少少甜/标准冰/冰沙",
+            "quantity": 1,
+            "unitPriceCents": 990,
+            "originalPriceCents": 2000,
+            "imageUrl": "https://picsum.photos/seed/tea1/80/80"
+          },
+          {
+            "itemId": "4836",
+            "skuCode": "",
+            "name": "茉莉花香拿铁",
+            "selectedOptions": [
+              {
+                "option_id": "365",
+                "group_id": "64"
+              },
+              {
+                "option_id": "56",
+                "group_id": "17"
+              },
+              {
+                "option_id": "379",
+                "group_id": "50"
+              },
+              {
+                "option_id": "706",
+                "group_id": "113"
+              },
+              {
+                "option_id": "60",
+                "group_id": "18"
+              },
+              {
+                "option_id": "632",
+                "group_id": "102"
+              }
+            ],
+            "specSummary": "中杯/少少甜/标准冰/冰沙",
+            "quantity": 1,
+            "unitPriceCents": 990,
+            "originalPriceCents": 1800,
+            "imageUrl": "https://picsum.photos/seed/tea1/80/80"
+          },
+          {
+            "itemId": "5025",
+            "skuCode": "",
+            "name": "小黄油拿铁（首创）",
+            "selectedOptions": [
+              {
+                "option_id": "365",
+                "group_id": "64"
+              },
+              {
+                "option_id": "56",
+                "group_id": "17"
+              },
+              {
+                "option_id": "379",
+                "group_id": "50"
+              },
+              {
+                "option_id": "706",
+                "group_id": "113"
+              },
+              {
+                "option_id": "60",
+                "group_id": "18"
+              },
+              {
+                "option_id": "632",
+                "group_id": "102"
+              }
+            ],
+            "specSummary": "中杯/少少甜/标准冰/冰沙",
+            "quantity": 1,
+            "unitPriceCents": 990,
+            "originalPriceCents": 2100,
+            "imageUrl": "https://img05.luckincoffeecdn.com/group5/M00/58/F0/Ct1qP2h0cQ-Ae7zDAAHPlXgkv5M628.png"
+          },
+          {
+            "itemId": "5328",
+            "skuCode": "",
+            "name": "冰吸生椰拿铁（首创）",
+            "selectedOptions": [
+              {
+                "option_id": "365",
+                "group_id": "64"
+              },
+              {
+                "option_id": "56",
+                "group_id": "17"
+              },
+              {
+                "option_id": "379",
+                "group_id": "50"
+              },
+              {
+                "option_id": "706",
+                "group_id": "113"
+              },
+              {
+                "option_id": "60",
+                "group_id": "18"
+              },
+              {
+                "option_id": "632",
+                "group_id": "102"
+              }
+            ],
+            "specSummary": "中杯/少少甜/标准冰/冰沙",
+            "quantity": 1,
+            "unitPriceCents": 990,
+            "originalPriceCents": 2100,
+            "imageUrl": "https://img05.luckincoffeecdn.com/commodity-admin/2026/04/12/a32c0a6f0db443f7a65490c34a912a54.png"
+          }
+        ],
+        "address": {
+          "address": "广东省深圳市南山区腾讯滨海大厦",
+          "address_detail": "B座1226室",
+          "contact_name": "陈女士",
+          "contact_phone": "15045674231"
+        },
+        "scheduledTime": "大约14:30送达",
+        "deliveryFeeCents": 200,
+        "packagingFeeCents": 100,
+        "discountCents": 450,
+        "couponLabel": "瑞幸免单券",
+        "expireSeconds": 300
+      },
+      "exampleOutput": {
+        "ok": false,
+        "reason": "cancel"
+      }
+    }
+  ]
+}

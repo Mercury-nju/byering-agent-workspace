@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- CSP: upgrade-insecure-requests 仅在生产环境启用，开发环境会被 Vite 插件移除 -->
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" data-prod-only>
+  <meta name="major-version" content="4" />
+  <meta name="build-time" content="202607302340" />
+  <meta name="build-version" content="20260730234002" />
+  <title>Marvis</title>
+  <script src="./browser-shim.js"></script>
+  <script>
+    window.documentInitPerformanceNowResult = Date.now();
+    console.warn(`[offline-page-state] build-time:${"202607302340"} build-version:${"20260730234002"}`)
+  </script>
+  <!-- 运行时环境检测：在 CSS 解析前注入，零 FOUC -->
+  <script>
+    (function () {
+      var ua = navigator.userAgent;
+      var platform = navigator.platform;
+
+      // 框架检测：CEF → Electron → browser
+      var framework = /CefView/i.test(ua) ? 'cef' : /Electron/i.test(ua) ? 'electron' : 'browser';
+
+      // 操作系统检测
+      var os = /Win32|Windows/i.test(platform) ? 'windows' : /MacIntel|MacPPC/i.test(platform) ? 'macos' : 'linux';
+
+      // 写入全局变量供 JS 读取
+      window.__RUNTIME_FRAMEWORK__ = framework;
+      window.__RUNTIME_OS__ = os;
+
+      // 写入 data 属性供 CSS 属性选择器异化样式（JS 通过 window 全局变量读取）
+      var root = document.documentElement;
+      root.dataset.framework = framework;
+      root.dataset.os = os;
+
+      // PCYYB JS SDK：仅 Mac 平台按需异步加载（在线 UMD），用于打开微信小程序/小游戏
+      // 详见 docs/plans/2026-05-12-mac-wxapp-jssdk-launch.md
+      if (os === 'macos') {
+        var pcyybScript = document.createElement('script');
+        pcyybScript.src = 'https://static.pc.yyb.qq.com/pcyyb-js-sdk/js-sdk/1.0.8/pcyybJsSdk.umd.js';
+        pcyybScript.async = true;
+        pcyybScript.crossOrigin = 'anonymous';
+        pcyybScript.dataset.role = 'pcyyb-js-sdk';
+        document.head.appendChild(pcyybScript);
+
+        // PCYYB SDK 二维码/扫码弹窗的持久化挂载容器
+        // ──────────────────────────────────────────────────────────────────
+        // ⚠️ 此处 'mac-applet-launcher-host' 是字面量的源头副本，必须与
+        //    src/utils/loadPcyybSdk.ts 中导出的 PCYYB_QR_DOM_ID 保持一致。
+        //    （本段是 Vite 打包前的纯 IIFE，无法 import ts 常量；改一处时
+        //     另一处也要同步改。）
+        // 1. SDK init 时传入的 qr_dom_id = 'mac-applet-launcher-host'，
+        //    SDK 找到此容器后会直接 appendChild(iframe)（iframe 设为 100% × 100%）。
+        //    iframe 内 wxapp_qr.html 的 <body> 用 flex 自己把卡片居中——
+        //    所以 host 容器只需"全屏 + 蒙层"，**绝不能**给 iframe 设固定宽高，
+        //    否则 SDK 的 .qr-container（max-width:400px / min-height:527px）
+        //    会被裁切并出现滚动条。
+        // 2. 故意脱离 React 管控（不放在 #root 内）：SDK 在 closeQrView 事件中
+        //    会执行 `this.#qrView?.remove()` 把容器节点从 DOM 摘掉，由 React 渲染
+        //    会与 VDOM 不一致；改由 utils/loadPcyybSdk 里的 MutationObserver
+        //    监听并自动重插。
+        // 3. 蒙层颜色 rgba(15,15,15,0.2) 与 src/base/StackModal 完全一致；
+        //    z-index 10300 高于 MODAL_Z_INDEX_BASE(10200)，保证扫码弹窗居顶。
+        // 4. iframe 透明背景：wxapp_qr.html 自身 body 是 transparent，让蒙层透出，
+        //    .qr-container 自带 #F8F8F8 卡片底色 + 16px 圆角 + 阴影，外层不要再叠。
+        var pcyybStyle = document.createElement('style');
+        pcyybStyle.dataset.role = 'pcyyb-qr-host-style';
+        pcyybStyle.textContent =
+          '#mac-applet-launcher-host{position:fixed;inset:0;z-index:10300;pointer-events:none;display:none;}' +
+          '#mac-applet-launcher-host:not(:empty){pointer-events:auto;display:block;background-color:rgba(15,15,15,0.2);}' +
+          '#mac-applet-launcher-host>iframe{width:100%;height:100%;border:0;background:transparent;display:block;}';
+        document.head.appendChild(pcyybStyle);
+
+        var pcyybQrHost = document.createElement('div');
+        pcyybQrHost.id = 'mac-applet-launcher-host';
+        // body 还没解析到，延后到 DOMContentLoaded 时再 append
+        if (document.body) {
+          document.body.appendChild(pcyybQrHost);
+        } else {
+          document.addEventListener('DOMContentLoaded', function () {
+            // 防止重复 append（HMR 等场景）
+            if (!document.getElementById('mac-applet-launcher-host')) {
+              document.body.appendChild(pcyybQrHost);
+            }
+          });
+        }
+      }
+
+      // PC 微信 OpenSDK：Windows + macOS 均加载，用于分享链接到 PC 微信聊天
+      // SDK 会在页面内嵌入 https://open.weixin.qq.com 源的 iframe
+      // @see https://developers.weixin.qq.com/doc/oplatform/Website_App/WeChat_PC_APIs/Share_a_Mini_Program.html
+      if (os === 'windows' || os === 'macos') {
+        var wxOpenSdkScript = document.createElement('script');
+        wxOpenSdkScript.src = 'https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxopensdk.js';
+        wxOpenSdkScript.async = true;
+        wxOpenSdkScript.dataset.role = 'wxopensdk';
+        document.head.appendChild(wxOpenSdkScript);
+      }
+    })();
+  </script>
+  <script type="module" crossorigin src="./assets/main-BaWVt8Sl.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/react-vendor-qbxKt1zu.js">
+  <link rel="modulepreload" crossorigin href="./assets/eventemitter3-vendor-B0zOWAJX.js">
+  <link rel="modulepreload" crossorigin href="./assets/workbench-biG8PRTg.js">
+  <link rel="modulepreload" crossorigin href="./assets/markdown-vendor-Bc7gd2Zl.js">
+  <link rel="modulepreload" crossorigin href="./assets/utils-vendor-Cqm7zoCH.js">
+  <link rel="modulepreload" crossorigin href="./assets/report-vendor-CcwS-gV5.js">
+  <link rel="modulepreload" crossorigin href="./assets/treemap-KZPCXAKY-Dm7XgKSQ.js">
+  <link rel="modulepreload" crossorigin href="./assets/index.modern-BusCmPLA.js">
+  <link rel="modulepreload" crossorigin href="./assets/monitor-Cyrmzwo0.js">
+  <link rel="stylesheet" crossorigin href="./assets/markdown-vendor-Sepdx3LX.css">
+  <link rel="stylesheet" crossorigin href="./assets/treemap-KZPCXAKY-B7Dc9S11.css">
+  <link rel="stylesheet" crossorigin href="./assets/main-xulo-feJ.css">
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+{
+  "name": "salebuddy",
+  "version": "1.0.0-recovered",
+  "private": true,
+  "type": "module",
+  "description": "Byering - AI chief of staff. Recovered renderer and Electron reconstruction scaffold",
+  "scripts": {
+    "dev": "node scripts/static-server.mjs --port 8888",
+    "serve": "node scripts/static-server.mjs",
+    "electron": "electron electron/main-reconstructed.mjs",
+    "electron:inspect": "electron --inspect=9229 electron/main-reconstructed.mjs",
+    "check:office": "node scripts/check-office-integrity.mjs",
+    "test:office": "node scripts/office-baseline.test.mjs",
+    "test:agents": "node scripts/agent-data.test.mjs",
+    "test:team": "node scripts/team-status.test.mjs",
+    "test:rooms": "node scripts/rooms.test.mjs",
+    "test:kanban": "node --test scripts/kanban-room-grouping.test.mjs",
+    "test:kanban-customization": "node --test scripts/kanban-customization.test.mjs",
+    "test:feed": "node --test scripts/home-sales-feed.test.mjs",
+    "test:dialogue": "node --test scripts/task-runner-dialogue.test.mjs",
+    "test:business-prompts": "node --test scripts/business-prompts.test.mjs",
+    "test:runtime": "node --test scripts/task-runtime.test.mjs",
+    "test:demo-timeline": "node --test scripts/demo-timeline.test.mjs",
+    "test:ear": "node --test scripts/ear-page.test.mjs",
+    "test:executors": "node --test scripts/executors.test.mjs",
+    "test:shares": "node --test scripts/share-store.test.mjs",
+    "test:materials": "node --test scripts/material-generator.test.mjs",
+    "test:material-store": "node --test scripts/material-store.test.mjs",
+    "test:gateway-material": "node --test scripts/gateway-material.test.mjs",
+    "test:dm": "node scripts/agent-dm.test.mjs",
+    "test:marketplace": "node --test scripts/marketplace.test.mjs",
+    "test:brand": "node --test scripts/brand.test.mjs",
+    "test:nav": "node --test scripts/nav-framework.test.mjs",
+    "test:room-actions": "node --test scripts/room-detail-actions.test.mjs",
+    "test:product-doc": "node --test scripts/product-logic-doc.test.mjs",
+    "test:all": "node scripts/check-office-integrity.mjs && node scripts/office-baseline.test.mjs && node scripts/agent-data.test.mjs && node scripts/team-status.test.mjs && node scripts/rooms.test.mjs && node --test scripts/kanban-room-grouping.test.mjs && node --test scripts/kanban-customization.test.mjs && node --test scripts/home-sales-feed.test.mjs && node --test scripts/task-runner-dialogue.test.mjs && npm run test:business-prompts && npm run test:demo-timeline && node --test scripts/task-runtime.test.mjs && node --test scripts/ear-page.test.mjs && npm run test:executors && npm run test:shares && npm run test:materials && npm run test:material-store && npm run test:gateway-material && node scripts/agent-dm.test.mjs && npm run test:marketplace && npm run test:brand && npm run test:nav && npm run test:room-actions"
+  },
+  "devDependencies": {
+    "electron": "41.2.1"
+  },
+  "dependencies": {
+    "pptxgenjs": "^4.0.1"
+  }
+}

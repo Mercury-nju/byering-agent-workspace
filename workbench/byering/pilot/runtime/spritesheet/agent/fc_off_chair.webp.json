@@ -1,0 +1,463 @@
+{
+  "frames": {
+    "fc_off_chair_00000.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00001.png": {
+      "frame": {
+        "x": 283,
+        "y": 0,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00002.png": {
+      "frame": {
+        "x": 566,
+        "y": 0,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00003.png": {
+      "frame": {
+        "x": 849,
+        "y": 0,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00004.png": {
+      "frame": {
+        "x": 1132,
+        "y": 0,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00005.png": {
+      "frame": {
+        "x": 1415,
+        "y": 0,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00006.png": {
+      "frame": {
+        "x": 1698,
+        "y": 0,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00007.png": {
+      "frame": {
+        "x": 1981,
+        "y": 0,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00008.png": {
+      "frame": {
+        "x": 0,
+        "y": 350,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00009.png": {
+      "frame": {
+        "x": 283,
+        "y": 350,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00010.png": {
+      "frame": {
+        "x": 566,
+        "y": 350,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00011.png": {
+      "frame": {
+        "x": 849,
+        "y": 350,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00012.png": {
+      "frame": {
+        "x": 1132,
+        "y": 350,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00013.png": {
+      "frame": {
+        "x": 1415,
+        "y": 350,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00014.png": {
+      "frame": {
+        "x": 1698,
+        "y": 350,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00015.png": {
+      "frame": {
+        "x": 1981,
+        "y": 350,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00016.png": {
+      "frame": {
+        "x": 0,
+        "y": 700,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00017.png": {
+      "frame": {
+        "x": 283,
+        "y": 700,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00018.png": {
+      "frame": {
+        "x": 566,
+        "y": 700,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00019.png": {
+      "frame": {
+        "x": 849,
+        "y": 700,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_off_chair_00020.png": {
+      "frame": {
+        "x": 1132,
+        "y": 700,
+        "w": 283,
+        "h": 350
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 101,
+        "y": 24,
+        "w": 283,
+        "h": 350
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    }
+  },
+  "animations": {
+    "fc_off_chair": [
+      "fc_off_chair_00000.png",
+      "fc_off_chair_00001.png",
+      "fc_off_chair_00002.png",
+      "fc_off_chair_00003.png",
+      "fc_off_chair_00004.png",
+      "fc_off_chair_00005.png",
+      "fc_off_chair_00006.png",
+      "fc_off_chair_00007.png",
+      "fc_off_chair_00008.png",
+      "fc_off_chair_00009.png",
+      "fc_off_chair_00010.png",
+      "fc_off_chair_00011.png",
+      "fc_off_chair_00012.png",
+      "fc_off_chair_00013.png",
+      "fc_off_chair_00014.png",
+      "fc_off_chair_00015.png",
+      "fc_off_chair_00016.png",
+      "fc_off_chair_00017.png",
+      "fc_off_chair_00018.png",
+      "fc_off_chair_00019.png",
+      "fc_off_chair_00020.png"
+    ]
+  },
+  "meta": {
+    "app": "http://github.com/pixijs/assetpack",
+    "version": "1.0",
+    "image": "fc_off_chair.webp",
+    "format": "RGBA8888",
+    "size": {
+      "w": 2264,
+      "h": 1050
+    },
+    "scale": 1,
+    "related_multi_packs": [],
+    "realImage": "fc_off_chair.webp",
+    "placeholderApplied": false
+  }
+}

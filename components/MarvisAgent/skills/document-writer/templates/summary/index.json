@@ -1,0 +1,62 @@
+{
+  "category": "summary",
+  "display_name": "总结汇报",
+  "description": "涵盖各类总结汇报类文档，适用于工作成果回顾、述职汇报、会议记录整理、项目经验复盘、知识梳理等需要归纳总结的场景。",
+  "templates": [
+    {
+      "name": "工作总结",
+      "file": "work-summary.md",
+      "description": "适用于个人或团队的阶段性工作总结，涵盖工作成果回顾、数据指标达成、问题与反思、未来规划等"
+    },
+    {
+      "name": "述职报告",
+      "file": "debriefing-report.md",
+      "description": "适用于个人述职、晋升答辩、转正汇报等需要系统展示岗位履职情况、业绩成果与自我评价的场景"
+    },
+    {
+      "name": "工作汇报",
+      "file": "work-briefing.md",
+      "description": "适用于日常工作进展通报，涵盖当前进展、问题反馈、下步计划，简洁明了面向上级/协作方"
+    },
+    {
+      "name": "会议纪要",
+      "file": "meeting-minutes.md",
+      "description": "适用于各类会议的结构化记录，涵盖议题讨论、决策记录、待办事项跟踪、参会人信息等"
+    },
+    {
+      "name": "项目复盘/年度复盘",
+      "file": "project-review.md",
+      "description": "适用于项目或年度阶段完成后的系统化复盘分析，涵盖目标达成评估、过程回顾、经验教训提炼、改进建议等"
+    },
+    {
+      "name": "技术总结/内容总结",
+      "file": "tech-summary.md",
+      "description": "适用于技术要点梳理、方案对比总结、技术分享材料等需要提炼技术内容输出结论建议的场景"
+    },
+    {
+      "name": "进度汇报",
+      "file": "progress-report.md",
+      "description": "适用于项目/任务的阶段性进度汇报，涵盖里程碑跟踪、风险提示、资源需求、偏差分析等"
+    },
+    {
+      "name": "信息提取/读书笔记/知识梳理",
+      "file": "knowledge-extraction.md",
+      "description": "适用于从书籍、文章、报告等材料中提取核心观点并进行结构化整理，输出知识框架与洞察"
+    },
+    {
+      "name": "教案课件",
+      "file": "lesson-plan.md",
+      "description": "适用于教学/培训场景的教案编写，涵盖教学目标、知识点结构、教学流程、练习设计、评估方式等"
+    },
+    {
+      "name": "个人简历",
+      "file": "resume.md",
+      "description": "适用于个人求职简历的撰写，涵盖个人信息、教育背景、工作经历、项目经验、技能特长等"
+    },
+    {
+      "name": "周报",
+      "file": "weekly-report.md",
+      "description": "适用于各类职业角色的周报撰写，内置9套角色专属模板（工程师、管理层、团队、销售、市场营销、项目经理、HR、运营、财务），涵盖工作成果、数据指标、问题阻碍、下周计划等"
+    }
+  ]
+}

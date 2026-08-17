@@ -1,0 +1,1303 @@
+{
+  "frames": {
+    "fc_standby_00000.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00001.png": {
+      "frame": {
+        "x": 191,
+        "y": 0,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00002.png": {
+      "frame": {
+        "x": 382,
+        "y": 0,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00003.png": {
+      "frame": {
+        "x": 573,
+        "y": 0,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00004.png": {
+      "frame": {
+        "x": 764,
+        "y": 0,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00005.png": {
+      "frame": {
+        "x": 955,
+        "y": 0,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00006.png": {
+      "frame": {
+        "x": 1146,
+        "y": 0,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00007.png": {
+      "frame": {
+        "x": 1337,
+        "y": 0,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00008.png": {
+      "frame": {
+        "x": 0,
+        "y": 292,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00009.png": {
+      "frame": {
+        "x": 191,
+        "y": 292,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00010.png": {
+      "frame": {
+        "x": 382,
+        "y": 292,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00011.png": {
+      "frame": {
+        "x": 573,
+        "y": 292,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00012.png": {
+      "frame": {
+        "x": 764,
+        "y": 292,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00013.png": {
+      "frame": {
+        "x": 955,
+        "y": 292,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00014.png": {
+      "frame": {
+        "x": 1146,
+        "y": 292,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00015.png": {
+      "frame": {
+        "x": 1337,
+        "y": 292,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00016.png": {
+      "frame": {
+        "x": 0,
+        "y": 584,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00017.png": {
+      "frame": {
+        "x": 191,
+        "y": 584,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00018.png": {
+      "frame": {
+        "x": 382,
+        "y": 584,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00019.png": {
+      "frame": {
+        "x": 573,
+        "y": 584,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00020.png": {
+      "frame": {
+        "x": 764,
+        "y": 584,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00021.png": {
+      "frame": {
+        "x": 955,
+        "y": 584,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00022.png": {
+      "frame": {
+        "x": 1146,
+        "y": 584,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00023.png": {
+      "frame": {
+        "x": 1337,
+        "y": 584,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00024.png": {
+      "frame": {
+        "x": 0,
+        "y": 876,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00025.png": {
+      "frame": {
+        "x": 191,
+        "y": 876,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00026.png": {
+      "frame": {
+        "x": 382,
+        "y": 876,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00027.png": {
+      "frame": {
+        "x": 573,
+        "y": 876,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00028.png": {
+      "frame": {
+        "x": 764,
+        "y": 876,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00029.png": {
+      "frame": {
+        "x": 955,
+        "y": 876,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00030.png": {
+      "frame": {
+        "x": 1146,
+        "y": 876,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00031.png": {
+      "frame": {
+        "x": 1337,
+        "y": 876,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00032.png": {
+      "frame": {
+        "x": 0,
+        "y": 1168,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00033.png": {
+      "frame": {
+        "x": 191,
+        "y": 1168,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00034.png": {
+      "frame": {
+        "x": 382,
+        "y": 1168,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00035.png": {
+      "frame": {
+        "x": 573,
+        "y": 1168,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00036.png": {
+      "frame": {
+        "x": 764,
+        "y": 1168,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00037.png": {
+      "frame": {
+        "x": 955,
+        "y": 1168,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00038.png": {
+      "frame": {
+        "x": 1146,
+        "y": 1168,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00039.png": {
+      "frame": {
+        "x": 1337,
+        "y": 1168,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00040.png": {
+      "frame": {
+        "x": 0,
+        "y": 1460,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00041.png": {
+      "frame": {
+        "x": 191,
+        "y": 1460,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00042.png": {
+      "frame": {
+        "x": 382,
+        "y": 1460,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00043.png": {
+      "frame": {
+        "x": 573,
+        "y": 1460,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00044.png": {
+      "frame": {
+        "x": 764,
+        "y": 1460,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00045.png": {
+      "frame": {
+        "x": 955,
+        "y": 1460,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00046.png": {
+      "frame": {
+        "x": 1146,
+        "y": 1460,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00047.png": {
+      "frame": {
+        "x": 1337,
+        "y": 1460,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00048.png": {
+      "frame": {
+        "x": 0,
+        "y": 1752,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00049.png": {
+      "frame": {
+        "x": 191,
+        "y": 1752,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00050.png": {
+      "frame": {
+        "x": 382,
+        "y": 1752,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00051.png": {
+      "frame": {
+        "x": 573,
+        "y": 1752,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00052.png": {
+      "frame": {
+        "x": 764,
+        "y": 1752,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00053.png": {
+      "frame": {
+        "x": 955,
+        "y": 1752,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00054.png": {
+      "frame": {
+        "x": 1146,
+        "y": 1752,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00055.png": {
+      "frame": {
+        "x": 1337,
+        "y": 1752,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00056.png": {
+      "frame": {
+        "x": 0,
+        "y": 2044,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00057.png": {
+      "frame": {
+        "x": 191,
+        "y": 2044,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00058.png": {
+      "frame": {
+        "x": 382,
+        "y": 2044,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00059.png": {
+      "frame": {
+        "x": 573,
+        "y": 2044,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_standby_00060.png": {
+      "frame": {
+        "x": 764,
+        "y": 2044,
+        "w": 191,
+        "h": 292
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 178,
+        "y": 57,
+        "w": 191,
+        "h": 292
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    }
+  },
+  "animations": {
+    "fc_standby": [
+      "fc_standby_00000.png",
+      "fc_standby_00001.png",
+      "fc_standby_00002.png",
+      "fc_standby_00003.png",
+      "fc_standby_00004.png",
+      "fc_standby_00005.png",
+      "fc_standby_00006.png",
+      "fc_standby_00007.png",
+      "fc_standby_00008.png",
+      "fc_standby_00009.png",
+      "fc_standby_00010.png",
+      "fc_standby_00011.png",
+      "fc_standby_00012.png",
+      "fc_standby_00013.png",
+      "fc_standby_00014.png",
+      "fc_standby_00015.png",
+      "fc_standby_00016.png",
+      "fc_standby_00017.png",
+      "fc_standby_00018.png",
+      "fc_standby_00019.png",
+      "fc_standby_00020.png",
+      "fc_standby_00021.png",
+      "fc_standby_00022.png",
+      "fc_standby_00023.png",
+      "fc_standby_00024.png",
+      "fc_standby_00025.png",
+      "fc_standby_00026.png",
+      "fc_standby_00027.png",
+      "fc_standby_00028.png",
+      "fc_standby_00029.png",
+      "fc_standby_00030.png",
+      "fc_standby_00031.png",
+      "fc_standby_00032.png",
+      "fc_standby_00033.png",
+      "fc_standby_00034.png",
+      "fc_standby_00035.png",
+      "fc_standby_00036.png",
+      "fc_standby_00037.png",
+      "fc_standby_00038.png",
+      "fc_standby_00039.png",
+      "fc_standby_00040.png",
+      "fc_standby_00041.png",
+      "fc_standby_00042.png",
+      "fc_standby_00043.png",
+      "fc_standby_00044.png",
+      "fc_standby_00045.png",
+      "fc_standby_00046.png",
+      "fc_standby_00047.png",
+      "fc_standby_00048.png",
+      "fc_standby_00049.png",
+      "fc_standby_00050.png",
+      "fc_standby_00051.png",
+      "fc_standby_00052.png",
+      "fc_standby_00053.png",
+      "fc_standby_00054.png",
+      "fc_standby_00055.png",
+      "fc_standby_00056.png",
+      "fc_standby_00057.png",
+      "fc_standby_00058.png",
+      "fc_standby_00059.png",
+      "fc_standby_00060.png"
+    ]
+  },
+  "meta": {
+    "app": "http://github.com/pixijs/assetpack",
+    "version": "1.0",
+    "image": "fc_standby.webp",
+    "format": "RGBA8888",
+    "size": {
+      "w": 1528,
+      "h": 2336
+    },
+    "scale": 1,
+    "related_multi_packs": [],
+    "realImage": "fc_standby.webp",
+    "placeholderApplied": false
+  }
+}

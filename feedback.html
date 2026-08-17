@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- CSP: upgrade-insecure-requests 仅在生产环境启用，开发环境会被 Vite 插件移除 -->
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" data-prod-only>
+  <meta name="major-version" content="4" />
+  <meta name="build-time" content="202607302340" />
+  <meta name="build-version" content="20260730234002" />
+  <title>意见反馈</title>
+  <script>
+    window.jsRunningPerformanceNowResult = Date.now();
+  </script>
+  <!-- 运行时环境检测：在 CSS 解析前注入，零 FOUC（与 index.html 保持一致，反馈窗口同样依赖 framework/os 异化样式） -->
+  <script>
+    (function () {
+      var ua = navigator.userAgent;
+      var platform = navigator.platform;
+
+      // 框架检测：CEF → Electron → browser
+      var framework = /CefView/i.test(ua) ? 'cef' : /Electron/i.test(ua) ? 'electron' : 'browser';
+
+      // 操作系统检测
+      var os = /Win32|Windows/i.test(platform) ? 'windows' : /MacIntel|MacPPC/i.test(platform) ? 'macos' : 'linux';
+
+      // 写入全局变量供 JS 读取
+      window.__RUNTIME_FRAMEWORK__ = framework;
+      window.__RUNTIME_OS__ = os;
+
+      // 写入 data 属性供 CSS 属性选择器异化样式（JS 通过 window 全局变量读取）
+      var root = document.documentElement;
+      root.dataset.framework = framework;
+      root.dataset.os = os;
+    })();
+  </script>
+  <script type="module" crossorigin src="./assets/feedback-1-Mi9NB-.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/react-vendor-qbxKt1zu.js">
+  <link rel="modulepreload" crossorigin href="./assets/eventemitter3-vendor-B0zOWAJX.js">
+  <link rel="modulepreload" crossorigin href="./assets/workbench-biG8PRTg.js">
+  <link rel="modulepreload" crossorigin href="./assets/markdown-vendor-Bc7gd2Zl.js">
+  <link rel="modulepreload" crossorigin href="./assets/utils-vendor-Cqm7zoCH.js">
+  <link rel="modulepreload" crossorigin href="./assets/report-vendor-CcwS-gV5.js">
+  <link rel="modulepreload" crossorigin href="./assets/treemap-KZPCXAKY-Dm7XgKSQ.js">
+  <link rel="modulepreload" crossorigin href="./assets/index.modern-BusCmPLA.js">
+  <link rel="modulepreload" crossorigin href="./assets/icon-spinner-CZI7WtCC.js">
+  <link rel="stylesheet" crossorigin href="./assets/markdown-vendor-Sepdx3LX.css">
+  <link rel="stylesheet" crossorigin href="./assets/treemap-KZPCXAKY-B7Dc9S11.css">
+  <link rel="stylesheet" crossorigin href="./assets/feedback-SFy10uFi.css">
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
+</html>

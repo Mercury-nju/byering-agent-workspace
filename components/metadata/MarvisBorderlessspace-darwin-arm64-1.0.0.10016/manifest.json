@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "name": "marvis-borderless",
+  "version": "1.0.0.10016",
+  "buildId": "b-78b3c2f8873c4d25a2ec389b6ce7bcb6",
+  "platform": "darwin",
+  "arch": "arm64",
+  "executable": "BorderlessSpace",
+  "checksums": {
+    "BorderlessSpace": "sha256:23ca2240a48331caeb27f69d79abc82fcac074bcfdc55bf97e18aee8be01f10b",
+    "build_info.txt": "sha256:1c46be64cf16ca751cb0aee7e4de458fca68aa75cf4032242339e2b320e2db26",
+    "libeasy_control_net_sdk.dylib": "sha256:73ddb97129b880687d2ceac958c45f3d8bbfa5461f432bc5c1fcd6d93e4fcf9a",
+    "libstreamingserver.dylib": "sha256:90f94b4219536af031a36e273a1a8b0b0052c34d62704c703430db57fb994d5b"
+  },
+  "signature": {
+    "identityType": "Developer ID Application",
+    "hardenedRuntime": true
+  }
+}

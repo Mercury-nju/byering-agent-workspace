@@ -1,0 +1,2524 @@
+[
+  {
+    "id": "dm-seed-Browser%20Agent-1",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "先扫昨晚三场汽车直播和两条车型测评视频，把真正问价格、配置、到店的人找出来。",
+    "createdAt": "2026-08-10T01:08:00.000Z"
+  },
+  {
+    "id": "dm-seed-Browser%20Agent-2",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "已登录授权账号并开始检索。三场直播共读取 3,842 条互动，先排除抽奖、表情刷屏和同行账号，再补看用户主页与近期评论。",
+    "createdAt": "2026-08-10T01:17:00.000Z"
+  },
+  {
+    "id": "dm-seed-Browser%20Agent-3",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "不要只靠关键词，把“最近有优惠吗”这种隐性意向也算进去，但要注明证据。",
+    "createdAt": "2026-08-10T01:26:00.000Z"
+  },
+  {
+    "id": "dm-seed-Browser%20Agent-4",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "首轮检索完成：保留 214 位有效候选，其中 68 位出现车型、预算、金融方案或到店相关信号；每条都附了原评论、来源作品和主页线索。",
+    "artifact": {
+      "name": "抖音高意向候选-0810.csv",
+      "type": "sheet",
+      "summary": "3,842 条互动中筛出 214 位候选 · 68 位强信号",
+      "status": "检索完成",
+      "projectId": "room-lead-expansion",
+      "projectName": "潜在客户拓展项目组",
+      "createdBy": "线索猎人",
+      "content": "昵称,来源,意向信号,原始文本,主页补充,检索状态\n上海阿杰,直播间·新能源专场,价格+到店,这周末到店还有现车优惠吗,主页定位上海·近期关注新能源,有效\n小鹿要换车,视频·Model Y 对比,车型对比,预算30左右选Y还是智界,近7天浏览3条车型测评,有效\n老周在杭州,直播间·置换补贴,置换,老车置换补贴能做到多少,主页定位杭州·有旧车内容,有效\n橘子汽水,视频·城市通勤车,弱意向,最近优惠大不大,无明显营销账号特征,待评分"
+    },
+    "createdAt": "2026-08-10T01:35:00.000Z"
+  },
+  {
+    "id": "dm-msh4203b-3lnw",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T06:04:12.407Z"
+  },
+  {
+    "id": "dm-msh4210q-lu8t",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T06:04:13.610Z"
+  },
+  {
+    "id": "dm-msh44b9j-ocfa",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "冒烟：进度如何？",
+    "createdAt": "2026-08-06T06:06:00.199Z"
+  },
+  {
+    "id": "dm-msh44c6z-su0u",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T06:06:01.403Z"
+  },
+  {
+    "id": "dm-msh4ywfq-8m9f",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T06:29:47.318Z"
+  },
+  {
+    "id": "dm-msh4yxd4-rfd4",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T06:29:48.520Z"
+  },
+  {
+    "id": "dm-msh51xhe-rtbm",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T06:32:08.642Z"
+  },
+  {
+    "id": "dm-msh51yet-5n08",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T06:32:09.845Z"
+  },
+  {
+    "id": "dm-msh91mti-19vz",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T08:23:53.286Z"
+  },
+  {
+    "id": "dm-msh91nr0-xfsz",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T08:23:54.492Z"
+  },
+  {
+    "id": "dm-msh9giz8-c64k",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T08:35:28.148Z"
+  },
+  {
+    "id": "dm-msh9gjwq-ruk6",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T08:35:29.354Z"
+  },
+  {
+    "id": "dm-mshaaku9-kt52",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T08:58:50.241Z"
+  },
+  {
+    "id": "dm-mshaalrq-9f7a",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T08:58:51.446Z"
+  },
+  {
+    "id": "dm-mshao4i5-jrmm",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T09:09:22.253Z"
+  },
+  {
+    "id": "dm-mshao5fm-wh0w",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T09:09:23.458Z"
+  },
+  {
+    "id": "dm-mshb5w8w-8w1o",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T09:23:11.360Z"
+  },
+  {
+    "id": "dm-mshb5x69-gle2",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T09:23:12.561Z"
+  },
+  {
+    "id": "dm-mshb6hy5-coji",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T09:23:39.485Z"
+  },
+  {
+    "id": "dm-mshb6ivk-xt51",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T09:23:40.688Z"
+  },
+  {
+    "id": "dm-mshbfbsr-76cu",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T09:30:31.419Z"
+  },
+  {
+    "id": "dm-mshbfcq5-q3gs",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T09:30:32.621Z"
+  },
+  {
+    "id": "dm-mshc1yam-mq4b",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-06T09:48:07.006Z"
+  },
+  {
+    "id": "dm-mshc1z82-lso1",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-06T09:48:08.210Z"
+  },
+  {
+    "id": "dm-msioipy4-hyji",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T08:24:50.908Z"
+  },
+  {
+    "id": "dm-msioiqvj-ua1p",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T08:24:52.111Z"
+  },
+  {
+    "id": "dm-msiokkuf-r8eu",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T08:26:17.607Z"
+  },
+  {
+    "id": "dm-msioklrv-h9ao",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T08:26:18.811Z"
+  },
+  {
+    "id": "dm-msiom079-zzcq",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T08:27:24.165Z"
+  },
+  {
+    "id": "dm-msiom14o-zvdz",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T08:27:25.368Z"
+  },
+  {
+    "id": "dm-msipa9ca-zjz3",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T08:46:15.754Z"
+  },
+  {
+    "id": "dm-msipaa9p-fnm1",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T08:46:16.957Z"
+  },
+  {
+    "id": "dm-msips46y-exij",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T09:00:08.890Z"
+  },
+  {
+    "id": "dm-msips54e-d9zi",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T09:00:10.094Z"
+  },
+  {
+    "id": "dm-msiqi4j6-8dhy",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T09:20:22.386Z"
+  },
+  {
+    "id": "dm-msiqi5gk-bsol",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T09:20:23.588Z"
+  },
+  {
+    "id": "dm-msique3c-zay7",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T09:29:54.648Z"
+  },
+  {
+    "id": "dm-msiquf0s-9klt",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T09:29:55.852Z"
+  },
+  {
+    "id": "dm-msir52py-p1fb",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T09:38:13.126Z"
+  },
+  {
+    "id": "dm-msir53nc-2xyf",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T09:38:14.328Z"
+  },
+  {
+    "id": "dm-msis6l9s-8ymj",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T10:07:23.440Z"
+  },
+  {
+    "id": "dm-msis6m77-9fkr",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T10:07:24.643Z"
+  },
+  {
+    "id": "dm-msisavwr-l29c",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T10:10:43.851Z"
+  },
+  {
+    "id": "dm-msisawu6-5bl7",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T10:10:45.054Z"
+  },
+  {
+    "id": "dm-msisyl0j-9nwr",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T10:29:09.475Z"
+  },
+  {
+    "id": "dm-msisylxy-u8tk",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T10:29:10.678Z"
+  },
+  {
+    "id": "dm-msiszb0i-2ajz",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T10:29:43.170Z"
+  },
+  {
+    "id": "dm-msiszby7-xdze",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T10:29:44.384Z"
+  },
+  {
+    "id": "dm-msisztdz-2h2x",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T10:30:06.983Z"
+  },
+  {
+    "id": "dm-msiszubr-0qiu",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T10:30:08.199Z"
+  },
+  {
+    "id": "dm-msit0kpf-lg0f",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T10:30:42.387Z"
+  },
+  {
+    "id": "dm-msit0lmv-s44u",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T10:30:43.591Z"
+  },
+  {
+    "id": "dm-msitu5jm-ovf0",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T10:53:42.418Z"
+  },
+  {
+    "id": "dm-msitu6h4-99ll",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T10:53:43.624Z"
+  },
+  {
+    "id": "dm-msitytr9-dr2c",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T10:57:20.421Z"
+  },
+  {
+    "id": "dm-msityuos-yk4o",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T10:57:21.628Z"
+  },
+  {
+    "id": "dm-msiu43g4-9r2u",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T11:01:26.260Z"
+  },
+  {
+    "id": "dm-msiu44dj-ylju",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T11:01:27.464Z"
+  },
+  {
+    "id": "dm-msiu9i22-7slo",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-07T11:05:38.474Z"
+  },
+  {
+    "id": "dm-msiu9izi-48wl",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T11:05:39.678Z"
+  },
+  {
+    "id": "dm-msko93ch-r5l2",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-08T17:52:54.065Z"
+  },
+  {
+    "id": "dm-msko949y-o0l0",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T17:52:55.270Z"
+  },
+  {
+    "id": "dm-mskogt4c-sg43",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-08T17:58:54.060Z"
+  },
+  {
+    "id": "dm-mskogu1q-x1pk",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T17:58:55.262Z"
+  },
+  {
+    "id": "dm-mskpshpj-g9bt",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-08T18:35:58.759Z"
+  },
+  {
+    "id": "dm-mskpsin1-li6l",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T18:35:59.965Z"
+  },
+  {
+    "id": "dm-mskpzxm3-iww7",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-08T18:41:45.963Z"
+  },
+  {
+    "id": "dm-mskpzyji-2o4n",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T18:41:47.166Z"
+  },
+  {
+    "id": "dm-mskqewhq-rtxa",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-08T18:53:24.350Z"
+  },
+  {
+    "id": "dm-mskqexf5-rrwj",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T18:53:25.553Z"
+  },
+  {
+    "id": "dm-mskquif2-md0l",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-08T19:05:32.606Z"
+  },
+  {
+    "id": "dm-mskqujck-96v8",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T19:05:33.812Z"
+  },
+  {
+    "id": "dm-mskrr6ri-0tnc",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-08T19:30:57.150Z"
+  },
+  {
+    "id": "dm-mskrr7oz-9u0a",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T19:30:58.355Z"
+  },
+  {
+    "id": "dm-mskrrvd7-8ajj",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-08T19:31:29.035Z"
+  },
+  {
+    "id": "dm-mskrrwan-rqyf",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T19:31:30.239Z"
+  },
+  {
+    "id": "dm-mskwtt2k-g154",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-08T21:52:57.452Z"
+  },
+  {
+    "id": "dm-mskwtu00-pf3w",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T21:52:58.656Z"
+  },
+  {
+    "id": "dm-mslj7553-jw9r",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T08:19:11.175Z"
+  },
+  {
+    "id": "dm-mslj762m-tfr7",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T08:19:12.382Z"
+  },
+  {
+    "id": "dm-msljqdtk-iasg",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T08:34:08.888Z"
+  },
+  {
+    "id": "dm-msljqer0-luof",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T08:34:10.092Z"
+  },
+  {
+    "id": "dm-mslklbgx-t0as",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T08:58:12.177Z"
+  },
+  {
+    "id": "dm-mslklcef-mfx8",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T08:58:13.383Z"
+  },
+  {
+    "id": "dm-msllro0t-kuff",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T09:31:07.997Z"
+  },
+  {
+    "id": "dm-msllroy9-xw9f",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T09:31:09.201Z"
+  },
+  {
+    "id": "dm-mslnfagb-2kji",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T10:17:29.772Z"
+  },
+  {
+    "id": "dm-mslnfbds-88mb",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T10:17:30.976Z"
+  },
+  {
+    "id": "dm-mslnhpjg-91wh",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T10:19:22.636Z"
+  },
+  {
+    "id": "dm-mslnhqgu-qst1",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T10:19:23.838Z"
+  },
+  {
+    "id": "dm-mslpeqib-v9c0",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T11:13:03.155Z"
+  },
+  {
+    "id": "dm-mslperft-pd6i",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T11:13:04.361Z"
+  },
+  {
+    "id": "dm-mslr5le9-ra2b",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T12:01:55.857Z"
+  },
+  {
+    "id": "dm-mslr5mbp-fxwh",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T12:01:57.061Z"
+  },
+  {
+    "id": "dm-mslsr760-yldr",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T12:46:43.464Z"
+  },
+  {
+    "id": "dm-mslsr83g-ewga",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T12:46:44.668Z"
+  },
+  {
+    "id": "dm-msludate-x31w",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T13:31:54.242Z"
+  },
+  {
+    "id": "dm-msludbqt-nvye",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T13:31:55.445Z"
+  },
+  {
+    "id": "dm-mslvuwfk-f7ay",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T14:13:35.024Z"
+  },
+  {
+    "id": "dm-mslvuxfw-va85",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T14:13:36.332Z"
+  },
+  {
+    "id": "dm-mslvvvd1-w2mn",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T14:14:20.293Z"
+  },
+  {
+    "id": "dm-mslvvwam-uex8",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T14:14:21.502Z"
+  },
+  {
+    "id": "dm-mslvwiue-ru4s",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T14:14:50.726Z"
+  },
+  {
+    "id": "dm-mslvwjrw-ua92",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T14:14:51.932Z"
+  },
+  {
+    "id": "dm-msm0pexm-mrdl",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T16:29:17.146Z"
+  },
+  {
+    "id": "dm-msm0pfv4-hzpa",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T16:29:18.352Z"
+  },
+  {
+    "id": "dm-msm14jxa-5d4c",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T16:41:03.454Z"
+  },
+  {
+    "id": "dm-msm14kuo-btyn",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T16:41:04.656Z"
+  },
+  {
+    "id": "dm-msm1rv9j-ukc8",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T16:59:11.240Z"
+  },
+  {
+    "id": "dm-msm1rw6z-9gpu",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T16:59:12.443Z"
+  },
+  {
+    "id": "dm-msm1zjyg-txpe",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T17:05:09.832Z"
+  },
+  {
+    "id": "dm-msm1zkvw-42vz",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:05:11.036Z"
+  },
+  {
+    "id": "dm-msm24vt4-g7hv",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T17:09:18.472Z"
+  },
+  {
+    "id": "dm-msm24wqi-qaao",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:09:19.674Z"
+  },
+  {
+    "id": "dm-msm2wbl3-7fre",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T17:30:38.631Z"
+  },
+  {
+    "id": "dm-msm2wcij-u0rj",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:30:39.835Z"
+  },
+  {
+    "id": "dm-msm31zjk-ybjf",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T17:35:02.960Z"
+  },
+  {
+    "id": "dm-msm320hb-moxq",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:35:04.175Z"
+  },
+  {
+    "id": "dm-msm3374r-5jfe",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T17:35:59.451Z"
+  },
+  {
+    "id": "dm-msm33826-ys5g",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:36:00.654Z"
+  },
+  {
+    "id": "dm-msm3ecd5-2z33",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T17:44:39.449Z"
+  },
+  {
+    "id": "dm-msm3edak-33dt",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:44:40.652Z"
+  },
+  {
+    "id": "dm-msm3jrmd-5q27",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T17:48:52.501Z"
+  },
+  {
+    "id": "dm-msm3jsjt-c0l4",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:48:53.705Z"
+  },
+  {
+    "id": "dm-msm3n1zx-ejdf",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T17:51:25.917Z"
+  },
+  {
+    "id": "dm-msm3n2y7-0f67",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:51:27.151Z"
+  },
+  {
+    "id": "dm-msm3pe1x-fxy3",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T17:53:14.853Z"
+  },
+  {
+    "id": "dm-msm3pezd-khow",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:53:16.057Z"
+  },
+  {
+    "id": "dm-msm5l10d-yu94",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T18:45:50.557Z"
+  },
+  {
+    "id": "dm-msm5l1yg-xfna",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T18:45:51.784Z"
+  },
+  {
+    "id": "dm-msm5qqnv-zxp9",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T18:50:17.083Z"
+  },
+  {
+    "id": "dm-msm5qrlb-ut30",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T18:50:18.287Z"
+  },
+  {
+    "id": "dm-msm5rxgd-zbdd",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T18:51:12.541Z"
+  },
+  {
+    "id": "dm-msm5ryds-ikp5",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T18:51:13.744Z"
+  },
+  {
+    "id": "dm-msm5wmrr-9kc4",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T18:54:51.975Z"
+  },
+  {
+    "id": "dm-msm5wnp8-vixo",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T18:54:53.180Z"
+  },
+  {
+    "id": "dm-msm5y5oy-214i",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T18:56:03.154Z"
+  },
+  {
+    "id": "dm-msm5y6mf-3hti",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T18:56:04.360Z"
+  },
+  {
+    "id": "dm-msm8lmvm-6rmm",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T20:10:17.746Z"
+  },
+  {
+    "id": "dm-msm8lnt3-wlnr",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T20:10:18.951Z"
+  },
+  {
+    "id": "dm-msm8tfa5-v8m5",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T20:16:21.149Z"
+  },
+  {
+    "id": "dm-msm8tg7l-sz7w",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T20:16:22.353Z"
+  },
+  {
+    "id": "dm-msm8whea-c4ar",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T20:18:43.858Z"
+  },
+  {
+    "id": "dm-msm8wibq-v9aa",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T20:18:45.062Z"
+  },
+  {
+    "id": "dm-msm8x7h3-kohu",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T20:19:17.655Z"
+  },
+  {
+    "id": "dm-msm8x8el-l567",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T20:19:18.861Z"
+  },
+  {
+    "id": "dm-msm90ztg-kqd3",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T20:22:14.356Z"
+  },
+  {
+    "id": "dm-msm910qz-k7ha",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T20:22:15.563Z"
+  },
+  {
+    "id": "dm-msm9yvu5-6kvy",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T20:48:35.501Z"
+  },
+  {
+    "id": "dm-msm9ywrn-rnqp",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T20:48:36.707Z"
+  },
+  {
+    "id": "dm-msma1ovn-vch8",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T20:50:46.451Z"
+  },
+  {
+    "id": "dm-msma1pt4-5uww",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T20:50:47.656Z"
+  },
+  {
+    "id": "dm-msma4615-k7zq",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T20:52:41.993Z"
+  },
+  {
+    "id": "dm-msma46ym-j0wp",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T20:52:43.198Z"
+  },
+  {
+    "id": "dm-msmak4lp-79v8",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T21:05:06.637Z"
+  },
+  {
+    "id": "dm-msmak5j7-pe2z",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T21:05:07.843Z"
+  },
+  {
+    "id": "dm-msmaols6-9y3p",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T21:08:35.526Z"
+  },
+  {
+    "id": "dm-msmaompn-dvby",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T21:08:36.731Z"
+  },
+  {
+    "id": "dm-msmb2p9a-8mik",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T21:19:33.214Z"
+  },
+  {
+    "id": "dm-msmb2q6s-1pcq",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T21:19:34.420Z"
+  },
+  {
+    "id": "dm-msmb3sl2-c7wt",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T21:20:24.182Z"
+  },
+  {
+    "id": "dm-msmb3tih-pv9x",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T21:20:25.385Z"
+  },
+  {
+    "id": "dm-msmboogy-q59j",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T21:36:38.626Z"
+  },
+  {
+    "id": "dm-msmbopej-gyx6",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T21:36:39.835Z"
+  },
+  {
+    "id": "dm-msmbr1dm-bxqe",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T21:38:28.666Z"
+  },
+  {
+    "id": "dm-msmbr2b4-g6af",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T21:38:29.872Z"
+  },
+  {
+    "id": "dm-msmc47kl-4nzb",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T21:48:43.221Z"
+  },
+  {
+    "id": "dm-msmc48i5-kr9k",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T21:48:44.429Z"
+  },
+  {
+    "id": "dm-msmc6znj-cj6o",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T21:50:52.927Z"
+  },
+  {
+    "id": "dm-msmc70ky-0a06",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T21:50:54.130Z"
+  },
+  {
+    "id": "dm-msmci0qb-1y1f",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T21:59:27.539Z"
+  },
+  {
+    "id": "dm-msmci1ns-l0jc",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T21:59:28.744Z"
+  },
+  {
+    "id": "dm-msmcll6u-l9nq",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T22:02:14.022Z"
+  },
+  {
+    "id": "dm-msmclm4c-ati3",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T22:02:15.228Z"
+  },
+  {
+    "id": "dm-msmctkj1-0exl",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T22:08:26.413Z"
+  },
+  {
+    "id": "dm-msmctlgj-6ywq",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T22:08:27.619Z"
+  },
+  {
+    "id": "dm-msmd3i73-x3ns",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-09T22:16:09.951Z"
+  },
+  {
+    "id": "dm-msmd3j4k-up7n",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-09T22:16:11.156Z"
+  },
+  {
+    "id": "dm-msmlmqxo-s1oz",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T02:15:04.668Z"
+  },
+  {
+    "id": "dm-msmlmrv2-o5ds",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T02:15:05.870Z"
+  },
+  {
+    "id": "dm-msmlttxh-7492",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T02:20:35.141Z"
+  },
+  {
+    "id": "dm-msmltuux-haef",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T02:20:36.345Z"
+  },
+  {
+    "id": "dm-msmm5gan-4bcy",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T02:29:37.343Z"
+  },
+  {
+    "id": "dm-msmm5h81-3csc",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T02:29:38.545Z"
+  },
+  {
+    "id": "dm-msmmdvaj-rjka",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T02:36:10.027Z"
+  },
+  {
+    "id": "dm-msmmdw7y-4z6o",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T02:36:11.230Z"
+  },
+  {
+    "id": "dm-msmmur0y-xjs9",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T02:49:17.650Z"
+  },
+  {
+    "id": "dm-msmmuryc-o8v9",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T02:49:18.852Z"
+  },
+  {
+    "id": "dm-msmnahb4-0bv9",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T03:01:31.552Z"
+  },
+  {
+    "id": "dm-msmnai8m-rf2r",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T03:01:32.758Z"
+  },
+  {
+    "id": "dm-msmnezrf-8uog",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T03:05:02.091Z"
+  },
+  {
+    "id": "dm-msmnf0ox-tyao",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T03:05:03.297Z"
+  },
+  {
+    "id": "dm-msmnl1kw-si52",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T03:09:44.384Z"
+  },
+  {
+    "id": "dm-msmnl2id-tl59",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T03:09:45.589Z"
+  },
+  {
+    "id": "dm-msmnuqyh-o1pz",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T03:17:17.177Z"
+  },
+  {
+    "id": "dm-msmnurvv-1nog",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T03:17:18.379Z"
+  },
+  {
+    "id": "dm-msmnwpqb-6awx",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T03:18:48.899Z"
+  },
+  {
+    "id": "dm-msmnwqnq-vmqm",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T03:18:50.102Z"
+  },
+  {
+    "id": "dm-msmny40g-e4ls",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T03:19:54.064Z"
+  },
+  {
+    "id": "dm-msmny4xv-9mfe",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T03:19:55.267Z"
+  },
+  {
+    "id": "dm-msms1iu3-mo6q",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T05:14:31.707Z"
+  },
+  {
+    "id": "dm-msms1jrm-4dxy",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T05:14:32.914Z"
+  },
+  {
+    "id": "dm-msmu2fdp-4z6l",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T06:11:13.117Z"
+  },
+  {
+    "id": "dm-msmu2gb4-pd5p",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T06:11:14.320Z"
+  },
+  {
+    "id": "dm-msmul4b9-ho3o",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T06:25:45.237Z"
+  },
+  {
+    "id": "dm-msmul590-wo1u",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T06:25:46.452Z"
+  },
+  {
+    "id": "dm-msmv0joj-ulwr",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T06:37:44.995Z"
+  },
+  {
+    "id": "dm-msmv0kly-3wpr",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T06:37:46.198Z"
+  },
+  {
+    "id": "dm-msn3l23y-jdgy",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T10:37:38.926Z"
+  },
+  {
+    "id": "dm-msn3l36h-93qp",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T10:37:40.313Z"
+  },
+  {
+    "id": "dm-msncyblv-x49k",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T14:59:54.307Z"
+  },
+  {
+    "id": "dm-msncycjf-3pan",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T14:59:55.515Z"
+  },
+  {
+    "id": "dm-msnd3gof-oub0",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T15:03:54.159Z"
+  },
+  {
+    "id": "dm-msnd3hm4-so3t",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T15:03:55.372Z"
+  },
+  {
+    "id": "dm-msnd4ilc-x997",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-10T15:04:43.296Z"
+  },
+  {
+    "id": "dm-msnd4jiu-x2ua",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-10T15:04:44.502Z"
+  },
+  {
+    "id": "dm-mso3aq98-o15l",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T03:17:23.180Z"
+  },
+  {
+    "id": "dm-mso3ar6q-l2ep",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T03:17:24.386Z"
+  },
+  {
+    "id": "dm-mso3gase-q5bn",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T03:21:43.070Z"
+  },
+  {
+    "id": "dm-mso3gbq4-gq73",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T03:21:44.284Z"
+  },
+  {
+    "id": "dm-mso3uo6w-ovlu",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T03:32:53.624Z"
+  },
+  {
+    "id": "dm-mso3up4e-lr1c",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T03:32:54.830Z"
+  },
+  {
+    "id": "dm-mso3xvnh-awdh",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T03:35:23.261Z"
+  },
+  {
+    "id": "dm-mso3xwkz-4sx9",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T03:35:24.467Z"
+  },
+  {
+    "id": "dm-mso5cnyp-h41r",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T04:14:52.753Z"
+  },
+  {
+    "id": "dm-mso5cowb-sb1o",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T04:14:53.963Z"
+  },
+  {
+    "id": "dm-mso5ippv-vz4z",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T04:19:34.963Z"
+  },
+  {
+    "id": "dm-mso5iqnd-z2ql",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T04:19:36.169Z"
+  },
+  {
+    "id": "dm-msob8ak8-sdke",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T06:59:26.456Z"
+  },
+  {
+    "id": "dm-msob8bhs-1eug",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T06:59:27.664Z"
+  },
+  {
+    "id": "dm-msobbrvy-7hpm",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T07:02:08.878Z"
+  },
+  {
+    "id": "dm-msobbsth-qqqx",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T07:02:10.085Z"
+  },
+  {
+    "id": "dm-msocxffz-ta80",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T07:46:58.799Z"
+  },
+  {
+    "id": "dm-msocxgdk-nflr",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T07:47:00.008Z"
+  },
+  {
+    "id": "dm-msodcm9b-kuri",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T07:58:47.471Z"
+  },
+  {
+    "id": "dm-msodcn6u-deb1",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T07:58:48.678Z"
+  },
+  {
+    "id": "dm-msodf1bi-c47c",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T08:00:40.302Z"
+  },
+  {
+    "id": "dm-msodf291-clob",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T08:00:41.509Z"
+  },
+  {
+    "id": "dm-msodq86z-r134",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T08:09:22.427Z"
+  },
+  {
+    "id": "dm-msodq94h-2i9i",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T08:09:23.633Z"
+  },
+  {
+    "id": "dm-msodrtvc-3y5s",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T08:10:37.176Z"
+  },
+  {
+    "id": "dm-msodrusw-e3bq",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T08:10:38.384Z"
+  },
+  {
+    "id": "dm-msodsj16-nm2q",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T08:11:09.786Z"
+  },
+  {
+    "id": "dm-msodsjyp-m02d",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T08:11:10.993Z"
+  },
+  {
+    "id": "dm-msodwn1y-pwnr",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T08:14:21.622Z"
+  },
+  {
+    "id": "dm-msodwnzh-4xd9",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T08:14:22.829Z"
+  },
+  {
+    "id": "dm-msoeb0do-26g4",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T08:25:32.076Z"
+  },
+  {
+    "id": "dm-msoeb1b9-n5j2",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T08:25:33.285Z"
+  },
+  {
+    "id": "dm-msoeepd4-1wzm",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T08:28:24.424Z"
+  },
+  {
+    "id": "dm-msoeeqam-96s7",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T08:28:25.630Z"
+  },
+  {
+    "id": "dm-msof0u01-gbt4",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T08:45:36.866Z"
+  },
+  {
+    "id": "dm-msof0uxo-wtji",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T08:45:38.076Z"
+  },
+  {
+    "id": "dm-msoffa3u-02cq",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T08:56:50.922Z"
+  },
+  {
+    "id": "dm-msoffb1b-csyn",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T08:56:52.127Z"
+  },
+  {
+    "id": "dm-msogk62j-pymh",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T09:28:38.587Z"
+  },
+  {
+    "id": "dm-msogk70n-2sgt",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T09:28:39.815Z"
+  },
+  {
+    "id": "dm-msoh2y63-uqol",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T09:43:14.811Z"
+  },
+  {
+    "id": "dm-msoh2z3o-aauz",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T09:43:16.020Z"
+  },
+  {
+    "id": "dm-msoh61fc-z5fr",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T09:45:39.000Z"
+  },
+  {
+    "id": "dm-msoh62d0-rk6z",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T09:45:40.212Z"
+  },
+  {
+    "id": "dm-msohylte-r6zy",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T10:07:51.794Z"
+  },
+  {
+    "id": "dm-msohymqy-44kd",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T10:07:53.002Z"
+  },
+  {
+    "id": "dm-msoi5jix-szmg",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T10:13:15.417Z"
+  },
+  {
+    "id": "dm-msoi5kgt-wgqe",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T10:13:16.637Z"
+  },
+  {
+    "id": "dm-msoiaew3-nmq7",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T10:17:02.691Z"
+  },
+  {
+    "id": "dm-msoiaftx-0bxt",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T10:17:03.909Z"
+  },
+  {
+    "id": "dm-msoiwr33-7lmh",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T10:34:24.927Z"
+  },
+  {
+    "id": "dm-msoiws0n-18yd",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T10:34:26.135Z"
+  },
+  {
+    "id": "dm-msojmwcg-8zr0",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T10:54:44.800Z"
+  },
+  {
+    "id": "dm-msojmxbd-gzvl",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T10:54:46.057Z"
+  },
+  {
+    "id": "dm-msomp5ig-ehdd",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-11T12:20:28.840Z"
+  },
+  {
+    "id": "dm-msomp6fz-kxa9",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-11T12:20:30.047Z"
+  },
+  {
+    "id": "dm-mspphsgf-w9nq",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-12T06:26:30.351Z"
+  },
+  {
+    "id": "dm-mspphte2-eyvs",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-12T06:26:31.562Z"
+  },
+  {
+    "id": "dm-msqzq2jg-is4y",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T04:00:39.004Z"
+  },
+  {
+    "id": "dm-msqzq3hp-tk51",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T04:00:40.237Z"
+  },
+  {
+    "id": "dm-msqzt8hx-db0h",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T04:03:06.693Z"
+  },
+  {
+    "id": "dm-msqzt9ff-tle3",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T04:03:07.899Z"
+  },
+  {
+    "id": "dm-msqzvymc-3sua",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T04:05:13.860Z"
+  },
+  {
+    "id": "dm-msqzvzjy-orbs",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T04:05:15.070Z"
+  },
+  {
+    "id": "dm-msr05vdx-utnm",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T04:12:56.229Z"
+  },
+  {
+    "id": "dm-msr05wbh-bx96",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T04:12:57.437Z"
+  },
+  {
+    "id": "dm-msr2k6ce-6sb7",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T05:20:02.846Z"
+  },
+  {
+    "id": "dm-msr2k79x-xa9h",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T05:20:04.053Z"
+  },
+  {
+    "id": "dm-msr2lf51-scng",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T05:21:00.901Z"
+  },
+  {
+    "id": "dm-msr2lg2t-9cgw",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T05:21:02.117Z"
+  },
+  {
+    "id": "dm-msr2ps92-b5d6",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T05:24:24.518Z"
+  },
+  {
+    "id": "dm-msr2pt6s-bv16",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T05:24:25.732Z"
+  },
+  {
+    "id": "dm-msr2qpfy-vyw4",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T05:25:07.534Z"
+  },
+  {
+    "id": "dm-msr2qqdh-0qa4",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T05:25:08.742Z"
+  },
+  {
+    "id": "dm-msr3a8g3-nahj",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T05:40:18.627Z"
+  },
+  {
+    "id": "dm-msr3a9dr-anf7",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T05:40:19.839Z"
+  },
+  {
+    "id": "dm-msr3cq09-9e5z",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T05:42:14.697Z"
+  },
+  {
+    "id": "dm-msr3cqy0-h5dc",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T05:42:15.912Z"
+  },
+  {
+    "id": "dm-msr3ubcs-gk4k",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T05:55:55.516Z"
+  },
+  {
+    "id": "dm-msr3ucao-7p97",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T05:55:56.736Z"
+  },
+  {
+    "id": "dm-msrcn7ko-ua1o",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T10:02:20.568Z"
+  },
+  {
+    "id": "dm-msrcn8i8-68is",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T10:02:21.776Z"
+  },
+  {
+    "id": "dm-msrcpjpd-yd0y",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T10:04:09.601Z"
+  },
+  {
+    "id": "dm-msrcpkn2-8pyn",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T10:04:10.814Z"
+  },
+  {
+    "id": "dm-msrcv1lv-52qg",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T10:08:26.083Z"
+  },
+  {
+    "id": "dm-msrcv2jf-elpa",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T10:08:27.291Z"
+  },
+  {
+    "id": "dm-msrd0sgn-dqis",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T10:12:54.167Z"
+  },
+  {
+    "id": "dm-msrd0te7-84ut",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T10:12:55.375Z"
+  },
+  {
+    "id": "dm-msrd2ifm-c39v",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T10:14:14.482Z"
+  },
+  {
+    "id": "dm-msrd2jd8-fhw2",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T10:14:15.692Z"
+  },
+  {
+    "id": "dm-msrd9rsg-gqe1",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T10:19:53.200Z"
+  },
+  {
+    "id": "dm-msrd9spz-bzm9",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T10:19:54.407Z"
+  },
+  {
+    "id": "dm-msrdc4un-ray8",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "createdAt": "2026-08-13T10:21:43.439Z"
+  },
+  {
+    "id": "dm-msrdc5s4-3o04",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到。我会按原评论、来源作品和用户主页三层证据继续检索线索，新增候选会先去重，再标明具体意向信号。",
+    "createdAt": "2026-08-13T10:21:44.644Z"
+  }
+]

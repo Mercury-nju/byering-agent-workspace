@@ -1,0 +1,94 @@
+# Network Host Candidates
+
+Generated from readable JavaScript assets under project/.
+
+- http://127.0.0.1
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- http://127.0.0.1:${await
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- http://127.0.0.1:${e}/document/port?token=${n}
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- http://127.0.0.1:${n}/api/file/query_type
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- http://127.0.0.1:${port}/
+  - scripts/static-server.mjs
+- http://127.0.0.1:${port}/json/version
+  - components/MarvisAgent/skills/agent-browser/scripts/daemon.js
+- http://127.0.0.1:${r}
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- http://127.0.0.1:${sEe(
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- http://127.0.0.1:${t}/health
+  - assets/index-CriD6gLK.js
+- http://localhost
+  - assets/react-vendor-qbxKt1zu.js, assets/treemap-KZPCXAKY-Dm7XgKSQ.js, components/MarvisAgent/skills/agent-browser/scripts/node_modules/playwright-core/lib/server/trace/viewer/traceViewer.js, components/MarvisAgent/skills/agent-browser/scripts/node_modules/playwright-core/lib/server/utils/httpServer.js, components/MarvisAgent/skills/agent-browser/scripts/node_modules/playwright-core/lib/server/utils/wsServer.js
+- http://localhost:${cdpEndpoint}
+  - components/MarvisAgent/skills/agent-browser/scripts/daemon.js
+- http://localhost:${r}/mobile/status?token=${n}&handler=openclaw
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- http://localhost:5176
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- http://localhost/
+  - components/MarvisAgent/skills/agent-browser/scripts/node_modules/playwright-core/lib/vite/traceViewer/assets/defaultSettingsView-BEpdCv1S.js
+- https://a.app.qq.com/o/simple.jsp?pkgname=com.tencent.android.marvis
+  - assets/index-CriD6gLK.js
+- https://agent-browser-diff.localhost
+  - components/MarvisAgent/skills/agent-browser/scripts/daemon.js
+- https://ailauncher.yyb.qq.com/
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://example.com/trace.zip
+  - components/MarvisAgent/skills/agent-browser/scripts/node_modules/playwright-core/lib/cli/program.js
+- https://galileotelemetry.tencent.com/aegiscontrol/whitelist
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://galileotelemetry.tencent.com/collect
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://graph.qq.com/oauth2.0/authorize?which=Login&display=pc&response_type=code&client_id=${Bse.QC}&redirect_uri=${encodeURIComponent(Ise(t
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://h.trace.qq.com/kv
+  - assets/report-vendor-CcwS-gV5.js
+- https://htrace.wetvinfo.com/kv
+  - assets/report-vendor-CcwS-gV5.js
+- https://marvis.qq.com
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js, cards/ordering-tea/place-order/index.esm.js
+- https://marvis.qq.com/s/
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://open.weixin.qq.com/connect/qrconnect
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://oth.str.beacon.qq.com/trpc.beacon.configserver.BeaconConfigService/QueryConfig
+  - assets/report-vendor-CcwS-gV5.js
+- https://otheve.beacon.qq.com/analytics/v2_upload
+  - assets/report-vendor-CcwS-gV5.js
+- https://otheve.beacon.qq.com/analytics/v2_upload?appkey=0AND05UTZLB9EZ7N
+  - assets/report-vendor-CcwS-gV5.js
+- https://privacy.qq.com/document/preview/6c3760b1810e436ca8bd122984cd5183
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js, cards/ordering-tea/login/index.esm.js
+- https://privacy.qq.com/policy/kids-privacypolicy
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxopensdk.js
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://rule.tencent.com/rule/202604280002
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js, cards/ordering-tea/login/index.esm.js
+- https://staticfile.qq.com/datong/universalReportH5
+  - assets/report-vendor-CcwS-gV5.js
+- https://testailauncher.yyb.qq.com/
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://trace.playwright.dev
+  - components/MarvisAgent/skills/agent-browser/scripts/node_modules/playwright-core/lib/vite/traceViewer/index.BxQ34UMZ.js
+- https://yybadaccess.3g.qq.com
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://yybadaccess.3g.qq.com/marvis_client_login/marvis_ioa_oauth
+  - assets/index-CriD6gLK.js
+- https://yybadaccess.sparta.html5.qq.com
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://yybadaccesstest.3g.qq.com
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- https://yybadaccesstest.3g.qq.com/marvis_client_login_test/marvis_ioa_oauth
+  - assets/index-CriD6gLK.js
+- ws://127.0.0.1:${activePort.port}${activePort.wsPath}
+  - components/MarvisAgent/skills/agent-browser/scripts/daemon.js
+- ws://127.0.0.1:${await
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- ws://127.0.0.1:${i}
+  - assets/index-CriD6gLK.js
+- ws://localhost:3000
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js

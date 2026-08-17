@@ -1,0 +1,165 @@
+# Python 危险代码检测规则
+# 类别：RCE（代码下载执行）、NET（网络出网）、DEL（文件删除）
+# 匹配默认 case-insensitive
+
+rules:
+  # ============================================================
+  # RCE: 代码下载执行
+  # ============================================================
+
+  - id: RCE-101
+    category: RCE
+    category_name: 代码下载执行
+    description: 从远程地址下载内容并直接执行，是典型的远程代码执行模式。
+    pattern: 'urllib\.request\.urlopen\s*\(.+\).*\.(read|text)\s*\(\).*\b(exec|eval)\s*\('
+
+  - id: RCE-102
+    category: RCE
+    category_name: 代码下载执行
+    description: 从远程地址下载内容并直接执行，是典型的远程代码执行模式。
+    pattern: 'requests\.(get|post)\s*\(.+\)\.(text|content).*\b(exec|eval)\s*\('
+
+  - id: RCE-103
+    category: RCE
+    category_name: 代码下载执行
+    description: 直接执行从网络获取的内容，可能是远程代码执行。
+    pattern: '\b(exec|eval)\s*\(\s*(urllib|requests|httpx|urlopen|response)\b'
+
+  - id: RCE-104
+    category: RCE
+    category_name: 代码下载执行
+    description: 借助系统命令下载远程内容，可能用于规避检测。
+    pattern: 'subprocess\.(run|call|Popen|check_output)\s*\(\s*\[?\s*[''\"](curl|wget)[''"]'
+
+  - id: RCE-105
+    category: RCE
+    category_name: 代码下载执行
+    description: 将网络连接绑定到输入输出流，可能用于反弹 shell 攻击。
+    pattern: '\bos\.dup2\s*\(\s*\w+\.fileno\s*\(\s*\)'
+
+  - id: RCE-106
+    category: RCE
+    category_name: 代码下载执行
+    description: 启动交互式命令行 shell，可能用于反弹 shell 攻击。
+    pattern: '\bpty\.spawn\s*\('
+
+  # ============================================================
+  # NET: 网络出网
+  # ============================================================
+
+  - id: NET-101
+    category: NET
+    category_name: 网络出网
+    description: 发起网络请求，可能用于数据外传或下载远程内容。
+    pattern: '\brequests\.(get|post|put|patch|delete|head|options|request)\s*\('
+
+  - id: NET-102
+    category: NET
+    category_name: 网络出网
+    description: 发起网络请求，可能用于数据外传或下载远程内容。
+    pattern: 'urllib\.request\.urlopen\s*\('
+
+  - id: NET-103
+    category: NET
+    category_name: 网络出网
+    description: 发起网络请求，可能用于数据外传或下载远程内容。
+    pattern: '\bhttpx\.(get|post|put|patch|delete|head|options|request|Client|AsyncClient)\s*\('
+
+  - id: NET-104
+    category: NET
+    category_name: 网络出网
+    description: 建立原始网络连接，可能用于反弹 shell 或数据外传。
+    pattern: '\bsocket\.socket\s*\([^)]*\)\s*\.\s*connect\s*\('
+
+  - id: NET-105
+    category: NET
+    category_name: 网络出网
+    description: 发起网络请求，可能用于数据外传或下载远程内容。
+    pattern: '\burllib3\.(PoolManager|HTTPConnectionPool|HTTPSConnectionPool)\s*\('
+
+  - id: NET-106
+    category: NET
+    category_name: 网络出网
+    description: 发起网络请求，可能用于数据外传或下载远程内容。
+    pattern: '\baiohttp\.(ClientSession|request)\s*\('
+
+  - id: NET-107
+    category: NET
+    category_name: 网络出网
+    description: 通过 SSH 连接远程主机，可能用于数据外传。
+    pattern: '\bparamiko\.(SSHClient|Transport)\s*\('
+
+  - id: NET-108
+    category: NET
+    category_name: 网络出网
+    description: 发送邮件，可能用于数据外传。
+    pattern: '\bsmtplib\.SMTP\s*\('
+
+  # ============================================================
+  # DEL: 文件删除
+  # ============================================================
+
+  - id: DEL-101
+    category: DEL
+    category_name: 文件删除
+    description: 递归删除整个目录树，可能导致大量文件不可恢复地丢失。
+    pattern: '\bshutil\.rmtree\s*\('
+    severity: critical
+
+  - id: DEL-102
+    category: DEL
+    category_name: 文件删除
+    description: 删除文件，可能导致数据不可恢复地丢失。
+    pattern: '\bos\.(remove|unlink)\s*\('
+    severity: critical
+
+  - id: DEL-103
+    category: DEL
+    category_name: 文件删除
+    description: 删除目录，可能导致数据不可恢复地丢失。
+    pattern: '\bos\.(rmdir|removedirs)\s*\('
+
+  - id: DEL-104a
+    category: DEL
+    category_name: 文件删除
+    description: 通过 pathlib 删除文件，可能导致数据不可恢复地丢失。
+    pattern: '\.unlink\s*\('
+    severity: critical
+
+  - id: DEL-104b
+    category: DEL
+    category_name: 文件删除
+    description: 通过 pathlib 删除空目录（仅作用于空目录，无数据丢失风险，但仍提示用户确认）。
+    pattern: '\.rmdir\s*\('
+
+  - id: DEL-105
+    category: DEL
+    category_name: 文件删除
+    description: 将文件移动到空设备（等效于删除），数据将不可恢复。
+    pattern: '\bshutil\.move\s*\(.+(/dev/null|NUL)\b'
+
+  - id: DEL-106
+    category: DEL
+    category_name: 文件删除
+    description: 使用 glob 匹配文件后批量删除，影响范围可能超出预期。
+    pattern: '\bglob\.(glob|iglob)\s*\([\s\S]*?\bos\.(remove|unlink)\s*\('
+
+  - id: DEL-107
+    category: DEL
+    category_name: 文件删除
+    description: 递归遍历目录后批量删除文件，影响范围可能超出预期。
+    pattern: '\bos\.walk\s*\([\s\S]*?\b(os\.(remove|unlink)|shutil\.rmtree)\s*\('
+    severity: critical
+
+  # ============================================================
+  # RCE-107: subprocess 套娃调用危险删除命令 (列表参数 / shell=True / 解释器套娃)
+  # ============================================================
+
+  - id: RCE-107
+    category: RCE
+    category_name: 代码下载执行
+    description: 通过 subprocess 调用系统 rm/del/Remove-Item 等危险删除命令，包括列表参数、shell=True 字符串及 powershell/cmd/bash 解释器套娃，有绕过 Python 规则集递归删除重要文件的风险。
+    # 匹配三种调用形态：列表首元素为 rm/del/Remove-Item/rmdir；字符串开头 + shell=True；解释器套娃传递危险子命令
+    # 每种形态均允许调用首参以可选的 ``args=`` 关键字参数前缀出现（subprocess 第一个形参即名为 args，LLM 易写出该等价变体）
+    pattern: 'subprocess\.(?:run|call|Popen|check_output|check_call)\s*\(\s*(?:args\s*=\s*)?\[\s*[''"](?:rm|del|Remove-Item|rmdir)[''"]|subprocess\.(?:run|call|Popen|check_output|check_call)\s*\(\s*(?:args\s*=\s*)?[''"]\s*(?:rm|del|Remove-Item|rmdir)\b[\s\S]*?shell\s*=\s*True|subprocess\.(?:run|call|Popen|check_output|check_call)\s*\(\s*(?:args\s*=\s*)?\[\s*[''"](?:powershell|pwsh|cmd|bash|sh)[''"][\s\S]*?(?:Remove-Item\s+(?:-Recurse|-Force)|rm\s+-[a-zA-Z]*r[a-zA-Z]*\b|rd\s+/s|del\s+/[sfq])'
+    severity: critical

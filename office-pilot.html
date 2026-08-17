@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Byering Office Pilot</title>
+  <link rel="icon" type="image/png" href="./assets/byering-logo-64.png" />
+  <link rel="stylesheet" crossorigin href="./assets/markdown-vendor-Sepdx3LX.css" />
+  <link rel="stylesheet" crossorigin href="./assets/treemap-KZPCXAKY-B7Dc9S11.css" />
+  <link rel="stylesheet" crossorigin href="./assets/main-xulo-feJ.css" />
+  <style>
+    #byering-pilot-banner {
+      position: fixed;
+      z-index: 100000;
+      top: 12px;
+      right: 16px;
+      padding: 8px 12px;
+      border: 1px solid rgba(29, 32, 36, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      color: #30343b;
+      font: 600 12px/1 -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+      box-shadow: 0 8px 24px rgba(20, 24, 30, 0.08);
+      pointer-events: none;
+    }
+  </style>
+  <script>
+    (() => {
+      const actions = [
+        "fc_cheer1_sub", "fc_cheer2_sub", "fc_cheer_main", "fc_coffee", "fc_drink_coffee",
+        "fc_fall_down", "fc_high_press", "fc_leaving", "fc_off_chair", "fc_peek",
+        "fc_pooping", "fc_running_treadmill", "fc_salute", "fc_screen_playing1",
+        "fc_screen_playing2", "fc_screen_playing3", "fc_screen_working_apk_use",
+        "fc_screen_working_file_use", "fc_screen_working_main",
+        "fc_screen_working_search_or_browser_use", "fc_screen_working_win_use", "fc_sigh",
+        "fc_sleeping", "fc_standby", "fc_talking_on_seat", "fc_talking_on_stand",
+        "fc_ticket", "fc_walking_h", "fc_walking_up", "fc_working"
+      ];
+      const pilotRoot = "/workbench/byering/pilot/runtime/spritesheet/agent/";
+      const actionPattern = new RegExp(`/spritesheet/agent/(${actions.join("|")})(?:-[0-9]+)?(?:@2x)?\\.(?:webp|ktx2)(\\.json)?$`);
+      window.__byeringPilotRequests = [];
+
+      localStorage.setItem("workbench-debug-texture-format", "webp");
+
+      function rewrite(input) {
+        const raw = typeof input === "string" ? input : input?.url;
+        if (!raw) return input;
+        const url = new URL(raw, window.location.href);
+        const match = actionPattern.exec(url.pathname);
+        if (!match) return input;
+        const action = match[1];
+        const metadata = match[2] ? ".webp.json" : ".webp";
+        url.pathname = `${pilotRoot}${action}${metadata}`;
+        url.search = "";
+        window.__byeringPilotRequests.push(url.pathname);
+        return typeof input === "string" ? url.href : new Request(url.href, input);
+      }
+
+      const nativeFetch = window.fetch.bind(window);
+      window.fetch = (input, init) => nativeFetch(rewrite(input), init);
+
+      const srcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
+      if (srcDescriptor?.set) {
+        Object.defineProperty(HTMLImageElement.prototype, "src", {
+          configurable: srcDescriptor.configurable,
+          enumerable: srcDescriptor.enumerable,
+          get: srcDescriptor.get,
+          set(value) { srcDescriptor.set.call(this, rewrite(value)); }
+        });
+      }
+
+      const nativeSetAttribute = Element.prototype.setAttribute;
+      Element.prototype.setAttribute = function (name, value) {
+        if (this instanceof HTMLImageElement && name.toLowerCase() === "src") value = rewrite(value);
+        return nativeSetAttribute.call(this, name, value);
+      };
+
+      const nativeXhrOpen = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+        return nativeXhrOpen.call(this, method, rewrite(url), ...rest);
+      };
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <div id="byering-pilot-banner">Byering IP pilot · 原办公室结构未改</div>
+  <script type="module">
+    (async () => {
+      const registration = await navigator.serviceWorker.register("./office-pilot-sw.js", { scope: "./" });
+      await navigator.serviceWorker.ready;
+      if (!navigator.serviceWorker.controller) {
+        if (!sessionStorage.getItem("byering-pilot-sw-reloaded")) {
+          sessionStorage.setItem("byering-pilot-sw-reloaded", "1");
+          window.location.reload();
+          return;
+        }
+      }
+      const workbenchExports = await import("./assets/workbench-biG8PRTg.js");
+      const { installPixiRoleSkin } = await import("./src/salebuddy/office-role-skin.js?v=byering-office-v2");
+      await installPixiRoleSkin({
+        workbench: workbenchExports,
+        root: "/workbench/byering/source/role-frames-v5",
+        debug: false
+      });
+      await import("./browser-shim.js");
+      await import("./assets/main-BaWVt8Sl.js");
+      await import("./src/salebuddy/index.js");
+    })();
+  </script>
+  <script>
+    const openOffice = window.setInterval(() => {
+      const row = [...document.querySelectorAll('[dt-eid="sidebar_tab"], [data-dt-eid="sidebar_tab"], [class*="_menuItem_"]')]
+        .find((item) => item.textContent?.replace(/\s+/g, "").trim() === "办公室");
+      if (!row) return;
+      row.click();
+      window.clearInterval(openOffice);
+    }, 250);
+    window.setTimeout(() => window.clearInterval(openOffice), 15000);
+  </script>
+</body>
+
+</html>

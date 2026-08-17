@@ -1,0 +1,190 @@
+{
+  "frames": {
+    "fc_walking_up_00000.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 180,
+        "h": 290
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 171,
+        "y": 110,
+        "w": 180,
+        "h": 290
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_walking_up_00001.png": {
+      "frame": {
+        "x": 180,
+        "y": 0,
+        "w": 180,
+        "h": 290
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 171,
+        "y": 110,
+        "w": 180,
+        "h": 290
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_walking_up_00002.png": {
+      "frame": {
+        "x": 360,
+        "y": 0,
+        "w": 180,
+        "h": 290
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 171,
+        "y": 110,
+        "w": 180,
+        "h": 290
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_walking_up_00003.png": {
+      "frame": {
+        "x": 540,
+        "y": 0,
+        "w": 180,
+        "h": 290
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 171,
+        "y": 110,
+        "w": 180,
+        "h": 290
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_walking_up_00004.png": {
+      "frame": {
+        "x": 720,
+        "y": 0,
+        "w": 180,
+        "h": 290
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 171,
+        "y": 110,
+        "w": 180,
+        "h": 290
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_walking_up_00005.png": {
+      "frame": {
+        "x": 900,
+        "y": 0,
+        "w": 180,
+        "h": 290
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 171,
+        "y": 110,
+        "w": 180,
+        "h": 290
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_walking_up_00006.png": {
+      "frame": {
+        "x": 1080,
+        "y": 0,
+        "w": 180,
+        "h": 290
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 171,
+        "y": 110,
+        "w": 180,
+        "h": 290
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_walking_up_00007.png": {
+      "frame": {
+        "x": 1260,
+        "y": 0,
+        "w": 180,
+        "h": 290
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 171,
+        "y": 110,
+        "w": 180,
+        "h": 290
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    }
+  },
+  "animations": {
+    "fc_walking_up": [
+      "fc_walking_up_00000.png",
+      "fc_walking_up_00001.png",
+      "fc_walking_up_00002.png",
+      "fc_walking_up_00003.png",
+      "fc_walking_up_00004.png",
+      "fc_walking_up_00005.png",
+      "fc_walking_up_00006.png",
+      "fc_walking_up_00007.png"
+    ]
+  },
+  "meta": {
+    "app": "http://github.com/pixijs/assetpack",
+    "version": "1.0",
+    "image": "fc_walking_up.webp",
+    "format": "RGBA8888",
+    "size": {
+      "w": 1440,
+      "h": 290
+    },
+    "scale": 1,
+    "related_multi_packs": [],
+    "realImage": "fc_walking_up.webp",
+    "placeholderApplied": false
+  }
+}

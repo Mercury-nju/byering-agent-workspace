@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "name": "marvis-gateway",
+  "version": "1.0.0.10095",
+  "buildId": "b-fcca00991e94436eb0335f6abb6419d0",
+  "platform": "darwin",
+  "arch": "arm64",
+  "executable": "MarvisHost",
+  "resourcesDir": "plugins",
+  "environment": {
+    "MARVIS_DEPLOYED": "1"
+  },
+  "checksums": {
+    "MarvisHost": "sha256:f81f2f74fbc249347aad86c6c9d7a9ac0b429adfd79607fafc445e15c38c491a",
+    "build_info.txt": "sha256:2a72019e9264c6cc3692ead7050ebcdde58623736fdf93364d6467781b85030a",
+    "libcos_uploader.dylib": "sha256:fb2168214611fad1bb8ea8d0231aad9f46046a4b513f85c0daafa358a987a7fa",
+    "liblocation_provider.dylib": "sha256:e0a28968a055bbdeff77d54d39c915ee8bd853188eba37f69c25d0e407cd2e34",
+    "libwss_plugin.dylib": "sha256:c789cc4527d5eeb207f85d44908c8943b314ab9fc3abe4f6a4a8127c45bf30be"
+  },
+  "signature": {
+    "identityType": "Developer ID Application",
+    "hardenedRuntime": true
+  }
+}

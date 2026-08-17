@@ -1,0 +1,547 @@
+{
+  "frames": {
+    "fc_ticket_00000.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00001.png": {
+      "frame": {
+        "x": 66,
+        "y": 0,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00002.png": {
+      "frame": {
+        "x": 132,
+        "y": 0,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00003.png": {
+      "frame": {
+        "x": 198,
+        "y": 0,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00004.png": {
+      "frame": {
+        "x": 264,
+        "y": 0,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00005.png": {
+      "frame": {
+        "x": 330,
+        "y": 0,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00006.png": {
+      "frame": {
+        "x": 396,
+        "y": 0,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00007.png": {
+      "frame": {
+        "x": 462,
+        "y": 0,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00008.png": {
+      "frame": {
+        "x": 0,
+        "y": 78,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00009.png": {
+      "frame": {
+        "x": 66,
+        "y": 78,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00010.png": {
+      "frame": {
+        "x": 132,
+        "y": 78,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00011.png": {
+      "frame": {
+        "x": 198,
+        "y": 78,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00012.png": {
+      "frame": {
+        "x": 264,
+        "y": 78,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00013.png": {
+      "frame": {
+        "x": 330,
+        "y": 78,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00014.png": {
+      "frame": {
+        "x": 396,
+        "y": 78,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00015.png": {
+      "frame": {
+        "x": 462,
+        "y": 78,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00016.png": {
+      "frame": {
+        "x": 0,
+        "y": 156,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00017.png": {
+      "frame": {
+        "x": 66,
+        "y": 156,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00018.png": {
+      "frame": {
+        "x": 132,
+        "y": 156,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00019.png": {
+      "frame": {
+        "x": 198,
+        "y": 156,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00020.png": {
+      "frame": {
+        "x": 264,
+        "y": 156,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00021.png": {
+      "frame": {
+        "x": 330,
+        "y": 156,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00022.png": {
+      "frame": {
+        "x": 396,
+        "y": 156,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00023.png": {
+      "frame": {
+        "x": 462,
+        "y": 156,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_ticket_00024.png": {
+      "frame": {
+        "x": 0,
+        "y": 234,
+        "w": 66,
+        "h": 78
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 69,
+        "y": 69,
+        "w": 66,
+        "h": 78
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    }
+  },
+  "animations": {
+    "fc_ticket": [
+      "fc_ticket_00000.png",
+      "fc_ticket_00001.png",
+      "fc_ticket_00002.png",
+      "fc_ticket_00003.png",
+      "fc_ticket_00004.png",
+      "fc_ticket_00005.png",
+      "fc_ticket_00006.png",
+      "fc_ticket_00007.png",
+      "fc_ticket_00008.png",
+      "fc_ticket_00009.png",
+      "fc_ticket_00010.png",
+      "fc_ticket_00011.png",
+      "fc_ticket_00012.png",
+      "fc_ticket_00013.png",
+      "fc_ticket_00014.png",
+      "fc_ticket_00015.png",
+      "fc_ticket_00016.png",
+      "fc_ticket_00017.png",
+      "fc_ticket_00018.png",
+      "fc_ticket_00019.png",
+      "fc_ticket_00020.png",
+      "fc_ticket_00021.png",
+      "fc_ticket_00022.png",
+      "fc_ticket_00023.png",
+      "fc_ticket_00024.png"
+    ]
+  },
+  "meta": {
+    "app": "http://github.com/pixijs/assetpack",
+    "version": "1.0",
+    "image": "fc_ticket.webp",
+    "format": "RGBA8888",
+    "size": {
+      "w": 528,
+      "h": 312
+    },
+    "scale": 1,
+    "related_multi_packs": [],
+    "realImage": "fc_ticket.webp",
+    "placeholderApplied": false
+  }
+}

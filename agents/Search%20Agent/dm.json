@@ -1,0 +1,44 @@
+[
+  {
+    "id": "dm-seed-Search%20Agent-1",
+    "agentType": "Search Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "线索猎人的候选名单到了。按购买阶段重新评分，别把单纯讨论车的人误判成客户。",
+    "createdAt": "2026-08-10T02:12:00.000Z"
+  },
+  {
+    "id": "dm-seed-Search%20Agent-2",
+    "agentType": "Search Agent",
+    "from": "Search Agent",
+    "fromName": "数据分析师",
+    "text": "正在做去重和语义复核。我会把预算、车型、城市、时间窗口作为强特征，把泛讨论和竞品营销号作为负向特征，并保留评分依据。",
+    "createdAt": "2026-08-10T02:21:00.000Z"
+  },
+  {
+    "id": "dm-seed-Search%20Agent-3",
+    "agentType": "Search Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "A 级名单宁可少一点，销售跟进量有限。",
+    "createdAt": "2026-08-10T02:30:00.000Z"
+  },
+  {
+    "id": "dm-seed-Search%20Agent-4",
+    "agentType": "Search Agent",
+    "from": "Search Agent",
+    "fromName": "数据分析师",
+    "text": "评分完成：214 位有效候选中，A 级 47 位、B 级 86 位、C 级 81 位。抽检 40 条后，A 级判断一致率 92.5%；另外标记了 6 条证据不足数据，暂不进入触达。",
+    "artifact": {
+      "name": "潜客意向评分报告-0810.csv",
+      "type": "sheet",
+      "summary": "A 级 47 位 · 判断一致率 92.5% · 6 条待核验",
+      "status": "评分完成",
+      "projectId": "room-lead-expansion",
+      "projectName": "潜在客户拓展项目组",
+      "createdBy": "数据分析师",
+      "content": "昵称,意向等级,得分,关键证据,建议动作\n上海阿杰,A,92,本周到店+现车优惠,2小时内私信\n小鹿要换车,A,88,明确预算+车型对比,发送车型对比话术\n老周在杭州,A,86,置换补贴+城市明确,询问旧车情况\n橘子汽水,B,68,优惠询问但时间不明,24小时内轻触达\n旅行的风,C,32,仅参与车型讨论,暂不触达"
+    },
+    "createdAt": "2026-08-10T02:39:00.000Z"
+  }
+]

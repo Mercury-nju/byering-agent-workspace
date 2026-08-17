@@ -1,0 +1,820 @@
+{
+  "frames": {
+    "fc_cheer1_sub_00000.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00001.png": {
+      "frame": {
+        "x": 165,
+        "y": 0,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00002.png": {
+      "frame": {
+        "x": 330,
+        "y": 0,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00003.png": {
+      "frame": {
+        "x": 495,
+        "y": 0,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00004.png": {
+      "frame": {
+        "x": 660,
+        "y": 0,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00005.png": {
+      "frame": {
+        "x": 825,
+        "y": 0,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00006.png": {
+      "frame": {
+        "x": 990,
+        "y": 0,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00007.png": {
+      "frame": {
+        "x": 1155,
+        "y": 0,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00008.png": {
+      "frame": {
+        "x": 0,
+        "y": 244,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00009.png": {
+      "frame": {
+        "x": 165,
+        "y": 244,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00010.png": {
+      "frame": {
+        "x": 330,
+        "y": 244,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00011.png": {
+      "frame": {
+        "x": 495,
+        "y": 244,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00012.png": {
+      "frame": {
+        "x": 660,
+        "y": 244,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00013.png": {
+      "frame": {
+        "x": 825,
+        "y": 244,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00014.png": {
+      "frame": {
+        "x": 990,
+        "y": 244,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00015.png": {
+      "frame": {
+        "x": 1155,
+        "y": 244,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00016.png": {
+      "frame": {
+        "x": 0,
+        "y": 488,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00017.png": {
+      "frame": {
+        "x": 165,
+        "y": 488,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00018.png": {
+      "frame": {
+        "x": 330,
+        "y": 488,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00019.png": {
+      "frame": {
+        "x": 495,
+        "y": 488,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00020.png": {
+      "frame": {
+        "x": 660,
+        "y": 488,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00021.png": {
+      "frame": {
+        "x": 825,
+        "y": 488,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00022.png": {
+      "frame": {
+        "x": 990,
+        "y": 488,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00023.png": {
+      "frame": {
+        "x": 1155,
+        "y": 488,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00024.png": {
+      "frame": {
+        "x": 0,
+        "y": 732,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00025.png": {
+      "frame": {
+        "x": 165,
+        "y": 732,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00026.png": {
+      "frame": {
+        "x": 330,
+        "y": 732,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00027.png": {
+      "frame": {
+        "x": 495,
+        "y": 732,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00028.png": {
+      "frame": {
+        "x": 660,
+        "y": 732,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00029.png": {
+      "frame": {
+        "x": 825,
+        "y": 732,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00030.png": {
+      "frame": {
+        "x": 990,
+        "y": 732,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00031.png": {
+      "frame": {
+        "x": 1155,
+        "y": 732,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00032.png": {
+      "frame": {
+        "x": 0,
+        "y": 976,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00033.png": {
+      "frame": {
+        "x": 165,
+        "y": 976,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00034.png": {
+      "frame": {
+        "x": 330,
+        "y": 976,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00035.png": {
+      "frame": {
+        "x": 495,
+        "y": 976,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00036.png": {
+      "frame": {
+        "x": 660,
+        "y": 976,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_cheer1_sub_00037.png": {
+      "frame": {
+        "x": 825,
+        "y": 976,
+        "w": 165,
+        "h": 244
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 188,
+        "y": 112,
+        "w": 165,
+        "h": 244
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    }
+  },
+  "animations": {
+    "fc_cheer1_sub": [
+      "fc_cheer1_sub_00000.png",
+      "fc_cheer1_sub_00001.png",
+      "fc_cheer1_sub_00002.png",
+      "fc_cheer1_sub_00003.png",
+      "fc_cheer1_sub_00004.png",
+      "fc_cheer1_sub_00005.png",
+      "fc_cheer1_sub_00006.png",
+      "fc_cheer1_sub_00007.png",
+      "fc_cheer1_sub_00008.png",
+      "fc_cheer1_sub_00009.png",
+      "fc_cheer1_sub_00010.png",
+      "fc_cheer1_sub_00011.png",
+      "fc_cheer1_sub_00012.png",
+      "fc_cheer1_sub_00013.png",
+      "fc_cheer1_sub_00014.png",
+      "fc_cheer1_sub_00015.png",
+      "fc_cheer1_sub_00016.png",
+      "fc_cheer1_sub_00017.png",
+      "fc_cheer1_sub_00018.png",
+      "fc_cheer1_sub_00019.png",
+      "fc_cheer1_sub_00020.png",
+      "fc_cheer1_sub_00021.png",
+      "fc_cheer1_sub_00022.png",
+      "fc_cheer1_sub_00023.png",
+      "fc_cheer1_sub_00024.png",
+      "fc_cheer1_sub_00025.png",
+      "fc_cheer1_sub_00026.png",
+      "fc_cheer1_sub_00027.png",
+      "fc_cheer1_sub_00028.png",
+      "fc_cheer1_sub_00029.png",
+      "fc_cheer1_sub_00030.png",
+      "fc_cheer1_sub_00031.png",
+      "fc_cheer1_sub_00032.png",
+      "fc_cheer1_sub_00033.png",
+      "fc_cheer1_sub_00034.png",
+      "fc_cheer1_sub_00035.png",
+      "fc_cheer1_sub_00036.png",
+      "fc_cheer1_sub_00037.png"
+    ]
+  },
+  "meta": {
+    "app": "http://github.com/pixijs/assetpack",
+    "version": "1.0",
+    "image": "fc_cheer1_sub.webp",
+    "format": "RGBA8888",
+    "size": {
+      "w": 1320,
+      "h": 1220
+    },
+    "scale": 1,
+    "related_multi_packs": [],
+    "realImage": "fc_cheer1_sub.webp",
+    "placeholderApplied": false
+  }
+}

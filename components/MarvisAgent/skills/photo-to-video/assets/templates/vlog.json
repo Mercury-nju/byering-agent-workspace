@@ -1,0 +1,25 @@
+{
+    "name": "vlog",
+    "display_name": "活力 Vlog",
+    "description": "快节奏切换 + 交叉溶解转场，适合社交媒体",
+    "duration_per_image": 2,
+    "fps": 30,
+    "resolution": {
+        "width": 1080,
+        "height": 1920
+    },
+    "effects": [
+        {
+            "type": "kenburns",
+            "zoom_start": 1.0,
+            "zoom_end": 1.3,
+            "pan_direction": "random"
+        }
+    ],
+    "transition": {
+        "type": "xfade",
+        "duration": 0.8
+    },
+    "background_color": "#FFF8F0",
+    "default_music": "https://static.pcai.yyb.qq.com/audio/test.mp3"
+}

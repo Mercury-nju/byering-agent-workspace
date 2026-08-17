@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Byering 工作台 · 使用说明</title>
+  <style>
+    :root {
+      --bg: #f3f5f6;
+      --panel: #ffffff;
+      --ink: #17191b;
+      --muted: #7e858c;
+      --soft: #eef0f1;
+      --line: #dfe3e5;
+      --blue: #4b79c9;
+      --blue-soft: #eaf1fc;
+      --green: #4a9a6a;
+      --green-soft: #eaf6ee;
+      --orange: #c68a43;
+      --orange-soft: #fff5e7;
+      --shadow: 0 20px 60px rgba(26, 35, 42, .08);
+      --radius: 18px;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--bg); }
+    button { font: inherit; }
+    .app { min-height: 100vh; display: flex; padding: 18px; gap: 18px; }
+    .sidebar {
+      width: 254px; flex: 0 0 254px; display: flex; flex-direction: column;
+      background: rgba(255, 255, 255, .92); border: 1px solid rgba(215, 220, 223, .9);
+      border-radius: 28px; padding: 22px 14px 14px; box-shadow: var(--shadow);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 9px 22px; }
+    .brand img { width: 31px; height: 31px; object-fit: contain; }
+    .brand-mark { width: 31px; height: 31px; border-radius: 10px; display: grid; place-items: center; background: #17191b; color: #fff; font-size: 14px; font-weight: 800; }
+    .brand-copy { min-width: 0; }
+    .brand-name { font-weight: 750; font-size: 15px; letter-spacing: -.03em; }
+    .brand-note { font-size: 9px; color: #9aa0a6; margin-top: 2px; letter-spacing: .11em; }
+    .nav-scroll { flex: 1; overflow: auto; padding: 0 2px; }
+    .nav-primary, .nav-row { width: 100%; border: 0; background: transparent; color: #3b4147; display: flex; align-items: center; gap: 11px; min-height: 42px; border-radius: 10px; padding: 0 11px; cursor: pointer; text-align: left; transition: background .16s, color .16s; }
+    .nav-primary:hover, .nav-row:hover { background: #f0f2f3; color: var(--ink); }
+    .nav-primary.active, .nav-row.active { background: #ebedef; color: #151719; font-weight: 650; }
+    .nav-icon { width: 19px; height: 19px; flex: 0 0 19px; display: grid; place-items: center; color: currentColor; }
+    .nav-icon svg { width: 19px; height: 19px; }
+    .nav-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+    .nav-group { margin-top: 20px; }
+    .nav-group-title { padding: 0 11px 7px; color: #9ba1a7; font-size: 11px; letter-spacing: .08em; }
+    .nav-child { padding-left: 19px; }
+    .nav-toggle { justify-content: space-between; }
+    .nav-toggle .nav-label { flex: 1; }
+    .chevron { color: #9ba1a7; font-size: 12px; transform: rotate(0deg); transition: transform .18s; }
+    .nav-toggle.open .chevron { transform: rotate(90deg); }
+    .knowledge-children { display: none; margin-top: 3px; }
+    .knowledge-children.open { display: block; }
+    .account { border-top: 1px solid #e7e9ea; padding: 14px 8px 0; margin-top: 16px; display: flex; align-items: center; gap: 9px; }
+    .account-avatar { width: 31px; height: 31px; border-radius: 50%; display: grid; place-items: center; background: #c2185b; color: #fff; font-weight: 700; font-size: 13px; }
+    .account-copy { min-width: 0; flex: 1; }
+    .account-name { font-size: 13px; font-weight: 650; }
+    .account-mail { font-size: 10px; color: #9299a0; margin-top: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .main { min-width: 0; flex: 1; background: var(--panel); border: 1px solid rgba(215, 220, 223, .9); border-radius: 28px; box-shadow: var(--shadow); overflow: hidden; }
+    .topbar { min-height: 74px; display: flex; align-items: center; gap: 16px; padding: 0 34px; border-bottom: 1px solid #e8ebec; }
+    .topbar-kicker { font-size: 10px; letter-spacing: .14em; color: #9aa1a7; text-transform: uppercase; }
+    .topbar-title { font-size: 18px; font-weight: 700; margin-top: 3px; }
+    .topbar-spacer { flex: 1; }
+    .doc-status { display: inline-flex; align-items: center; gap: 7px; color: #5f686f; font-size: 11px; }
+    .doc-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+    .content { max-width: 1320px; margin: 0 auto; padding: 38px 46px 70px; }
+    .hero { display: flex; align-items: flex-end; gap: 30px; padding-bottom: 32px; border-bottom: 1px solid #e9ebec; }
+    .hero-copy { max-width: 720px; }
+    .eyebrow { color: #899198; font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { font-size: clamp(30px, 4vw, 54px); line-height: 1.08; letter-spacing: -.06em; margin: 13px 0 14px; }
+    .hero p { color: #69727a; font-size: 16px; line-height: 1.75; margin: 0; }
+    .hero-meta { margin-left: auto; min-width: 215px; border: 1px solid var(--line); border-radius: 15px; padding: 15px; background: #fafbfb; }
+    .hero-meta strong { display: block; font-size: 24px; letter-spacing: -.05em; }
+    .hero-meta span { display: block; color: var(--muted); font-size: 11px; line-height: 1.5; margin-top: 5px; }
+    .section { margin-top: 34px; }
+    .section-head { display: flex; align-items: flex-end; gap: 12px; margin-bottom: 15px; }
+    .section-head h2 { margin: 0; font-size: 23px; letter-spacing: -.045em; }
+    .section-head p { margin: 0; color: var(--muted); font-size: 12px; }
+    .overview-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .overview-card { border: 1px solid var(--line); border-radius: 15px; padding: 16px; background: #fff; min-height: 133px; }
+    .overview-card .num { color: #9aa1a7; font-size: 10px; letter-spacing: .12em; }
+    .overview-card h3 { margin: 25px 0 6px; font-size: 17px; letter-spacing: -.03em; }
+    .overview-card p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .logic-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr); gap: 16px; }
+    .logic-card, .side-card { border: 1px solid var(--line); border-radius: 17px; background: #fff; padding: 20px; }
+    .logic-card h3, .side-card h3 { margin: 0; font-size: 16px; letter-spacing: -.03em; }
+    .logic-card > p, .side-card > p { color: var(--muted); line-height: 1.65; font-size: 12px; margin: 8px 0 0; }
+    .contract-list { display: grid; gap: 9px; margin-top: 16px; }
+    .contract-item { display: grid; grid-template-columns: 90px 1fr; gap: 10px; font-size: 12px; line-height: 1.5; }
+    .contract-item b { color: #505961; }
+    .contract-item span { color: #757e85; }
+    .page-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .page-card { appearance: none; border: 1px solid var(--line); border-radius: 16px; background: #fff; text-align: left; padding: 18px; cursor: pointer; transition: border .16s, box-shadow .16s, transform .16s; }
+    .page-card:hover { border-color: #b8c0c5; box-shadow: 0 12px 28px rgba(25, 35, 42, .07); transform: translateY(-2px); }
+    .page-card.active { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+    .page-card-top { display: flex; align-items: center; gap: 10px; }
+    .page-badge { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 9px; background: #f0f2f3; color: #505a61; font-size: 12px; font-weight: 800; }
+    .page-card h3 { margin: 0; font-size: 15px; }
+    .page-card p { color: var(--muted); font-size: 11px; line-height: 1.55; margin: 12px 0 0; }
+    .page-detail { margin-top: 14px; border: 1px solid #d8e2f2; border-radius: 17px; background: linear-gradient(135deg, #fbfdff, #f4f8fe); padding: 24px; }
+    .detail-head { display: flex; align-items: flex-start; gap: 13px; }
+    .detail-icon { width: 39px; height: 39px; border-radius: 12px; display: grid; place-items: center; background: #e5eefc; color: #426db4; font-weight: 800; }
+    .detail-head h3 { margin: 0; font-size: 21px; letter-spacing: -.04em; }
+    .detail-head p { margin: 4px 0 0; color: #73808d; font-size: 12px; line-height: 1.55; }
+    .detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 19px; }
+    .detail-block { border: 1px solid rgba(190, 207, 229, .8); border-radius: 12px; background: rgba(255,255,255,.72); padding: 13px; }
+    .detail-block strong { display: block; font-size: 11px; color: #536579; }
+    .detail-block span { display: block; color: #66737f; font-size: 11px; line-height: 1.55; margin-top: 6px; }
+    .flow-wrap { border: 1px solid var(--line); border-radius: 18px; background: #fbfcfc; padding: 20px; overflow: auto; }
+    .flow { min-width: 890px; position: relative; height: 386px; }
+    .flow svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+    .flow-line { fill: none; stroke: #adb8c1; stroke-width: 2; stroke-dasharray: 5 5; marker-end: url(#arrow); }
+    .flow-node { position: absolute; width: 160px; min-height: 96px; border: 1px solid #d9e0e4; border-radius: 14px; background: #fff; padding: 13px; cursor: pointer; text-align: left; box-shadow: 0 8px 18px rgba(26,35,42,.04); transition: transform .16s, border .16s, box-shadow .16s; }
+    .flow-node:hover, .flow-node.selected { transform: translateY(-3px); border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft), 0 12px 22px rgba(40, 77, 130, .1); }
+    .flow-node .step { color: #9ca5ad; font-size: 10px; letter-spacing: .12em; }
+    .flow-node h4 { margin: 14px 0 5px; font-size: 15px; letter-spacing: -.03em; }
+    .flow-node p { color: #7b858c; font-size: 10px; line-height: 1.45; margin: 0; }
+    .node-1 { left: 0; top: 125px; }.node-2 { left: 180px; top: 33px; }.node-3 { left: 180px; top: 230px; }.node-4 { left: 400px; top: 33px; }.node-5 { left: 400px; top: 230px; }.node-6 { left: 620px; top: 125px; }.node-7 { left: 800px; top: 125px; }
+    .flow-detail { min-height: 76px; margin-top: 15px; border-left: 3px solid var(--blue); background: #f1f6fe; border-radius: 8px; padding: 11px 13px; color: #5d6e81; font-size: 12px; line-height: 1.6; }
+    .source-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }
+    .source-chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 7px 10px; background: #f1f3f4; color: #646e76; font-size: 10px; }
+    .source-chip i { width: 6px; height: 6px; border-radius: 50%; background: #8da0b1; }
+    .source-chip.live { background: var(--green-soft); color: #45835d; }.source-chip.live i { background: var(--green); }
+    .boundary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .boundary-card { border-radius: 12px; padding: 13px; }
+    .boundary-card h4 { margin: 0; font-size: 12px; }.boundary-card p { margin: 6px 0 0; font-size: 11px; line-height: 1.55; color: #727d85; }
+    .boundary-card.good { background: var(--green-soft); border: 1px solid #cce7d4; }.boundary-card.warn { background: var(--orange-soft); border: 1px solid #f0dbbc; }
+    .footer-note { color: #9aa2a8; font-size: 11px; line-height: 1.6; border-top: 1px solid #e9ebec; margin-top: 35px; padding-top: 17px; }
+    @media (max-width: 980px) { .app { padding: 0; gap: 0; }.sidebar { width: 222px; flex-basis: 222px; border-radius: 0 24px 24px 0; }.main { border-radius: 0; }.content { padding: 30px 28px 55px; }.overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.hero-meta { display: none; } }
+    @media (max-width: 720px) { .app { display: block; }.sidebar { width: 100%; height: auto; max-height: none; border-radius: 0; padding: 13px 14px; }.brand { padding-bottom: 10px; }.nav-scroll { display: flex; overflow-x: auto; gap: 5px; }.nav-group { margin: 0; display: flex; gap: 4px; align-items: center; }.nav-group-title, .nav-toggle, .knowledge-children, .account { display: none; }.nav-row { min-height: 36px; padding: 0 10px; white-space: nowrap; }.nav-child { padding-left: 10px; }.topbar { padding: 0 19px; min-height: 62px; }.content { padding: 25px 17px 45px; }.hero { display: block; }.hero p { font-size: 14px; }.overview-grid, .page-grid, .detail-grid, .logic-layout, .boundary { grid-template-columns: 1fr; }.section-head { display: block; }.section-head p { margin-top: 5px; }.flow-wrap { padding: 12px; }.flow { transform-origin: left top; transform: scale(.82); width: 1090px; margin-bottom: -63px; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="工作台导航">
+      <div class="brand">
+        <img src="assets/byering-logo-64.png" alt="" onerror="const fallback=document.querySelector('.brand-mark').cloneNode(true); fallback.hidden=false; this.replaceWith(fallback)">
+        <div class="brand-mark" hidden>B</div>
+        <div class="brand-copy"><div class="brand-name">Byering</div><div class="brand-note">数字员工工作台</div></div>
+      </div>
+      <div class="nav-scroll">
+        <button class="nav-primary active" data-page="chat"><span class="nav-icon">◈</span><span class="nav-label">聊天</span></button>
+        <div class="nav-group">
+          <div class="nav-group-title">工作</div>
+          <button class="nav-row" data-page="office"><span class="nav-icon">◒</span><span class="nav-label">办公室</span></button>
+          <button class="nav-row" data-page="kanban"><span class="nav-icon">▦</span><span class="nav-label">看板</span></button>
+          <button class="nav-row" data-page="contacts"><span class="nav-icon">♙</span><span class="nav-label">成员</span></button>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">能力与资产</div>
+          <button class="nav-row" data-page="agentSquare"><span class="nav-icon">▣</span><span class="nav-label">Agent 广场</span></button>
+          <button class="nav-row" data-page="skills"><span class="nav-icon">✦</span><span class="nav-label">技能广场</span></button>
+          <button class="nav-row" data-page="files"><span class="nav-icon">▰</span><span class="nav-label">文件中心</span></button>
+        </div>
+        <div class="nav-group">
+          <button class="nav-row nav-toggle" id="knowledgeToggle" aria-expanded="false"><span class="nav-label">知识</span><span class="chevron">›</span></button>
+          <div class="knowledge-children" id="knowledgeChildren">
+            <button class="nav-row nav-child" data-page="docs"><span class="nav-icon">▤</span><span class="nav-label">文档</span></button>
+            <button class="nav-row nav-child" data-page="memory"><span class="nav-icon">✧</span><span class="nav-label">记忆</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="account"><div class="account-avatar">H</div><div class="account-copy"><div class="account-name">HongYang Li</div><div class="account-mail">lihongyangju@gmail.com</div></div><span style="color:#9299a0;font-size:11px">›</span></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div><div class="topbar-kicker">产品使用说明</div><div class="topbar-title" id="topbarTitle">Byering 工作台</div></div><div class="topbar-spacer"></div><div class="doc-status"><i></i>点击左侧查看</div></header>
+      <div class="content" id="content"></div>
+    </main>
+  </div>
+  <script>
+    const pages = {
+      chat: { label: "聊天", icon: "◈", title: "说清一件事，数字员工帮你推进", intro: "这里是最自然的开始方式。你只要说目标、背景和希望得到的结果，幕僚长会帮你安排合适的员工。", purpose: "把想法变成一件正在推进的工作。", actions: ["说出目标和希望得到的结果", "补充对象、范围和时间要求", "确认员工分工和关键动作", "在需要时审批、补充信息或接手"], loop: ["说出目标", "确认方案", "员工进场", "看见进展", "拿到结果"], outcome: "得到一条可追踪的工作进展，重要决定和最终结果都会留在对话里。" },
+      office: { label: "办公室", icon: "◒", title: "把一件事放进长期推进的项目里", intro: "办公室是你和数字员工一起工作的项目空间。不同目标各自拥有成员、讨论和产出，回来就能接着上次继续。", purpose: "让一次对话变成持续推进的项目。", actions: ["创建或切换项目", "查看项目成员和最近进展", "继续讨论目标或补充新信息", "进入项目的看板和文件"], loop: ["确定目标", "建立项目", "持续讨论", "推进任务", "沉淀结果"], outcome: "得到一个有上下文的项目空间，不用每次重新解释来龙去脉。" },
+      kanban: { label: "看板", icon: "▦", title: "一眼看清事情推进到哪一步", intro: "看板把项目中的工作、员工进展和交付结果放在一起。它可以按你的习惯调整样式和排版，但展示的始终是正在发生的工作。", purpose: "快速判断项目进度、责任人、交付物和下一步行动。", actions: ["查看工作处于哪个阶段", "查看哪位员工正在推进", "打开任务或交付文件", "调整看板的主题、排版和组件", "从看板安排下一项工作"], loop: ["项目里的工作", "员工推进", "产出结果", "看板呈现", "继续行动"], outcome: "得到一张适合自己的项目工作台：看得懂、找得到、接着做。" },
+      contacts: { label: "成员", icon: "♙", title: "认识你的数字员工团队", intro: "成员页像一份团队通讯录。你可以看到每位员工的形象、职责和正在处理的工作，也可以直接找他聊。", purpose: "知道谁擅长什么、现在谁有空、该找谁帮忙。", actions: ["查看员工头像、职位和职责", "查看空闲或工作中的状态", "直接和某位员工沟通", "回到他正在参与的项目"], loop: ["认识成员", "了解专长", "查看状态", "直接沟通", "一起完成工作"], outcome: "得到一支有角色、有状态、可以直接协作的数字员工团队。" },
+      agentSquare: { label: "Agent 广场", icon: "▣", title: "为你的目标找到合适的数字员工", intro: "这里展示不同岗位和专长的数字员工。先看他们擅长什么、能负责到哪一步，再决定是否加入你的团队。", purpose: "按业务需要扩充团队，而不是从零培养所有角色。", actions: ["按岗位或专长浏览员工", "查看工作方式和适用场景", "把合适的员工加入团队", "回到成员页开始协作"], loop: ["遇到需求", "发现员工", "了解能力", "加入团队", "开始协作"], outcome: "得到一个更适合当前目标的团队组合。" },
+      skills: { label: "技能广场", icon: "✦", title: "给数字员工装上真正能用的能力", intro: "技能是员工完成工作的具体方法，比如整理资料、分析数据、生成方案或跟进客户。", purpose: "让员工不只“会聊天”，还能稳定完成具体工作。", actions: ["浏览可用技能", "查看技能能解决什么问题", "把技能交给合适的员工", "在工作结果中查看技能产出"], loop: ["发现需要", "选择技能", "员工使用", "产出结果", "沉淀方法"], outcome: "得到一套可以反复使用的工作方法。" },
+      files: { label: "文件中心", icon: "▰", title: "找到数字员工交付给你的东西", intro: "报告、表格、方案和资料都会回到这里。每份文件都能追溯到对应的工作和项目。", purpose: "让交付物离开聊天后，仍然容易找到、打开和继续使用。", actions: ["按项目查看文件", "预览和打开交付物", "查看是谁、为哪件事产出的", "回到原来的工作继续推进"], loop: ["员工工作", "产生文件", "集中保存", "打开使用", "继续推进"], outcome: "得到一个清楚、可复用的项目资料库。" },
+      docs: { label: "文档", icon: "▤", title: "把团队的资料和方法放在一起", intro: "这里放业务资料、操作规范和已经验证过的工作方法，数字员工和你都可以随时查阅。", purpose: "让重要信息不散落在不同对话里。", actions: ["查阅业务资料和规则", "把资料提供给正在做的工作", "把有效经验整理成文档", "按项目或主题继续归类"], loop: ["积累资料", "工作时查阅", "得到结果", "复盘方法", "继续沉淀"], outcome: "得到一个大家都能使用的共享知识库。" },
+      memory: { label: "记忆", icon: "✧", title: "让数字员工越来越懂你的习惯", intro: "你可以告诉员工偏好、判断标准和不能触碰的边界。之后再做类似工作时，他们会记得这些要求。", purpose: "减少重复说明，让长期协作越来越顺手。", actions: ["查看员工记住了什么", "补充或修改工作偏好", "限定这条记忆适用的项目", "需要时恢复到之前的版本"], loop: ["告诉偏好", "员工记住", "工作中使用", "你给反馈", "持续变好"], outcome: "得到一支更懂你的数字员工团队。" }
+    };
+
+    const icon = (value) => `<div class="detail-icon">${value}</div>`;
+    const renderDefault = () => {
+      document.getElementById("topbarTitle").textContent = "Byering 工作台";
+      document.getElementById("content").innerHTML = `
+        <section class="hero"><div class="hero-copy"><div class="eyebrow">产品使用说明</div><h1>把目标交给数字员工团队，结果回到你的工作台。</h1><p>这不是功能清单，而是一张使用地图：你从哪里开始、每个页面帮你做什么，以及工作完成后结果会回到哪里。</p></div><div class="hero-meta"><strong>9 个页面入口</strong><span>1 条主线<br>从提出目标，到拿到结果。</span></div></section>
+        <section class="section"><div class="section-head"><h2>一件事是这样完成的</h2><p>你只需要把关键目标交代清楚</p></div><div class="overview-grid"><article class="overview-card"><div class="num">01</div><h3>说出目标</h3><p>告诉幕僚长你想完成什么，结果要达到什么标准。</p></article><article class="overview-card"><div class="num">02</div><h3>确认分工</h3><p>看看哪些数字员工参与，以及他们分别负责哪一步。</p></article><article class="overview-card"><div class="num">03</div><h3>看见推进</h3><p>员工会主动进场汇报，你可以补充、审批或接手。</p></article><article class="overview-card"><div class="num">04</div><h3>拿到结果</h3><p>交付物、进度和下一步都会回到你的工作台。</p></article></div></section>
+        <section class="section"><div class="section-head"><h2>页面地图</h2><p>从入口到资产，再回到下一次工作</p></div><div class="page-grid">${Object.entries(pages).map(([key, page]) => `<button class="page-card" data-page="${key}"><div class="page-card-top"><span class="page-badge">${page.icon}</span><h3>${page.label}</h3></div><p>${page.title}</p></button>`).join("")}</div></section>
+        <div class="footer-note">看板页另外提供了一张可点击的业务流程图，用来说明工作如何从项目进入看板，再回到下一步行动。</div>`;
+    };
+
+    const renderPage = (key) => {
+      const page = pages[key];
+      if (!page) return renderDefault();
+      document.getElementById("topbarTitle").textContent = `${page.label} · 使用说明`;
+      const flow = page.loop.map((item, index) => `<span class="source-chip ${index === page.loop.length - 1 ? "live" : ""}"><i></i>${item}</span>`).join("");
+      const isKanban = key === "kanban";
+      document.getElementById("content").innerHTML = `
+        <section class="hero"><div class="hero-copy">${icon(page.icon)}<div class="eyebrow" style="margin-top:15px">${page.label} / 使用说明</div><h1>${page.title}</h1><p>${page.intro}</p></div></section>
+        <section class="section"><div class="section-head"><h2>你可以在这里做什么</h2><p>${page.purpose}</p></div><div class="logic-layout"><article class="logic-card"><h3>常用动作</h3><div class="contract-list">${page.actions.map((action, index) => `<div class="contract-item"><b>0${index + 1}</b><span>${action}</span></div>`).join("")}</div></article><article class="side-card"><h3>完成后得到什么</h3><p>${page.outcome}</p><div class="source-row">${flow}</div></article></div></section>
+        ${isKanban ? renderKanbanFlow() : `<section class="section"><div class="section-head"><h2>页面闭环</h2><p>用户完成动作后，结果如何继续流动</p></div><div class="page-detail"><div class="detail-grid">${page.loop.map((item, index) => `<div class="detail-block"><strong>0${index + 1} · ${item}</strong><span>${page.actions[index % page.actions.length]}</span></div>`).join("")}</div></div></section>`}
+        <section class="section"><div class="section-head"><h2>接下来去哪</h2><p>工作不会停在这一页</p></div><div class="boundary"><div class="boundary-card good"><h4>继续推进</h4><p>${page.loop.slice(-2).join("，")}。</p></div><div class="boundary-card warn"><h4>需要你决定的事</h4><p>涉及对外沟通、账号权限、费用或最终确认时，数字员工会停下来等你。</p></div></div></section>`;
+      if (isKanban) bindFlowNodes();
+    };
+
+    const renderKanbanFlow = () => `<section class="section"><div class="section-head"><h2>看板业务逻辑图</h2><p>点击任意节点，看看一件工作如何被推进、展示，再回到下一步</p></div><div class="flow-wrap"><div class="flow" id="kanbanFlow"><svg viewBox="0 0 980 386" aria-hidden="true"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#adb8c1"></path></marker></defs><path class="flow-line" d="M160 174 C170 140 175 103 180 80"></path><path class="flow-line" d="M160 174 C170 220 175 264 180 277"></path><path class="flow-line" d="M340 80 L400 80"></path><path class="flow-line" d="M340 277 L400 277"></path><path class="flow-line" d="M560 80 C590 100 605 135 620 165"></path><path class="flow-line" d="M560 277 C590 252 605 220 620 202"></path><path class="flow-line" d="M780 174 L800 174"></path></svg><button class="flow-node node-1" data-detail="先在办公室里选定一个项目。这个项目里的目标、成员、工作和交付物，都会出现在对应的看板里。"><span class="step">01 / 起点</span><h4>项目</h4><p>确定这次要推进的事情</p></button><button class="flow-node node-2" data-detail="你在聊天里说出目标，或者直接从看板添加一项工作。它会进入项目的待办里，等你和团队继续推进。"><span class="step">02 / 工作</span><h4>要做的事</h4><p>来自聊天，也可以直接添加</p></button><button class="flow-node node-3" data-detail="看板不一定长一样。你可以选择更适合自己的颜色、布局、组件和阶段，让它更像你的工作台。"><span class="step">02 / 调整</span><h4>看板定制</h4><p>按你的习惯安排页面</p></button><button class="flow-node node-4" data-detail="合适的数字员工会主动介绍自己、说明负责哪一步，并在工作过程中持续告诉你进展。需要你决定的地方，他们会停下来等你。"><span class="step">03 / 推进</span><h4>员工执行</h4><p>有人负责，有人汇报</p></button><button class="flow-node node-5" data-detail="员工完成工作后，会把报告、表格、方案或下一步建议交给你。你可以打开交付物，也可以继续追问。"><span class="step">04 / 交付</span><h4>结果和文件</h4><p>真正能拿来使用的产出</p></button><button class="flow-node node-6" data-detail="看板会把当前阶段、负责人、进展和交付物放在一起，让你不用翻聊天也能看清项目现在的状态。"><span class="step">05 / 查看</span><h4>看板呈现</h4><p>一眼看清现在到哪一步</p></button><button class="flow-node node-7" data-detail="点击一项工作，可以回到原来的对话；点击文件，可以继续使用交付物。下一步行动完成后，看板会继续更新。"><span class="step">06 / 继续</span><h4>回到工作</h4><p>继续追问、确认或安排下一步</p></button></div><div class="flow-detail" id="flowDetail">先点击一个节点。建议从“项目”开始，沿着箭头查看一件工作如何走完整个流程。</div></div></section>`;
+
+    const bindFlowNodes = () => document.querySelectorAll(".flow-node").forEach((node) => node.addEventListener("click", () => { document.querySelectorAll(".flow-node").forEach((item) => item.classList.remove("selected")); node.classList.add("selected"); document.getElementById("flowDetail").textContent = node.dataset.detail; }));
+    const setActive = (key) => { document.querySelectorAll("[data-page]").forEach((node) => node.classList.toggle("active", node.dataset.page === key)); if (key) renderPage(key); else renderDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); };
+    document.addEventListener("click", (event) => { const node = event.target.closest?.("[data-page]"); if (node) setActive(node.dataset.page); });
+    document.getElementById("knowledgeToggle").addEventListener("click", () => { const button = document.getElementById("knowledgeToggle"); const children = document.getElementById("knowledgeChildren"); const open = children.classList.toggle("open"); button.classList.toggle("open", open); button.setAttribute("aria-expanded", String(open)); });
+    renderDefault();
+  </script>
+</body>
+</html>

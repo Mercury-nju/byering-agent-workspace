@@ -1,0 +1,13 @@
+../../../bin/dooti,sha256=Yw0K2_paUpvVmcTyDnH375fugLlk6ouL3OOWWnOuvGo,386
+dooti-0.2.2.dist-info/INSTALLER,sha256=5hhM4Q4mYTT9z6QB6PGpUAW81PGNFrYrdXMj4oM_6ak,2
+dooti-0.2.2.dist-info/LICENSE,sha256=OXLcl0T2SZ8Pmy2_dmlvKuetivmyPd5m1q-Gyd-zaYY,35149
+dooti-0.2.2.dist-info/METADATA,sha256=gJhne8FJkzbfLKEy2pEXlRb7CpiqupL0k9gl4fswp_c,5625
+dooti-0.2.2.dist-info/RECORD,,
+dooti-0.2.2.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+dooti-0.2.2.dist-info/WHEEL,sha256=OVMc5UfuAQiSplgO0_WdW7vXVGAt9Hdd6qtN4HotdyA,91
+dooti-0.2.2.dist-info/entry_points.txt,sha256=v2qy6QbnDTLTj5wE35PP-O-C4mA0rlAtCYzNvK2Tmv0,41
+dooti-0.2.2.dist-info/top_level.txt,sha256=KIe-k0EQQhwXEZdK6j_4sMTtpcRI6sIYtcIzEsGD9_g,6
+dooti/__init__.py,sha256=zZDp8NETP3r1f-zjtkDHjvM7HeRty3NBzsLOpyiohOs,224
+dooti/cli.py,sha256=X-jb2kys7HPrLvS7BSv8UumTX5T6BVdjncJBsZyY_kg,11901
+dooti/dooti.py,sha256=VAHiG91S5TOD6YQ2O1JxauEGfs9oZDWLPKUNhxKnHmc,8357
+dooti/version.py,sha256=SEm2Yab8SVn8M6Td3yj4N6sd_4bL1QVFrb1JDh_QKg0,21

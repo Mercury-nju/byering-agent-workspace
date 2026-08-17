@@ -1,0 +1,309 @@
+# Bash 危险命令检测规则 (Linux / macOS)
+# 类别：RCE（代码下载执行）、NET（网络出网）、DEL（文件删除/系统破坏）
+# 匹配默认 case-insensitive
+
+rules:
+  # ============================================================
+  # RCE: 代码下载执行 (RCE-201 ~ RCE-208)
+  # ============================================================
+
+  - id: RCE-201
+    category: RCE
+    category_name: 代码下载执行
+    description: 从远程下载脚本并管道到 shell 解释器执行，是典型的远程代码执行模式。
+    pattern: '(curl|wget)\s+.+\|\s*(bash|sh|zsh|ksh|dash)\b'
+
+  - id: RCE-202
+    category: RCE
+    category_name: 代码下载执行
+    description: 通过 eval 执行远程下载内容，是典型的远程代码执行模式。
+    pattern: 'eval\s+.*\$\(\s*(curl|wget)\s+'
+
+  - id: RCE-203
+    category: RCE
+    category_name: 代码下载执行
+    description: 解码 base64 后管道到 shell 执行，可能用于规避检测。
+    pattern: 'base64\s+(-d|--decode).*\|\s*(bash|sh|eval)\b'
+
+  - id: RCE-204
+    category: RCE
+    category_name: 代码下载执行
+    description: 从远程下载代码并管道到脚本语言解释器执行。
+    pattern: '(curl|wget)\s+.+\|\s*(python[23]?|perl|ruby)\b'
+
+  - id: RCE-205
+    category: RCE
+    category_name: 代码下载执行
+    description: 下载文件后赋予可执行权限，典型攻击链。
+    pattern: '(curl|wget)\s+.+&&.*chmod\s+\+x'
+
+  - id: RCE-206
+    category: RCE
+    category_name: 代码下载执行
+    description: 利用 bash 内建 /dev/tcp 建立反向网络连接，是经典的反弹 shell 模式。
+    pattern: '/dev/tcp/'
+
+  - id: RCE-207
+    category: RCE
+    category_name: 代码下载执行
+    description: 通过文件描述符重定向到 TCP 连接实现反弹 shell。
+    pattern: 'exec\s+\d+<>/dev/tcp/'
+
+  - id: RCE-208
+    category: RCE
+    category_name: 代码下载执行
+    description: Python one-liner 反弹 shell，通过 socket 连接远程主机。
+    pattern: 'python[23]?\s+-c\s+.*socket.*connect'
+
+  # ============================================================
+  # NET: 网络出网 (NET-203 ~ NET-207)
+  # ============================================================
+
+  - id: NET-203
+    category: NET
+    category_name: 网络出网
+    description: 建立网络连接并绑定命令执行，典型反弹 shell 模式。
+    pattern: '\b(nc|ncat|netcat)\b\s+.*-[a-zA-Z]*e'
+
+  - id: NET-204
+    category: NET
+    category_name: 网络出网
+    description: 高级网络连接工具，可能用于反弹 shell 或数据外传。
+    pattern: '\bsocat\b\s+.*(TCP|UDP|EXEC)'
+
+  - id: NET-205
+    category: NET
+    category_name: 网络出网
+    description: 向远程主机传输文件，可能用于数据外传。
+    pattern: '\bscp\b\s+.*@'
+
+  - id: NET-206
+    category: NET
+    category_name: 网络出网
+    description: 向远程主机同步文件，可能用于数据外传。
+    pattern: '\brsync\b\s+.*@'
+
+  - id: NET-207
+    category: NET
+    category_name: 网络出网
+    description: 通过 HTTP 上传本地文件内容，可能用于数据外传。
+    pattern: '\b(curl|wget)\b\s+.*(--data-binary\s+@|--upload-file\s+|-F\s+["\x27]?[a-zA-Z_]+=@|-d\s+@|--post-file\s+)'
+
+  # ============================================================
+  # DEL: 文件删除 / 系统破坏
+  # ============================================================
+
+  # --- 文件批量删除 (DEL-201 ~ DEL-204) ---
+
+  - id: DEL-201
+    category: DEL
+    category_name: 文件删除
+    description: 递归删除目录及其内容，可能导致大量文件不可恢复地丢失。
+    pattern: '(?:^|[;&|]\s*)\brm\b\s+.*(-[a-zA-Z]*r[a-zA-Z]*\b|--recursive)'
+    severity: critical
+
+  - id: DEL-202
+    category: DEL
+    category_name: 文件删除
+    description: find 命令批量删除匹配文件。
+    pattern: '\bfind\b\s+.*-delete\b'
+
+  - id: DEL-203
+    category: DEL
+    category_name: 文件删除
+    description: find 命令配合 rm 批量删除文件。
+    pattern: '\bfind\b\s+.*-exec\s+rm\b'
+
+  - id: DEL-204
+    category: DEL
+    category_name: 文件删除
+    description: 管道到 xargs 批量删除文件。
+    pattern: '\|\s*xargs\s+(rm|unlink)\b'
+
+  # --- 磁盘与分区 (DEL-205 ~ DEL-210) ---
+
+  - id: DEL-205
+    category: DEL
+    category_name: 文件删除
+    description: 用零/随机数据覆写设备或文件，将导致数据不可恢复。
+    pattern: '\bdd\b\s+.*if=/dev/(zero|urandom)'
+
+  - id: DEL-206
+    category: DEL
+    category_name: 文件删除
+    description: 格式化文件系统，擦除分区上的所有数据。
+    pattern: '\bmkfs\b'
+
+  - id: DEL-207
+    category: DEL
+    category_name: 文件删除
+    description: 安全擦除文件，不可恢复。
+    pattern: '\bshred\b'
+
+  - id: DEL-208
+    category: DEL
+    category_name: 文件删除
+    description: 擦除文件系统签名。
+    pattern: '\bwipefs\b'
+
+  - id: DEL-209
+    category: DEL
+    category_name: 文件删除
+    description: 磁盘分区操作，可能破坏分区表导致数据丢失。
+    pattern: '\bfdisk\b'
+
+  - id: DEL-210
+    category: DEL
+    category_name: 文件删除
+    description: 磁盘分区操作，可能破坏分区表导致数据丢失。
+    pattern: '\bparted\b'
+
+  # --- 系统配置与服务 (DEL-211 ~ DEL-215) ---
+
+  - id: DEL-211
+    category: DEL
+    category_name: 文件删除
+    description: 删除当前用户所有 cron 定时任务，不可恢复。
+    pattern: 'crontab\s+-r'
+
+  - id: DEL-212
+    category: DEL
+    category_name: 文件删除
+    description: 将文件截断为零字节，内容不可恢复。
+    pattern: '\btruncate\b.*-s\s*0'
+
+  - id: DEL-213
+    category: DEL
+    category_name: 文件删除
+    description: 重定向覆写系统关键目录中的文件，可能破坏系统配置。
+    pattern: '>\s*/(etc|boot|sys)/'
+
+  - id: DEL-214
+    category: DEL
+    category_name: 文件删除
+    description: 停止或禁用系统服务，可能影响系统运行。
+    pattern: '\b(systemctl|service)\b\s+.*(stop|disable)\b'
+
+  - id: DEL-215
+    category: DEL
+    category_name: 文件删除
+    description: 同步时删除目标端多余文件，可能导致意外数据丢失。
+    pattern: 'rsync.*--delete'
+
+  # --- Docker / K8s / Cloud (DEL-216 ~ DEL-221) ---
+
+  - id: DEL-216
+    category: DEL
+    category_name: 文件删除
+    description: 清理 Docker 未使用资源，可能删除所需的镜像/容器/卷。
+    pattern: 'docker\s+(system|image|container|volume)\s+prune'
+
+  - id: DEL-217
+    category: DEL
+    category_name: 文件删除
+    description: 删除 Docker 镜像。
+    pattern: 'docker\s+rmi\b'
+
+  - id: DEL-218
+    category: DEL
+    category_name: 文件删除
+    description: 删除 Docker 数据卷，卷中的数据将不可恢复。
+    pattern: 'docker\s+volume\s+rm\b'
+
+  - id: DEL-219
+    category: DEL
+    category_name: 文件删除
+    description: 删除 Kubernetes 资源，可能影响生产服务。
+    pattern: 'kubectl\s+delete\b'
+
+  - id: DEL-220
+    category: DEL
+    category_name: 文件删除
+    description: 销毁 Terraform 管理的基础设施，所有资源将被删除。
+    pattern: 'terraform\s+destroy'
+
+  - id: DEL-221
+    category: DEL
+    category_name: 文件删除
+    description: 删除云服务资源，可能造成不可恢复的损失。
+    pattern: '\b(aws|az|gcloud)\b\s+.*\bdelete\b'
+
+  # --- Git 破坏性操作 (DEL-222 ~ DEL-232) ---
+
+  - id: DEL-222
+    category: DEL
+    category_name: 文件删除
+    description: 删除未跟踪的文件和目录，无法通过 git 恢复。
+    pattern: 'git\s+clean\s+-[fdxX]'
+
+  - id: DEL-223
+    category: DEL
+    category_name: 文件删除
+    description: 丢弃所有未提交的更改（暂存和工作区），不可恢复。
+    pattern: 'git\s+reset\s+--hard'
+
+  - id: DEL-224
+    category: DEL
+    category_name: 文件删除
+    description: 丢弃工作区文件更改，未提交的修改将不可恢复。
+    pattern: 'git\s+checkout\s+--\s'
+
+  - id: DEL-225
+    category: DEL
+    category_name: 文件删除
+    description: 丢弃工作区更改（git checkout -- 的新版替代），未提交的修改将不可恢复。
+    pattern: 'git\s+restore\b(?!\s+--staged\b)'
+
+  - id: DEL-226
+    category: DEL
+    category_name: 文件删除
+    description: 强制切换分支，丢弃未提交更改。
+    pattern: 'git\s+checkout\s+-[fF]'
+
+  - id: DEL-227
+    category: DEL
+    category_name: 文件删除
+    description: 永久删除 stash，不可恢复。
+    pattern: 'git\s+stash\s+(drop|clear)\b'
+
+  - id: DEL-228
+    category: DEL
+    category_name: 文件删除
+    description: 强制推送覆写远程历史，可能导致团队成员丢失工作。
+    pattern: 'git\s+push(\s+[^\s]+)*\s+(-f|--force)(\s|$)'
+
+  - id: DEL-229
+    category: DEL
+    category_name: 文件删除
+    description: 删除远程分支。
+    pattern: 'git\s+push\s+.*(--delete\b|\s:[^\s])'
+
+  - id: DEL-230
+    category: DEL
+    category_name: 文件删除
+    description: 强制删除未合并的本地分支，分支上的提交可能丢失。
+    pattern: 'git\s+branch\s+-D\b'
+    case_sensitive: true
+
+  - id: DEL-231
+    category: DEL
+    category_name: 文件删除
+    description: 重写 Git 历史，不可恢复。
+    pattern: 'git\s+filter-(branch|repo)\b'
+
+  - id: DEL-232
+    category: DEL
+    category_name: 文件删除
+    description: 删除 reflog 条目，使历史无法通过 reflog 恢复。
+    pattern: 'git\s+reflog\s+(delete|expire)\b'
+
+  # --- 高危路径删除“护栏”（仅 macOS 与 Linux 用户内容目录前缀） ---
+
+  - id: DEL-233
+    category: DEL
+    category_name: 文件删除
+    description: 递归删除位于用户家目录下重要子目录（Desktop/Documents/Downloads/Pictures 等）的内容，以往事故高发，需改派 delete 工具走回收站。
+    # 匹配：rm 后出现 -[含r] 参数 + 路径含 /Users/<name>/<重要子目录> 或 /home/<name>/<重要子目录>
+    # 用户名支持中文 [\w\u4e00-\u9fa5]+；禁止误命中 /var//opt//tmp//etc/ 等系统目录前缀
+    pattern: '(?:^|[;&|]\s*)\brm\b\s+(?:-[a-zA-Z]*r[a-zA-Z]*\b|--recursive)\s+(?:[^\s]+\s+)*(?:"|''|)?(?:/Users|/home)/[\w\u4e00-\u9fa5][\w\u4e00-\u9fa5\.\-]*/(?:Desktop|Developer|Documents|Downloads|Pictures|Movies|Music|Videos|Projects|Code|Work)(?:[\\/ ]|$)'
+    severity: critical

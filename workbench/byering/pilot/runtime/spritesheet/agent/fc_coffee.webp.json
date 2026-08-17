@@ -1,0 +1,463 @@
+{
+  "frames": {
+    "fc_coffee_00000.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00001.png": {
+      "frame": {
+        "x": 84,
+        "y": 0,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00002.png": {
+      "frame": {
+        "x": 168,
+        "y": 0,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00003.png": {
+      "frame": {
+        "x": 252,
+        "y": 0,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00004.png": {
+      "frame": {
+        "x": 336,
+        "y": 0,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00005.png": {
+      "frame": {
+        "x": 420,
+        "y": 0,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00006.png": {
+      "frame": {
+        "x": 504,
+        "y": 0,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00007.png": {
+      "frame": {
+        "x": 588,
+        "y": 0,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00008.png": {
+      "frame": {
+        "x": 0,
+        "y": 96,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00009.png": {
+      "frame": {
+        "x": 84,
+        "y": 96,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00010.png": {
+      "frame": {
+        "x": 168,
+        "y": 96,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00011.png": {
+      "frame": {
+        "x": 252,
+        "y": 96,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00012.png": {
+      "frame": {
+        "x": 336,
+        "y": 96,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00013.png": {
+      "frame": {
+        "x": 420,
+        "y": 96,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00014.png": {
+      "frame": {
+        "x": 504,
+        "y": 96,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00015.png": {
+      "frame": {
+        "x": 588,
+        "y": 96,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00016.png": {
+      "frame": {
+        "x": 0,
+        "y": 192,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00017.png": {
+      "frame": {
+        "x": 84,
+        "y": 192,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00018.png": {
+      "frame": {
+        "x": 168,
+        "y": 192,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00019.png": {
+      "frame": {
+        "x": 252,
+        "y": 192,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_coffee_00020.png": {
+      "frame": {
+        "x": 336,
+        "y": 192,
+        "w": 84,
+        "h": 96
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 114,
+        "y": 74,
+        "w": 84,
+        "h": 96
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    }
+  },
+  "animations": {
+    "fc_coffee": [
+      "fc_coffee_00000.png",
+      "fc_coffee_00001.png",
+      "fc_coffee_00002.png",
+      "fc_coffee_00003.png",
+      "fc_coffee_00004.png",
+      "fc_coffee_00005.png",
+      "fc_coffee_00006.png",
+      "fc_coffee_00007.png",
+      "fc_coffee_00008.png",
+      "fc_coffee_00009.png",
+      "fc_coffee_00010.png",
+      "fc_coffee_00011.png",
+      "fc_coffee_00012.png",
+      "fc_coffee_00013.png",
+      "fc_coffee_00014.png",
+      "fc_coffee_00015.png",
+      "fc_coffee_00016.png",
+      "fc_coffee_00017.png",
+      "fc_coffee_00018.png",
+      "fc_coffee_00019.png",
+      "fc_coffee_00020.png"
+    ]
+  },
+  "meta": {
+    "app": "http://github.com/pixijs/assetpack",
+    "version": "1.0",
+    "image": "fc_coffee.webp",
+    "format": "RGBA8888",
+    "size": {
+      "w": 672,
+      "h": 288
+    },
+    "scale": 1,
+    "related_multi_packs": [],
+    "realImage": "fc_coffee.webp",
+    "placeholderApplied": false
+  }
+}

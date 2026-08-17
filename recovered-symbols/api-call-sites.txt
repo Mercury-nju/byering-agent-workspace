@@ -1,0 +1,222 @@
+# HTTP API Call-Site Contexts
+
+Generated from readable JavaScript assets. Snippets are bounded and production secrets are redacted.
+
+## /v3/get_account_device_info
+
+- assets/index-CriD6gLK.js: }async function bi(){const{openId:e=""}=ds.getUserInfo(),t=await K5();return{loginType:Z5(),openId:e,guid:t,platform:Q5()}}async function X5(){const e=await bi(),t=await fs({path:"/v3/get_account_device_info",body:e,bid:hr.BorderlessSpace,accessKey:ua[hr.BorderlessSpace],headers:gi()}),r=t?.account_device_info??t?.accountDeviceInfo,s=r?{deviceId:r.device_id??r.deviceId??"",deviceName:r.device_name??r.deviceName??"",publicKey:r.public_key??r.publicKey??"",enableRemoteControl:r.enable_remote_control??r.e
+
+## /v3/get_associated_device_list
+
+- assets/index-CriD6gLK.js: eviceSecurityPolicy),publicKey:e.public_key??e.publicKey??"",updateTime:e.update_time??e.updateTime??0}}async function n4(e,t){const s={...await bi(),deviceId:e},i=await fs({path:"/v3/get_associated_device_list",body:s,bid:hr.BorderlessSpace,accessKey:ua[hr.BorderlessSpace],headers:gi()}),o=i?.associated_device_list??i?.associatedDeviceList??[];return{ret:i?.ret??0,msg:i?.msg??"",associatedDeviceList:o.map(r4)}}var s4="0123456789abcdefghijklmnopqrstuvwxyz";function cr(e){return s4.charAt(e)}function a4(e,
+
+## /v3/get_marvis_notice
+
+- assets/index-CriD6gLK.js: useEffect(()=>(vi("macAppletLauncher",E2),()=>{_i("macAppletLauncher")}),[])}function D6(){f.useEffect(()=>(vi("request",{postWithSignature:fs}),()=>{_i("request")}),[])}const N6="/v3/get_marvis_notice";async function B6(){try{return await la.GetChannel()||""}catch(e){return Q.warn("[getReminderNotice] Application.GetChannel failed, fallback empty",e),""}}async function j6(){const t={channel_id:await B6()};return fs({path:N6,body:t,bid:hr.MarvisClient,accessKey:ua[hr.MarvisClient],optionalLogin:!
+
+## /v3/get_pc_wx_ticket
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: ||e.code!==0||!e.share_id)throw new Error(`createConversationShare failed: code=${e?.code}, msg=${e?.msg}`);return`${nP}${e.share_id}`}async function N6t(){const t=await ys({path:"/v3/get_pc_wx_ticket",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0});if(!t||t.ret!==0||!t.ticket)throw new Error(`getPCWXTicket failed: code=${t?.ret}, msg=${t?.msg}`);return t.ticket}const U6t="wxb650708317d56f88",A6t="与Marvis的对话",T6t="点击查看对话详情",E6t="https://cdn.yyb.gtimg.com/wupload/xy/yybte
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: g99BuNQOyj6o7U1F7iJcb9FN5cu",marvis_client:"fpzkeTlcGLVP37qiOWd29MyaOqaJYxMi",borderless_space:"9788d4c212748e556ed67ba0750aa8b2"},$Z=new vs("PcyybWxTicket"),uBn="2100100013",eTe="/v3/get_pc_wx_ticket";async function hBn(){$Z.info(`request ticket: path=${eTe} channel=${uBn}`);let t;try{t=await ys({path:eTe,body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}catch(n){throw $Z.error("fetchPcyybWxTicket http error",n),n}const e={msg:t?.msg,hasTicket:!!t?.ticket,ticketLen:t?.tic
+
+## /v3/get_skill_detail
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: _all:1},bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function SW(t){return ys({path:"/v3/get_skill_list",body:t??{},bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function Vte(t){return ys({path:"/v3/get_skill_detail",body:t,bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function oZn(t){return ys({path:"/v3/skill_operate",body:t,bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function Q4(){const t=Pu(),e=h.useRef(!0);return h.useEffect(()=>(e.current=!0,()=>{e.current=!1}),[]),h.useCallback(()=>e.current&&Ce.getState().tab.active
+
+## /v3/get_skill_list
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: lCpu:t}=Ce.getState().legacy.client;return ys({path:"/v3/get_skill_type",body:{is_intel_cpu:t?1:0,need_all:1},bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function SW(t){return ys({path:"/v3/get_skill_list",body:t??{},bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function Vte(t){return ys({path:"/v3/get_skill_detail",body:t,bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function oZn(t){return ys({path:"/v3/skill_operate",body:t,bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function Q4(){const t=Pu(),e=h.useRef(!0);return h.u
+
+## /v3/get_skill_type
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: s not resolved to pixel value correctly`,e,hc.WARN),e==="normal"?0:parseInt(e??"0",10)}const iX=sZn;function yIe(){const{isIntelCpu:t}=Ce.getState().legacy.client;return ys({path:"/v3/get_skill_type",body:{is_intel_cpu:t?1:0,need_all:1},bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function SW(t){return ys({path:"/v3/get_skill_list",body:t??{},bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function Vte(t){return ys({path:"/v3/get_skill_detail",body:t,bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function oZn(t){return
+
+## /v3/marvis_add_skill_by_url
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: 0})}function Ayn(t){return ys({path:"/v3/marvis_skill_case_comment_delete",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function dDn(t){return ys({path:"/v3/marvis_add_skill_by_url",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}var Tyn=(t=>(t[t.Draft=0]="Draft",t[t.Publish=1]="Publish",t))(Tyn||{});function uDn(t){return ys({path:"/v3/marvis_publish_skill_case",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}var Eyn=(t=>(t[t.U
+
+## /v3/marvis_commerce_add_address
+
+- cards/ordering-tea/empty-C-sLburo.js: import { p as e, h as a } from "./report-BkiHygWt.js"; import { e as C } from "./apiError-CRSB73RG.js"; const r = a("AddressApi"), i = "/v3/marvis_commerce_list_addresses", t = "/v3/marvis_commerce_add_address", d = "/v3/marvis_commerce_update_address", c = "/v3/marvis_commerce_address_search"; class o { /** 收货地址列表：按品牌返回当前用户已保存的收货地址 */ async listAddresses(l) { try { const s = await e(i, l); return C("listAddresses", s?.base), s.addresses ?? []; } catch (s) { throw r.error("l
+
+## /v3/marvis_commerce_address_search
+
+- cards/ordering-tea/empty-C-sLburo.js: ./apiError-CRSB73RG.js"; const r = a("AddressApi"), i = "/v3/marvis_commerce_list_addresses", t = "/v3/marvis_commerce_add_address", d = "/v3/marvis_commerce_update_address", c = "/v3/marvis_commerce_address_search"; class o { /** 收货地址列表：按品牌返回当前用户已保存的收货地址 */ async listAddresses(l) { try { const s = await e(i, l); return C("listAddresses", s?.base), s.addresses ?? []; } catch (s) { throw r.error("listAddresses 接口失败 brand={0} {1!e}", l.brand, s), s; } } /** 新增收货地址：返回后端生成的 a
+
+## /v3/marvis_commerce_cancel_order
+
+- cards/ordering-tea/place-order/index.esm.js: rch_products", wr = "/v3/marvis_commerce_get_product", Er = "/v3/marvis_commerce_price_sku", Mr = "/v3/marvis_commerce_create_order", Ar = "/v3/marvis_commerce_query_order", Sr = "/v3/marvis_commerce_cancel_order", Rr = "/v3/marvis_commerce_get_auth_profile"; class Lr { /** 获取auth信息 品牌 */ async getAuthProfile(t) { try { const r = await we(Rr, t); return Ee("getAuthProfile", r?.base), r; } catch (r) { throw Me.error("getAuthProfile 接口失败 brand={0} {1!e}", t.brand, r), r; } 
+
+## /v3/marvis_commerce_check_login_status
+
+- cards/ordering-tea/userLogin-BzmJpzuu.js:  return await s("/v3/marvis_commerce_order_login", r).then( (e) => e, (e) => (n.error("[login] {0!e}", e), {}) ); } async checkLogin() { return await s("/v3/marvis_commerce_check_login_status", {}).then( (t) => t, (t) => (n.error("[checkLogin] {0!e}", t), {}) ); } /** 返回用户登录态及资料 */ async getAuthProfile(r) { return await s("/v3/marvis_commerce_get_auth_profile", { brand: r }).then( (e) => e, (e) => (n.error("[getAuthProfile] {0!e}", e), {}) ); 
+
+## /v3/marvis_commerce_create_order
+
+- cards/ordering-tea/place-order/index.esm.js: rceApi"), vr = "/v3/marvis_commerce_preview_order", Ir = "/v3/marvis_commerce_search_products", wr = "/v3/marvis_commerce_get_product", Er = "/v3/marvis_commerce_price_sku", Mr = "/v3/marvis_commerce_create_order", Ar = "/v3/marvis_commerce_query_order", Sr = "/v3/marvis_commerce_cancel_order", Rr = "/v3/marvis_commerce_get_auth_profile"; class Lr { /** 获取auth信息 品牌 */ async getAuthProfile(t) { try { const r = await we(Rr, t); return Ee("getAuthProfile", r?.base), r; } catch (r) { 
+
+## /v3/marvis_commerce_get_auth_profile
+
+- cards/ordering-tea/place-order/index.esm.js: get_product", Er = "/v3/marvis_commerce_price_sku", Mr = "/v3/marvis_commerce_create_order", Ar = "/v3/marvis_commerce_query_order", Sr = "/v3/marvis_commerce_cancel_order", Rr = "/v3/marvis_commerce_get_auth_profile"; class Lr { /** 获取auth信息 品牌 */ async getAuthProfile(t) { try { const r = await we(Rr, t); return Ee("getAuthProfile", r?.base), r; } catch (r) { throw Me.error("getAuthProfile 接口失败 brand={0} {1!e}", t.brand, r), r; } } /** 订单预览：返回 OrderPreview（含 lines 详情 / sto
+- cards/ordering-tea/userLogin-BzmJpzuu.js: e_check_login_status", {}).then( (t) => t, (t) => (n.error("[checkLogin] {0!e}", t), {}) ); } /** 返回用户登录态及资料 */ async getAuthProfile(r) { return await s("/v3/marvis_commerce_get_auth_profile", { brand: r }).then( (e) => e, (e) => (n.error("[getAuthProfile] {0!e}", e), {}) ); } } const h = new c(); export { h as u }; 
+
+## /v3/marvis_commerce_get_city_list
+
+- cards/ordering-tea/index-c2GmKP5G.js:  e as M, j as f, f as k, q as at, w as Le, c as it } from "./report-BkiHygWt.js"; const V = rt("StoreApi"); class st { /** 获取城市列表 */ async getCityList(e) { return await U("/v3/marvis_commerce_get_city_list", e).then( (n) => n, (n) => (V.error("[getCityList] {0!e}", n), {}) ); } /** 关键词搜门店 */ async searchStores(e) { return await U("/v3/marvis_commerce_search_stores", e).then( (n) => n, (n) => (V.error("[searchStores] {0!e}", n), {}) ); } /** 获取门店详情 */ as
+
+## /v3/marvis_commerce_get_product
+
+- cards/ordering-tea/place-order/index.esm.js: Id 命中项；不回退任何接口返回的地址 address: u, loading: g }; } const Me = Oe("CommerceApi"), vr = "/v3/marvis_commerce_preview_order", Ir = "/v3/marvis_commerce_search_products", wr = "/v3/marvis_commerce_get_product", Er = "/v3/marvis_commerce_price_sku", Mr = "/v3/marvis_commerce_create_order", Ar = "/v3/marvis_commerce_query_order", Sr = "/v3/marvis_commerce_cancel_order", Rr = "/v3/marvis_commerce_get_auth_profile"; class Lr { /** 获取auth信息 品牌 */ async getAuthProfile(t) { try { const r = await 
+
+## /v3/marvis_commerce_get_store
+
+- cards/ordering-tea/index-c2GmKP5G.js: _commerce_search_stores", e).then( (n) => n, (n) => (V.error("[searchStores] {0!e}", n), {}) ); } /** 获取门店详情 */ async getStoreDetail(e) { return await U("/v3/marvis_commerce_get_store", e).then( (n) => n, (n) => (V.error("[getStoreDetail] {0!e}", n), {}) ); } /** 查询附近门店 */ async listNearbyStores(e) { return await U("/v3/marvis_commerce_list_nearby_stores", e).then( (n) => n, (n) => (V.error("[listNearbyStores] {0!e}", n), {}) ); } } co
+
+## /v3/marvis_commerce_list_addresses
+
+- cards/ordering-tea/empty-C-sLburo.js: import { p as e, h as a } from "./report-BkiHygWt.js"; import { e as C } from "./apiError-CRSB73RG.js"; const r = a("AddressApi"), i = "/v3/marvis_commerce_list_addresses", t = "/v3/marvis_commerce_add_address", d = "/v3/marvis_commerce_update_address", c = "/v3/marvis_commerce_address_search"; class o { /** 收货地址列表：按品牌返回当前用户已保存的收货地址 */ async listAddresses(l) { try { const s = await e(i, l); return C("listAddresses", s?.base), s.addresses ?? []; 
+
+## /v3/marvis_commerce_list_nearby_stores
+
+- cards/ordering-tea/index-c2GmKP5G.js: _commerce_get_store", e).then( (n) => n, (n) => (V.error("[getStoreDetail] {0!e}", n), {}) ); } /** 查询附近门店 */ async listNearbyStores(e) { return await U("/v3/marvis_commerce_list_nearby_stores", e).then( (n) => n, (n) => (V.error("[listNearbyStores] {0!e}", n), {}) ); } } const Jt = new st(); var H = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}; function ct(t) { return t && t.__esMod
+
+## /v3/marvis_commerce_order_login
+
+- cards/ordering-tea/userLogin-BzmJpzuu.js: return await s("/v3/marvis_commerce_send_sms_code", r).then( (e) => e, (e) => (n.error("[sendSmsCode] {0!e}", e), {}) ); } async login(r) { return await s("/v3/marvis_commerce_order_login", r).then( (e) => e, (e) => (n.error("[login] {0!e}", e), {}) ); } async checkLogin() { return await s("/v3/marvis_commerce_check_login_status", {}).then( (t) => t, (t) => (n.error("[checkLogin] {0!e}", t), {}) ); } /** 返回用户登录态及资料 */ async getAuthProfil
+
+## /v3/marvis_commerce_preview_order
+
+- cards/ordering-tea/place-order/index.esm.js:  }), () => { n = !1; }; }, [t, s, a]), { // 地址唯一来源：地址列表接口按 addressId 命中项；不回退任何接口返回的地址 address: u, loading: g }; } const Me = Oe("CommerceApi"), vr = "/v3/marvis_commerce_preview_order", Ir = "/v3/marvis_commerce_search_products", wr = "/v3/marvis_commerce_get_product", Er = "/v3/marvis_commerce_price_sku", Mr = "/v3/marvis_commerce_create_order", Ar = "/v3/marvis_commerce_query_order", Sr = "/v3/marvis_commerce_cancel_order", Rr = "/v3/marvis_commerce_get_auth_profile"; class Lr
+
+## /v3/marvis_commerce_price_sku
+
+- cards/ordering-tea/place-order/index.esm.js: loading: g }; } const Me = Oe("CommerceApi"), vr = "/v3/marvis_commerce_preview_order", Ir = "/v3/marvis_commerce_search_products", wr = "/v3/marvis_commerce_get_product", Er = "/v3/marvis_commerce_price_sku", Mr = "/v3/marvis_commerce_create_order", Ar = "/v3/marvis_commerce_query_order", Sr = "/v3/marvis_commerce_cancel_order", Rr = "/v3/marvis_commerce_get_auth_profile"; class Lr { /** 获取auth信息 品牌 */ async getAuthProfile(t) { try { const r = await we(Rr, t); return Ee("getAuthPro
+
+## /v3/marvis_commerce_query_order
+
+- cards/ordering-tea/place-order/index.esm.js: ew_order", Ir = "/v3/marvis_commerce_search_products", wr = "/v3/marvis_commerce_get_product", Er = "/v3/marvis_commerce_price_sku", Mr = "/v3/marvis_commerce_create_order", Ar = "/v3/marvis_commerce_query_order", Sr = "/v3/marvis_commerce_cancel_order", Rr = "/v3/marvis_commerce_get_auth_profile"; class Lr { /** 获取auth信息 品牌 */ async getAuthProfile(t) { try { const r = await we(Rr, t); return Ee("getAuthProfile", r?.base), r; } catch (r) { throw Me.error("getAuthProfile 接口失败 b
+
+## /v3/marvis_commerce_query_order_list
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: 7qiOWd29MyaOqaJYxMi";function FPt(){return DIe?"https://yybadaccess.sparta.html5.qq.com":jIe?"https://yybadaccesstest.3g.qq.com":"https://yybadaccess.3g.qq.com"}const vPt="6",kPt="/v3/marvis_commerce_query_order_list";function ZPt(){try{const{guid:t="web"}=JSON.parse(localStorage.getItem("envInfo")||"{}");return t||"web"}catch{return"web"}}function MPt(){const t=Qn.get("accesstoken"),e=Qn.get("openid"),n=Qn.get("logintype"),r={};return t&&(r["Ual-Access-Access-Token"]=t),e&&(r["Ual-Access-Openid"]=e),n&&(r["Ual
+
+## /v3/marvis_commerce_search_products
+
+- cards/ordering-tea/place-order/index.esm.js:  [t, s, a]), { // 地址唯一来源：地址列表接口按 addressId 命中项；不回退任何接口返回的地址 address: u, loading: g }; } const Me = Oe("CommerceApi"), vr = "/v3/marvis_commerce_preview_order", Ir = "/v3/marvis_commerce_search_products", wr = "/v3/marvis_commerce_get_product", Er = "/v3/marvis_commerce_price_sku", Mr = "/v3/marvis_commerce_create_order", Ar = "/v3/marvis_commerce_query_order", Sr = "/v3/marvis_commerce_cancel_order", Rr = "/v3/marvis_commerce_get_auth_profile"; class Lr { /** 获取auth信息 品牌 */ async getAuthProfi
+
+## /v3/marvis_commerce_search_stores
+
+- cards/ordering-tea/index-c2GmKP5G.js: vis_commerce_get_city_list", e).then( (n) => n, (n) => (V.error("[getCityList] {0!e}", n), {}) ); } /** 关键词搜门店 */ async searchStores(e) { return await U("/v3/marvis_commerce_search_stores", e).then( (n) => n, (n) => (V.error("[searchStores] {0!e}", n), {}) ); } /** 获取门店详情 */ async getStoreDetail(e) { return await U("/v3/marvis_commerce_get_store", e).then( (n) => n, (n) => (V.error("[getStoreDetail] {0!e}", n), {}) ); } /** 查询附近门店 */ a
+
+## /v3/marvis_commerce_send_sms_code
+
+- cards/ordering-tea/userLogin-BzmJpzuu.js: import { p as s, h as a } from "./report-BkiHygWt.js"; const n = a("UserLoginApi"); class c { async sendSmsCode(r) { return await s("/v3/marvis_commerce_send_sms_code", r).then( (e) => e, (e) => (n.error("[sendSmsCode] {0!e}", e), {}) ); } async login(r) { return await s("/v3/marvis_commerce_order_login", r).then( (e) => e, (e) => (n.error("[login] {0!e}", e), {}) ); } async checkLogin() { return await s("/v3/marvi
+
+## /v3/marvis_commerce_update_address
+
+- cards/ordering-tea/empty-C-sLburo.js: ort-BkiHygWt.js"; import { e as C } from "./apiError-CRSB73RG.js"; const r = a("AddressApi"), i = "/v3/marvis_commerce_list_addresses", t = "/v3/marvis_commerce_add_address", d = "/v3/marvis_commerce_update_address", c = "/v3/marvis_commerce_address_search"; class o { /** 收货地址列表：按品牌返回当前用户已保存的收货地址 */ async listAddresses(l) { try { const s = await e(i, l); return C("listAddresses", s?.base), s.addresses ?? []; } catch (s) { throw r.error("listAddresses 接口失败 brand={0} {1!e}", l.bran
+
+## /v3/marvis_create_conversation_share
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: ame:Kk.dropOverlayTitle,children:t})]})}),nP="https://marvis.qq.com/s/";function hRe(t){return t.startsWith(nP)?t.slice(nP.length):""}async function R6t(t){const e=await ys({path:"/v3/marvis_create_conversation_share",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0});if(!e||e.code!==0||!e.share_id)throw new Error(`createConversationShare failed: code=${e?.code}, msg=${e?.msg}`);return`${nP}${e.share_id}`}async function N6t(){const t=await ys({path:"/v3/get_pc_wx_ticket",body:{},bid:Fn.Marv
+
+## /v3/marvis_del_my_skillcase
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: x||{});function byn(t){return ys({path:"/v3/marvis_get_my_skillcases_page",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function HBe(t){return ys({path:"/v3/marvis_del_my_skillcase",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}const M4=t=>h.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:20,height:20,viewBox:"0 0 20 20",fill:"none",...t},h.createElement("path",{d:"M8.63091 15.5952C12.4772 15.5952 15.5952 12.4772 15.5952 8.63091C15.5952
+
+## /v3/marvis_get_mcp_cli_types
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: s}`),n}catch(n){throw Te.error(`[McpAdapter] reload 异常，name=${e}`,n),n}}}const la=new JLt;var YF=(t=>(t[t.Mcp=1]="Mcp",t[t.Cli=2]="Cli",t))(YF||{});function GLt(){return ys({path:"/v3/marvis_get_mcp_cli_types",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function PLt(t){return ys({path:"/v3/marvis_get_mcp_service_list",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function ly(t){return ys({path:"/v3/marvis_get_mcp_service_detail",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.Mar
+
+## /v3/marvis_get_mcp_service_detail
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: :Fs[Fn.MarvisClient]})}function PLt(t){return ys({path:"/v3/marvis_get_mcp_service_list",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function ly(t){return ys({path:"/v3/marvis_get_mcp_service_detail",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function XLt(){return ys({path:"/v3/marvis_get_tool_tab_list",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function g4e(t){return ys({path:"/v3/marvis_get_mcp_services_by_names",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.Mar
+
+## /v3/marvis_get_mcp_service_list
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: Cli=2]="Cli",t))(YF||{});function GLt(){return ys({path:"/v3/marvis_get_mcp_cli_types",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function PLt(t){return ys({path:"/v3/marvis_get_mcp_service_list",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function ly(t){return ys({path:"/v3/marvis_get_mcp_service_detail",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function XLt(){return ys({path:"/v3/marvis_get_tool_tab_list",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisC
+
+## /v3/marvis_get_mcp_services_by_names
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: ey:Fs[Fn.MarvisClient]})}function XLt(){return ys({path:"/v3/marvis_get_tool_tab_list",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function g4e(t){return ys({path:"/v3/marvis_get_mcp_services_by_names",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function _Lt(){return ys({path:"/v3/marvis_get_rec_mcps",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}const KLt="********";function V4e(t){if(!t||typeof t!="string")return{};try{const e=new URL(t),n={};return e.searchParams.
+
+## /v3/marvis_get_my_skillcase_baseinfo
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: )(Eyn||{});function hDn(t){return ys({path:"/v3/marvis_get_put_presign_url",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function UAe(){return ys({path:"/v3/marvis_get_my_skillcase_baseinfo",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}var hx=(t=>(t[t.Published=0]="Published",t[t.Liked=1]="Liked",t[t.Draft=2]="Draft",t))(hx||{});function byn(t){return ys({path:"/v3/marvis_get_my_skillcases_page",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needL
+
+## /v3/marvis_get_my_skillcases_page
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: Client,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}var hx=(t=>(t[t.Published=0]="Published",t[t.Liked=1]="Liked",t[t.Draft=2]="Draft",t))(hx||{});function byn(t){return ys({path:"/v3/marvis_get_my_skillcases_page",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function HBe(t){return ys({path:"/v3/marvis_del_my_skillcase",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}const M4=t=>h.createElement("svg",{xmlns:"http://www.w3.org/2000/svg",width:20,height:20,vie
+
+## /v3/marvis_get_put_presign_url
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: s_publish_skill_case",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}var Eyn=(t=>(t[t.UgcSkill=4]="UgcSkill",t))(Eyn||{});function hDn(t){return ys({path:"/v3/marvis_get_put_presign_url",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function UAe(){return ys({path:"/v3/marvis_get_my_skillcase_baseinfo",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}var hx=(t=>(t[t.Published=0]="Published",t[t.Liked=1]="Liked",t[t.Draft=2]="Draft",
+
+## /v3/marvis_get_rec_mcps
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: n.MarvisClient]})}function g4e(t){return ys({path:"/v3/marvis_get_mcp_services_by_names",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function _Lt(){return ys({path:"/v3/marvis_get_rec_mcps",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}const KLt="********";function V4e(t){if(!t||typeof t!="string")return{};try{const e=new URL(t),n={};return e.searchParams.forEach((r,s)=>{n[s]=r}),n}catch{return{}}}function qLt(t,e){try{const n=new URL(t);for(const[r,s]of Object.entries(
+
+## /v3/marvis_get_skill_case_detail
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: ssKey:Fs[Fn.MarvisClient]})}var BA=(t=>(t[t.Draft=-1]="Draft",t[t.Reviewing=0]="Reviewing",t[t.Pass=1]="Pass",t[t.NotPass=2]="NotPass",t))(BA||{});function LBe(t){return ys({path:"/v3/marvis_get_skill_case_detail",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],optionalLogin:!0})}var Hc=(t=>(t[t.Use=0]="Use",t[t.Like=1]="Like",t[t.Unlike=2]="Unlike",t[t.Add=3]="Add",t[t.Unadd=4]="Unadd",t))(Hc||{}),jo=(t=>(t[t.PC=0]="PC",t[t.Mobile=1]="Mobile",t))(jo||{}),Cu=(t=>(t[t.SingleCase=0]="SingleCase",t[t.
+
+## /v3/marvis_get_skill_case_types
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: .name} 中搜索`:""})})};var Ty=(t=>(t.Single="0",t.Collection="1",t.Ranking="2",t))(Ty||{}),_P=(t=>(t[t.Latest=0]="Latest",t[t.Hot=1]="Hot",t))(_P||{});function Vyn(){return ys({path:"/v3/marvis_get_skill_case_types",body:{need_all:1},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function Ryn(t){return ys({path:"/v3/marvis_get_skill_cases",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}var BA=(t=>(t[t.Draft=-1]="Draft",t[t.Reviewing=0]="Reviewing",t[t.Pass=1]="Pass",t[t.NotPass=2]="NotPass",t
+
+## /v3/marvis_get_skill_cases
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: t))(_P||{});function Vyn(){return ys({path:"/v3/marvis_get_skill_case_types",body:{need_all:1},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function Ryn(t){return ys({path:"/v3/marvis_get_skill_cases",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}var BA=(t=>(t[t.Draft=-1]="Draft",t[t.Reviewing=0]="Reviewing",t[t.Pass=1]="Pass",t[t.NotPass=2]="NotPass",t))(BA||{});function LBe(t){return ys({path:"/v3/marvis_get_skill_case_detail",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClie
+
+## /v3/marvis_get_tool_tab_list
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: Fs[Fn.MarvisClient]})}function ly(t){return ys({path:"/v3/marvis_get_mcp_service_detail",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function XLt(){return ys({path:"/v3/marvis_get_tool_tab_list",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function g4e(t){return ys({path:"/v3/marvis_get_mcp_services_by_names",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient]})}function _Lt(){return ys({path:"/v3/marvis_get_rec_mcps",body:{},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisC
+
+## /v3/marvis_ioa_2_fa
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: class lIn{queryAuthResult(e){return ys({path:"/v3/marvis_ioa_login_query",body:{guid:e},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}ioa2FA(e){return ys({path:"/v3/marvis_ioa_2_fa",body:{token:e},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}ioa2FAVerify(e,n){return ys({path:"/v3/marvis_ioa_2_fa_verify",body:{session_id:e,token:n},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}}const cIn=new lIn,ec=new vs("IoaAuthStore"),dIn=1e3,uIn=5e3,h
+
+## /v3/marvis_ioa_2_fa_verify
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: ],needLogin:!0})}ioa2FA(e){return ys({path:"/v3/marvis_ioa_2_fa",body:{token:e},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}ioa2FAVerify(e,n){return ys({path:"/v3/marvis_ioa_2_fa_verify",body:{session_id:e,token:n},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}}const cIn=new lIn,ec=new vs("IoaAuthStore"),dIn=1e3,uIn=5e3,hIn=6e4,pIn=6e5;let ad=null,oV=null,lV=null;const mIn={isPolling:!1,authToken:null,isIntranetUser:null};function dTe(t){try{const e=localStorage
+
+## /v3/marvis_ioa_login_query
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: ){try{return(await Gn.CheckIsIoaNetwork()).is_ioa_network}catch(t){return oIn.error("checkIsIntranetUser JSBridge 调用失败: {0!e}",t),!1}}class lIn{queryAuthResult(e){return ys({path:"/v3/marvis_ioa_login_query",body:{guid:e},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}ioa2FA(e){return ys({path:"/v3/marvis_ioa_2_fa",body:{token:e},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}ioa2FAVerify(e,n){return ys({path:"/v3/marvis_ioa_2_fa_verify",body:{session_id:e,token:n},
+
+## /v3/marvis_publish_skill_case
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: l",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}var Tyn=(t=>(t[t.Draft=0]="Draft",t[t.Publish=1]="Publish",t))(Tyn||{});function uDn(t){return ys({path:"/v3/marvis_publish_skill_case",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}var Eyn=(t=>(t[t.UgcSkill=4]="UgcSkill",t))(Eyn||{});function hDn(t){return ys({path:"/v3/marvis_get_put_presign_url",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function UAe(){return ys({path:"/v3/
+
+## /v3/marvis_query_bind_status
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: es.filter(r=>r.type!==bT.Persona)}))}}}var _Ie=(t=>(t[t.Unbound=0]="Unbound",t[t.Bound=1]="Bound",t))(_Ie||{});function iIn(t){const{openId:e=""}=Js.getUserInfo();return ys({path:"/v3/marvis_query_bind_status",body:{platform:"pc",openid:e},bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0,silentAuth:t?.silentAuth})}const DJ={passed:!1,bindStatus:"unknown"},aIn=(t,e)=>({...DJ,setPassed:n=>{t(r=>{r.inviteCode.passed=n})},reset:()=>{t(n=>{n.inviteCode.passed=DJ.passed,n.inviteCode.bindStatus=D
+
+## /v3/marvis_save_skill_case_use_record
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: 0]="SingleCase",t[t.Collection=1]="Collection",t[t.SkillInCase=2]="SkillInCase",t[t.McpInCase=3]="McpInCase",t[t.ClInCase=4]="ClInCase",t))(Cu||{});function Kd(t){return ys({path:"/v3/marvis_save_skill_case_use_record",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function YBe(t){return ys({path:"/v3/marvis_skill_case_comment_list",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],optionalLogin:!0})}function Nyn(t){return ys({path:"/v3/marvis_skill_case_comment",body:t,bid:Fn.Mar
+
+## /v3/marvis_skill_case_comment
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: )}function YBe(t){return ys({path:"/v3/marvis_skill_case_comment_list",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],optionalLogin:!0})}function Nyn(t){return ys({path:"/v3/marvis_skill_case_comment",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function Uyn(t){return ys({path:"/v3/marvis_skill_case_comment_like",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function Ayn(t){return ys({path:"/v3/marvis_skill_case_comment_delete",body:t,bid:Fn.
+
+## /v3/marvis_skill_case_comment_delete
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: :!0})}function Uyn(t){return ys({path:"/v3/marvis_skill_case_comment_like",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function Ayn(t){return ys({path:"/v3/marvis_skill_case_comment_delete",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function dDn(t){return ys({path:"/v3/marvis_add_skill_by_url",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}var Tyn=(t=>(t[t.Draft=0]="Draft",t[t.Publish=1]="Publish",t))(Tyn||{});function uDn(t){retu
+
+## /v3/marvis_skill_case_comment_like
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: Login:!0})}function Nyn(t){return ys({path:"/v3/marvis_skill_case_comment",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function Uyn(t){return ys({path:"/v3/marvis_skill_case_comment_like",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function Ayn(t){return ys({path:"/v3/marvis_skill_case_comment_delete",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function dDn(t){return ys({path:"/v3/marvis_add_skill_by_url",body:t,bid:Fn.MarvisC
+
+## /v3/marvis_skill_case_comment_list
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: {});function Kd(t){return ys({path:"/v3/marvis_save_skill_case_use_record",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function YBe(t){return ys({path:"/v3/marvis_skill_case_comment_list",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],optionalLogin:!0})}function Nyn(t){return ys({path:"/v3/marvis_skill_case_comment",body:t,bid:Fn.MarvisClient,accessKey:Fs[Fn.MarvisClient],needLogin:!0})}function Uyn(t){return ys({path:"/v3/marvis_skill_case_comment_like",body:t,bid:Fn.Mar
+
+## /v3/security_policy_manage
+
+- assets/index-CriD6gLK.js: ?0,msg:t?.msg??"",accountDeviceInfo:s,hasSecurityPassword:t?.has_security_password??t?.hasSecurityPassword??!1}}async function Ei(e){const r={...await bi(),...e},s=await fs({path:"/v3/security_policy_manage",body:r,bid:hr.BorderlessSpace,accessKey:ua[hr.BorderlessSpace],headers:gi()});return{ret:s?.ret??0,msg:s?.msg??""}}function Y5(e,t,r){return Ei({deviceId:e,operateType:1,securityType:t?1:2,associatedDeviceId:r,associatedDeviceName:"",enableRemoteControl:!0})}function J5(e,t){return Ei({deviceId:e,
+
+## /v3/skill_operate
+
+- assets/treemap-KZPCXAKY-Dm7XgKSQ.js: dy:t??{},bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function Vte(t){return ys({path:"/v3/get_skill_detail",body:t,bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function oZn(t){return ys({path:"/v3/skill_operate",body:t,bid:Fn.PcYyb,accessKey:Fs[Fn.PcYyb]})}function Q4(){const t=Pu(),e=h.useRef(!0);return h.useEffect(()=>(e.current=!0,()=>{e.current=!1}),[]),h.useCallback(()=>e.current&&Ce.getState().tab.activeTabId===t,[t])}const dv=""+new URL("example-BbnJpvVi.jpg",import.meta.url).href,lZn=t=>h.createEl
+

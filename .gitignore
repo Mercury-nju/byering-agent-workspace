@@ -1,0 +1,11 @@
+node_modules/
+.env
+.env.*
+!.env.example
+dist/
+*.log
+.vercel
+.env*
+
+# Local native runtime exceeds GitHub's single-file limit.
+components/DocPreview/libeditor_sdk_ffi.dylib

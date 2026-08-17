@@ -1,0 +1,30 @@
+# entity.domain 白名单 — spec_lint.py (§5.2) 用于校验 ActionDef.entity 字段。
+#
+# 用途: 防止 spec 作者拼错 domain (如 "newtwork" 被静默接受),也作为多 toolset
+# 共享 entity 的语义对齐参考表。entity.object 不做白名单约束 (取值面更广,
+# 由 lint warning 提示同 domain 重复 object 即可)。
+#
+# 维护规则:
+# 1. 新增 domain 必须有≥2 个 ActionDef 共用,避免一过性领域。
+# 2. 命名小写下划线,与 toolset / category 命名风格一致。
+# 3. 任意改动应跑 scripts/spec_lint.py 全量校验。
+
+version: 1
+
+domains:
+  - network          # Wi-Fi / 蓝牙 / 热点 / VPN / DNS / 网络诊断
+  - display          # 亮度 / 分辨率 / 显示器 / 夜览
+  - audio            # 音量 / 麦克风 / 扬声器 / 静音
+  - power            # 关机 / 重启 / 睡眠 / 电池
+  - storage          # 磁盘 / 文件 / 缓存清理
+  - input            # 键盘 / 鼠标 / 触控板 / 触控笔
+  - accessibility    # 辅助功能 / VoiceOver / 旁白 / 高对比
+  - language         # 语言 / 区域 / 输入法
+  - notification     # 通知中心 / 勿扰
+  - personalization  # 主题 / 壁纸 / 锁屏 / 深色模式
+  - taskbar          # 任务栏 / Dock / 窗口
+  - system_info      # 系统信息 / 关于本机 / 版本
+  - system_maintenance  # 系统维护 / 更新 / 备份
+  - app_management   # 应用管理 / 默认应用 / 卸载
+  - account_security # 账户 / 安全 / 锁屏密码 / 隐私
+  - settings         # 通用设置面板 (settings_page 类专用)

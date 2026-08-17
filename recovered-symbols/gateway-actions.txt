@@ -1,0 +1,46 @@
+# Gateway Action Candidates
+
+Generated from readable JavaScript assets under project/.
+
+- location.action.query
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- message.action.delete
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- message.action.get
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- message.action.list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- message.action.read
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- schedule.action.create
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- schedule.action.delete
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- schedule.action.exec
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- schedule.action.list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- schedule.action.read
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- schedule.action.update
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- skill.action.delete
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- skill.action.install
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- skill.action.list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- skill.action.localInstall
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- skill.action.update
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- switch.action.get
+  - assets/index-CriD6gLK.js
+- weixin.getQrcode
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- weixin.getStatus
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- weixin.releaseQrcode
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- weixin.unbind
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js

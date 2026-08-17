@@ -1,0 +1,799 @@
+{
+  "frames": {
+    "fc_running_treadmill_00000.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00001.png": {
+      "frame": {
+        "x": 181,
+        "y": 0,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00002.png": {
+      "frame": {
+        "x": 362,
+        "y": 0,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00003.png": {
+      "frame": {
+        "x": 543,
+        "y": 0,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00004.png": {
+      "frame": {
+        "x": 724,
+        "y": 0,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00005.png": {
+      "frame": {
+        "x": 905,
+        "y": 0,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00006.png": {
+      "frame": {
+        "x": 1086,
+        "y": 0,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00007.png": {
+      "frame": {
+        "x": 1267,
+        "y": 0,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00008.png": {
+      "frame": {
+        "x": 0,
+        "y": 277,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00009.png": {
+      "frame": {
+        "x": 181,
+        "y": 277,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00010.png": {
+      "frame": {
+        "x": 362,
+        "y": 277,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00011.png": {
+      "frame": {
+        "x": 543,
+        "y": 277,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00012.png": {
+      "frame": {
+        "x": 724,
+        "y": 277,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00013.png": {
+      "frame": {
+        "x": 905,
+        "y": 277,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00014.png": {
+      "frame": {
+        "x": 1086,
+        "y": 277,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00015.png": {
+      "frame": {
+        "x": 1267,
+        "y": 277,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00016.png": {
+      "frame": {
+        "x": 0,
+        "y": 554,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00017.png": {
+      "frame": {
+        "x": 181,
+        "y": 554,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00018.png": {
+      "frame": {
+        "x": 362,
+        "y": 554,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00019.png": {
+      "frame": {
+        "x": 543,
+        "y": 554,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00020.png": {
+      "frame": {
+        "x": 724,
+        "y": 554,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00021.png": {
+      "frame": {
+        "x": 905,
+        "y": 554,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00022.png": {
+      "frame": {
+        "x": 1086,
+        "y": 554,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00023.png": {
+      "frame": {
+        "x": 1267,
+        "y": 554,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00024.png": {
+      "frame": {
+        "x": 0,
+        "y": 831,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00025.png": {
+      "frame": {
+        "x": 181,
+        "y": 831,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00026.png": {
+      "frame": {
+        "x": 362,
+        "y": 831,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00027.png": {
+      "frame": {
+        "x": 543,
+        "y": 831,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00028.png": {
+      "frame": {
+        "x": 724,
+        "y": 831,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00029.png": {
+      "frame": {
+        "x": 905,
+        "y": 831,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00030.png": {
+      "frame": {
+        "x": 1086,
+        "y": 831,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00031.png": {
+      "frame": {
+        "x": 1267,
+        "y": 831,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00032.png": {
+      "frame": {
+        "x": 0,
+        "y": 1108,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00033.png": {
+      "frame": {
+        "x": 181,
+        "y": 1108,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00034.png": {
+      "frame": {
+        "x": 362,
+        "y": 1108,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00035.png": {
+      "frame": {
+        "x": 543,
+        "y": 1108,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    },
+    "fc_running_treadmill_00036.png": {
+      "frame": {
+        "x": 724,
+        "y": 1108,
+        "w": 181,
+        "h": 277
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 40,
+        "y": 93,
+        "w": 181,
+        "h": 277
+      },
+      "sourceSize": {
+        "w": 667,
+        "h": 400
+      }
+    }
+  },
+  "animations": {
+    "fc_running_treadmill": [
+      "fc_running_treadmill_00000.png",
+      "fc_running_treadmill_00001.png",
+      "fc_running_treadmill_00002.png",
+      "fc_running_treadmill_00003.png",
+      "fc_running_treadmill_00004.png",
+      "fc_running_treadmill_00005.png",
+      "fc_running_treadmill_00006.png",
+      "fc_running_treadmill_00007.png",
+      "fc_running_treadmill_00008.png",
+      "fc_running_treadmill_00009.png",
+      "fc_running_treadmill_00010.png",
+      "fc_running_treadmill_00011.png",
+      "fc_running_treadmill_00012.png",
+      "fc_running_treadmill_00013.png",
+      "fc_running_treadmill_00014.png",
+      "fc_running_treadmill_00015.png",
+      "fc_running_treadmill_00016.png",
+      "fc_running_treadmill_00017.png",
+      "fc_running_treadmill_00018.png",
+      "fc_running_treadmill_00019.png",
+      "fc_running_treadmill_00020.png",
+      "fc_running_treadmill_00021.png",
+      "fc_running_treadmill_00022.png",
+      "fc_running_treadmill_00023.png",
+      "fc_running_treadmill_00024.png",
+      "fc_running_treadmill_00025.png",
+      "fc_running_treadmill_00026.png",
+      "fc_running_treadmill_00027.png",
+      "fc_running_treadmill_00028.png",
+      "fc_running_treadmill_00029.png",
+      "fc_running_treadmill_00030.png",
+      "fc_running_treadmill_00031.png",
+      "fc_running_treadmill_00032.png",
+      "fc_running_treadmill_00033.png",
+      "fc_running_treadmill_00034.png",
+      "fc_running_treadmill_00035.png",
+      "fc_running_treadmill_00036.png"
+    ]
+  },
+  "meta": {
+    "app": "http://github.com/pixijs/assetpack",
+    "version": "1.0",
+    "image": "fc_running_treadmill.webp",
+    "format": "RGBA8888",
+    "size": {
+      "w": 1448,
+      "h": 1385
+    },
+    "scale": 1,
+    "related_multi_packs": [],
+    "realImage": "fc_running_treadmill.webp",
+    "placeholderApplied": false
+  }
+}

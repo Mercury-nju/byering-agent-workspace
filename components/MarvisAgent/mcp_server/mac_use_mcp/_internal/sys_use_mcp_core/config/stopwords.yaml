@@ -1,0 +1,115 @@
+# action_search 停用词与意图关键词 (方案 §3.6)
+#
+# 维护规则:
+# 1. coverage_stop_words 影响 features._query_coverage 的字符级覆盖率计算,
+#    新增需要跑 ground_truth 验证不退步。
+# 2. intent_keywords 顺序敏感: query_parser 走 first-match,所以 sensitive
+#    必须排在 destructive 之前 (避免"锁屏密码"被错分为 destructive)。
+# 3. 文件缺失时,代码端必须 fallback 到 query_parser.py::DEFAULT_INTENT_KEYWORDS,
+#    不阻塞启动。
+
+version: 1
+
+# 覆盖率计算停用词;通用操作词,不计入有效 query 覆盖率,避免虚高。
+coverage_stop_words:
+  - 打开
+  - 设置
+  - 查询
+  - 查看
+  - 系统
+  - 功能
+  - 开关
+  - 关闭
+  - 修改
+  - 调整
+  - 进入
+  - 一下
+  - 帮我
+  - 怎么
+  # 平台限定词只作为整词停用，避免用户说“macOS/Windows 上…”时拉低 coverage。
+  - macos
+  - mac
+  - windows
+  - win
+
+# 意图关键词;**插入顺序就是 first-match 优先级** (Python 3.7+ dict 保序)。
+# 与 ActionDef.intent_type / risk_level 形成 query 侧 ↔ action 侧对称映射。
+intent_keywords:
+  # 打开/进入设置页意图。
+  open_settings:
+    - 打开
+    - 进入
+    - 去
+    - 在哪里
+    - 怎么进
+    - 在哪
+    - 找一下
+    - 找到
+  # 查询/读取当前状态意图。
+  read_state:
+    - 查询
+    - 查看
+    - 当前
+    - 多少
+    - 是什么
+    - 看一下
+    - 现在是
+  # 修改设置值或调整参数意图。
+  modify_setting:
+    - 设置
+    - 设为
+    - 修改
+    - 忘记 wifi
+    - 忘记一个 wifi
+    - 忘记 Wi-Fi
+    - 删除已保存
+    - 更换
+    - 换成
+    - 调
+    - 改成
+    - 调整
+    - 变成
+  # 开启/启用开关类意图 (与 toggle_off 平级)。
+  toggle_on:
+    - 开启
+    - 启用
+    - 打开开关
+  # 关闭/禁用开关类意图。
+  toggle_off:
+    - 关闭
+    - 关掉
+    - 禁用
+    - 停用
+  # 敏感操作意图;不到 destructive 级别但涉及账户/隐私/权限/锁屏。
+  # 与 ActionDef.risk_level=modify_sensitive 形成 query↔action 对称映射,
+  # 用于 _is_clearly_better 规则 4 守卫。**必须排在 destructive 之前**
+  # 才能保证 first-match 命中 (避免"锁屏密码"被错分为 destructive)。
+  sensitive:
+    - 密码
+    - 口令
+    - 隐私
+    - 权限
+    - 锁屏
+    - 解锁
+    - 抹除
+    - 抹掉
+    - 清除资料
+    - 家长控制
+    - 锁定
+    - 锁住
+  # 高风险破坏性操作意图。
+  destructive:
+    - 关机
+    - 重启
+    - 删除
+    - 卸载
+    - 格式化
+  # 故障排查类意图。
+  troubleshoot:
+    - 不工作
+    - 没声音
+    - 连不上
+    - 用不了
+    - 失灵
+    - 卡顿
+    - 故障

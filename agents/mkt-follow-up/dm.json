@@ -1,0 +1,2066 @@
+[
+  {
+    "id": "dm-msitu6pk-j9xx",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-07T10:53:43.928Z"
+  },
+  {
+    "id": "dm-msitu7n0-gino",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T10:53:45.132Z"
+  },
+  {
+    "id": "dm-msityux3-yikz",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-07T10:57:21.927Z"
+  },
+  {
+    "id": "dm-msityvuk-3lph",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T10:57:23.132Z"
+  },
+  {
+    "id": "dm-msiu44m2-u5es",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-07T11:01:27.770Z"
+  },
+  {
+    "id": "dm-msiu45jm-xr0z",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T11:01:28.978Z"
+  },
+  {
+    "id": "dm-msiu9j7x-8atd",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-07T11:05:39.981Z"
+  },
+  {
+    "id": "dm-msiu9k5e-px2m",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-07T11:05:41.186Z"
+  },
+  {
+    "id": "dm-msko94ij-q7az",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-08T17:52:55.579Z"
+  },
+  {
+    "id": "dm-msko95fy-8kx6",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T17:52:56.782Z"
+  },
+  {
+    "id": "dm-mskogua9-jg84",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-08T17:58:55.569Z"
+  },
+  {
+    "id": "dm-mskogv7q-hf4d",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T17:58:56.774Z"
+  },
+  {
+    "id": "dm-mskpsivf-l04t",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-08T18:36:00.267Z"
+  },
+  {
+    "id": "dm-mskpsjsy-53sl",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T18:36:01.474Z"
+  },
+  {
+    "id": "dm-mskpzys2-op7w",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-08T18:41:47.474Z"
+  },
+  {
+    "id": "dm-mskpzzpj-bolv",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T18:41:48.679Z"
+  },
+  {
+    "id": "dm-mskqexno-bm1s",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-08T18:53:25.860Z"
+  },
+  {
+    "id": "dm-mskqeyl7-pj7b",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T18:53:27.067Z"
+  },
+  {
+    "id": "dm-mskqujl2-p09c",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-08T19:05:34.118Z"
+  },
+  {
+    "id": "dm-mskqukik-wjik",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T19:05:35.324Z"
+  },
+  {
+    "id": "dm-mskrr7xf-1vuw",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-08T19:30:58.659Z"
+  },
+  {
+    "id": "dm-mskrr8ux-pcqt",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T19:30:59.865Z"
+  },
+  {
+    "id": "dm-mskrrwj5-fv0j",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-08T19:31:30.545Z"
+  },
+  {
+    "id": "dm-mskrrxgp-9d62",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T19:31:31.753Z"
+  },
+  {
+    "id": "dm-mskwtu8k-8uog",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-08T21:52:58.964Z"
+  },
+  {
+    "id": "dm-mskwtv60-1xlq",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-08T21:53:00.168Z"
+  },
+  {
+    "id": "dm-mslj76az-nh0g",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T08:19:12.683Z"
+  },
+  {
+    "id": "dm-mslj778f-ibdr",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T08:19:13.887Z"
+  },
+  {
+    "id": "dm-msljqezm-kruq",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T08:34:10.403Z"
+  },
+  {
+    "id": "dm-msljqfx2-asok",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T08:34:11.606Z"
+  },
+  {
+    "id": "dm-mslklcmw-rogw",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T08:58:13.688Z"
+  },
+  {
+    "id": "dm-mslkldkd-9eus",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T08:58:14.893Z"
+  },
+  {
+    "id": "dm-msllrp6r-nvon",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T09:31:09.507Z"
+  },
+  {
+    "id": "dm-msllrq45-aje4",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T09:31:10.709Z"
+  },
+  {
+    "id": "dm-mslnfbma-08fk",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T10:17:31.282Z"
+  },
+  {
+    "id": "dm-mslnfcjp-831w",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T10:17:32.485Z"
+  },
+  {
+    "id": "dm-mslnhqpe-rfrj",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T10:19:24.146Z"
+  },
+  {
+    "id": "dm-mslnhrmt-qps7",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T10:19:25.349Z"
+  },
+  {
+    "id": "dm-mslpero7-53ia",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T11:13:04.663Z"
+  },
+  {
+    "id": "dm-mslpeslr-slce",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T11:13:05.871Z"
+  },
+  {
+    "id": "dm-mslr5mk6-wqdw",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T12:01:57.367Z"
+  },
+  {
+    "id": "dm-mslr5nhm-nvvg",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T12:01:58.570Z"
+  },
+  {
+    "id": "dm-mslsr8c2-z2qq",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T12:46:44.978Z"
+  },
+  {
+    "id": "dm-mslsr99l-c0wa",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T12:46:46.185Z"
+  },
+  {
+    "id": "dm-msludbze-p8n6",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T13:31:55.754Z"
+  },
+  {
+    "id": "dm-msludcws-9s7v",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T13:31:56.956Z"
+  },
+  {
+    "id": "dm-mslvuxn3-709e",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T14:13:36.591Z"
+  },
+  {
+    "id": "dm-mslvuykn-99pn",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T14:13:37.799Z"
+  },
+  {
+    "id": "dm-mslvvwl0-gtz4",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T14:14:21.876Z"
+  },
+  {
+    "id": "dm-mslvvxir-31l2",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T14:14:23.091Z"
+  },
+  {
+    "id": "dm-mslvwk1n-o34w",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T14:14:52.283Z"
+  },
+  {
+    "id": "dm-mslvwkz9-hmvl",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T14:14:53.494Z"
+  },
+  {
+    "id": "dm-msm0pg3j-ycrn",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T16:29:18.655Z"
+  },
+  {
+    "id": "dm-msm0ph0z-h7b1",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T16:29:19.859Z"
+  },
+  {
+    "id": "dm-msm14l4l-2x9u",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T16:41:05.013Z"
+  },
+  {
+    "id": "dm-msm14m23-891a",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T16:41:06.219Z"
+  },
+  {
+    "id": "dm-msm1rwfc-nphj",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T16:59:12.744Z"
+  },
+  {
+    "id": "dm-msm1rxcu-p499",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T16:59:13.950Z"
+  },
+  {
+    "id": "dm-msm1zl4d-f0ho",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T17:05:11.341Z"
+  },
+  {
+    "id": "dm-msm1zm1w-3pvh",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:05:12.548Z"
+  },
+  {
+    "id": "dm-msm24wz0-phde",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T17:09:19.980Z"
+  },
+  {
+    "id": "dm-msm24xwe-s1z6",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:09:21.182Z"
+  },
+  {
+    "id": "dm-msm2wcrm-1qb6",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T17:30:40.162Z"
+  },
+  {
+    "id": "dm-msm2wdp3-3gbw",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:30:41.367Z"
+  },
+  {
+    "id": "dm-msm320pt-amih",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T17:35:04.481Z"
+  },
+  {
+    "id": "dm-msm321n8-9tkd",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:35:05.684Z"
+  },
+  {
+    "id": "dm-msm338ap-stnw",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T17:36:00.961Z"
+  },
+  {
+    "id": "dm-msm3398c-z9de",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:36:02.172Z"
+  },
+  {
+    "id": "dm-msm3edjc-8v36",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T17:44:40.968Z"
+  },
+  {
+    "id": "dm-msm3eegp-w6ot",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:44:42.169Z"
+  },
+  {
+    "id": "dm-msm3jssb-flh0",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T17:48:54.011Z"
+  },
+  {
+    "id": "dm-msm3jtpq-4n97",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:48:55.214Z"
+  },
+  {
+    "id": "dm-msm3n36b-ewih",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T17:51:27.443Z"
+  },
+  {
+    "id": "dm-msm3n44n-gjxf",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:51:28.679Z"
+  },
+  {
+    "id": "dm-msm3pf83-wlea",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T17:53:16.371Z"
+  },
+  {
+    "id": "dm-msm3pg5j-1t9m",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T17:53:17.575Z"
+  },
+  {
+    "id": "dm-msm5l27p-ndi9",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T18:45:52.117Z"
+  },
+  {
+    "id": "dm-msm5l35l-o2b5",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T18:45:53.337Z"
+  },
+  {
+    "id": "dm-msm5qrtt-b2oi",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T18:50:18.593Z"
+  },
+  {
+    "id": "dm-msm5qsrc-00b9",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T18:50:19.800Z"
+  },
+  {
+    "id": "dm-msm5rym7-stke",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T18:51:14.047Z"
+  },
+  {
+    "id": "dm-msm5rzjn-ouuv",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T18:51:15.251Z"
+  },
+  {
+    "id": "dm-msm5wnxr-0fh3",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T18:54:53.487Z"
+  },
+  {
+    "id": "dm-msm5wova-dwqe",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T18:54:54.694Z"
+  },
+  {
+    "id": "dm-msm5y6ut-3pr7",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T18:56:04.661Z"
+  },
+  {
+    "id": "dm-msm5y7sb-gizg",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T18:56:05.867Z"
+  },
+  {
+    "id": "dm-msm8lo1i-gn4l",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T20:10:19.254Z"
+  },
+  {
+    "id": "dm-msm8loyw-7um9",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T20:10:20.456Z"
+  },
+  {
+    "id": "dm-msm8tgg3-vvrt",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T20:16:22.659Z"
+  },
+  {
+    "id": "dm-msm8thdl-5s3b",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我先看一下，稍后给你反馈。",
+    "createdAt": "2026-08-09T20:16:23.865Z"
+  },
+  {
+    "id": "dm-msm8wik8-7ol7",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T20:18:45.368Z"
+  },
+  {
+    "id": "dm-msm8wjhr-ke12",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T20:18:46.575Z"
+  },
+  {
+    "id": "dm-msm8x8n1-qns2",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T20:19:19.165Z"
+  },
+  {
+    "id": "dm-msm8x9ki-21hn",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T20:19:20.370Z"
+  },
+  {
+    "id": "dm-msm910zh-qk1s",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T20:22:15.869Z"
+  },
+  {
+    "id": "dm-msm911x0-90vr",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T20:22:17.076Z"
+  },
+  {
+    "id": "dm-msm9yx07-1ldi",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T20:48:37.015Z"
+  },
+  {
+    "id": "dm-msm9yxxn-oe61",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T20:48:38.219Z"
+  },
+  {
+    "id": "dm-msma1q1t-mala",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T20:50:47.969Z"
+  },
+  {
+    "id": "dm-msma1qz8-2hgi",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T20:50:49.172Z"
+  },
+  {
+    "id": "dm-msma4779-dx92",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T20:52:43.509Z"
+  },
+  {
+    "id": "dm-msma484o-zj3j",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T20:52:44.712Z"
+  },
+  {
+    "id": "dm-msmak5rw-6ta8",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T21:05:08.156Z"
+  },
+  {
+    "id": "dm-msmak6pf-u5d6",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T21:05:09.363Z"
+  },
+  {
+    "id": "dm-msmaomy7-i12s",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T21:08:37.039Z"
+  },
+  {
+    "id": "dm-msmaonvr-t0ba",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T21:08:38.247Z"
+  },
+  {
+    "id": "dm-msmb2qff-tu5w",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T21:19:34.731Z"
+  },
+  {
+    "id": "dm-msmb2rcy-hp4b",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T21:19:35.938Z"
+  },
+  {
+    "id": "dm-msmb3tr4-k9p5",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T21:20:25.696Z"
+  },
+  {
+    "id": "dm-msmb3uok-rmrx",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T21:20:26.900Z"
+  },
+  {
+    "id": "dm-msmbopn2-hps9",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T21:36:40.142Z"
+  },
+  {
+    "id": "dm-msmboqko-66wo",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T21:36:41.352Z"
+  },
+  {
+    "id": "dm-msmbr2jr-b1mx",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T21:38:30.183Z"
+  },
+  {
+    "id": "dm-msmbr3hc-ehut",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T21:38:31.392Z"
+  },
+  {
+    "id": "dm-msmc48qs-1h94",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T21:48:44.740Z"
+  },
+  {
+    "id": "dm-msmc49oc-2e1z",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T21:48:45.948Z"
+  },
+  {
+    "id": "dm-msmc70tp-dha6",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T21:50:54.445Z"
+  },
+  {
+    "id": "dm-msmc71r5-lcxh",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T21:50:55.649Z"
+  },
+  {
+    "id": "dm-msmci1wk-7cm4",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T21:59:29.060Z"
+  },
+  {
+    "id": "dm-msmci2u8-cuy2",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T21:59:30.272Z"
+  },
+  {
+    "id": "dm-msmclmd2-kzar",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T22:02:15.542Z"
+  },
+  {
+    "id": "dm-msmclnai-22xe",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T22:02:16.746Z"
+  },
+  {
+    "id": "dm-msmctlp7-6k7l",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T22:08:27.931Z"
+  },
+  {
+    "id": "dm-msmctmmo-yrok",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T22:08:29.136Z"
+  },
+  {
+    "id": "dm-msmd3jdb-lnpf",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-09T22:16:11.471Z"
+  },
+  {
+    "id": "dm-msmd3kat-cyoa",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-09T22:16:12.677Z"
+  },
+  {
+    "id": "dm-msmlms3p-aru2",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T02:15:06.181Z"
+  },
+  {
+    "id": "dm-msmlmt15-kecb",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T02:15:07.385Z"
+  },
+  {
+    "id": "dm-msmltv3l-wjf2",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T02:20:36.657Z"
+  },
+  {
+    "id": "dm-msmltw16-57ie",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T02:20:37.866Z"
+  },
+  {
+    "id": "dm-msmm5hgk-vogi",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T02:29:38.852Z"
+  },
+  {
+    "id": "dm-msmm5ie1-1pny",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T02:29:40.057Z"
+  },
+  {
+    "id": "dm-msmmdwgo-77ag",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T02:36:11.544Z"
+  },
+  {
+    "id": "dm-msmmdxe7-n16w",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T02:36:12.751Z"
+  },
+  {
+    "id": "dm-msmmus6u-4os9",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T02:49:19.158Z"
+  },
+  {
+    "id": "dm-msmmut49-togm",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T02:49:20.361Z"
+  },
+  {
+    "id": "dm-msmnaih9-sj4f",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T03:01:33.069Z"
+  },
+  {
+    "id": "dm-msmnajer-xjy3",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T03:01:34.275Z"
+  },
+  {
+    "id": "dm-msmnf0xe-s4nu",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T03:05:03.602Z"
+  },
+  {
+    "id": "dm-msmnf1uy-ykc4",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T03:05:04.810Z"
+  },
+  {
+    "id": "dm-msmnl2qs-sryr",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T03:09:45.892Z"
+  },
+  {
+    "id": "dm-msmnl3o8-vg33",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T03:09:47.096Z"
+  },
+  {
+    "id": "dm-msmnus4e-iqdr",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T03:17:18.686Z"
+  },
+  {
+    "id": "dm-msmnut1w-tv6e",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T03:17:19.892Z"
+  },
+  {
+    "id": "dm-msmnwqwd-izdo",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T03:18:50.413Z"
+  },
+  {
+    "id": "dm-msmnwrts-73bn",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T03:18:51.616Z"
+  },
+  {
+    "id": "dm-msmny56l-0rbq",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T03:19:55.581Z"
+  },
+  {
+    "id": "dm-msmny642-wcal",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T03:19:56.786Z"
+  },
+  {
+    "id": "dm-msms1k0a-g9bf",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T05:14:33.226Z"
+  },
+  {
+    "id": "dm-msms1kxr-indp",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T05:14:34.431Z"
+  },
+  {
+    "id": "dm-msmu2gjl-fzjo",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T06:11:14.625Z"
+  },
+  {
+    "id": "dm-msmu2hh3-zbsr",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T06:11:15.831Z"
+  },
+  {
+    "id": "dm-msmul5h5-8j66",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T06:25:46.745Z"
+  },
+  {
+    "id": "dm-msmul6eo-p8la",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T06:25:47.952Z"
+  },
+  {
+    "id": "dm-msmv0kuk-t4g4",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T06:37:46.508Z"
+  },
+  {
+    "id": "dm-msmv0ls2-yvqs",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T06:37:47.714Z"
+  },
+  {
+    "id": "dm-msn3l3b9-zd20",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T10:37:40.485Z"
+  },
+  {
+    "id": "dm-msn3l6ag-o8x5",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T10:37:44.352Z"
+  },
+  {
+    "id": "dm-msncycry-ci6h",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T14:59:55.822Z"
+  },
+  {
+    "id": "dm-msncydpg-t73z",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T14:59:57.028Z"
+  },
+  {
+    "id": "dm-msnd3huc-g2ld",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T15:03:55.668Z"
+  },
+  {
+    "id": "dm-msnd3irs-1y6n",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T15:03:56.872Z"
+  },
+  {
+    "id": "dm-msnd4jri-4vm2",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-10T15:04:44.814Z"
+  },
+  {
+    "id": "dm-msnd4kox-myao",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-10T15:04:46.017Z"
+  },
+  {
+    "id": "dm-mso3argj-v8zc",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T03:17:24.739Z"
+  },
+  {
+    "id": "dm-mso3ase1-bteo",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T03:17:25.945Z"
+  },
+  {
+    "id": "dm-mso3gc1g-3d0n",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T03:21:44.692Z"
+  },
+  {
+    "id": "dm-mso3gczq-fihj",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T03:21:45.926Z"
+  },
+  {
+    "id": "dm-mso3upei-sz2w",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T03:32:55.194Z"
+  },
+  {
+    "id": "dm-mso3uqbz-42p1",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T03:32:56.399Z"
+  },
+  {
+    "id": "dm-mso3xwv3-an84",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T03:35:24.831Z"
+  },
+  {
+    "id": "dm-mso3xxso-lru9",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T03:35:26.040Z"
+  },
+  {
+    "id": "dm-mso5cp6q-y6n3",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T04:14:54.338Z"
+  },
+  {
+    "id": "dm-mso5cq4a-o0h7",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T04:14:55.546Z"
+  },
+  {
+    "id": "dm-mso5iqxe-0jut",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T04:19:36.530Z"
+  },
+  {
+    "id": "dm-mso5iruw-78oz",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T04:19:37.736Z"
+  },
+  {
+    "id": "dm-msob8bru-2pm7",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T06:59:28.026Z"
+  },
+  {
+    "id": "dm-msob8cpd-j9uw",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T06:59:29.233Z"
+  },
+  {
+    "id": "dm-msobbt3f-ft8k",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T07:02:10.443Z"
+  },
+  {
+    "id": "dm-msobbu0w-w6s4",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T07:02:11.648Z"
+  },
+  {
+    "id": "dm-msocxgny-7ouc",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T07:47:00.382Z"
+  },
+  {
+    "id": "dm-msocxhlo-lmd2",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T07:47:01.596Z"
+  },
+  {
+    "id": "dm-msodcngp-l9fz",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T07:58:49.033Z"
+  },
+  {
+    "id": "dm-msodcoe5-n8ej",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T07:58:50.237Z"
+  },
+  {
+    "id": "dm-msodf2iw-3c7b",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T08:00:41.864Z"
+  },
+  {
+    "id": "dm-msodf3gd-bgph",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T08:00:43.069Z"
+  },
+  {
+    "id": "dm-msodq9ef-ia1n",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T08:09:23.991Z"
+  },
+  {
+    "id": "dm-msodqabv-56j3",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T08:09:25.195Z"
+  },
+  {
+    "id": "dm-msodrv1h-mmvs",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T08:10:38.693Z"
+  },
+  {
+    "id": "dm-msodrvyz-ypqw",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T08:10:39.899Z"
+  },
+  {
+    "id": "dm-msodsk8h-s1d4",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T08:11:11.345Z"
+  },
+  {
+    "id": "dm-msodsl5w-ei51",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T08:11:12.548Z"
+  },
+  {
+    "id": "dm-msodwo9d-m6pq",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T08:14:23.185Z"
+  },
+  {
+    "id": "dm-msodwp6u-poul",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "收到，我已经记录这项要求，会结合当前任务上下文处理并把结果同步给你。",
+    "createdAt": "2026-08-11T08:14:24.390Z"
+  },
+  {
+    "id": "dm-msoeb1ju-krvc",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T08:25:33.594Z"
+  },
+  {
+    "id": "dm-msoeb2hd-4eea",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T08:25:34.801Z"
+  },
+  {
+    "id": "dm-msoeeqkl-48gd",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T08:28:25.989Z"
+  },
+  {
+    "id": "dm-msoeeri2-nvra",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T08:28:27.194Z"
+  },
+  {
+    "id": "dm-msof0v7k-h6do",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T08:45:38.432Z"
+  },
+  {
+    "id": "dm-msof0w52-xceh",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T08:45:39.638Z"
+  },
+  {
+    "id": "dm-msoffbbb-i2jm",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T08:56:52.487Z"
+  },
+  {
+    "id": "dm-msoffc8r-fhqw",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T08:56:53.691Z"
+  },
+  {
+    "id": "dm-msogk7k7-8pue",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T09:28:40.519Z"
+  },
+  {
+    "id": "dm-msogk8i0-ggqm",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T09:28:41.737Z"
+  },
+  {
+    "id": "dm-msoh2zdy-mpa2",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T09:43:16.390Z"
+  },
+  {
+    "id": "dm-msoh30c4-4of4",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T09:43:17.620Z"
+  },
+  {
+    "id": "dm-msoh62n8-kief",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T09:45:40.580Z"
+  },
+  {
+    "id": "dm-msoh63ks-ious",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T09:45:41.788Z"
+  },
+  {
+    "id": "dm-msohyn14-281w",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T10:07:53.368Z"
+  },
+  {
+    "id": "dm-msohynz1-2ct9",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T10:07:54.589Z"
+  },
+  {
+    "id": "dm-msoi5kr2-quuz",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T10:13:17.006Z"
+  },
+  {
+    "id": "dm-msoi5lot-e5qi",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T10:13:18.221Z"
+  },
+  {
+    "id": "dm-msoiag61-n9fv",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T10:17:04.345Z"
+  },
+  {
+    "id": "dm-msoiah41-yq9k",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T10:17:05.569Z"
+  },
+  {
+    "id": "dm-msoiwsaq-wpwv",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T10:34:26.498Z"
+  },
+  {
+    "id": "dm-msoiwt89-705e",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T10:34:27.705Z"
+  },
+  {
+    "id": "dm-msojmxmr-qt13",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T10:54:46.467Z"
+  },
+  {
+    "id": "dm-msojmykn-332a",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T10:54:47.687Z"
+  },
+  {
+    "id": "dm-msomp6px-iaxr",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-11T12:20:30.405Z"
+  },
+  {
+    "id": "dm-msomp7nf-zyn6",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-11T12:20:31.611Z"
+  },
+  {
+    "id": "dm-mspphtsq-v0nq",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-12T06:26:32.090Z"
+  },
+  {
+    "id": "dm-mspphuqd-ot26",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-12T06:26:33.301Z"
+  },
+  {
+    "id": "dm-msqzq3td-td7y",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T04:00:40.657Z"
+  },
+  {
+    "id": "dm-msqzq4rt-3vxf",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T04:00:41.897Z"
+  },
+  {
+    "id": "dm-msqzt9pq-qkj4",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T04:03:08.270Z"
+  },
+  {
+    "id": "dm-msqztanb-dtlu",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T04:03:09.479Z"
+  },
+  {
+    "id": "dm-msqzvzun-2eq4",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T04:05:15.455Z"
+  },
+  {
+    "id": "dm-msqzw0s9-fat6",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T04:05:16.665Z"
+  },
+  {
+    "id": "dm-msr05wln-daqt",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T04:12:57.803Z"
+  },
+  {
+    "id": "dm-msr05xjb-wvhd",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T04:12:59.015Z"
+  },
+  {
+    "id": "dm-msr2k7jx-27wi",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T05:20:04.413Z"
+  },
+  {
+    "id": "dm-msr2k8hh-rvzd",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T05:20:05.621Z"
+  },
+  {
+    "id": "dm-msr2lggy-t033",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T05:21:02.626Z"
+  },
+  {
+    "id": "dm-msr2lhet-7xne",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T05:21:03.845Z"
+  },
+  {
+    "id": "dm-msr2ptgq-fnfp",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T05:24:26.090Z"
+  },
+  {
+    "id": "dm-msr2puet-39mj",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T05:24:27.317Z"
+  },
+  {
+    "id": "dm-msr2qqnc-qf3j",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T05:25:09.096Z"
+  },
+  {
+    "id": "dm-msr2qrl7-yech",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T05:25:10.315Z"
+  },
+  {
+    "id": "dm-msr3a9nw-sypz",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T05:40:20.204Z"
+  },
+  {
+    "id": "dm-msr3aalm-k6ty",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T05:40:21.418Z"
+  },
+  {
+    "id": "dm-msr3cr6k-0als",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T05:42:16.220Z"
+  },
+  {
+    "id": "dm-msr3cs42-0hal",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T05:42:17.426Z"
+  },
+  {
+    "id": "dm-msr3ucjd-luob",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T05:55:57.049Z"
+  },
+  {
+    "id": "dm-msr3udhw-sph1",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T05:55:58.292Z"
+  },
+  {
+    "id": "dm-msrcn8s9-imuu",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T10:02:22.137Z"
+  },
+  {
+    "id": "dm-msrcn9po-gqzz",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T10:02:23.340Z"
+  },
+  {
+    "id": "dm-msrcpkws-e03g",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T10:04:11.164Z"
+  },
+  {
+    "id": "dm-msrcplu9-qdjp",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T10:04:12.369Z"
+  },
+  {
+    "id": "dm-msrcv2s0-8i49",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T10:08:27.600Z"
+  },
+  {
+    "id": "dm-msrcv3pi-i6nn",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T10:08:28.806Z"
+  },
+  {
+    "id": "dm-msrd0tof-l1xm",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T10:12:55.743Z"
+  },
+  {
+    "id": "dm-msrd0um1-qx9t",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T10:12:56.953Z"
+  },
+  {
+    "id": "dm-msrd2jmy-qgp1",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T10:14:16.043Z"
+  },
+  {
+    "id": "dm-msrd2kkh-u78g",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T10:14:17.249Z"
+  },
+  {
+    "id": "dm-msrd9t06-pvsn",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T10:19:54.774Z"
+  },
+  {
+    "id": "dm-msrd9txn-fgr6",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T10:19:55.979Z"
+  },
+  {
+    "id": "dm-msrdc61w-umuf",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-13T10:21:44.996Z"
+  },
+  {
+    "id": "dm-msrdc6zw-60c6",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-13T10:21:46.220Z"
+  }
+]

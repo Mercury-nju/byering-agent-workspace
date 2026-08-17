@@ -1,0 +1,21 @@
+{
+	"tools": [
+		{
+			"name": "send_file",
+			"description": "帮用户上传或发送电脑上的文件，在移动端或手机上接收",
+			"ipc_query_id": 95000,
+			"inputSchema": {
+				"type": "object",
+				"properties": {
+					"file_path": {
+						"type": "string",
+						"description": "文件的绝对路径"
+					}
+				},
+				"required": [
+					"file_path"
+				]
+			}
+		}
+	]
+}

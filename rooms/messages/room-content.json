@@ -1,0 +1,18 @@
+[
+  {
+    "id": "msg-content-1",
+    "roomId": "room-content",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "首批 50 个高评分线索已锁定，请内容策划按行业分组起草沟通内容。",
+    "createdAt": "2026-08-05T14:11:00.000Z"
+  },
+  {
+    "id": "msg-content-2",
+    "roomId": "room-content",
+    "from": "File Agent",
+    "fromName": "内容策划",
+    "text": "已完成 SaaS 组 12 份初稿，提交销售顾问审阅。",
+    "createdAt": "2026-08-05T15:40:00.000Z"
+  }
+]

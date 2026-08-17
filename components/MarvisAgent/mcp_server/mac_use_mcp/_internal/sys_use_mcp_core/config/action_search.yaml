@@ -1,0 +1,75 @@
+# action_search 配置 — tokenizer / recall / rank / arbiter / feature flags
+#
+# 关联文件:
+# - action_search_weights.yaml: 精排权重 + softmax + intent_compat
+# - stopwords.yaml: coverage_stop_words + intent_keywords
+# - entity_whitelist.yaml: spec_lint 用的 entity.domain 白名单
+
+version: 2
+
+# 分词器类型;domain_ngram 表示使用领域词典 + n-gram fallback。
+tokenizer: domain_ngram
+
+# 粗召回配置 (方案 §3.3.2)
+recall:
+  top_m: 50
+  use_inverted_index: true
+  use_alias_trie: true
+  use_vector: false
+
+# 精排配置 (方案 §3.3.3)
+rank:
+  bm25f:
+    # 注意: alias / search_hint 字段不参与 BM25F / field_max,详见方案 §3.3.3 字段范围。
+    # 此处只列入 BM25F 实际消费的字段。
+    fields:
+      keyword:     { k1: 1.2, b: 0.10, weight: 0.9 }
+      intent_desc: { k1: 1.2, b: 0.50, weight: 0.8 }
+      description: { k1: 1.2, b: 0.75, weight: 0.6 }
+  feature_normalization:
+    bm25f_k_sat: 3.0
+    field_max_k_sat: 2.0
+  weights_path: action_search_weights.yaml
+
+# 仲裁配置 (方案 §3.3.4)
+arbiter:
+  # 绝对地板: top1.raw_score 低于此值直接 ambiguous。
+  min_raw_score: 0.30
+  # 绝对分差闸门: top1-top2 raw 分差不足时不依赖 softmax,直接进入
+  # _is_clearly_better 判断。
+  min_raw_gap: 0.08
+  # softmax 置信度下限。
+  min_confidence: 0.45
+  # softmax 置信度差下限。
+  min_margin: 0.15
+  # E6.2 弱信号兜底闸门: top1 raw 低于此值且
+  # alias / search_hint / entity / intent 全部 < 0.5 时
+  # ambiguous(weak_signal),拦截"BM25F 拼凑命中"
+  # (典型: "重启 iPhone" 命中 set_iphone_notifications)。
+  # raw ≥ 此值时认为 BM25F 已足够独力承重,无需强特征加持。
+  weak_signal_max_raw: 1.0
+  # 短查询 alias_exact 强匹配是否豁免 ambiguous。
+  short_query_alias_bypass: true
+  # 高风险首次通过的意图置信度阈值;低于该值时 risk_penalty > 0。
+  destructive_min_intent_confidence: 0.7
+
+# v1 字段 (兼容): scoring 段保留给老 score_candidates 路径
+# (index 未构建时降级路径会消费这些值)。M3 多特征路径不再读取本段;
+# 真实参数从 action_search_weights.yaml 加载。
+scoring:
+  aggregation: top_k_weighted
+  top_k_weights: [0.5, 0.3, 0.2]
+  confidence_mode: softmax
+  softmax_temperature: 0.15
+
+# 诊断输出 (方案 §3.4.6)。生产强制 minimal,允许 ops 一键放行 debug。
+diagnostics:
+  allow_debug: false
+
+# 功能开关。
+features:
+  domain_tokenizer: true
+  ngram: true
+  top_k_weighted: true
+  softmax: true
+  arbiter: true

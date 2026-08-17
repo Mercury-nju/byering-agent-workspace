@@ -1,0 +1,128 @@
+{
+  "内容营销": {
+    "states": [
+      "standby",
+      "walking_right",
+      "walking_left",
+      "seated_review",
+      "search",
+      "working",
+      "celebrate",
+      "rest"
+    ],
+    "canvas": {
+      "width": 534,
+      "height": 400
+    },
+    "maxVisible": {
+      "width": 250,
+      "height": 280
+    },
+    "baseline": 330
+  },
+  "录音总结": {
+    "states": [
+      "standby",
+      "walking_right",
+      "walking_left",
+      "seated_review",
+      "search",
+      "working",
+      "celebrate",
+      "rest"
+    ],
+    "canvas": {
+      "width": 534,
+      "height": 400
+    },
+    "maxVisible": {
+      "width": 250,
+      "height": 280
+    },
+    "baseline": 330
+  },
+  "数据分析": {
+    "states": [
+      "standby",
+      "walking_right",
+      "walking_left",
+      "seated_review",
+      "search",
+      "working",
+      "celebrate",
+      "rest"
+    ],
+    "canvas": {
+      "width": 534,
+      "height": 400
+    },
+    "maxVisible": {
+      "width": 250,
+      "height": 280
+    },
+    "baseline": 330
+  },
+  "竞品调研": {
+    "states": [
+      "standby",
+      "walking_right",
+      "walking_left",
+      "seated_review",
+      "search",
+      "working",
+      "celebrate",
+      "rest"
+    ],
+    "canvas": {
+      "width": 534,
+      "height": 400
+    },
+    "maxVisible": {
+      "width": 250,
+      "height": 280
+    },
+    "baseline": 330
+  },
+  "线索猎人": {
+    "states": [
+      "standby",
+      "walking_right",
+      "walking_left",
+      "seated_review",
+      "search",
+      "working",
+      "celebrate",
+      "rest"
+    ],
+    "canvas": {
+      "width": 534,
+      "height": 400
+    },
+    "maxVisible": {
+      "width": 250,
+      "height": 280
+    },
+    "baseline": 330
+  },
+  "金牌客服": {
+    "states": [
+      "standby",
+      "walking_right",
+      "walking_left",
+      "seated_review",
+      "search",
+      "working",
+      "celebrate",
+      "rest"
+    ],
+    "canvas": {
+      "width": 534,
+      "height": 400
+    },
+    "maxVisible": {
+      "width": 250,
+      "height": 280
+    },
+    "baseline": 330
+  }
+}

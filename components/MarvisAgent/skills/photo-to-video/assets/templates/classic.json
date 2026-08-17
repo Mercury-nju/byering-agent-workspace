@@ -1,0 +1,25 @@
+{
+    "name": "classic",
+    "display_name": "经典相册",
+    "description": "Ken Burns 缩放 + 淡入淡出转场，适合通用场景",
+    "duration_per_image": 3,
+    "fps": 30,
+    "resolution": {
+        "width": 1920,
+        "height": 1080
+    },
+    "effects": [
+        {
+            "type": "kenburns",
+            "zoom_start": 1.0,
+            "zoom_end": 1.2,
+            "pan_direction": "random"
+        }
+    ],
+    "transition": {
+        "type": "fade",
+        "duration": 0.5
+    },
+    "background_color": "#FFF8F0",
+    "default_music": "https://static.pcai.yyb.qq.com/audio/test.mp3"
+}

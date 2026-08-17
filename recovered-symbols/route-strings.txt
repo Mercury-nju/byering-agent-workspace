@@ -1,0 +1,114 @@
+# Route String Candidates
+
+Generated from readable JavaScript assets under project/.
+
+- /apps
+  - assets/index-CriD6gLK.js
+- /autoTask
+  - assets/index-CriD6gLK.js
+- /documentFilelist
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /documentFileList
+  - assets/index-CriD6gLK.js
+- /documentSource
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /documentTopic
+  - assets/index-CriD6gLK.js, assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /engine.io
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /gallery
+  - assets/index-CriD6gLK.js
+- /galleryTopic
+  - assets/index-CriD6gLK.js
+- /home
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /localDisk
+  - assets/index-CriD6gLK.js
+- /marvis/marvis_feedback_new/report-feedback
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /marvis/pcyyb_recall_s
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /myCases
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /officeDashboard
+  - assets/index-CriD6gLK.js
+- /photoList
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /photoSource
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /photoTopic
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /recentFile
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /recentTopic
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /search
+  - assets/index-CriD6gLK.js
+- /skillMarket
+  - assets/index-CriD6gLK.js
+- /v3/get_account_device_info
+  - assets/index-CriD6gLK.js
+- /v3/get_associated_device_list
+  - assets/index-CriD6gLK.js
+- /v3/get_pc_wx_ticket
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/get_skill_detail
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/get_skill_list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/get_skill_type
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_add_skill_by_url
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_create_conversation_share
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_del_my_skillcase
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_mcp_cli_types
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_mcp_service_detail
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_mcp_service_list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_mcp_services_by_names
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_my_skillcase_baseinfo
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_my_skillcases_page
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_put_presign_url
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_rec_mcps
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_skill_case_detail
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_skill_case_types
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_skill_cases
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_tool_tab_list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_ioa_2_fa
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_ioa_2_fa_verify
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_ioa_login_query
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_publish_skill_case
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_query_bind_status
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_save_skill_case_use_record
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_skill_case_comment
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_skill_case_comment_delete
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_skill_case_comment_like
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_skill_case_comment_list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/security_policy_manage
+  - assets/index-CriD6gLK.js
+- /v3/skill_operate
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js

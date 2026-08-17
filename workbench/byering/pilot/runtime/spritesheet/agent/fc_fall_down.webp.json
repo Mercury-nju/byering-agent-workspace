@@ -1,0 +1,505 @@
+{
+  "frames": {
+    "fc_fall_down_00000.png": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00001.png": {
+      "frame": {
+        "x": 361,
+        "y": 0,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00002.png": {
+      "frame": {
+        "x": 722,
+        "y": 0,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00003.png": {
+      "frame": {
+        "x": 1083,
+        "y": 0,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00004.png": {
+      "frame": {
+        "x": 1444,
+        "y": 0,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00005.png": {
+      "frame": {
+        "x": 1805,
+        "y": 0,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00006.png": {
+      "frame": {
+        "x": 2166,
+        "y": 0,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00007.png": {
+      "frame": {
+        "x": 2527,
+        "y": 0,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00008.png": {
+      "frame": {
+        "x": 0,
+        "y": 374,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00009.png": {
+      "frame": {
+        "x": 361,
+        "y": 374,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00010.png": {
+      "frame": {
+        "x": 722,
+        "y": 374,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00011.png": {
+      "frame": {
+        "x": 1083,
+        "y": 374,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00012.png": {
+      "frame": {
+        "x": 1444,
+        "y": 374,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00013.png": {
+      "frame": {
+        "x": 1805,
+        "y": 374,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00014.png": {
+      "frame": {
+        "x": 2166,
+        "y": 374,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00015.png": {
+      "frame": {
+        "x": 2527,
+        "y": 374,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00016.png": {
+      "frame": {
+        "x": 0,
+        "y": 748,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00017.png": {
+      "frame": {
+        "x": 361,
+        "y": 748,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00018.png": {
+      "frame": {
+        "x": 722,
+        "y": 748,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00019.png": {
+      "frame": {
+        "x": 1083,
+        "y": 748,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00020.png": {
+      "frame": {
+        "x": 1444,
+        "y": 748,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00021.png": {
+      "frame": {
+        "x": 1805,
+        "y": 748,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    },
+    "fc_fall_down_00022.png": {
+      "frame": {
+        "x": 2166,
+        "y": 748,
+        "w": 361,
+        "h": 374
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 56,
+        "y": 18,
+        "w": 361,
+        "h": 374
+      },
+      "sourceSize": {
+        "w": 534,
+        "h": 400
+      }
+    }
+  },
+  "animations": {
+    "fc_fall_down": [
+      "fc_fall_down_00000.png",
+      "fc_fall_down_00001.png",
+      "fc_fall_down_00002.png",
+      "fc_fall_down_00003.png",
+      "fc_fall_down_00004.png",
+      "fc_fall_down_00005.png",
+      "fc_fall_down_00006.png",
+      "fc_fall_down_00007.png",
+      "fc_fall_down_00008.png",
+      "fc_fall_down_00009.png",
+      "fc_fall_down_00010.png",
+      "fc_fall_down_00011.png",
+      "fc_fall_down_00012.png",
+      "fc_fall_down_00013.png",
+      "fc_fall_down_00014.png",
+      "fc_fall_down_00015.png",
+      "fc_fall_down_00016.png",
+      "fc_fall_down_00017.png",
+      "fc_fall_down_00018.png",
+      "fc_fall_down_00019.png",
+      "fc_fall_down_00020.png",
+      "fc_fall_down_00021.png",
+      "fc_fall_down_00022.png"
+    ]
+  },
+  "meta": {
+    "app": "http://github.com/pixijs/assetpack",
+    "version": "1.0",
+    "image": "fc_fall_down.webp",
+    "format": "RGBA8888",
+    "size": {
+      "w": 2888,
+      "h": 1122
+    },
+    "scale": 1,
+    "related_multi_packs": [],
+    "realImage": "fc_fall_down.webp",
+    "placeholderApplied": false
+  }
+}
