@@ -37,6 +37,17 @@ test("lead hunter prompt selects the Douyin car-buyer workflow", () => {
   ]);
 });
 
+test("touch requests become a local audience plan before simulated execution", () => {
+  const script = getDialogueScript("leads", "找最近 30 天在我视频下面问过价格的人");
+
+  assert.equal(script.touchPlan.source.id, "work-interactions");
+  assert.match(script.brief.title, /触达目标/);
+  assert.match(script.brief.scope, /作品互动|最近 30 天/);
+  assert.match(script.brief.guardrail, /本地模拟|不连接账号/);
+  assert.match(script.approval.title, /模拟触达/);
+  assert.doesNotMatch(script.approval.body, /send_dm/);
+});
+
 test("content tasks do not get mistaken for lead-hunter work", () => {
   assert.equal(pickDialogueScript("为客户案例拆解写 3 条抖音口播脚本"), "content");
 });
@@ -228,6 +239,9 @@ test("the visible conversation renderer does not expose lifecycle protocol label
   assert.match(renderer, /继续追问结果，或安排下一步工作/);
   assert.match(renderer, /调整需求并创建后续任务/);
   assert.match(renderer, /任务恢复建议/);
+  assert.match(renderer, /触达目标拆解/);
+  assert.match(renderer, /模拟候选预览/);
+  assert.match(renderer, /确认模拟触达/);
 });
 
 test("online completion does not invent demo metrics when the gateway omits a result snapshot", async () => {

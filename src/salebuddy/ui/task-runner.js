@@ -19,6 +19,7 @@ import { mountAgentAvatar } from "./agent-avatar.js";
 import { activityLabelFor, clearAgentActivities, createAgentActivityBadge, setAgentActivity } from "./agent-activity.js";
 import { appendRuntimeEvent, createRuntimeTask, getRuntimeSnapshot, replayRuntimeEvents } from "../runtime/task-runtime.js";
 import { resolveBusinessPrompt } from "../business/prompt-catalog.js";
+import { parseTouchRequest } from "../business/touch-audience.js";
 import { buildApprovalTimeline, buildAssignmentPlan, buildDemoTimeline, DEMO_PACING, getDemoAccessSetup } from "../runtime/demo-timeline.js";
 import { openDouyinAuthorization } from "./douyin-auth.js";
 
@@ -60,6 +61,14 @@ const CSS = `
 .sb-run-brief-item{min-width:0}
 .sb-run-brief-label{font-size:10px;color:#7D8794;line-height:1.3}
 .sb-run-brief-value{font-size:11.5px;color:#303943;line-height:1.5;margin-top:2px}
+
+/* Local-only outreach planning: make the audience contract legible before any simulated action. */
+.sb-touch-plan{margin-top:12px;padding:11px 12px;border:1px solid rgba(59,107,212,.14);border-radius:10px;background:rgba(255,255,255,.74)}
+.sb-touch-plan-head{display:flex;align-items:center;gap:8px}.sb-touch-plan-title{font-size:11px;font-weight:700;color:#1F2329}.sb-touch-plan-tag{font-size:9.5px;color:#3B6BD4;background:rgba(76,154,255,.12);border-radius:999px;padding:2px 7px}
+.sb-touch-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;margin-top:10px}.sb-touch-plan-item{min-width:0}.sb-touch-plan-label{font-size:9.5px;color:#8A95A3;line-height:1.3}.sb-touch-plan-value{margin-top:2px;font-size:11px;line-height:1.45;color:#303943;word-break:break-word}
+.sb-touch-plan-missing{margin-top:9px;padding:7px 8px;border-radius:7px;background:rgba(232,163,61,.1);color:#9A681B;font-size:10.5px;line-height:1.45}
+.sb-touch-preview{margin-top:12px;border-top:1px solid rgba(15,15,15,.08);padding-top:11px}.sb-touch-preview-head{display:flex;align-items:baseline;gap:8px}.sb-touch-preview-title{font-size:11px;font-weight:700;color:#1F2329}.sb-touch-preview-note{font-size:9.5px;color:#8A8F99}.sb-touch-preview-list{display:grid;gap:6px;margin-top:8px}.sb-touch-preview-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border:1px solid rgba(15,15,15,.07);border-radius:8px;background:#fff}.sb-touch-preview-row input{width:14px;height:14px;accent-color:#3B6BD4}.sb-touch-preview-main{min-width:0;flex:1}.sb-touch-preview-name{font-size:11px;color:#303943;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-touch-preview-meta{margin-top:1px;font-size:9.5px;color:#8A8F99;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-touch-preview-count{margin-top:8px;font-size:10px;color:#3B6BD4}
+@media(max-width:640px){.sb-touch-plan-grid{grid-template-columns:1fr}}
 
 /* Zero-to-one access setup: the demo cannot enter execution before this gate is resolved. */
 .sb-access-card{border:1px solid rgba(76,154,255,.24);background:linear-gradient(180deg,#F8FBFF,#F3F7FD);border-radius:12px;padding:14px 16px}
@@ -535,8 +544,36 @@ function applyBusinessPrompt(base, taskText) {
   };
 }
 
+function applyTouchAudiencePlan(base, taskText) {
+  const touchPlan = parseTouchRequest(taskText);
+  if (!touchPlan) return base;
+  const missingNote = touchPlan.missing.length
+    ? `还缺少：${touchPlan.missing.join("、")}。`
+    : "关键信息已识别，可以先看候选和触达草稿。";
+  return {
+    ...base,
+    touchPlan,
+    decompose: `我先把这次触达拆成来源、人群、行为信号、筛选条件和时间范围，再给你看一小组候选。${missingNote}整个过程先用本地模拟数据展示，不连接账号，也不会真的发消息。`,
+    brief: {
+      title: "触达目标确认",
+      objective: `找到${touchPlan.audience}，依据${touchPlan.signal}筛出值得优先处理的人`,
+      scope: `来源：${touchPlan.source.label}；时间：${touchPlan.timeWindow}；关系：${touchPlan.relationship}`,
+      deliverable: "候选预览、筛选依据、首触草稿和模拟触达结果",
+      guardrail: `只展示前端模拟，不连接账号、不发送消息、不修改客户记录。${missingNote}`,
+      touchPlan
+    },
+    approval: {
+      title: "模拟触达预览",
+      body: `将按「${touchPlan.audience}」和「${touchPlan.filter}」展示候选，并生成对应的首触草稿。确认后只推进本地演示状态，不会发送任何外部消息。`,
+      approveNote: "已确认：前端模拟触达完成，结果已整理在当前任务中",
+      rejectNote: "已暂缓：候选和筛选条件保留，可继续修改目标"
+    },
+    summary: `已完成${touchPlan.source.label}的候选整理与模拟触达预览；筛选依据和首触草稿已留在当前任务中。`
+  };
+}
+
 export function getDialogueScript(scriptKey, taskText = "") {
-  return applyBusinessPrompt(SCRIPTS[scriptKey] || SCRIPTS.generic, taskText);
+  return applyTouchAudiencePlan(applyBusinessPrompt(SCRIPTS[scriptKey] || SCRIPTS.generic, taskText), taskText);
 }
 
 export function getDialogueRuntimeDefinition(scriptKey, taskText = "") {
@@ -1496,6 +1533,33 @@ function openConversation(engine) {
     pv.toggle.textContent = "展开工作记录";
   }
 
+  function buildTouchPreview(plan) {
+    const box = el("div", "sb-touch-preview");
+    const head = el("div", "sb-touch-preview-head");
+    head.append(el("span", "sb-touch-preview-title", "模拟候选预览"), el("span", "sb-touch-preview-note", "仅展示，不发送"));
+    box.appendChild(head);
+    const samples = plan.source?.id === "specific-account"
+      ? [[plan.audience, "指定账号 · 待核验"]]
+      : plan.source?.id === "imported-list"
+        ? [["Alex · @alexxx", "名单第 1 行 · Bio 待核验"], ["Sarah · @sarahhome", "名单第 2 行 · 近期有互动"], ["Jordan · @jordanauto", "名单第 3 行 · 缺少触达渠道"]]
+        : [["杭州小周", "最近互动 · 询价信号 · A 级"], ["城市观察员", "公开内容命中 · B 级"], ["周末看车", "关系匹配 · 待核验"]];
+    const list = el("div", "sb-touch-preview-list");
+    samples.forEach(([name, meta], index) => {
+      const row = el("label", "sb-touch-preview-row");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = index < 3;
+      checkbox.setAttribute("aria-label", `选择 ${name}`);
+      const main = el("span", "sb-touch-preview-main");
+      main.append(el("span", "sb-touch-preview-name", name), el("span", "sb-touch-preview-meta", meta));
+      row.append(checkbox, main);
+      list.appendChild(row);
+    });
+    box.appendChild(list);
+    box.appendChild(el("div", "sb-touch-preview-count", `已选 ${samples.length} 位候选`));
+    return box;
+  }
+
   function showApprovalBox(instant) {
     if (pv.approvalBox) return;
     const bubble = agentMsg(chief, { instant, avatarValue: "main" });
@@ -1510,6 +1574,8 @@ function openConversation(engine) {
     box.appendChild(head);
     const body = el("div", "sb-run-appbody");
     body.innerHTML = `<b>${script.approval.title}</b><br>${script.approval.body}`; // 内容全部来自本文件内置剧本
+    const touchPreview = script.touchPlan ? buildTouchPreview(script.touchPlan) : null;
+    if (touchPreview) body.appendChild(touchPreview);
     box.appendChild(body);
     const btns = el("div", "sb-run-appbtns");
     const details = el("button", "sb-run-btn sb-ghost", "查看内容");
@@ -1521,8 +1587,19 @@ function openConversation(engine) {
       details.setAttribute("aria-expanded", String(!expanded));
       details.textContent = expanded ? "展开内容" : "收起内容";
     });
-    const approve = el("button", "sb-run-btn sb-primary", "确认执行");
+    const approve = el("button", "sb-run-btn sb-primary", script.touchPlan ? "确认模拟触达" : "确认执行");
     const reject = el("button", "sb-run-btn sb-ghost", "暂不执行");
+    if (touchPreview) {
+      const count = touchPreview.querySelector(".sb-touch-preview-count");
+      const syncSelection = () => {
+        const selected = [...touchPreview.querySelectorAll("input[type=checkbox]")].filter((input) => input.checked).length;
+        if (count) count.textContent = `已选 ${selected} 位候选`;
+        approve.textContent = selected ? `确认模拟触达（${selected}）` : "请选择候选";
+        approve.disabled = selected === 0;
+      };
+      touchPreview.addEventListener("change", syncSelection);
+      syncSelection();
+    }
     approve.addEventListener("click", () => decide(engine, true));
     reject.addEventListener("click", () => decide(engine, false));
     btns.append(details, reject, approve);
@@ -1668,6 +1745,32 @@ function openConversation(engine) {
     av.scopeCard.appendChild(el("div", "sb-access-note", "访问范围已锁定，任务将按此前确认的需求与分工开始执行。"));
   }
 
+  function buildTouchPlanCard(plan) {
+    const box = el("section", "sb-touch-plan");
+    const head = el("div", "sb-touch-plan-head");
+    head.append(el("div", "sb-touch-plan-title", "触达目标拆解"), el("span", "sb-touch-plan-tag", "本地识别"));
+    box.appendChild(head);
+    const grid = el("div", "sb-touch-plan-grid");
+    const fields = [
+      ["Source 来源", plan.source?.label],
+      ["Audience 人群", plan.audience],
+      ["Signal 行为信号", plan.signal],
+      ["Filter 筛选条件", plan.filter],
+      ["Time 时间范围", plan.timeWindow],
+      ["Intent 需求意向", plan.intent],
+      ["Relationship 关系", plan.relationship],
+      ["Action 下一步", plan.action]
+    ];
+    fields.forEach(([label, value]) => {
+      const item = el("div", "sb-touch-plan-item");
+      item.append(el("div", "sb-touch-plan-label", label), el("div", "sb-touch-plan-value", value || "待补充"));
+      grid.appendChild(item);
+    });
+    box.appendChild(grid);
+    if (plan.missing?.length) box.appendChild(el("div", "sb-touch-plan-missing", `还需要你补充：${plan.missing.join("、")}`));
+    return box;
+  }
+
   function showRequirementCard(brief, taskText, instant) {
     if (av.requirementCard) return;
     const bubble = agentMsg(chief, { instant, avatarValue: "main" });
@@ -1682,6 +1785,7 @@ function openConversation(engine) {
     title.appendChild(tag);
     card.appendChild(title);
     card.appendChild(el("div", "sb-access-copy", "请核对下面的理解是否准确。在你主动确认前，Byering 不会安排 Agent、不会打开账号登录，也不会读取任何业务数据。"));
+    if (brief?.touchPlan) card.appendChild(buildTouchPlanCard(brief.touchPlan));
     const grid = el("div", "sb-requirement-grid");
     const fields = [
       ["任务描述", taskText],

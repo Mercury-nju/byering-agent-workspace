@@ -17,6 +17,7 @@
     "test:kanban": "node --test scripts/kanban-room-grouping.test.mjs",
     "test:kanban-customization": "node --test scripts/kanban-customization.test.mjs",
     "test:feed": "node --test scripts/home-sales-feed.test.mjs",
+    "test:touch-audience": "node --test scripts/touch-audience.test.mjs",
     "test:dialogue": "node --test scripts/task-runner-dialogue.test.mjs",
     "test:business-prompts": "node --test scripts/business-prompts.test.mjs",
     "test:runtime": "node --test scripts/task-runtime.test.mjs",
@@ -33,7 +34,7 @@
     "test:nav": "node --test scripts/nav-framework.test.mjs",
     "test:room-actions": "node --test scripts/room-detail-actions.test.mjs",
     "test:product-doc": "node --test scripts/product-logic-doc.test.mjs",
-    "test:all": "node scripts/check-office-integrity.mjs && node scripts/office-baseline.test.mjs && node scripts/agent-data.test.mjs && node scripts/team-status.test.mjs && node scripts/rooms.test.mjs && node --test scripts/kanban-room-grouping.test.mjs && node --test scripts/kanban-customization.test.mjs && node --test scripts/home-sales-feed.test.mjs && node --test scripts/task-runner-dialogue.test.mjs && npm run test:business-prompts && npm run test:demo-timeline && node --test scripts/task-runtime.test.mjs && node --test scripts/ear-page.test.mjs && npm run test:executors && npm run test:shares && npm run test:materials && npm run test:material-store && npm run test:gateway-material && node scripts/agent-dm.test.mjs && npm run test:marketplace && npm run test:brand && npm run test:nav && npm run test:room-actions"
+    "test:all": "node scripts/check-office-integrity.mjs && node scripts/office-baseline.test.mjs && node scripts/agent-data.test.mjs && node scripts/team-status.test.mjs && node scripts/rooms.test.mjs && node --test scripts/kanban-room-grouping.test.mjs && node --test scripts/kanban-customization.test.mjs && node --test scripts/home-sales-feed.test.mjs && npm run test:touch-audience && node --test scripts/task-runner-dialogue.test.mjs && npm run test:business-prompts && npm run test:demo-timeline && node --test scripts/task-runtime.test.mjs && node --test scripts/ear-page.test.mjs && npm run test:executors && npm run test:shares && npm run test:materials && npm run test:material-store && npm run test:gateway-material && node scripts/agent-dm.test.mjs && npm run test:marketplace && npm run test:brand && npm run test:nav && npm run test:room-actions"
   },
   "devDependencies": {
     "electron": "41.2.1"
