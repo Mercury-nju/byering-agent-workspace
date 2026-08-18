@@ -241,6 +241,9 @@ test("the visible conversation renderer does not expose lifecycle protocol label
   assert.match(renderer, /任务恢复建议/);
   assert.match(renderer, /触达目标拆解/);
   assert.match(renderer, /模拟候选预览/);
+  assert.match(renderer, /模拟首触草稿/);
+  assert.match(renderer, /触达结果/);
+  assert.match(renderer, /安排下一轮跟进/);
   assert.match(renderer, /确认模拟触达/);
 });
 

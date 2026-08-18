@@ -178,7 +178,7 @@ function missingFor(value, sourceId, timeWindow, filter) {
 
 export function isTouchRequest(text = "") {
   const value = normalize(text);
-  return /触达|联系|发消息|私信|跟进|重新联系|找.*(?:人|账号|客户|粉丝)|名单.*(?:一遍|联系|触达)/.test(value);
+  return /触达|联系|发消息|私信|重新联系|找.*(?:人|账号|客户|粉丝)|名单.*(?:一遍|联系|触达)/.test(value);
 }
 
 export function parseTouchRequest(text = "") {
@@ -206,5 +206,71 @@ export function parseTouchRequest(text = "") {
       : "先生成候选清单与触达草稿，确认后模拟批量触达",
     missing,
     confidence: missing.length ? "需要补充" : "已识别"
+  };
+}
+
+function candidateSamples(plan) {
+  if (!plan) return [];
+  if (plan.source?.id === TOUCH_SOURCE_IDS.SPECIFIC_ACCOUNT) {
+    return [{
+      id: "specific-account-1",
+      name: plan.audience,
+      match: "指定账号 · 待核验",
+      signal: plan.signal,
+      channel: "待确认"
+    }];
+  }
+  if (plan.source?.id === TOUCH_SOURCE_IDS.IMPORTED_LIST) {
+    return [
+      { id: "imported-list-1", name: "Alex · @alexxx", match: "名单第 1 行 · Bio 待核验", signal: plan.signal, channel: "账号私信" },
+      { id: "imported-list-2", name: "Sarah · @sarahhome", match: "名单第 2 行 · 近期有互动", signal: plan.signal, channel: "账号私信" },
+      { id: "imported-list-3", name: "Jordan · @jordanauto", match: "名单第 3 行 · 缺少触达渠道", signal: plan.signal, channel: "待确认" }
+    ];
+  }
+  return [
+    { id: "audience-1", name: "杭州小周", match: "最近互动 · 询价信号 · A 级", signal: plan.signal, channel: "账号私信" },
+    { id: "audience-2", name: "城市观察员", match: "公开内容命中 · B 级", signal: plan.signal, channel: "账号私信" },
+    { id: "audience-3", name: "周末看车", match: "关系匹配 · 待核验", signal: plan.signal, channel: "待人工确认" }
+  ];
+}
+
+function draftFor(plan) {
+  const focus = plan?.intent === "询价"
+    ? "价格和具体方案"
+    : plan?.intent === "合作需求"
+      ? "合作方向"
+      : "你现在最关心的问题";
+  return {
+    title: "模拟首触草稿",
+    channel: "模拟私信",
+    body: `你好，我看到你最近${plan?.signal || "有相关互动"}，想先了解一下你对${focus}的具体需求。方便的话，可以告诉我你现在最想解决什么吗？`,
+    note: "仅供确认，不会发送"
+  };
+}
+
+/**
+ * Build deterministic local-only candidates and outcomes for the outreach UI.
+ * This is intentionally data-free: it never reads an account or sends a message.
+ */
+export function buildTouchSimulation(plan, selectedIds = null) {
+  const candidates = candidateSamples(plan);
+  const selectedSet = Array.isArray(selectedIds)
+    ? new Set(selectedIds)
+    : new Set(candidates.map((candidate) => candidate.id));
+  const selected = candidates.filter((candidate) => selectedSet.has(candidate.id));
+  const outcomes = selected.map((candidate, index) => ({
+    ...candidate,
+    status: index === 2 ? "待人工确认" : index === 1 ? "已回复" : "等待回复",
+    detail: index === 2 ? "缺少明确渠道，先保留在人工队列" : index === 1 ? "模拟收到一句回复，等待下一步" : "首触已模拟完成，等待对方回复"
+  }));
+  return {
+    candidates,
+    selectedIds: selected.map((candidate) => candidate.id),
+    selectedCount: selected.length,
+    draft: draftFor(plan),
+    outcomes,
+    nextStep: outcomes.some((item) => item.status === "等待回复")
+      ? "等待回复后再安排下一轮跟进"
+      : "根据回复内容安排下一步跟进"
   };
 }

@@ -215,16 +215,25 @@ export function buildDemoTimeline({ taskText = "", online = false, script, runti
   return [...buildRunHeader({ taskText, online, script }), ...buildSkillTimeline({ script, runtimeDefinition, taskText, projectMembers })];
 }
 
-export function buildApprovalTimeline({ approved, script, taskText = "" } = {}) {
+export function buildApprovalTimeline({ approved, script, taskText = "", selectedIds = null } = {}) {
   const action = script?.approval?.title || "对外动作";
   if (!approved) {
     return [
-      { delayMs: 0, t: "approval-resolved", ...protocol("APPROVAL_REJECTED", { ok: false, approval: { id: "approval-demo", ...script?.approval } }) },
+      { delayMs: 0, t: "approval-resolved", ...protocol("APPROVAL_REJECTED", { ok: false, selectedIds, approval: { id: "approval-demo", ...script?.approval } }) },
       { delayMs: 520, t: "task-blocked", ...protocol("CANCEL", { text: `已驳回「${action}」，任务停在人工修改队列，不会继续对外执行。`, reason: "approval_rejected" }) }
     ];
   }
+  if (script?.touchPlan) {
+    return [
+      { delayMs: 0, t: "approval-resolved", ...protocol("APPROVAL_APPROVED", { ok: true, selectedIds, approval: { id: "approval-demo", ...script.approval } }) },
+      { delayMs: 420, t: "touch-sent", selectedIds, ...protocol("TOUCH_SIMULATED", { text: "已按确认范围完成本地模拟触达，未发送任何外部消息。" }) },
+      { delayMs: 850, t: "chief", ...protocol("TEXT_MESSAGE_CONTENT", { text: "我会保留每位候选的触达状态；已回复的进入下一步，未回复和待人工确认的留在跟进队列。" }) },
+      { delayMs: 1200, t: "run-finished", ...protocol("RUN_FINISHED", { text: "找人、首触和跟进队列已完成本地模拟。" }) },
+      { delayMs: 1300, t: "summary", taskText, selectedIds }
+    ];
+  }
   return [
-    { delayMs: 0, t: "approval-resolved", ...protocol("APPROVAL_APPROVED", { ok: true, approval: { id: "approval-demo", ...script?.approval } }) },
+    { delayMs: 0, t: "approval-resolved", ...protocol("APPROVAL_APPROVED", { ok: true, selectedIds, approval: { id: "approval-demo", ...script?.approval } }) },
     { delayMs: 520, t: "chief", ...protocol("TEXT_MESSAGE_CONTENT", { text: `已批准「${action}」，按审批范围执行；超出范围的动作仍需人工确认。` }) },
     { delayMs: 1000, t: "run-finished", ...protocol("RUN_FINISHED", { text: "任务已完成，所有产出和执行证据已归档。" }) },
     { delayMs: 1100, t: "summary", taskText }

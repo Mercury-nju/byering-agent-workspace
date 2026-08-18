@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  buildTouchSimulation,
   isTouchRequest,
   parseTouchRequest,
   TOUCH_SOURCE_IDS
 } from "../src/salebuddy/business/touch-audience.js";
+import { getDialogueScript } from "../src/salebuddy/ui/task-runner.js";
 
 test("parses a direct account request without inventing a broad audience", () => {
   const plan = parseTouchRequest("帮我联系 @acme_cars，问问他有没有合作需求");
@@ -59,4 +61,25 @@ test("parses imported lists and keeps missing constraints visible", () => {
 test("non-touch requests are not classified as audience targeting", () => {
   assert.equal(isTouchRequest("帮我写一篇客户案例文章"), false);
   assert.equal(parseTouchRequest("帮我写一篇客户案例文章"), null);
+});
+
+test("builds a local outreach simulation with a draft, outcomes, and follow-up", () => {
+  const plan = parseTouchRequest("找最近 30 天在我视频下面问过价格的人");
+  const simulation = buildTouchSimulation(plan);
+
+  assert.equal(simulation.candidates.length, 3);
+  assert.equal(simulation.selectedCount, 3);
+  assert.match(simulation.draft.channel, /模拟私信/);
+  assert.match(simulation.draft.body, /价格/);
+  assert.deepEqual(simulation.outcomes.map((item) => item.status), ["等待回复", "已回复", "待人工确认"]);
+  assert.match(simulation.nextStep, /跟进|回复/);
+});
+
+test("touch scripts stop before external sending and expose the full conversation loop", () => {
+  const script = getDialogueScript("leads", "找最近 30 天在我视频下面问过价格的人");
+
+  assert.deepEqual(script.subs.map((step) => step.skill), ["找人", "筛选", "生成首触", "确认触达"]);
+  assert.match(script.subs[2].completion, /草稿/);
+  assert.match(script.subs[3].completion, /候选|确认/);
+  assert.match(script.summary, /等待回复|跟进/);
 });

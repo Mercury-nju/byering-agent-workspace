@@ -19,7 +19,7 @@ import { mountAgentAvatar } from "./agent-avatar.js";
 import { activityLabelFor, clearAgentActivities, createAgentActivityBadge, setAgentActivity } from "./agent-activity.js";
 import { appendRuntimeEvent, createRuntimeTask, getRuntimeSnapshot, replayRuntimeEvents } from "../runtime/task-runtime.js";
 import { resolveBusinessPrompt } from "../business/prompt-catalog.js";
-import { parseTouchRequest } from "../business/touch-audience.js";
+import { buildTouchSimulation, parseTouchRequest } from "../business/touch-audience.js";
 import { buildApprovalTimeline, buildAssignmentPlan, buildDemoTimeline, DEMO_PACING, getDemoAccessSetup } from "../runtime/demo-timeline.js";
 import { openDouyinAuthorization } from "./douyin-auth.js";
 
@@ -67,7 +67,8 @@ const CSS = `
 .sb-touch-plan-head{display:flex;align-items:center;gap:8px}.sb-touch-plan-title{font-size:11px;font-weight:700;color:#1F2329}.sb-touch-plan-tag{font-size:9.5px;color:#3B6BD4;background:rgba(76,154,255,.12);border-radius:999px;padding:2px 7px}
 .sb-touch-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;margin-top:10px}.sb-touch-plan-item{min-width:0}.sb-touch-plan-label{font-size:9.5px;color:#8A95A3;line-height:1.3}.sb-touch-plan-value{margin-top:2px;font-size:11px;line-height:1.45;color:#303943;word-break:break-word}
 .sb-touch-plan-missing{margin-top:9px;padding:7px 8px;border-radius:7px;background:rgba(232,163,61,.1);color:#9A681B;font-size:10.5px;line-height:1.45}
-.sb-touch-preview{margin-top:12px;border-top:1px solid rgba(15,15,15,.08);padding-top:11px}.sb-touch-preview-head{display:flex;align-items:baseline;gap:8px}.sb-touch-preview-title{font-size:11px;font-weight:700;color:#1F2329}.sb-touch-preview-note{font-size:9.5px;color:#8A8F99}.sb-touch-preview-list{display:grid;gap:6px;margin-top:8px}.sb-touch-preview-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border:1px solid rgba(15,15,15,.07);border-radius:8px;background:#fff}.sb-touch-preview-row input{width:14px;height:14px;accent-color:#3B6BD4}.sb-touch-preview-main{min-width:0;flex:1}.sb-touch-preview-name{font-size:11px;color:#303943;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-touch-preview-meta{margin-top:1px;font-size:9.5px;color:#8A8F99;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-touch-preview-count{margin-top:8px;font-size:10px;color:#3B6BD4}
+.sb-touch-preview{margin-top:12px;border-top:1px solid rgba(15,15,15,.08);padding-top:11px}.sb-touch-preview-head{display:flex;align-items:baseline;gap:8px}.sb-touch-preview-title{font-size:11px;font-weight:700;color:#1F2329}.sb-touch-preview-note{font-size:9.5px;color:#8A8F99}.sb-touch-preview-list{display:grid;gap:6px;margin-top:8px}.sb-touch-preview-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border:1px solid rgba(15,15,15,.07);border-radius:8px;background:#fff}.sb-touch-preview-row input{width:14px;height:14px;accent-color:#3B6BD4}.sb-touch-preview-main{min-width:0;flex:1}.sb-touch-preview-name{font-size:11px;color:#303943;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-touch-preview-meta{margin-top:1px;font-size:9.5px;color:#8A8F99;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-touch-preview-count{margin-top:8px;font-size:10px;color:#3B6BD4}.sb-touch-draft{margin-top:10px;padding:9px 10px;border-radius:8px;background:rgba(59,107,212,.06);border:1px solid rgba(59,107,212,.12)}.sb-touch-draft-head{display:flex;align-items:center;gap:8px}.sb-touch-draft-title{font-size:10.5px;font-weight:700;color:#2F5BAA}.sb-touch-draft-channel{font-size:9px;color:#6D7A89}.sb-touch-draft-body{margin-top:5px;font-size:11px;line-height:1.6;color:#303943}.sb-touch-draft-note{margin-top:5px;font-size:9.5px;color:#8A95A3}
+.sb-touch-outcome{margin-top:12px;padding-top:12px;border-top:1px solid rgba(15,15,15,.08)}.sb-touch-outcome-head{display:flex;align-items:baseline;gap:8px}.sb-touch-outcome-title{font-size:11px;font-weight:700;color:#1F2329}.sb-touch-outcome-note{font-size:9.5px;color:#2F7D3F}.sb-touch-outcome-list{display:grid;gap:6px;margin-top:8px}.sb-touch-outcome-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;background:#fff;border:1px solid rgba(15,15,15,.07)}.sb-touch-outcome-dot{width:7px;height:7px;border-radius:50%;background:#8A8F99;flex:none}.sb-touch-outcome-dot.is-replied{background:#57B26A}.sb-touch-outcome-dot.is-waiting{background:#4C9AFF}.sb-touch-outcome-dot.is-human{background:#E8A33D}.sb-touch-outcome-main{min-width:0;flex:1}.sb-touch-outcome-name{font-size:11px;color:#303943;font-weight:650}.sb-touch-outcome-detail{margin-top:1px;font-size:9.5px;color:#8A8F99;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-touch-outcome-status{font-size:10px;color:#5A6472;white-space:nowrap}.sb-touch-outcome-next{margin-top:8px;padding:7px 8px;border-radius:7px;background:rgba(87,178,106,.08);color:#2F7D3F;font-size:10.5px;line-height:1.45}
 @media(max-width:640px){.sb-touch-plan-grid{grid-template-columns:1fr}}
 
 /* Zero-to-one access setup: the demo cannot enter execution before this gate is resolved. */
@@ -544,15 +545,75 @@ function applyBusinessPrompt(base, taskText) {
   };
 }
 
+function buildTouchSubsteps(touchPlan) {
+  const simulation = buildTouchSimulation(touchPlan);
+  const count = simulation.candidates.length;
+  return [
+    {
+      skill: "找人",
+      role: "按来源发现候选并保留依据",
+      executor: "本地模拟筛选",
+      assign: `我先按${touchPlan.source.label}找人，只整理公开描述里的候选，不连接账号。`,
+      lines: [
+        `已根据${touchPlan.source.label}建立候选范围，目标是${touchPlan.audience}。`,
+        `我先按${touchPlan.timeWindow}和${touchPlan.signal}筛第一批结果，重复项和无关互动不会进入名单。`,
+        `找到 ${count} 位候选，每位都保留命中原因和待核验项，下一步交给我继续筛选。`
+      ],
+      completion: `我已找到 ${count} 位候选，来源、行为信号和待核验项都整理好了。`
+    },
+    {
+      skill: "筛选",
+      role: "核验信号并确定优先级",
+      executor: "本地规则模拟",
+      assign: "我会按需求意向、时间范围和关系类型去重，再把证据不足的候选单独标出来。",
+      lines: [
+        `筛选条件已应用：${touchPlan.filter}。`,
+        `命中${touchPlan.intent}的候选优先保留，缺少明确渠道或需求信号的先标记待确认。`,
+        `筛选完成：${simulation.selectedCount} 位进入首触预览，其余候选不会被自动触达。`
+      ],
+      completion: `我已完成候选筛选，${simulation.selectedCount} 位进入首触预览，未通过的候选已留在待核验区。`
+    },
+    {
+      skill: "生成首触",
+      role: "根据命中信号生成沟通草稿",
+      executor: "本地文案模拟",
+      assign: "我会只承接候选已经表达的需求，先生成一条可审核的首触草稿。",
+      lines: [
+        `我按${touchPlan.intent}生成一条${simulation.draft.channel}草稿，不添加价格、库存或优惠承诺。`,
+        `草稿会解释为什么联系对方，并留一个轻量问题，不会连续追问。`,
+        `首触草稿已生成：${simulation.draft.body}`
+      ],
+      completion: "我已完成首触草稿，下一步只等你确认候选和沟通内容。"
+    },
+    {
+      skill: "确认触达",
+      role: "展示候选与外部动作边界",
+      executor: "前端审批卡",
+      assign: "我把候选、命中依据和首触草稿放到审批卡里，你确认后才会推进本地模拟触达。",
+      lines: [
+        `当前候选：${simulation.candidates.map((candidate) => candidate.name).join("、")}。`,
+        `下一步动作：${touchPlan.action}。`,
+        "审批前不会发送任何消息；确认后只展示本地模拟结果和跟进建议。"
+      ],
+      completion: `我已准备好候选和${simulation.draft.title}，等待你确认 ${simulation.selectedCount} 位对象。`
+    }
+  ];
+}
+
 function applyTouchAudiencePlan(base, taskText) {
   const touchPlan = parseTouchRequest(taskText);
   if (!touchPlan) return base;
+  const simulation = buildTouchSimulation(touchPlan);
+  const waitingCount = simulation.outcomes.filter((item) => item.status === "等待回复").length;
+  const repliedCount = simulation.outcomes.filter((item) => item.status === "已回复").length;
+  const humanCount = simulation.outcomes.filter((item) => item.status === "待人工确认").length;
   const missingNote = touchPlan.missing.length
     ? `还缺少：${touchPlan.missing.join("、")}。`
     : "关键信息已识别，可以先看候选和触达草稿。";
   return {
     ...base,
     touchPlan,
+    subs: buildTouchSubsteps(touchPlan),
     decompose: `我先把这次触达拆成来源、人群、行为信号、筛选条件和时间范围，再给你看一小组候选。${missingNote}整个过程先用本地模拟数据展示，不连接账号，也不会真的发消息。`,
     brief: {
       title: "触达目标确认",
@@ -568,7 +629,8 @@ function applyTouchAudiencePlan(base, taskText) {
       approveNote: "已确认：前端模拟触达完成，结果已整理在当前任务中",
       rejectNote: "已暂缓：候选和筛选条件保留，可继续修改目标"
     },
-    summary: `已完成${touchPlan.source.label}的候选整理与模拟触达预览；筛选依据和首触草稿已留在当前任务中。`
+    stats: [[String(simulation.candidates.length), "找到候选"], [String(simulation.selectedCount), "首触草稿"], [String(repliedCount), "模拟回复"], [String(waitingCount + humanCount), "后续跟进"]],
+    summary: `已完成${touchPlan.source.label}的找人、筛选和模拟触达：${simulation.candidates.length} 位候选，${simulation.selectedCount} 位进入首触，${repliedCount} 位模拟回复，${waitingCount + humanCount} 位进入后续跟进。`
   };
 }
 
@@ -1219,11 +1281,12 @@ function startEngine(engine) {
 }
 
 /** 审批决策（视图按钮调用）。 */
-function decide(engine, ok) {
+function decide(engine, ok, selectedIds = null) {
   if (!engine.approvalShown || engine.decision != null) return;
   engine.decision = ok;
+  engine.touchSelection = Array.isArray(selectedIds) ? selectedIds : null;
   const { script } = engine;
-  const timeline = buildApprovalTimeline({ approved: ok, script, taskText: engine.taskText });
+  const timeline = buildApprovalTimeline({ approved: ok, script, taskText: engine.taskText, selectedIds: engine.touchSelection });
   timeline.forEach((event) => {
     const id = setTimeout(() => {
       if (event.t === "approval-resolved") {
@@ -1259,6 +1322,8 @@ function accessStageFromEvents(events = []) {
 function ensureEngine({ taskId, taskText, projectId, projectName, projectMembers = [], teamLive, online = false, runtimeEvents = [], taskStatus = null, taskPreview = "" }) {
   if (taskId && RUNS.has(taskId)) return RUNS.get(taskId);
   const scriptKey = pickDialogueScript(taskText);
+  const localTouchRequest = Boolean(parseTouchRequest(taskText));
+  const runtimeOnline = localTouchRequest ? false : Boolean(online);
   const runtimeDefinition = getDialogueRuntimeDefinition(scriptKey, taskText);
   const runtime = createRuntimeTask({
     taskId,
@@ -1266,7 +1331,7 @@ function ensureEngine({ taskId, taskText, projectId, projectName, projectMembers
     scriptKey,
     projectId,
     projectName,
-    online,
+    online: runtimeOnline,
     agent: runtimeDefinition.agent,
     planNodes: runtimeDefinition.skills.map((skill) => ({
       id: skill.id,
@@ -1286,7 +1351,7 @@ function ensureEngine({ taskId, taskText, projectId, projectName, projectMembers
     projectName,
     projectMembers,
     teamLive,
-    online: Boolean(online),
+    online: runtimeOnline,
     scriptKey,
     script: getDialogueScript(scriptKey, taskText),
     accessSetup: getDemoAccessSetup(scriptKey),
@@ -1304,6 +1369,7 @@ function ensureEngine({ taskId, taskText, projectId, projectName, projectMembers
   const resolvedApproval = [...runtime.events].reverse().find((event) => event.t === "approval-resolved");
   engine.approvalShown = runtime.events.some((event) => event.t === "approval-show");
   engine.decision = resolvedApproval ? Boolean(resolvedApproval.ok) : null;
+  engine.touchSelection = Array.isArray(resolvedApproval?.selectedIds) ? resolvedApproval.selectedIds : null;
   if (taskId) RUNS.set(taskId, engine);
   if (hasPersistedEvents) {
     syncTask(engine, { status: taskStatus || "progress", preview: taskPreview || "任务已恢复，可继续查看运行轨迹" });
@@ -1538,25 +1604,27 @@ function openConversation(engine) {
     const head = el("div", "sb-touch-preview-head");
     head.append(el("span", "sb-touch-preview-title", "模拟候选预览"), el("span", "sb-touch-preview-note", "仅展示，不发送"));
     box.appendChild(head);
-    const samples = plan.source?.id === "specific-account"
-      ? [[plan.audience, "指定账号 · 待核验"]]
-      : plan.source?.id === "imported-list"
-        ? [["Alex · @alexxx", "名单第 1 行 · Bio 待核验"], ["Sarah · @sarahhome", "名单第 2 行 · 近期有互动"], ["Jordan · @jordanauto", "名单第 3 行 · 缺少触达渠道"]]
-        : [["杭州小周", "最近互动 · 询价信号 · A 级"], ["城市观察员", "公开内容命中 · B 级"], ["周末看车", "关系匹配 · 待核验"]];
+    const simulation = buildTouchSimulation(plan);
     const list = el("div", "sb-touch-preview-list");
-    samples.forEach(([name, meta], index) => {
+    simulation.candidates.forEach((candidate) => {
       const row = el("label", "sb-touch-preview-row");
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      checkbox.checked = index < 3;
-      checkbox.setAttribute("aria-label", `选择 ${name}`);
+      checkbox.value = candidate.id;
+      checkbox.checked = true;
+      checkbox.setAttribute("aria-label", `选择 ${candidate.name}`);
       const main = el("span", "sb-touch-preview-main");
-      main.append(el("span", "sb-touch-preview-name", name), el("span", "sb-touch-preview-meta", meta));
+      main.append(el("span", "sb-touch-preview-name", candidate.name), el("span", "sb-touch-preview-meta", candidate.match));
       row.append(checkbox, main);
       list.appendChild(row);
     });
     box.appendChild(list);
-    box.appendChild(el("div", "sb-touch-preview-count", `已选 ${samples.length} 位候选`));
+    const draft = el("div", "sb-touch-draft");
+    const draftHead = el("div", "sb-touch-draft-head");
+    draftHead.append(el("span", "sb-touch-draft-title", simulation.draft.title || "模拟首触草稿"), el("span", "sb-touch-draft-channel", simulation.draft.channel));
+    draft.append(draftHead, el("div", "sb-touch-draft-body", simulation.draft.body), el("div", "sb-touch-draft-note", simulation.draft.note));
+    box.appendChild(draft);
+    box.appendChild(el("div", "sb-touch-preview-count", `已选 ${simulation.selectedCount} 位候选`));
     return box;
   }
 
@@ -1600,7 +1668,12 @@ function openConversation(engine) {
       touchPreview.addEventListener("change", syncSelection);
       syncSelection();
     }
-    approve.addEventListener("click", () => decide(engine, true));
+    approve.addEventListener("click", () => {
+      const selectedIds = touchPreview
+        ? [...touchPreview.querySelectorAll("input[type=checkbox]:checked")].map((input) => input.value)
+        : null;
+      decide(engine, true, selectedIds);
+    });
     reject.addEventListener("click", () => decide(engine, false));
     btns.append(details, reject, approve);
     box.appendChild(btns);
@@ -1893,6 +1966,27 @@ function openConversation(engine) {
     toBottom();
   }
 
+  function buildTouchOutcomeCard(plan) {
+    const simulation = buildTouchSimulation(plan, engine.touchSelection);
+    const box = el("div", "sb-touch-outcome");
+    const head = el("div", "sb-touch-outcome-head");
+    head.append(el("span", "sb-touch-outcome-title", "触达结果"), el("span", "sb-touch-outcome-note", "本地模拟"));
+    box.appendChild(head);
+    const list = el("div", "sb-touch-outcome-list");
+    simulation.outcomes.forEach((outcome) => {
+      const row = el("div", "sb-touch-outcome-row");
+      const dot = el("i", "sb-touch-outcome-dot");
+      dot.classList.add(outcome.status === "已回复" ? "is-replied" : outcome.status === "等待回复" ? "is-waiting" : "is-human");
+      const main = el("div", "sb-touch-outcome-main");
+      main.append(el("div", "sb-touch-outcome-name", outcome.name), el("div", "sb-touch-outcome-detail", outcome.detail));
+      row.append(dot, main, el("span", "sb-touch-outcome-status", outcome.status));
+      list.appendChild(row);
+    });
+    box.appendChild(list);
+    box.appendChild(el("div", "sb-touch-outcome-next", `下一步：${simulation.nextStep}`));
+    return box;
+  }
+
   function showSummaryBox(instant) {
     if (pv.resultCard) return;
     if (pv.status) {
@@ -1911,8 +2005,9 @@ function openConversation(engine) {
     headCopy.append(el("div", "sb-result-title", "任务完成"), el("div", "sb-result-copy", cleanEmployeeText(script.summary)));
     head.appendChild(headCopy);
     card.appendChild(head);
+    if (script.touchPlan) card.appendChild(buildTouchOutcomeCard(script.touchPlan));
     const stats = el("div", "sb-run-stats");
-    for (const [num, label] of (script.stats || []).slice(0, 3)) {
+    for (const [num, label] of (script.stats || []).slice(0, script.touchPlan ? 4 : 3)) {
       const s = el("div", "sb-run-stat");
       s.append(el("div", "sb-run-statnum", num), el("div", "sb-run-statlabel", label));
       stats.appendChild(s);
@@ -1933,11 +2028,11 @@ function openConversation(engine) {
         }
       }
     });
-    const askNext = el("button", "sb-run-btn sb-ghost", "继续生成话术");
+    const askNext = el("button", "sb-run-btn sb-ghost", script.touchPlan ? "安排下一轮跟进" : "继续生成话术");
     askNext.type = "button";
     askNext.addEventListener("click", () => {
-      input.placeholder = "继续追问结果，或安排下一步工作…";
-      input.value = "基于刚才的结果，继续生成下一步跟进话术。";
+      input.placeholder = script.touchPlan ? "描述你希望如何跟进未回复候选…" : "继续追问结果，或安排下一步工作…";
+      input.value = script.touchPlan ? "继续跟进刚才未回复的候选，先给出下一轮跟进话术。" : "基于刚才的结果，继续生成下一步跟进话术。";
       input.focus();
     });
     actions.append(goOffice, askNext);
@@ -2307,7 +2402,11 @@ function openConversation(engine) {
         if (engine.decision != null) markApprovalResolved(engine.decision); // 重放时已决策
         break;
       case "approval-resolved":
+        engine.touchSelection = Array.isArray(event.selectedIds) ? event.selectedIds : engine.touchSelection;
         markApprovalResolved(event.ok);
+        break;
+      case "touch-sent":
+        updateProgressSummary("已模拟触达", "候选状态已更新，未发送任何外部消息");
         break;
       case "run-finished":
         markRunFinished();
@@ -2472,7 +2571,7 @@ export function mountTaskRunner({ teamLive, gateway } = {}) {
       const projectName = project.name;
       const title = text.length > 40 ? `${text.slice(0, 40)}…` : text;
       const optionInput = editor.closest?.(".semi-aiChatInput");
-      const online = optionInput?.dataset.sbOnline === "true" || onlineEnabled;
+      const online = !parseTouchRequest(text) && (optionInput?.dataset.sbOnline === "true" || onlineEnabled);
       const projectMembers = project.members || [];
       const taskId = addTask({ title, projectId, projectName, projectMembers, taskText: text, online });
       const engine = ensureEngine({ taskId, taskText: text, projectId, projectName, projectMembers, teamLive, online });
