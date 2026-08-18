@@ -53,7 +53,7 @@ test("navigation modes include the resource center", () => {
 
 test("navigation blueprint matches the approved grouped order", () => {
   assert.deepEqual(navigationBlueprint().map((group) => [group.id, group.items]), [
-    ["work", ["office", "kanban", "contacts"]],
+    ["work", ["office", "contacts", "kanban"]],
     ["capabilities", ["agentSquare", "skills", "files"]],
     ["knowledge", ["kbDocs", "kbMemory"]]
   ]);
@@ -986,8 +986,8 @@ for (const search of [false, true]) {
         ...(search ? [fixture.search] : []),
         document.querySelector('[data-sb-nav-slot="work-label"]'),
         fixture.office.parentElement,
-        modeRow(document, "kanban"),
         modeRow(document, "contacts"),
+        modeRow(document, "kanban"),
         ...(history ? [document.querySelector('[data-sb-nav-slot="history-label"]'), fixture.historyList] : []),
         fixture.pluginSection,
         document.querySelector('[data-sb-group="capabilities"]'),
@@ -1095,6 +1095,18 @@ test("office remains wired for recovery but stays hidden from the active sidebar
   instance.unmount();
   assert.equal(fixture.office.style.display ?? "", "");
   assert.equal(fixture.office.getAttribute("aria-hidden"), null);
+});
+
+test("members row appears above the kanban row in the work group", () => {
+  const { document, instance } = mountFixture();
+  const members = modeRow(document, "contacts");
+  const kanban = modeRow(document, "kanban");
+
+  assert.equal(members.style.order, "12");
+  assert.equal(kanban.style.order, "13");
+  assert.ok(Number(members.style.order) < Number(kanban.style.order));
+
+  instance.unmount();
 });
 
 test("navigation scopes ownership to the real sidebar when an unrelated scroll area appears first", () => {

@@ -42,7 +42,7 @@ export const NAV_MODES = Object.freeze([
 const NAV_MODE_SET = new Set(NAV_MODES);
 const KNOWLEDGE_MODES = new Set(["kbDocs", "kbMemory"]);
 const NAV_BLUEPRINT = Object.freeze([
-  Object.freeze({ id: "work", items: Object.freeze(["office", "kanban", "contacts"]) }),
+  Object.freeze({ id: "work", items: Object.freeze(["office", "contacts", "kanban"]) }),
   Object.freeze({ id: "capabilities", items: Object.freeze(["agentSquare", "skills", "files"]) }),
   Object.freeze({ id: "knowledge", items: Object.freeze(["kbDocs", "kbMemory"]) })
 ]);
@@ -100,8 +100,8 @@ const CSS = `
 [data-sb-nav-owner="1"] [data-sb-nav-slot="work-label"]{order:10}
 [data-sb-nav-root="1"] [data-sb-nav-slot="office"]{order:11}
 [data-sb-nav-root="1"] [data-sb-mode="office"]{height:${NAV_LAYOUT.primaryRow}px!important;min-height:${NAV_LAYOUT.primaryRow}px!important;box-sizing:border-box!important}
-[data-sb-nav-owner="1"] [data-sb-nav-slot="kanban"]{order:12}
-[data-sb-nav-owner="1"] [data-sb-nav-slot="contacts"]{order:13}
+[data-sb-nav-owner="1"] [data-sb-nav-slot="contacts"]{order:12}
+[data-sb-nav-owner="1"] [data-sb-nav-slot="kanban"]{order:13}
 [data-sb-nav-owner="1"] [data-sb-nav-slot="history-label"]{order:14}
 [data-sb-nav-root="1"] [data-sb-nav-slot="history"]{order:15}
 [data-sb-nav-root="1"] [data-sb-nav-plugin-section="1"]{order:19;margin:0!important}
@@ -560,11 +560,11 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     const workLabel = createElement("div", "sb-nav-group-label", "工作");
     workLabel.dataset.sbNavSlot = "work-label";
     workLabel.style.order = "10";
-    work.append(workLabel, buildRow("kanban", menuClass), buildRow("contacts", menuClass));
-    proxyRows.get("kanban").dataset.sbNavSlot = "kanban";
-    proxyRows.get("kanban").style.order = "12";
+    work.append(workLabel, buildRow("contacts", menuClass), buildRow("kanban", menuClass));
     proxyRows.get("contacts").dataset.sbNavSlot = "contacts";
-    proxyRows.get("contacts").style.order = "13";
+    proxyRows.get("contacts").style.order = "12";
+    proxyRows.get("kanban").dataset.sbNavSlot = "kanban";
+    proxyRows.get("kanban").style.order = "13";
     const recentLabel = createElement("div", "sb-nav-recent-label", "最近任务");
     recentLabel.dataset.sbNavSlot = "history-label";
     recentLabel.style.order = "14";
