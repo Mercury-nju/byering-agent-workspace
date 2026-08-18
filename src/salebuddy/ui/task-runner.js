@@ -22,6 +22,7 @@ import { resolveBusinessPrompt } from "../business/prompt-catalog.js";
 import { buildTouchSimulation, parseTouchRequest } from "../business/touch-audience.js";
 import { buildApprovalTimeline, buildAssignmentPlan, buildDemoTimeline, DEMO_PACING, getDemoAccessSetup } from "../runtime/demo-timeline.js";
 import { openDouyinAuthorization } from "./douyin-auth.js";
+import { PRODUCT_VISIBILITY } from "./product-visibility.js";
 
 const DEMO_REVEAL_MS = Object.freeze({
   trace: 620,
@@ -703,7 +704,7 @@ function followUpReply(text, engine) {
   if (/进度|进展|怎么样/.test(text)) {
     return engine?.scriptKey === "leads"
       ? "当前进展：已观察 3,842 条互动，筛出 214 位候选；47 位进入 A 级，12 位产生有效回复，其中 5 位确认本周到店，2 位已转人工接管。"
-      : `${business.progress} 关键节点会再找你确认。你也可以点上方「去办公室看看」实时盯一下。`;
+      : `${business.progress} 关键节点会再找你确认。你也可以从任务结果里继续查看进展。`;
   }
   if (/谢谢|辛苦|好的|好/.test(text)) return "收到，有新的互动、回复或状态变化我会第一时间同步。";
   return engine?.scriptKey === "leads"
@@ -2017,6 +2018,8 @@ function openConversation(engine) {
     card.appendChild(files);
     const actions = el("div", "sb-result-actions");
     const goOffice = el("button", "sb-run-btn sb-primary", "去办公室看看");
+    goOffice.hidden = !PRODUCT_VISIBILITY.office;
+    goOffice.setAttribute("aria-hidden", String(!PRODUCT_VISIBILITY.office));
     goOffice.addEventListener("click", () => {
       page.close();
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);

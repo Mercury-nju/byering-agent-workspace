@@ -1085,6 +1085,18 @@ test("office row owns primary geometry without sizing its slot container", () =>
   instance.unmount();
 });
 
+test("office remains wired for recovery but stays hidden from the active sidebar", () => {
+  const { fixture, instance } = mountFixture();
+
+  assert.equal(fixture.office.dataset.sbMode, "office");
+  assert.equal(fixture.office.style.display, "none");
+  assert.equal(fixture.office.getAttribute("aria-hidden"), "true");
+
+  instance.unmount();
+  assert.equal(fixture.office.style.display ?? "", "");
+  assert.equal(fixture.office.getAttribute("aria-hidden"), null);
+});
+
 test("navigation scopes ownership to the real sidebar when an unrelated scroll area appears first", () => {
   const document = installDom();
   const decoySidebar = node(document, "aside", { className: "_sidebar_decoy_" });

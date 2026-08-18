@@ -13,6 +13,7 @@ import { openFileCenterPage } from "./file-center.js";
 import { openResourceCenterPage } from "./resource-center.js";
 import { openKanbanPage } from "./kanban.js";
 import { getCurrentPage, closeCurrentPage } from "./pages.js";
+import { PRODUCT_VISIBILITY } from "./product-visibility.js";
 
 export const NAV_EVENT = "salebuddy:navigation-state";
 export const NAV_SURFACE_COLOR = "#FAFAFA";
@@ -701,6 +702,8 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     if (office) {
       trackAttribute(office, "data-sb-mode", "office");
       setVisualSlot(office.parentElement || office, "office", 11);
+      if (PRODUCT_VISIBILITY.office) restoreHiddenRow(office);
+      else hideNativeRow(office);
     }
     const recentLabel = owner?.querySelector('[data-sb-nav-slot="history-label"]');
     const hasHistory = Boolean(history && normalizedText(history));
