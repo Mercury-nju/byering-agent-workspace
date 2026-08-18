@@ -156,7 +156,7 @@ test("mounted sidebar omits the retired ear destination", () => {
 
   assert.equal(modeRow(document, "ear"), null);
   assert.equal(document.querySelector('[data-sb-nav-slot="ear"]'), null);
-  assert.equal(document.querySelector('[data-sb-mode="newTask"]')?.textContent, "聊天");
+  assert.equal(document.querySelector('[data-sb-mode="newTask"]')?.textContent, "新任务");
 
   instance.unmount();
 });
@@ -819,7 +819,7 @@ function buildSidebarFixture(document, { search = true, history = true, kanbanRe
   const host = node(document, "div", { className: "app-shell" });
   const sidebar = node(document, "aside", { className: "_sidebar_xyz_" });
   const fixedTop = node(document, "div", { className: "_fixedTop_xyz_" });
-  const newTask = nativeRow(document, "聊天", "_newChatRow_xyz_");
+  const newTask = nativeRow(document, "新任务", "_newChatRow_xyz_");
   newTask.setAttribute("dt-eid", "sidebar_new_chat_btn");
   fixedTop.appendChild(newTask);
   let searchRow = null;

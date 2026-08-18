@@ -175,12 +175,12 @@ test("browser patch transforms legacy visible literals and preserves technical i
   assert.match(result, /data-salebuddy-owner/);
 });
 
-test("browser patch renames the native new-chat label to chat", () => {
+test("browser patch renames the native new-chat label to new task", () => {
   const result = patchRecoveredBundle(
     "index-CriD6gLK.js",
     Buffer.from('children:"新建对话"')
   ).toString("utf8");
-  assert.equal(result, 'children:"聊天"');
+  assert.equal(result, 'children:"新任务"');
 });
 
 test("served HTTP entry and logo assets expose Byering without changing files", async () => {

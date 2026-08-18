@@ -42,7 +42,7 @@ export function patchRecoveredBundle(filePath, body) {
   if (filePath.endsWith("index-CriD6gLK.js")) {
     let source = body.toString("utf8");
     const from = 'children:"新建对话"';
-    if (source.includes(from)) source = source.split(from).join('children:"聊天"');
+    if (source.includes(from)) source = source.split(from).join('children:"新任务"');
     return Buffer.from(source);
   }
   if (!filePath.endsWith("treemap-KZPCXAKY-Dm7XgKSQ.js")) return body;
