@@ -61,7 +61,7 @@ test("in-flight commands with the same idempotency key share one Gateway call", 
   const client = createTaskCommandClient({
     gateway: { action: () => { callCount += 1; return new Promise((done) => { resolve = done; }); } }
   });
-  const input = { taskId: "task-1", commandId: "cmd-same", idempotencyKey: "idem-same", payload: { text: "继续" } };
+  const input = { taskId: "task-1", commandId: "cmd-same", idempotencyKey: "idem-same", payload: { text: "继续", followupId: "followup-same" } };
   const first = client.send(COMMAND_TYPES.REPLY, input);
   const second = client.send(COMMAND_TYPES.REPLY, input);
   resolve({ accepted: true });
@@ -82,8 +82,8 @@ test("caller-supplied command ids still receive unique generated idempotency key
   });
 
   await Promise.all([
-    client.send(COMMAND_TYPES.REPLY, { taskId: "task-1", commandId: "cmd-a", payload: { text: "a" } }),
-    client.send(COMMAND_TYPES.REPLY, { taskId: "task-1", commandId: "cmd-b", payload: { text: "b" } })
+    client.send(COMMAND_TYPES.REPLY, { taskId: "task-1", commandId: "cmd-a", payload: { text: "a", followupId: "followup-a" } }),
+    client.send(COMMAND_TYPES.REPLY, { taskId: "task-1", commandId: "cmd-b", payload: { text: "b", followupId: "followup-b" } })
   ]);
 
   assert.equal(calls.length, 2);
@@ -98,14 +98,14 @@ test("conflicting payloads cannot reuse an in-flight idempotency key", async () 
   const first = client.send(COMMAND_TYPES.REPLY, {
     taskId: "task-1",
     idempotencyKey: "idem-conflict",
-    payload: { text: "first" }
+    payload: { text: "first", followupId: "followup-first" }
   });
 
   await assert.rejects(
     client.send(COMMAND_TYPES.REPLY, {
       taskId: "task-1",
       idempotencyKey: "idem-conflict",
-      payload: { text: "different" }
+      payload: { text: "different", followupId: "followup-different" }
     }),
     (error) => error instanceof TaskCommandClientError && error.code === "IDEMPOTENCY_CONFLICT"
   );
@@ -117,15 +117,41 @@ test("conflicting payloads cannot reuse an in-flight idempotency key", async () 
 test("rejected Gateway acknowledgements become typed command errors", async () => {
   const client = createTaskCommandClient({ gateway: { action: async () => ({ accepted: false, code: "SCOPE_NOT_GRANTED" }) } });
   await assert.rejects(
-    client.send(COMMAND_TYPES.TASK_START, { taskId: "task-1" }),
+    client.send(COMMAND_TYPES.TASK_START, { taskId: "task-1", payload: { planVersion: 1 } }),
     (error) => error instanceof TaskCommandClientError && error.code === "SCOPE_NOT_GRANTED"
   );
 });
 
 test("outer Gateway envelopes with code zero are accepted", async () => {
   const client = createTaskCommandClient({ gateway: { action: async () => ({ code: 0, data: {} }) } });
-  const result = await client.send(COMMAND_TYPES.TASK_START, { taskId: "task-1" });
+  const result = await client.send(COMMAND_TYPES.TASK_START, { taskId: "task-1", payload: { planVersion: 1 } });
   assert.equal(result.accepted, true);
+});
+
+test("settled idempotency keys reuse the original acknowledgement", async () => {
+  let callCount = 0;
+  const client = createTaskCommandClient({
+    gateway: { action: async () => { callCount += 1; return { accepted: true, currentSeq: callCount }; } }
+  });
+  const input = { taskId: "task-1", idempotencyKey: "idem-settled", payload: { planVersion: 1 } };
+  const first = await client.send(COMMAND_TYPES.TASK_START, input);
+  const second = await client.send(COMMAND_TYPES.TASK_START, input);
+  assert.equal(callCount, 1);
+  assert.equal(second.currentSeq, first.currentSeq);
+});
+
+test("invalid or mismatched Gateway acknowledgements fail closed", async () => {
+  const invalid = createTaskCommandClient({ gateway: { action: async () => ({ accepted: "false" }) } });
+  await assert.rejects(
+    invalid.send(COMMAND_TYPES.TASK_START, { taskId: "task-1", payload: { planVersion: 1 } }),
+    (error) => error instanceof TaskCommandClientError && error.code === "INVALID_GATEWAY_ACK"
+  );
+
+  const mismatched = createTaskCommandClient({ gateway: { action: async () => ({ accepted: true, commandId: "other-command" }) } });
+  await assert.rejects(
+    mismatched.send(COMMAND_TYPES.TASK_START, { taskId: "task-1", payload: { planVersion: 1 } }),
+    (error) => error instanceof TaskCommandClientError && error.code === "COMMAND_ID_MISMATCH"
+  );
 });
 
 test("unmapped or invalid commands fail before a Gateway call", async () => {
@@ -134,4 +160,5 @@ test("unmapped or invalid commands fail before a Gateway call", async () => {
   assert.equal(TASK_COMMAND_ACTIONS[COMMAND_TYPES.HANDOFF], "task.handoff");
   assert.equal(client.actionFor(COMMAND_TYPES.APPROVAL_DECISION), "approval.action.respond");
   assert.equal(client.actionFor("unknown.command"), null);
+  await assert.rejects(client.send(COMMAND_TYPES.TASK_START, null), (error) => error instanceof TaskCommandClientError && error.code === "INVALID_COMMAND_INPUT");
 });

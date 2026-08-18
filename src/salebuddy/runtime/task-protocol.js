@@ -97,6 +97,13 @@ const DECISIONS = Object.freeze({
   APPROVED: "approved",
   REJECTED: "rejected"
 });
+const SUPPORTED_SCHEMA_VERSION = 1;
+const EVENT_ENVELOPE_KEYS = new Set([
+  "schemaVersion", "eventId", "id", "seq", "sequence", "remoteSeq",
+  "taskId", "taskRunId", "runId", "conversationId", "conversation_id",
+  "agentId", "agentRunId", "skillId", "skillRunId", "type",
+  "occurredAt", "createdAt", "payload", "metadata", "causationId", "correlationId"
+]);
 
 export class TaskProtocolError extends Error {
   constructor(message, code = "INVALID_PROTOCOL", details = {}) {
@@ -108,13 +115,15 @@ export class TaskProtocolError extends Error {
 }
 
 export class TaskTransitionError extends Error {
-  constructor(message, { fromState, commandType, allowed = [] } = {}) {
+  constructor(message, { fromState, commandType, allowed = [], code = "INVALID_TASK_TRANSITION", expectedVersion = null, currentVersion = null } = {}) {
     super(message);
     this.name = "TaskTransitionError";
-    this.code = "INVALID_TASK_TRANSITION";
+    this.code = code;
     this.fromState = fromState;
     this.commandType = commandType;
     this.allowed = Object.freeze([...allowed]);
+    this.expectedVersion = expectedVersion;
+    this.currentVersion = currentVersion;
   }
 }
 
@@ -165,20 +174,28 @@ export function normalizeCommand(input = {}) {
     delete payload.ok;
   }
 
+  validateCommandPayload(type, payload);
+
   const envelope = {
-    schemaVersion: Number(input.schemaVersion) || 1,
+    schemaVersion: normalizeSchemaVersion(input.schemaVersion),
     commandId,
     idempotencyKey,
     taskId,
     taskRunId: optionalId(input.taskRunId ?? input.runId, "taskRunId"),
     conversationId,
     agentId: optionalId(input.agentId, "agentId"),
+    expectedVersion: normalizeExpectedVersion(input.expectedVersion),
+    causationId: optionalId(input.causationId, "causationId"),
+    correlationId: optionalId(input.correlationId, "correlationId"),
     type,
     payload,
     actor: normalizeActor(input.actor),
     createdAt: normalizeTimestamp(input.createdAt, "createdAt"),
     metadata: cloneJson(input.metadata == null ? {} : input.metadata, "metadata")
   };
+
+  rejectHiddenReasoning(envelope.actor, "command.actor");
+  rejectHiddenReasoning(envelope.metadata, "command.metadata");
 
   return envelope;
 }
@@ -191,10 +208,10 @@ export function createEventEnvelope(input = {}) {
   if (!isRecord(input)) throw new TaskProtocolError("Event must be an object", "INVALID_EVENT");
 
   const eventId = requireId(input.eventId ?? input.id, "eventId");
-  const seq = normalizeSequence(input.seq ?? input.sequence ?? input.remoteSeq);
+  const seq = normalizeEventSequence(input);
   const taskId = requireId(input.taskId, "taskId");
-  const taskRunId = requireId(input.taskRunId ?? input.runId, "taskRunId");
-  const conversationId = requireId(input.conversationId, "conversationId");
+  const taskRunId = normalizeAliasedId(input.taskRunId, input.runId, "taskRunId");
+  const conversationId = requireId(input.conversationId ?? input.conversation_id, "conversationId");
   const agentId = requireId(input.agentId, "agentId");
   const agentRunId = optionalId(input.agentRunId, "agentRunId");
   const type = requireString(input.type, "type");
@@ -208,12 +225,18 @@ export function createEventEnvelope(input = {}) {
     throw new TaskProtocolError("skillId and skillRunId must be provided together", "EVENT_SKILL_FIELDS_MISMATCH");
   }
 
-  const payload = cloneJson(input.payload == null ? {} : input.payload, "payload");
+  const payloadSource = input.payload == null
+    ? Object.fromEntries(Object.entries(input).filter(([key]) => !EVENT_ENVELOPE_KEYS.has(key)))
+    : input.payload;
+  const payload = cloneJson(payloadSource, "payload");
   if (!isRecord(payload)) throw new TaskProtocolError("Event payload must be an object", "INVALID_EVENT_PAYLOAD");
   rejectHiddenReasoning(payload, "event.payload");
 
-  return {
-    schemaVersion: Number(input.schemaVersion) || 1,
+  const metadata = cloneJson(input.metadata == null ? {} : input.metadata, "metadata");
+  rejectHiddenReasoning(metadata, "event.metadata");
+
+  return deepFreeze({
+    schemaVersion: normalizeSchemaVersion(input.schemaVersion),
     eventId,
     seq,
     taskId,
@@ -222,13 +245,15 @@ export function createEventEnvelope(input = {}) {
     conversationId,
     agentId,
     agentRunId,
+    causationId: optionalId(input.causationId, "causationId"),
+    correlationId: optionalId(input.correlationId, "correlationId"),
     skillId,
     skillRunId,
     type,
     payload,
     occurredAt: normalizeTimestamp(input.occurredAt ?? input.createdAt, "occurredAt"),
-    metadata: cloneJson(input.metadata == null ? {} : input.metadata, "metadata")
-  };
+    metadata
+  });
 }
 
 /**
@@ -240,6 +265,22 @@ export function transitionTaskState(currentState, command, options = {}) {
   const normalized = typeof command === "string"
     ? { type: normalizeCommandType(command), payload: normalizeTransitionPayload(options.payload ?? options) }
     : normalizeTransitionCommand(command);
+  if (normalized.expectedVersion != null) {
+    const currentVersion = options.currentVersion ?? normalized.currentVersion;
+    if (!Number.isInteger(currentVersion)) {
+      throw new TaskProtocolError("currentVersion is required when expectedVersion is supplied", "CURRENT_VERSION_REQUIRED");
+    }
+    if (normalized.expectedVersion !== currentVersion) {
+      throw new TaskTransitionError("Task version is stale", {
+        fromState,
+        commandType: normalized.type,
+        code: "STALE_TASK_VERSION",
+        expectedVersion: normalized.expectedVersion,
+        currentVersion,
+        allowed: allowedCommands(fromState)
+      });
+    }
+  }
   const type = normalized.type;
   const payload = normalized.payload || {};
   const next = resolveTransition(fromState, type, payload);
@@ -312,7 +353,9 @@ function normalizeTransitionCommand(command) {
   delete payload.ok;
   return {
     type: normalizeCommandType(command.type ?? command.commandType),
-    payload
+    payload,
+    expectedVersion: normalizeExpectedVersion(command.expectedVersion ?? payload.expectedVersion),
+    currentVersion: command.currentVersion
   };
 }
 
@@ -342,6 +385,52 @@ function normalizeDecision(value) {
   throw new TaskProtocolError(`Invalid approval decision: ${String(value)}`, "INVALID_APPROVAL_DECISION");
 }
 
+function validateCommandPayload(type, payload) {
+  switch (type) {
+    case COMMAND_TYPES.TASK_CREATE:
+      requirePayloadValue(payload, ["goal", "objective", "input"], "TASK_GOAL_REQUIRED");
+      return;
+    case COMMAND_TYPES.TASK_START:
+      // A planned task may already have its goal persisted. In that case the
+      // plan version is the command's proof that the caller is starting the
+      // intended plan, so accept either a goal/input or a planVersion.
+      requirePayloadValue(payload, ["goal", "objective", "input", "planVersion"], "TASK_START_INPUT_REQUIRED");
+      return;
+    case COMMAND_TYPES.MESSAGE_SEND:
+      requirePayloadString(payload, ["text", "content", "message"], "MESSAGE_TEXT_REQUIRED");
+      return;
+    case COMMAND_TYPES.REQUIREMENT_EDIT:
+      requirePayloadValue(payload, ["text", "goal", "objective", "input"], "REQUIREMENT_EDIT_INPUT_REQUIRED");
+      return;
+    case COMMAND_TYPES.APPROVAL_DECISION:
+      requirePayloadString(payload, ["approvalId"], "APPROVAL_ID_REQUIRED");
+      return;
+    case COMMAND_TYPES.REPLY:
+      requirePayloadString(payload, ["followupId"], "FOLLOWUP_ID_REQUIRED");
+      requirePayloadString(payload, ["text", "content", "message"], "FOLLOWUP_TEXT_REQUIRED");
+      return;
+    default:
+      return;
+  }
+}
+
+function requirePayloadValue(payload, fields, code) {
+  const field = fields.find((key) => payload[key] !== undefined && payload[key] !== null && payload[key] !== "");
+  if (!field) {
+    throw new TaskProtocolError(`${fields.join(" or ")} is required`, code, { fields: [...fields] });
+  }
+  if (typeof payload[field] === "string" && !payload[field].trim()) {
+    throw new TaskProtocolError(`${field} is required`, code, { field });
+  }
+}
+
+function requirePayloadString(payload, fields, code) {
+  const field = fields.find((key) => payload[key] !== undefined && payload[key] !== null);
+  if (!field || typeof payload[field] !== "string" || !payload[field].trim()) {
+    throw new TaskProtocolError(`${fields.join(" or ")} is required`, code, { fields: [...fields] });
+  }
+}
+
 function normalizeTaskState(value) {
   const state = requireString(value, "currentState").toUpperCase();
   if (!TASK_STATE_SET.has(state)) throw new TaskProtocolError(`Unknown task state: ${state}`, "UNKNOWN_TASK_STATE");
@@ -357,6 +446,37 @@ function normalizeActor(actor) {
 
 function normalizeSequence(value) {
   if (!Number.isInteger(value) || value < 1) throw new TaskProtocolError("seq must be an integer greater than zero", "INVALID_SEQUENCE");
+  return value;
+}
+
+function normalizeEventSequence(input) {
+  const values = [input.seq, input.sequence, input.remoteSeq].filter((value) => value !== undefined && value !== null);
+  if (new Set(values).size > 1) {
+    throw new TaskProtocolError("seq, sequence, and remoteSeq must agree", "CONFLICTING_SEQUENCE");
+  }
+  return normalizeSequence(values[0]);
+}
+
+function normalizeAliasedId(primary, legacy, field) {
+  if (primary != null && legacy != null && String(primary).trim() !== String(legacy).trim()) {
+    throw new TaskProtocolError(field + " aliases must agree", "CONFLICTING_IDENTITY", { field });
+  }
+  return requireId(primary ?? legacy, field);
+}
+
+function normalizeSchemaVersion(value) {
+  if (value == null) return SUPPORTED_SCHEMA_VERSION;
+  if (!Number.isInteger(value) || value !== SUPPORTED_SCHEMA_VERSION) {
+    throw new TaskProtocolError("Unsupported schemaVersion: " + String(value), "UNSUPPORTED_SCHEMA_VERSION");
+  }
+  return value;
+}
+
+function normalizeExpectedVersion(value) {
+  if (value == null) return null;
+  if (!Number.isInteger(value) || value < 0) {
+    throw new TaskProtocolError("expectedVersion must be a non-negative integer", "INVALID_EXPECTED_VERSION");
+  }
   return value;
 }
 
@@ -410,6 +530,12 @@ function isRecord(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const prototype = Object.getPrototypeOf(value);
   return prototype === Object.prototype || prototype === null;
+}
+
+function deepFreeze(value) {
+  if (!value || typeof value !== "object" || Object.isFrozen(value)) return value;
+  for (const child of Object.values(value)) deepFreeze(child);
+  return Object.freeze(value);
 }
 
 export { DECISIONS as APPROVAL_DECISIONS };

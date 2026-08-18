@@ -51,9 +51,14 @@ export function createTaskCommandClient({ gateway, actor = null, idFactory } = {
   }
 
   const pending = new Map();
+  const settled = new Map();
+  const settledLimit = 512;
   let sequence = 0;
 
   async function send(type, input = {}, options = {}) {
+    if (!isRecord(input)) {
+      throw new TaskCommandClientError("Command input must be an object", { code: "INVALID_COMMAND_INPUT" });
+    }
     const requestSequence = ++sequence;
     const command = normalizeCommand({
       ...input,
@@ -66,6 +71,16 @@ export function createTaskCommandClient({ gateway, actor = null, idFactory } = {
     if (!action) throw new TaskCommandClientError(`No Gateway action for ${command.type}`, { code: "UNMAPPED_COMMAND", command });
 
     const fingerprint = commandFingerprint(command);
+    const completed = settled.get(command.idempotencyKey);
+    if (completed) {
+      if (completed.fingerprint !== fingerprint) {
+        throw new TaskCommandClientError("Idempotency key is already used for a different command", {
+          code: "IDEMPOTENCY_CONFLICT",
+          command
+        });
+      }
+      return completed.result;
+    }
     const existing = pending.get(command.idempotencyKey);
     if (existing) {
       if (existing.fingerprint !== fingerprint) {
@@ -88,6 +103,9 @@ export function createTaskCommandClient({ gateway, actor = null, idFactory } = {
         runId: command.taskRunId,
         conversationId: command.conversationId,
         agentId: command.agentId,
+        expectedVersion: command.expectedVersion,
+        causationId: command.causationId,
+        correlationId: command.correlationId,
         type: command.type,
         schemaVersion: command.schemaVersion,
         actor: command.actor,
@@ -99,6 +117,10 @@ export function createTaskCommandClient({ gateway, actor = null, idFactory } = {
 
     const request = Promise.resolve(gatewayResponse)
       .then((ack) => normalizeAck(ack, command))
+      .then((result) => {
+        rememberSettled(command.idempotencyKey, fingerprint, result);
+        return result;
+      })
       .catch((error) => {
         if (error instanceof TaskCommandClientError) throw error;
         throw new TaskCommandClientError(error?.message || "Gateway command failed", { command, cause: error });
@@ -117,12 +139,14 @@ export function createTaskCommandClient({ gateway, actor = null, idFactory } = {
     pendingCount: () => pending.size,
     actionFor: (type) => {
       try {
+        const previewPayload = previewPayloadFor(type);
         const normalized = normalizeCommand({
           type,
           commandId: "command-preview",
           idempotencyKey: "idempotency-preview",
-          taskId: "task-preview",
-          payload: { decision: "approved" }
+          taskId: tasklessCommand(type) ? undefined : "task-preview",
+          conversationId: type === COMMAND_TYPES.MESSAGE_SEND ? "conversation-preview" : undefined,
+          payload: previewPayload
         });
         return TASK_COMMAND_ACTIONS[normalized.type] || null;
       } catch {
@@ -130,6 +154,12 @@ export function createTaskCommandClient({ gateway, actor = null, idFactory } = {
       }
     }
   });
+
+  function rememberSettled(idempotencyKey, fingerprint, result) {
+    settled.delete(idempotencyKey);
+    settled.set(idempotencyKey, { fingerprint, result });
+    while (settled.size > settledLimit) settled.delete(settled.keys().next().value);
+  }
 }
 
 function commandFingerprint(command) {
@@ -139,6 +169,9 @@ function commandFingerprint(command) {
     taskRunId: command.taskRunId,
     conversationId: command.conversationId,
     agentId: command.agentId,
+    expectedVersion: command.expectedVersion,
+    causationId: command.causationId,
+    correlationId: command.correlationId,
     type: command.type,
     payload: command.payload,
     actor: command.actor,
@@ -160,16 +193,30 @@ function stableValue(value) {
 function normalizeAck(ack, command) {
   const outer = ack && typeof ack === "object" ? ack : {};
   const data = outer.data && typeof outer.data === "object" ? outer.data : outer;
-  const accepted = data?.accepted
+  const explicitAccepted = data?.accepted
     ?? data?.ok
     ?? outer.accepted
-    ?? outer.ok
-    ?? (data?.code === "OK" || data?.code === 0 || outer.code === "OK" || outer.code === 0);
+    ?? outer.ok;
+  if (explicitAccepted !== undefined && typeof explicitAccepted !== "boolean") {
+    throw new TaskCommandClientError("Gateway ACK accepted must be boolean", {
+      code: "INVALID_GATEWAY_ACK",
+      command
+    });
+  }
+  const accepted = explicitAccepted
+    ?? (data?.code === "OK" || data?.code === 0 || outer.code === "OK" || outer.code === 0 ? true : undefined);
   const error = data?.error || outer.error;
   const code = data?.code || outer.code;
   if (accepted === false || error || code === "ERROR" || code === "ERR") {
-    throw new TaskCommandClientError(error?.message || data?.message || outer.message || "Gateway rejected command", {
+    throw new TaskCommandClientError(error?.message || error || data?.message || outer.message || "Gateway rejected command", {
       code: error?.code || code || "COMMAND_REJECTED",
+      command
+    });
+  }
+  const responseCommandId = data?.commandId || outer.commandId;
+  if (responseCommandId != null && responseCommandId !== command.commandId) {
+    throw new TaskCommandClientError("Gateway ACK commandId does not match the request", {
+      code: "COMMAND_ID_MISMATCH",
       command
     });
   }
@@ -182,7 +229,38 @@ function normalizeAck(ack, command) {
   };
 }
 
+function previewPayloadFor(type) {
+  switch (type) {
+    case COMMAND_TYPES.TASK_CREATE:
+      return { goal: "preview" };
+    case COMMAND_TYPES.TASK_START:
+      return { planVersion: 1 };
+    case COMMAND_TYPES.MESSAGE_SEND:
+      return { text: "preview" };
+    case COMMAND_TYPES.REQUIREMENT_EDIT:
+      return { text: "preview" };
+    case COMMAND_TYPES.APPROVAL_DECISION:
+      return { approvalId: "approval-preview", decision: "approved" };
+    case COMMAND_TYPES.REPLY:
+      return { followupId: "followup-preview", text: "preview" };
+    default:
+      return {};
+  }
+}
+
+function tasklessCommand(type) {
+  return type === COMMAND_TYPES.TASK_CREATE
+    || type === COMMAND_TYPES.CONVERSATION_CREATE
+    || type === COMMAND_TYPES.MESSAGE_SEND;
+}
+
 function makeId(prefix, sequence, idFactory) {
   if (typeof idFactory === "function") return idFactory(prefix, sequence);
   return `${prefix}-${Date.now().toString(36)}-${sequence.toString(36)}`;
+}
+
+function isRecord(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
 }

@@ -5,6 +5,7 @@ import {
   BYERING_ORCHESTRATION_GRAPH,
   getOrchestrationGraph,
   getOutgoingEdges,
+  getOrchestrationNode,
   listOrchestrationNodes
 } from "../src/salebuddy/runtime/orchestration-graph.js";
 
@@ -31,10 +32,13 @@ test("graph has ordered and conditional edges for the find, analyze, research, r
   const edges = BYERING_ORCHESTRATION_GRAPH.edges;
   const find = (from, to, when) => edges.some((edge) => edge.from === from && edge.to === to && edge.when === when);
 
-  assert.ok(find("acquisition_strategist", "lead_miner", "strategy.ready"));
+  assert.ok(find("acquisition_strategist", "lead_miner", "strategy.public_only"));
+  assert.ok(find("acquisition_strategist", "access_gate", "strategy.requires_access"));
   assert.ok(find("lead_miner", "lead_analyst", "find.completed"));
+  assert.ok(find("lead_miner", "access_gate", "find.requires_access"));
   assert.ok(find("lead_analyst", "prospect_researcher", "analyze.qualified"));
-  assert.ok(find("prospect_researcher", "sales_consultant", "research.completed"));
+  assert.ok(find("prospect_researcher", "sales_consultant", "research.public_completed"));
+  assert.ok(find("prospect_researcher", "access_gate", "research.requires_access"));
   assert.ok(find("sales_consultant", "risk_specialist", "outreach.plan.ready"));
   assert.ok(find("risk_specialist", "approval_gate", "risk.reviewed"));
   assert.ok(find("approval_gate", "outreach_specialist", "risk.approval.approved"));
@@ -55,5 +59,6 @@ test("graph metadata is immutable and returned graph copies cannot mutate the de
   copy.nodes[0].displayName = "tampered";
   assert.equal(BYERING_ORCHESTRATION_GRAPH.nodes[0].displayName, "幕僚长");
   assert.equal(listOrchestrationNodes().length, 9);
-  assert.equal(getOutgoingEdges("lead_miner")[0].to, "lead_analyst");
+  assert.ok(getOutgoingEdges("lead_miner").some((edge) => edge.to === "lead_analyst"));
+  assert.equal(getOrchestrationNode("Browser Agent")?.agentId, "lead_miner");
 });

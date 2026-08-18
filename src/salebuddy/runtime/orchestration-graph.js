@@ -1,4 +1,4 @@
-import { AGENT_IDS, getAgentManifest } from "../agents/agent-foundation.js";
+import { AGENT_IDS, getAgentManifest, resolveAgentId } from "../agents/agent-foundation.js";
 
 /**
  * Declarative graph metadata consumed by a LangGraph adapter at runtime.
@@ -66,14 +66,18 @@ const EDGES = Object.freeze([
   edge("chief_of_staff", "requirement_gate", "task.created", "ordered", "requirement"),
   edge("requirement_gate", "chief_of_staff", "requirement.needs_clarification", "conditional", "requirement"),
   edge("requirement_gate", "acquisition_strategist", "requirement.confirmed", "conditional", "requirement"),
-  edge("acquisition_strategist", "lead_miner", "strategy.ready", "ordered"),
+  edge("acquisition_strategist", "lead_miner", "strategy.public_only", "conditional"),
   edge("acquisition_strategist", "access_gate", "strategy.requires_access", "conditional", "access"),
   edge("access_gate", "lead_miner", "access.granted", "conditional", "access"),
   edge("access_gate", "chief_of_staff", "access.denied", "conditional", "access"),
-  edge("lead_miner", "lead_analyst", "find.completed", "ordered"),
+  edge("lead_miner", "access_gate", "find.requires_access", "conditional", "access"),
+  edge("access_gate", "lead_miner", "find.access_granted", "conditional", "access"),
+  edge("lead_miner", "lead_analyst", "find.completed", "conditional"),
   edge("lead_analyst", "prospect_researcher", "analyze.qualified", "conditional"),
   edge("lead_analyst", "chief_of_staff", "analyze.insufficient", "conditional"),
-  edge("prospect_researcher", "sales_consultant", "research.completed", "ordered"),
+  edge("prospect_researcher", "access_gate", "research.requires_access", "conditional", "access"),
+  edge("access_gate", "prospect_researcher", "research.access_granted", "conditional", "access"),
+  edge("prospect_researcher", "sales_consultant", "research.public_completed", "conditional"),
   edge("sales_consultant", "risk_specialist", "outreach.plan.ready", "ordered"),
   edge("risk_specialist", "approval_gate", "risk.reviewed", "ordered", "approval"),
   edge("approval_gate", "outreach_specialist", "risk.approval.approved", "conditional", "approval"),
@@ -121,7 +125,13 @@ export function listOrchestrationNodes() {
 }
 
 export function getOrchestrationNode(agentId) {
-  const node = BYERING_ORCHESTRATION_GRAPH.nodes.find((item) => item.agentId === agentId || item.id === agentId);
+  let canonicalId;
+  try {
+    canonicalId = resolveAgentId(agentId);
+  } catch {
+    return null;
+  }
+  const node = BYERING_ORCHESTRATION_GRAPH.nodes.find((item) => item.agentId === canonicalId || item.id === canonicalId);
   return node ? cloneJson(node) : null;
 }
 

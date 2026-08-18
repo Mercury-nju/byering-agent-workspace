@@ -34,15 +34,16 @@ test("command envelope is canonical and migrates legacy approval ok", () => {
   assert.equal(command.payload.decision, APPROVAL_DECISIONS.APPROVED);
   assert.equal("ok" in command.payload, false);
   assert.equal(command.taskRunId, "run-1");
+  assert.equal(command.expectedVersion, null);
   assert.equal(command.createdAt, "2026-08-19T00:00:00.000Z");
 });
 
 test("command envelope rejects null input and exposes creation/message/access commands", () => {
   assert.throws(() => createCommandEnvelope(null), (error) => error.code === "INVALID_COMMAND");
-  assert.equal(normalizeCommand({ ...ids, taskId: undefined, type: "task.created" }).type, COMMAND_TYPES.TASK_CREATE);
-  assert.equal(normalizeCommand({ ...ids, type: "message.created", conversationId: "conversation-1" }).type, COMMAND_TYPES.MESSAGE_SEND);
+  assert.equal(normalizeCommand({ ...ids, taskId: undefined, type: "task.created", payload: { goal: "找客户" } }).type, COMMAND_TYPES.TASK_CREATE);
+  assert.equal(normalizeCommand({ ...ids, type: "message.created", conversationId: "conversation-1", payload: { text: "开始" } }).type, COMMAND_TYPES.MESSAGE_SEND);
   assert.equal(normalizeCommand({ ...ids, type: "access.authorization_cancelled" }).type, COMMAND_TYPES.ACCESS_CANCEL);
-  assert.equal(normalizeCommand({ ...ids, runId: "legacy-run", taskRunId: undefined, type: COMMAND_TYPES.TASK_START }).taskRunId, "legacy-run");
+  assert.equal(normalizeCommand({ ...ids, runId: "legacy-run", taskRunId: undefined, type: COMMAND_TYPES.TASK_START, payload: { planVersion: 1 } }).taskRunId, "legacy-run");
 });
 
 test("command normalization rejects missing identity and hidden reasoning", () => {
@@ -56,6 +57,12 @@ test("command normalization rejects missing identity and hidden reasoning", () =
     ...ids,
     type: COMMAND_TYPES.TASK_START,
     payload: { reasoning: "internal chain" }
+  }), (error) => error.code === "HIDDEN_REASONING_FIELD");
+  assert.throws(() => normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_START,
+    payload: { planVersion: 1 },
+    metadata: { reasoning: "internal" }
   }), (error) => error.code === "HIDDEN_REASONING_FIELD");
 });
 
@@ -81,6 +88,7 @@ test("event envelope keeps operational payload isolated and requires skill field
   assert.equal(event.skillRunId, "skill-run-1");
   assert.equal("payload" in event, true);
   assert.equal("leadIds" in event, false);
+  assert.equal(Object.isFrozen(event), true);
 
   assert.throws(() => createEventEnvelope({
     eventId: "event-2",
@@ -111,6 +119,16 @@ test("event envelope rejects invalid sequence and hidden reasoning keys", () => 
   const legacySequence = createEventEnvelope({ ...base, seq: undefined, sequence: 3, agentRunId: "agent-run-1", payload: {} });
   assert.equal(legacySequence.seq, 3);
   assert.equal(legacySequence.agentRunId, "agent-run-1");
+  const flat = createEventEnvelope({ ...base, seq: 4, payload: undefined, pct: 55, text: "进度" });
+  assert.equal(flat.payload.pct, 55);
+  assert.equal(flat.payload.text, "进度");
+  assert.throws(() => createEventEnvelope({ ...base, seq: 5, sequence: 6, payload: {} }), (error) => error.code === "CONFLICTING_SEQUENCE");
+  assert.throws(() => createEventEnvelope({ ...base, seq: 5, runId: "other-run", payload: {} }), (error) => error.code === "CONFLICTING_IDENTITY");
+  assert.throws(() => createEventEnvelope({ ...base, seq: 5, schemaVersion: 2, payload: {} }), (error) => error.code === "UNSUPPORTED_SCHEMA_VERSION");
+  const correlated = createEventEnvelope({ ...base, seq: 7, causationId: "cmd-1", correlationId: "task-1", payload: {} });
+  assert.equal(correlated.causationId, "cmd-1");
+  assert.equal(correlated.correlationId, "task-1");
+  assert.throws(() => normalizeCommand({ ...ids, expectedVersion: -1, type: COMMAND_TYPES.TASK_START, payload: { planVersion: 1 } }), (error) => error.code === "INVALID_EXPECTED_VERSION");
 });
 
 test("task state transitions cover requirement, access, approval, pause, retry, reply and handoff", () => {
@@ -154,4 +172,19 @@ test("invalid and terminal transitions are explicit errors", () => {
   assert.throws(() => transitionTaskState(TASK_STATES.HANDOFF_REQUIRED, COMMAND_TYPES.RETRY), TaskTransitionError);
   assert.throws(() => transitionTaskState(TASK_STATES.BLOCKED, COMMAND_TYPES.RETRY), TaskTransitionError);
   assert.equal(transitionTaskState(TASK_STATES.BLOCKED, { type: COMMAND_TYPES.RETRY, payload: { retryable: true } }), TASK_STATES.RETRYING);
+  assert.throws(
+    () => transitionTaskState(TASK_STATES.RUNNING, { type: COMMAND_TYPES.PAUSE, expectedVersion: 2 }, { currentVersion: 1 }),
+    (error) => error.code === "STALE_TASK_VERSION"
+  );
+  assert.equal(
+    transitionTaskState(TASK_STATES.RUNNING, { type: COMMAND_TYPES.PAUSE, expectedVersion: 2 }, { currentVersion: 2 }),
+    TASK_STATES.PAUSED
+  );
+});
+
+test("command payloads require the identifiers and content needed for side effects", () => {
+  assert.throws(() => normalizeCommand({ ...ids, type: COMMAND_TYPES.TASK_CREATE, taskId: undefined }), (error) => error.code === "TASK_GOAL_REQUIRED");
+  assert.throws(() => normalizeCommand({ ...ids, type: COMMAND_TYPES.APPROVAL_DECISION, payload: { decision: "approved" } }), (error) => error.code === "APPROVAL_ID_REQUIRED");
+  assert.throws(() => normalizeCommand({ ...ids, type: COMMAND_TYPES.REPLY, payload: { text: "继续" } }), (error) => error.code === "FOLLOWUP_ID_REQUIRED");
+  assert.throws(() => normalizeCommand({ ...ids, type: COMMAND_TYPES.MESSAGE_SEND, conversationId: "conversation-1", payload: {} }), (error) => error.code === "MESSAGE_TEXT_REQUIRED");
 });
