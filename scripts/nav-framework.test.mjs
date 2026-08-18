@@ -1109,6 +1109,42 @@ test("members row appears above the kanban row in the work group", () => {
   instance.unmount();
 });
 
+test("project groups render in the work nav and open their collaboration room", async () => {
+  const document = installDom();
+  buildSidebarFixture(document);
+  const rooms = [
+    { id: "room-leads", name: "潜在客户拓展项目组", goal: "找到并筛选高意向客户", members: ["main", "Browser Agent"], status: "active", lastMessage: "线索猎人开始检索" },
+    { id: "room-content", name: "触达内容共创项目组", goal: "产出首轮沟通内容", members: ["main", "File Agent"], status: "active", lastMessage: "内容策划等待审阅" }
+  ];
+  let openedRoom = null;
+  const instance = mountNavFramework({
+    gateway: roomGateway({ rooms, activeRoomId: "room-leads" }),
+    openers: {
+      ...noOpOpeners(),
+      rooms(options) { openedRoom = options.initialRoom; }
+    }
+  });
+
+  await settleDom();
+  const section = document.querySelector('[data-sb-nav-projects="1"]');
+  const rows = [...document.querySelectorAll("[data-sb-project-id]")];
+  assert.equal(section.hidden, false);
+  assert.equal(section.querySelector(".sb-nav-project-label").textContent, "项目组");
+  assert.equal(rows.length, 2);
+  assert.equal(rows[0].querySelector(".sb-nav-project-name").textContent, "潜在客户拓展项目组");
+  assert.match(rows[0].querySelector(".sb-nav-project-meta").textContent, /2 位成员/);
+  assert.match(rows[0].querySelector(".sb-nav-project-meta").textContent, /找到并筛选高意向客户/);
+  assert.equal(rows[0].classList.contains("sb-nav-project-on"), true);
+
+  rows[1].click();
+  await settleDom();
+  assert.equal(openedRoom.id, "room-content");
+  assert.equal(document.querySelector('[data-sb-project-id="room-content"]').classList.contains("sb-nav-project-on"), true);
+  assert.equal(document.querySelector('[data-sb-project-id="room-leads"]').classList.contains("sb-nav-project-on"), false);
+
+  instance.unmount();
+});
+
 test("navigation scopes ownership to the real sidebar when an unrelated scroll area appears first", () => {
   const document = installDom();
   const decoySidebar = node(document, "aside", { className: "_sidebar_decoy_" });

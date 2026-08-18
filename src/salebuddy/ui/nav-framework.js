@@ -98,6 +98,22 @@ const CSS = `
 [data-sb-nav-root="1"] [data-sb-nav-conversation-section="1"]>[class*="_sectionLabel_"]{display:none!important}
 [data-sb-nav-owner="1"],[data-sb-nav-owner="1"] [data-sb-group="work"]{display:contents!important}
 [data-sb-nav-owner="1"] [data-sb-nav-slot="work-label"]{order:10}
+[data-sb-nav-owner="1"] [data-sb-nav-projects="1"]{order:11;display:none;margin:2px 8px 3px 0}
+[data-sb-nav-owner="1"] [data-sb-nav-projects="1"].sb-has-items{display:block}
+[data-sb-nav-owner="1"] .sb-nav-project-heading{height:24px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#969BA4;font-size:10px;font-weight:650;letter-spacing:.1em}
+[data-sb-nav-owner="1"] .sb-nav-project-count{color:#B0B4BB;font-size:10px;font-weight:500;letter-spacing:0}
+[data-sb-nav-owner="1"] .sb-nav-project-list{display:grid;gap:1px}
+[data-sb-nav-owner="1"] .sb-nav-project-row{width:100%;min-height:47px;box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:5px 10px;border:0;border-radius:9px;background:transparent;color:#34383F;font:inherit;text-align:left;cursor:pointer;transition:background-color 140ms ease,color 140ms ease}
+[data-sb-nav-owner="1"] .sb-nav-project-row:hover{background:rgba(23,25,29,.045)}
+[data-sb-nav-owner="1"] .sb-nav-project-row.sb-nav-project-on{background:rgba(23,25,29,.075);color:#111318}
+[data-sb-nav-owner="1"] .sb-nav-project-mark{width:21px;height:21px;flex:none;display:grid;place-items:center;border-radius:7px;background:#E8EBEF;color:#69727D;font-size:10px;font-weight:700;line-height:1}
+[data-sb-nav-owner="1"] .sb-nav-project-mark.sb-nav-project-mark-on{background:#DDF2E2;color:#2F7D3F}
+[data-sb-nav-owner="1"] .sb-nav-project-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+[data-sb-nav-owner="1"] .sb-nav-project-name,[data-sb-nav-owner="1"] .sb-nav-project-meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[data-sb-nav-owner="1"] .sb-nav-project-name{font-size:12px;font-weight:600;line-height:16px;color:inherit}
+[data-sb-nav-owner="1"] .sb-nav-project-meta{font-size:10px;line-height:13px;color:#9299A2}
+[data-sb-nav-owner="1"] .sb-nav-project-state{flex:none;font-size:9px;color:#57A967;white-space:nowrap}
+[data-sb-nav-owner="1"] .sb-nav-project-state.sb-nav-project-state-idle{color:#A4A9B1}
 [data-sb-nav-root="1"] [data-sb-nav-slot="office"]{order:11}
 [data-sb-nav-root="1"] [data-sb-mode="office"]{height:${NAV_LAYOUT.primaryRow}px!important;min-height:${NAV_LAYOUT.primaryRow}px!important;box-sizing:border-box!important}
 [data-sb-nav-owner="1"] [data-sb-nav-slot="contacts"]{order:12}
@@ -298,6 +314,14 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   let accountName = null;
   let accountEmail = null;
   let accountSignedIn = true;
+  let projectSection = null;
+  let projectLabel = null;
+  let projectCount = null;
+  let projectList = null;
+  let projectRooms = [];
+  let projectActiveId = null;
+  let projectRefreshTimer = null;
+  let projectRefreshRevision = 0;
   let observer = null;
   const proxyRows = new Map();
   const hiddenNative = new Map();
@@ -513,6 +537,81 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     return section;
   }
 
+  function projectInitials(name = "") {
+    const value = String(name).replace(/项目组$/u, "").trim();
+    return (value.slice(0, 2) || "组").toUpperCase();
+  }
+
+  function projectMemberCount(room) {
+    const count = Array.isArray(room?.members) ? room.members.filter(Boolean).length : 0;
+    return `${count || 1} 位成员`;
+  }
+
+  function renderProjectGroups() {
+    if (!projectSection || !projectLabel || !projectCount || !projectList) return;
+    const hasRooms = projectRooms.length > 0;
+    projectSection.classList.toggle("sb-has-items", hasRooms);
+    projectSection.hidden = !hasRooms;
+    projectLabel.textContent = "项目组";
+    projectCount.textContent = hasRooms ? String(projectRooms.length) : "";
+    projectList.textContent = "";
+    for (const room of projectRooms) {
+      const row = createElement("button", `sb-nav-project-row${room.id === projectActiveId ? " sb-nav-project-on" : ""}`);
+      row.type = "button";
+      row.dataset.sbProjectId = room.id;
+      const latest = room.lastMessage ? String(room.lastMessage).replace(/^([^：:]{1,16})[：:]/u, "") : "等待首条任务消息";
+      row.title = [room.name || "项目组", room.goal || "", latest ? `最新：${latest}` : ""].filter(Boolean).join(" · ");
+      const active = room.status === "active";
+      const mark = createElement("span", `sb-nav-project-mark${active ? " sb-nav-project-mark-on" : ""}`, projectInitials(room.name));
+      const copy = createElement("span", "sb-nav-project-copy");
+      const name = createElement("span", "sb-nav-project-name", room.name || "未命名项目组");
+      const taskSummary = room.goal || latest;
+      const meta = createElement("span", "sb-nav-project-meta", `${projectMemberCount(room)} · ${taskSummary}`);
+      copy.append(name, meta);
+      const state = createElement("span", `sb-nav-project-state${active ? "" : " sb-nav-project-state-idle"}`, active ? "进行中" : "已完成");
+      row.append(mark, copy, state);
+      row.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        projectActiveId = room.id;
+        renderProjectGroups();
+        (async () => {
+          try { await gateway?.action?.("room.office.switch", { roomId: room.id }); } catch { /* preview mode can open without a switch */ }
+          if (disposed || projectActiveId !== room.id) return;
+          clearActive();
+          openers.rooms({
+            gateway,
+            teamLive,
+            initialRoom: room,
+            onClose: () => {
+              projectActiveId = null;
+              renderProjectGroups();
+            }
+          });
+        })();
+      });
+      projectList.appendChild(row);
+    }
+  }
+
+  async function refreshProjectGroups() {
+    if (disposed || !gateway?.action || !projectSection) return;
+    const revision = ++projectRefreshRevision;
+    try {
+      const [result, current] = await Promise.all([
+        gateway.action("room.action.list"),
+        gateway.action("room.office.current").catch(() => null)
+      ]);
+      if (disposed || revision !== projectRefreshRevision || !projectSection?.isConnected) return;
+      projectRooms = Array.isArray(result?.data?.rooms) ? result.data.rooms : [];
+      if (projectActiveId && !projectRooms.some((room) => room.id === projectActiveId)) projectActiveId = null;
+      if (!projectActiveId) projectActiveId = current?.data?.roomId || null;
+      renderProjectGroups();
+    } catch {
+      // A disconnected gateway leaves the last known project groups visible.
+    }
+  }
+
   function emitAccountAction(action) {
     mountedDocument.dispatchEvent(new mountedWindow.CustomEvent(ACCOUNT_EVENT, {
       detail: { action, signedIn: accountSignedIn }
@@ -560,11 +659,21 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     const workLabel = createElement("div", "sb-nav-group-label", "工作");
     workLabel.dataset.sbNavSlot = "work-label";
     workLabel.style.order = "10";
-    work.append(workLabel, buildRow("contacts", menuClass), buildRow("kanban", menuClass));
+    projectSection = createElement("div", "sb-nav-projects");
+    projectSection.dataset.sbNavProjects = "1";
+    projectLabel = createElement("span", "sb-nav-project-label", "项目组");
+    projectCount = createElement("span", "sb-nav-project-count");
+    const projectHeading = createElement("div", "sb-nav-project-heading");
+    projectHeading.append(projectLabel, projectCount);
+    projectList = createElement("div", "sb-nav-project-list");
+    projectSection.append(projectHeading, projectList);
+    work.append(workLabel, projectSection, buildRow("contacts", menuClass), buildRow("kanban", menuClass));
     proxyRows.get("contacts").dataset.sbNavSlot = "contacts";
     proxyRows.get("contacts").style.order = "12";
     proxyRows.get("kanban").dataset.sbNavSlot = "kanban";
     proxyRows.get("kanban").style.order = "13";
+    renderProjectGroups();
+    refreshProjectGroups();
     const recentLabel = createElement("div", "sb-nav-recent-label", "最近任务");
     recentLabel.dataset.sbNavSlot = "history-label";
     recentLabel.style.order = "14";
@@ -746,6 +855,10 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       accountMenu = null;
       accountName = null;
       accountEmail = null;
+      projectSection = null;
+      projectLabel = null;
+      projectCount = null;
+      projectList = null;
       buildOwner(contentRoot);
     }
     markNativeSlots();
@@ -858,6 +971,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   relocateSidebar();
   syncNativeActive();
   renderActive();
+  if (gateway?.action) projectRefreshTimer = mountedWindow.setInterval(refreshProjectGroups, 3000);
 
   const api = {
     openChatWith,
@@ -869,6 +983,8 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       mountedDocument.removeEventListener(NAV_EVENT, onNavigation);
       mountedDocument.removeEventListener("click", onDocumentClick, true);
       mountedWindow.removeEventListener("popstate", onPopState);
+      if (projectRefreshTimer != null) mountedWindow.clearInterval(projectRefreshTimer);
+      projectRefreshRevision += 1;
       if (globalThis.document === mountedDocument) closeCurrentPage();
       owner?.remove();
       restoreNativeRows();
