@@ -107,5 +107,11 @@ test("native HTTP control plane exposes create, start, snapshot, and event polli
   assert.equal(eventsResponse.status, 200);
   const events = await eventsResponse.json();
   assert.deepEqual(events.events.map((event) => event.seq), [2]);
-});
 
+  const invalidResponse = await request("/v1/tasks", {
+    method: "POST",
+    body: JSON.stringify({})
+  });
+  assert.equal(invalidResponse.status, 400);
+  assert.equal((await invalidResponse.json()).error.code, "TASK_GOAL_REQUIRED");
+});

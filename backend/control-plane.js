@@ -71,14 +71,23 @@ export class ControlPlane {
     const inputPayload = type === COMMAND_TYPES.TASK_START && input.taskId
       ? enrichStartPayload(this.persistence.loadTask(input.taskId), input.payload)
       : input.payload;
-    const command = createCommandEnvelope({
-      ...input,
-      type,
-      ...(inputPayload === undefined ? {} : { payload: inputPayload }),
-      commandId: input.commandId || this.makeId("cmd"),
-      idempotencyKey: input.idempotencyKey || this.makeId("idem"),
-      createdAt: input.createdAt || this.now()
-    });
+    let command;
+    try {
+      command = createCommandEnvelope({
+        ...input,
+        type,
+        ...(inputPayload === undefined ? {} : { payload: inputPayload }),
+        commandId: input.commandId || this.makeId("cmd"),
+        idempotencyKey: input.idempotencyKey || this.makeId("idem"),
+        createdAt: input.createdAt || this.now()
+      });
+    } catch (error) {
+      throw new ControlPlaneError(error.message, {
+        code: error.code || "INVALID_COMMAND",
+        statusCode: 400,
+        details: { field: error.field }
+      });
+    }
 
     const fingerprint = stableStringify({
       schemaVersion: command.schemaVersion,
