@@ -1113,7 +1113,7 @@ test("project groups render in the work nav and open their collaboration room", 
   const document = installDom();
   buildSidebarFixture(document);
   const rooms = [
-    { id: "room-leads", name: "潜在客户拓展项目组", goal: "找到并筛选高意向客户", members: ["main", "Browser Agent"], status: "active", lastMessage: "线索猎人开始检索" },
+    { id: "room-leads", name: "潜在客户拓展项目组", goal: "找到并筛选高意向客户", members: ["main", "Browser Agent", "Search Agent", "App Agent"], status: "active", lastMessage: "线索猎人开始检索" },
     { id: "room-content", name: "触达内容共创项目组", goal: "产出首轮沟通内容", members: ["main", "File Agent"], status: "active", lastMessage: "内容策划等待审阅" }
   ];
   let openedRoom = null;
@@ -1137,7 +1137,8 @@ test("project groups render in the work nav and open their collaboration room", 
   assert.equal(rows[0].querySelector(".sb-nav-project-mark").dataset.sbAgentGroupAvatar, "1");
   assert.equal(rows[0].querySelectorAll("img").length, 2);
   assert.equal(rows[0].querySelector(".sb-nav-project-mark").textContent, "");
-  assert.match(rows[0].querySelector(".sb-nav-project-meta").textContent, /2 位成员/);
+  assert.equal(rows[0].querySelector(".sb-nav-project-mark").querySelectorAll("img")[1].style.left, "42%");
+  assert.match(rows[0].querySelector(".sb-nav-project-meta").textContent, /4 位成员/);
   assert.match(rows[0].querySelector(".sb-nav-project-meta").textContent, /找到并筛选高意向客户/);
   assert.equal(rows[0].classList.contains("sb-nav-project-on"), true);
 

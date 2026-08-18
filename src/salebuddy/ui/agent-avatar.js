@@ -106,11 +106,16 @@ const GROUP_LAYOUTS = Object.freeze({
   3: [["0%", "25%", "58%", "58%"], ["42%", "0%", "58%", "58%"], ["22%", "48%", "58%", "58%"]],
   4: [["0%", "0%", "54%", "54%"], ["46%", "0%", "54%", "54%"], ["0%", "46%", "54%", "54%"], ["46%", "46%", "54%", "54%"]]
 });
+const HORIZONTAL_GROUP_LAYOUTS = Object.freeze({
+  1: [["0%", "0%", "58%", "100%"]],
+  2: [["0%", "0%", "58%", "100%"], ["42%", "0%", "58%", "100%"]]
+});
 
 /** Render a project-group avatar as a small, overlapping composition of its members. */
-export function mountGroupAvatar(container, members, { alt = "项目组成员" } = {}) {
+export function mountGroupAvatar(container, members, { alt = "项目组成员", layout = "grid", background = "#F3F6F9" } = {}) {
   if (!container) return false;
-  const sources = [...new Set((members || []).map(avatarUrlFor).filter(Boolean))].slice(0, 4);
+  const horizontal = layout === "horizontal";
+  const sources = [...new Set((members || []).map(avatarUrlFor).filter(Boolean))].slice(0, horizontal ? 2 : 4);
   if (!sources.length) return false;
 
   container.textContent = "";
@@ -119,13 +124,13 @@ export function mountGroupAvatar(container, members, { alt = "项目组成员" }
   container.style.position = "relative";
   container.style.overflow = "hidden";
   container.style.display = "block";
-  container.style.background = "#F3F6F9";
+  container.style.background = background;
 
-  const layout = GROUP_LAYOUTS[sources.length] || GROUP_LAYOUTS[4];
+  const placements = (horizontal ? HORIZONTAL_GROUP_LAYOUTS : GROUP_LAYOUTS)[sources.length] || GROUP_LAYOUTS[4];
   for (const [index, src] of sources.entries()) {
     const image = document.createElement("img");
     configureImage(image, src);
-    const [left, top, width, height] = layout[index];
+    const [left, top, width, height] = placements[index];
     image.style.position = "absolute";
     image.style.left = left;
     image.style.top = top;
