@@ -1,4 +1,6 @@
 import { createServer } from "node:http";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { ControlPlaneError, createControlPlane } from "./control-plane.js";
 
 export function createControlPlaneHttpServer({ controlPlane = createControlPlane(), bodyLimit = 1024 * 1024 } = {}) {
@@ -123,7 +125,8 @@ function sendError(response, error) {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+const isMainModule = process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+if (isMainModule) {
   startControlPlaneServer().then((server) => {
     const address = server.address();
     console.log(`Byering control plane listening on http://${address.address}:${address.port}`);
