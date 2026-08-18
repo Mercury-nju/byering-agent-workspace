@@ -23,10 +23,15 @@ export const TASK_STATES = Object.freeze({
 });
 
 export const COMMAND_TYPES = Object.freeze({
+  TASK_CREATE: "task.create",
   TASK_START: "task.start",
+  CONVERSATION_CREATE: "conversation.create",
+  MESSAGE_SEND: "message.send",
   REQUIREMENT_REQUEST: "task.requirement.request",
+  REQUIREMENT_EDIT: "task.requirement.edit",
   REQUIREMENT_CONFIRM: "task.requirement.confirm",
   ACCESS_REQUEST: "access.request",
+  ACCESS_CANCEL: "access.cancel",
   ACCESS_GRANT: "access.grant",
   APPROVAL_REQUEST: "approval.request",
   APPROVAL_DECISION: "approval.decision",
@@ -53,13 +58,18 @@ const TERMINAL_STATES = new Set([
 const HIDDEN_REASONING_KEY = /^(?:analysis|chain[_-]?of[_-]?thought|cot|hidden[_-]?reasoning|internal[_-]?reasoning|reasoning|scratch(?:pad)?|thoughts?|_debug(?:ger)?|llm[_-]?trace)$/i;
 
 const COMMAND_ALIASES = Object.freeze({
+  "task.created": COMMAND_TYPES.TASK_CREATE,
   start: COMMAND_TYPES.TASK_START,
   "task.started": COMMAND_TYPES.TASK_START,
+  "conversation.created": COMMAND_TYPES.CONVERSATION_CREATE,
+  "message.created": COMMAND_TYPES.MESSAGE_SEND,
   "task.requirement.requested": COMMAND_TYPES.REQUIREMENT_REQUEST,
+  "task.requirement.edited": COMMAND_TYPES.REQUIREMENT_EDIT,
   "task.requirement.confirmed": COMMAND_TYPES.REQUIREMENT_CONFIRM,
   "requirement.request": COMMAND_TYPES.REQUIREMENT_REQUEST,
   "requirement.confirm": COMMAND_TYPES.REQUIREMENT_CONFIRM,
   "access.authorization_required": COMMAND_TYPES.ACCESS_REQUEST,
+  "access.authorization_cancelled": COMMAND_TYPES.ACCESS_CANCEL,
   "access.authorization_granted": COMMAND_TYPES.ACCESS_GRANT,
   "access.requested": COMMAND_TYPES.ACCESS_REQUEST,
   "access.granted": COMMAND_TYPES.ACCESS_GRANT,
@@ -113,6 +123,7 @@ export class TaskTransitionError extends Error {
  * command store needs stable IDs for idempotency and retries.
  */
 export function createCommandEnvelope(input = {}) {
+  if (!isRecord(input)) throw new TaskProtocolError("Command must be an object", "INVALID_COMMAND");
   return normalizeCommand({
     schemaVersion: 1,
     ...input,
@@ -147,7 +158,7 @@ export function normalizeCommand(input = {}) {
     commandId,
     idempotencyKey,
     taskId,
-    taskRunId: optionalId(input.taskRunId, "taskRunId"),
+    taskRunId: optionalId(input.taskRunId ?? input.runId, "taskRunId"),
     conversationId: optionalId(input.conversationId, "conversationId"),
     agentId: optionalId(input.agentId, "agentId"),
     type,
@@ -168,11 +179,12 @@ export function createEventEnvelope(input = {}) {
   if (!isRecord(input)) throw new TaskProtocolError("Event must be an object", "INVALID_EVENT");
 
   const eventId = requireId(input.eventId ?? input.id, "eventId");
-  const seq = normalizeSequence(input.seq);
+  const seq = normalizeSequence(input.seq ?? input.sequence ?? input.remoteSeq);
   const taskId = requireId(input.taskId, "taskId");
   const taskRunId = requireId(input.taskRunId ?? input.runId, "taskRunId");
   const conversationId = requireId(input.conversationId, "conversationId");
   const agentId = requireId(input.agentId, "agentId");
+  const agentRunId = optionalId(input.agentRunId, "agentRunId");
   const type = requireString(input.type, "type");
 
   if (!("skillId" in input) || !("skillRunId" in input)) {
@@ -197,6 +209,7 @@ export function createEventEnvelope(input = {}) {
     runId: taskRunId,
     conversationId,
     agentId,
+    agentRunId,
     skillId,
     skillRunId,
     type,
@@ -213,7 +226,7 @@ export function createEventEnvelope(input = {}) {
 export function transitionTaskState(currentState, command, options = {}) {
   const fromState = normalizeTaskState(currentState);
   const normalized = typeof command === "string"
-    ? { type: normalizeCommandType(command), payload: normalizeTransitionPayload(options.payload || options) }
+    ? { type: normalizeCommandType(command), payload: normalizeTransitionPayload(options.payload ?? options) }
     : normalizeTransitionCommand(command);
   const type = normalized.type;
   const payload = normalized.payload || {};
@@ -229,33 +242,37 @@ export function transitionTaskState(currentState, command, options = {}) {
 
 function resolveTransition(state, type, payload) {
   if (type === COMMAND_TYPES.CANCEL) return TERMINAL_STATES.has(state) ? null : TASK_STATES.CANCELLED;
-  if (type === COMMAND_TYPES.PAUSE) return TERMINAL_STATES.has(state) ? null : TASK_STATES.PAUSED;
+  if (type === COMMAND_TYPES.PAUSE) return state === TASK_STATES.RUNNING ? TASK_STATES.PAUSED : null;
 
   switch (type) {
     case COMMAND_TYPES.TASK_START:
-      if (state === TASK_STATES.CREATED) return payload.requirementsConfirmed ? (payload.requiresAccess ? TASK_STATES.WAITING_ACCESS : TASK_STATES.RUNNING) : TASK_STATES.WAITING_REQUIREMENT;
+      if (state === TASK_STATES.CREATED) return payload.requirementsConfirmed === true ? (payload.requiresAccess === true ? TASK_STATES.WAITING_ACCESS : TASK_STATES.RUNNING) : TASK_STATES.WAITING_REQUIREMENT;
       if (state === TASK_STATES.RETRYING) return TASK_STATES.RUNNING;
-      if (state === TASK_STATES.HANDOFF_REQUIRED) return TASK_STATES.RUNNING;
       return null;
     case COMMAND_TYPES.REQUIREMENT_REQUEST:
       return [TASK_STATES.CREATED, TASK_STATES.RUNNING].includes(state) ? TASK_STATES.WAITING_REQUIREMENT : null;
+    case COMMAND_TYPES.REQUIREMENT_EDIT:
+      return [TASK_STATES.CREATED, TASK_STATES.WAITING_REQUIREMENT, TASK_STATES.RUNNING].includes(state) ? TASK_STATES.WAITING_REQUIREMENT : null;
     case COMMAND_TYPES.REQUIREMENT_CONFIRM:
-      return state === TASK_STATES.WAITING_REQUIREMENT ? (payload.requiresAccess ? TASK_STATES.WAITING_ACCESS : TASK_STATES.RUNNING) : null;
+      return state === TASK_STATES.WAITING_REQUIREMENT ? (payload.requiresAccess === true ? TASK_STATES.WAITING_ACCESS : TASK_STATES.RUNNING) : null;
     case COMMAND_TYPES.ACCESS_REQUEST:
-      return [TASK_STATES.CREATED, TASK_STATES.WAITING_REQUIREMENT, TASK_STATES.WAITING_ACCESS].includes(state) ? TASK_STATES.WAITING_ACCESS : null;
+      return [TASK_STATES.RUNNING, TASK_STATES.WAITING_ACCESS].includes(state) ? TASK_STATES.WAITING_ACCESS : null;
+    case COMMAND_TYPES.ACCESS_CANCEL:
+      return state === TASK_STATES.WAITING_ACCESS ? TASK_STATES.WAITING_ACCESS : null;
     case COMMAND_TYPES.ACCESS_GRANT:
       return state === TASK_STATES.WAITING_ACCESS ? TASK_STATES.RUNNING : null;
     case COMMAND_TYPES.APPROVAL_REQUEST:
-      return [TASK_STATES.RUNNING, TASK_STATES.RETRYING].includes(state) ? TASK_STATES.WAITING_APPROVAL : null;
+      return [TASK_STATES.RUNNING, TASK_STATES.RETRYING, TASK_STATES.WAITING_APPROVAL].includes(state) ? TASK_STATES.WAITING_APPROVAL : null;
     case COMMAND_TYPES.APPROVAL_DECISION:
       if (state !== TASK_STATES.WAITING_APPROVAL) return null;
-      return normalizeDecision(payload.decision) === DECISIONS.APPROVED ? TASK_STATES.RUNNING : TASK_STATES.PAUSED;
+      return normalizeDecision(payload.decision) === DECISIONS.APPROVED ? TASK_STATES.RUNNING : TASK_STATES.WAITING_APPROVAL;
     case COMMAND_TYPES.RESUME:
-      return [TASK_STATES.PAUSED, TASK_STATES.WAITING_REPLY].includes(state) ? TASK_STATES.RUNNING : null;
+      return state === TASK_STATES.PAUSED ? TASK_STATES.RUNNING : null;
     case COMMAND_TYPES.RETRY:
-      return [TASK_STATES.FAILED, TASK_STATES.PAUSED, TASK_STATES.BLOCKED].includes(state) ? TASK_STATES.RETRYING : null;
+      if ([TASK_STATES.FAILED, TASK_STATES.PAUSED].includes(state)) return TASK_STATES.RETRYING;
+      return state === TASK_STATES.BLOCKED && payload.retryable === true ? TASK_STATES.RETRYING : null;
     case COMMAND_TYPES.REQUEST_REPLY:
-      return [TASK_STATES.RUNNING, TASK_STATES.WAITING_APPROVAL].includes(state) ? TASK_STATES.WAITING_REPLY : null;
+      return state === TASK_STATES.RUNNING ? TASK_STATES.WAITING_REPLY : null;
     case COMMAND_TYPES.REPLY:
       return state === TASK_STATES.WAITING_REPLY ? TASK_STATES.RUNNING : null;
     case COMMAND_TYPES.HANDOFF:
@@ -263,11 +280,11 @@ function resolveTransition(state, type, payload) {
     case COMMAND_TYPES.HANDOFF_RESOLVE:
       return state === TASK_STATES.HANDOFF_REQUIRED ? TASK_STATES.RUNNING : null;
     case COMMAND_TYPES.COMPLETE:
-      return [TASK_STATES.RUNNING, TASK_STATES.WAITING_REPLY, TASK_STATES.HANDOFF_REQUIRED].includes(state) ? TASK_STATES.SUCCEEDED : null;
+      return [TASK_STATES.RUNNING, TASK_STATES.WAITING_REPLY].includes(state) ? TASK_STATES.SUCCEEDED : null;
     case COMMAND_TYPES.FAIL:
-      return [TASK_STATES.RUNNING, TASK_STATES.RETRYING, TASK_STATES.WAITING_ACCESS, TASK_STATES.WAITING_APPROVAL, TASK_STATES.WAITING_REPLY, TASK_STATES.HANDOFF_REQUIRED].includes(state) ? TASK_STATES.FAILED : null;
+      return [TASK_STATES.RUNNING, TASK_STATES.RETRYING, TASK_STATES.WAITING_REPLY].includes(state) ? TASK_STATES.FAILED : null;
     case COMMAND_TYPES.BLOCK:
-      return [TASK_STATES.RUNNING, TASK_STATES.WAITING_ACCESS, TASK_STATES.WAITING_APPROVAL, TASK_STATES.WAITING_REPLY, TASK_STATES.HANDOFF_REQUIRED].includes(state) ? TASK_STATES.BLOCKED : null;
+      return [TASK_STATES.RUNNING, TASK_STATES.WAITING_REPLY].includes(state) ? TASK_STATES.BLOCKED : null;
     default:
       return null;
   }
@@ -276,7 +293,7 @@ function resolveTransition(state, type, payload) {
 function normalizeTransitionCommand(command) {
   if (typeof command === "string") return { type: normalizeCommandType(command), payload: {} };
   if (!isRecord(command)) throw new TaskProtocolError("Transition command must be a type or object", "INVALID_TRANSITION_COMMAND");
-  const payload = normalizeTransitionPayload(command.payload || {});
+  const payload = normalizeTransitionPayload(command.payload ?? {});
   if (command.decision !== undefined && payload.decision === undefined) payload.decision = command.decision;
   if (command.ok !== undefined && payload.ok === undefined) payload.ok = command.ok;
   if (payload.ok !== undefined && payload.decision === undefined) payload.decision = normalizeDecision(payload.ok);

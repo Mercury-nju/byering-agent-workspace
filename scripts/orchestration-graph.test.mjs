@@ -42,6 +42,9 @@ test("graph has ordered and conditional edges for the find, analyze, research, r
   assert.ok(find("approval_gate", "outreach_operator", "outreach.approval.approved"));
   assert.ok(find("outreach_operator", "reply_gate", "outreach.sent"));
   assert.ok(find("reply_gate", "chief_of_staff", "reply.received"));
+  assert.ok(find("requirement_gate", "acquisition_strategist", "requirement.confirmed"));
+  assert.ok(find("acquisition_strategist", "access_gate", "strategy.requires_access"));
+  assert.ok(find("access_gate", "lead_miner", "access.granted"));
   assert.ok(edges.some((edge) => edge.kind === "conditional"));
 });
 

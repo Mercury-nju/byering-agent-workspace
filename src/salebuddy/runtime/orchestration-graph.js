@@ -55,14 +55,21 @@ const NODE_METADATA = Object.freeze({
 });
 
 const CONTROL_NODES = Object.freeze([
+  { id: "requirement_gate", kind: "control", interrupt: "requirement" },
+  { id: "access_gate", kind: "control", interrupt: "access" },
   { id: "approval_gate", kind: "control", interrupt: "approval" },
   { id: "reply_gate", kind: "control", interrupt: "reply" },
   { id: "terminal", kind: "control", interrupt: null }
 ]);
 
 const EDGES = Object.freeze([
-  edge("chief_of_staff", "acquisition_strategist", "plan.ready", "ordered"),
+  edge("chief_of_staff", "requirement_gate", "task.created", "ordered", "requirement"),
+  edge("requirement_gate", "chief_of_staff", "requirement.needs_clarification", "conditional", "requirement"),
+  edge("requirement_gate", "acquisition_strategist", "requirement.confirmed", "conditional", "requirement"),
   edge("acquisition_strategist", "lead_miner", "strategy.ready", "ordered"),
+  edge("acquisition_strategist", "access_gate", "strategy.requires_access", "conditional", "access"),
+  edge("access_gate", "lead_miner", "access.granted", "conditional", "access"),
+  edge("access_gate", "chief_of_staff", "access.denied", "conditional", "access"),
   edge("lead_miner", "lead_analyst", "find.completed", "ordered"),
   edge("lead_analyst", "prospect_researcher", "analyze.qualified", "conditional"),
   edge("lead_analyst", "chief_of_staff", "analyze.insufficient", "conditional"),
