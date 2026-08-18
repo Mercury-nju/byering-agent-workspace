@@ -1134,6 +1134,9 @@ test("project groups render in the work nav and open their collaboration room", 
   assert.equal(section.querySelector(".sb-nav-project-label").textContent, "项目组");
   assert.equal(rows.length, 2);
   assert.equal(rows[0].querySelector(".sb-nav-project-name").textContent, "潜在客户拓展项目组");
+  assert.equal(rows[0].querySelector(".sb-nav-project-mark").dataset.sbAgentGroupAvatar, "1");
+  assert.equal(rows[0].querySelectorAll("img").length, 2);
+  assert.equal(rows[0].querySelector(".sb-nav-project-mark").textContent, "");
   assert.match(rows[0].querySelector(".sb-nav-project-meta").textContent, /2 位成员/);
   assert.match(rows[0].querySelector(".sb-nav-project-meta").textContent, /找到并筛选高意向客户/);
   assert.equal(rows[0].classList.contains("sb-nav-project-on"), true);

@@ -14,6 +14,7 @@ import { openResourceCenterPage } from "./resource-center.js";
 import { openKanbanPage } from "./kanban.js";
 import { getCurrentPage, closeCurrentPage } from "./pages.js";
 import { PRODUCT_VISIBILITY } from "./product-visibility.js";
+import { mountGroupAvatar } from "./agent-avatar.js";
 
 export const NAV_EVENT = "salebuddy:navigation-state";
 export const NAV_SURFACE_COLOR = "#FAFAFA";
@@ -106,8 +107,8 @@ const CSS = `
 [data-sb-nav-owner="1"] .sb-nav-project-row{width:100%;min-height:42px;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:4px 10px;border:0;border-radius:9px;background:transparent;color:#34383F;font:inherit;text-align:left;cursor:pointer;transition:background-color 140ms ease,color 140ms ease}
 [data-sb-nav-owner="1"] .sb-nav-project-row:hover{background:rgba(23,25,29,.045)}
 [data-sb-nav-owner="1"] .sb-nav-project-row.sb-nav-project-on{background:rgba(23,25,29,.075);color:#111318}
-[data-sb-nav-owner="1"] .sb-nav-project-mark{width:24px;height:24px;flex:none;display:grid;place-items:center;border-radius:8px;background:#E8EBEF;color:#69727D;font-size:10px;font-weight:700;line-height:1}
-[data-sb-nav-owner="1"] .sb-nav-project-mark.sb-nav-project-mark-on{background:#DDF2E2;color:#2F7D3F}
+[data-sb-nav-owner="1"] .sb-nav-project-mark{width:42px;height:30px;flex:none;position:relative;display:block;border-radius:15px;background:transparent;overflow:hidden}
+[data-sb-nav-owner="1"] .sb-nav-project-mark.sb-nav-project-mark-on{background:transparent}
 [data-sb-nav-owner="1"] .sb-nav-project-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
 [data-sb-nav-owner="1"] .sb-nav-project-name,[data-sb-nav-owner="1"] .sb-nav-project-meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 [data-sb-nav-owner="1"] .sb-nav-project-name{font-size:12px;font-weight:600;line-height:15px;color:inherit}
@@ -537,11 +538,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     return section;
   }
 
-  function projectInitials(name = "") {
-    const value = String(name).replace(/项目组$/u, "").trim();
-    return (value.slice(0, 2) || "组").toUpperCase();
-  }
-
   function projectMemberCount(room) {
     const count = Array.isArray(room?.members) ? room.members.filter(Boolean).length : 0;
     return `${count || 1} 位成员`;
@@ -562,7 +558,8 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       const latest = room.lastMessage ? String(room.lastMessage).replace(/^([^：:]{1,16})[：:]/u, "") : "等待首条任务消息";
       row.title = [room.name || "项目组", room.goal || "", latest ? `最新：${latest}` : ""].filter(Boolean).join(" · ");
       const active = room.status === "active";
-      const mark = createElement("span", `sb-nav-project-mark${active ? " sb-nav-project-mark-on" : ""}`, projectInitials(room.name));
+      const mark = createElement("span", `sb-nav-project-mark${active ? " sb-nav-project-mark-on" : ""}`);
+      mountGroupAvatar(mark, [...new Set([room.owner, ...(room.members || [])].filter(Boolean))], { alt: `${room.name || "项目组"}成员头像` });
       const copy = createElement("span", "sb-nav-project-copy");
       const name = createElement("span", "sb-nav-project-name", room.name || "未命名项目组");
       const taskSummary = room.goal || latest;
