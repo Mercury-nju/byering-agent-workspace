@@ -98,19 +98,19 @@ const CSS = `
 [data-sb-nav-root="1"] [data-sb-nav-conversation-section="1"]>[class*="_sectionLabel_"]{display:none!important}
 [data-sb-nav-owner="1"],[data-sb-nav-owner="1"] [data-sb-group="work"]{display:contents!important}
 [data-sb-nav-owner="1"] [data-sb-nav-slot="work-label"]{order:10}
-[data-sb-nav-owner="1"] [data-sb-nav-projects="1"]{order:11;display:none;margin:2px 8px 3px 0}
+[data-sb-nav-owner="1"] [data-sb-nav-projects="1"]{order:27;display:none;margin:8px 8px 6px 0;padding-top:8px;border-top:1px solid rgba(23,25,29,.08)}
 [data-sb-nav-owner="1"] [data-sb-nav-projects="1"].sb-has-items{display:block}
-[data-sb-nav-owner="1"] .sb-nav-project-heading{height:24px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#969BA4;font-size:10px;font-weight:650;letter-spacing:.1em}
+[data-sb-nav-owner="1"] .sb-nav-project-heading{height:22px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#969BA4;font-size:10px;font-weight:650;letter-spacing:.1em}
 [data-sb-nav-owner="1"] .sb-nav-project-count{color:#B0B4BB;font-size:10px;font-weight:500;letter-spacing:0}
-[data-sb-nav-owner="1"] .sb-nav-project-list{display:grid;gap:1px}
-[data-sb-nav-owner="1"] .sb-nav-project-row{width:100%;min-height:47px;box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:5px 10px;border:0;border-radius:9px;background:transparent;color:#34383F;font:inherit;text-align:left;cursor:pointer;transition:background-color 140ms ease,color 140ms ease}
+[data-sb-nav-owner="1"] .sb-nav-project-list{display:grid;gap:2px}
+[data-sb-nav-owner="1"] .sb-nav-project-row{width:100%;min-height:42px;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:4px 10px;border:0;border-radius:9px;background:transparent;color:#34383F;font:inherit;text-align:left;cursor:pointer;transition:background-color 140ms ease,color 140ms ease}
 [data-sb-nav-owner="1"] .sb-nav-project-row:hover{background:rgba(23,25,29,.045)}
 [data-sb-nav-owner="1"] .sb-nav-project-row.sb-nav-project-on{background:rgba(23,25,29,.075);color:#111318}
-[data-sb-nav-owner="1"] .sb-nav-project-mark{width:21px;height:21px;flex:none;display:grid;place-items:center;border-radius:7px;background:#E8EBEF;color:#69727D;font-size:10px;font-weight:700;line-height:1}
+[data-sb-nav-owner="1"] .sb-nav-project-mark{width:24px;height:24px;flex:none;display:grid;place-items:center;border-radius:8px;background:#E8EBEF;color:#69727D;font-size:10px;font-weight:700;line-height:1}
 [data-sb-nav-owner="1"] .sb-nav-project-mark.sb-nav-project-mark-on{background:#DDF2E2;color:#2F7D3F}
 [data-sb-nav-owner="1"] .sb-nav-project-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
 [data-sb-nav-owner="1"] .sb-nav-project-name,[data-sb-nav-owner="1"] .sb-nav-project-meta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-[data-sb-nav-owner="1"] .sb-nav-project-name{font-size:12px;font-weight:600;line-height:16px;color:inherit}
+[data-sb-nav-owner="1"] .sb-nav-project-name{font-size:12px;font-weight:600;line-height:15px;color:inherit}
 [data-sb-nav-owner="1"] .sb-nav-project-meta{font-size:10px;line-height:13px;color:#9299A2}
 [data-sb-nav-owner="1"] .sb-nav-project-state{flex:none;font-size:9px;color:#57A967;white-space:nowrap}
 [data-sb-nav-owner="1"] .sb-nav-project-state.sb-nav-project-state-idle{color:#A4A9B1}
@@ -659,21 +659,11 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     const workLabel = createElement("div", "sb-nav-group-label", "工作");
     workLabel.dataset.sbNavSlot = "work-label";
     workLabel.style.order = "10";
-    projectSection = createElement("div", "sb-nav-projects");
-    projectSection.dataset.sbNavProjects = "1";
-    projectLabel = createElement("span", "sb-nav-project-label", "项目组");
-    projectCount = createElement("span", "sb-nav-project-count");
-    const projectHeading = createElement("div", "sb-nav-project-heading");
-    projectHeading.append(projectLabel, projectCount);
-    projectList = createElement("div", "sb-nav-project-list");
-    projectSection.append(projectHeading, projectList);
-    work.append(workLabel, projectSection, buildRow("contacts", menuClass), buildRow("kanban", menuClass));
+    work.append(workLabel, buildRow("contacts", menuClass), buildRow("kanban", menuClass));
     proxyRows.get("contacts").dataset.sbNavSlot = "contacts";
     proxyRows.get("contacts").style.order = "12";
     proxyRows.get("kanban").dataset.sbNavSlot = "kanban";
     proxyRows.get("kanban").style.order = "13";
-    renderProjectGroups();
-    refreshProjectGroups();
     const recentLabel = createElement("div", "sb-nav-recent-label", "最近任务");
     recentLabel.dataset.sbNavSlot = "history-label";
     recentLabel.style.order = "14";
@@ -683,6 +673,16 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     capabilities.dataset.sbNavSlot = "capabilities";
     capabilities.style.order = "20";
     for (const mode of ["agentSquare", "skills", "files", "kbMemory"]) capabilities.appendChild(buildRow(mode, menuClass));
+
+    projectSection = createElement("div", "sb-nav-projects");
+    projectSection.dataset.sbNavProjects = "1";
+    projectSection.style.order = "27";
+    projectLabel = createElement("span", "sb-nav-project-label", "项目组");
+    projectCount = createElement("span", "sb-nav-project-count");
+    const projectHeading = createElement("div", "sb-nav-project-heading");
+    projectHeading.append(projectLabel, projectCount);
+    projectList = createElement("div", "sb-nav-project-list");
+    projectSection.append(projectHeading, projectList);
 
     accountSection = group("account");
     accountSection.dataset.sbNavSlot = "account";
@@ -722,9 +722,11 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     });
     accountSection.append(accountToggle, accountMenu);
 
-    owner.append(work, capabilities, accountSection);
+    owner.append(work, capabilities, projectSection, accountSection);
     renderAccount();
     contentRoot.appendChild(owner);
+    renderProjectGroups();
+    refreshProjectGroups();
   }
 
   function renderKnowledge() {

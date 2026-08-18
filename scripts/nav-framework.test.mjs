@@ -1129,6 +1129,8 @@ test("project groups render in the work nav and open their collaboration room", 
   const section = document.querySelector('[data-sb-nav-projects="1"]');
   const rows = [...document.querySelectorAll("[data-sb-project-id]")];
   assert.equal(section.hidden, false);
+  assert.equal(section.parentElement.getAttribute("data-sb-nav-owner"), "1");
+  assert.equal(section.style.order, "27");
   assert.equal(section.querySelector(".sb-nav-project-label").textContent, "项目组");
   assert.equal(rows.length, 2);
   assert.equal(rows[0].querySelector(".sb-nav-project-name").textContent, "潜在客户拓展项目组");
