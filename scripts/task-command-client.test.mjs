@@ -37,6 +37,24 @@ test("command client sends canonical envelope through the mapped Gateway action"
   assert.equal(result.command.payload.decision, "approved");
 });
 
+test("task creation can be sent before a server task id exists", async () => {
+  const calls = [];
+  const client = createTaskCommandClient({
+    gateway: {
+      action: async (action, payload) => {
+        calls.push({ action, payload });
+        return { code: 0, data: { taskId: "task-server-1" } };
+      }
+    }
+  });
+  const result = await client.send(COMMAND_TYPES.TASK_CREATE, {
+    payload: { goal: "寻找抖音潜客", projectId: "room-leads" }
+  });
+  assert.equal(result.accepted, true);
+  assert.equal(calls[0].action, "task.create");
+  assert.equal(calls[0].payload.taskId, null);
+});
+
 test("in-flight commands with the same idempotency key share one Gateway call", async () => {
   let resolve;
   let callCount = 0;

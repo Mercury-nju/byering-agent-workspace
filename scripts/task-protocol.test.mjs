@@ -39,8 +39,8 @@ test("command envelope is canonical and migrates legacy approval ok", () => {
 
 test("command envelope rejects null input and exposes creation/message/access commands", () => {
   assert.throws(() => createCommandEnvelope(null), (error) => error.code === "INVALID_COMMAND");
-  assert.equal(normalizeCommand({ ...ids, type: "task.created" }).type, COMMAND_TYPES.TASK_CREATE);
-  assert.equal(normalizeCommand({ ...ids, type: "message.created" }).type, COMMAND_TYPES.MESSAGE_SEND);
+  assert.equal(normalizeCommand({ ...ids, taskId: undefined, type: "task.created" }).type, COMMAND_TYPES.TASK_CREATE);
+  assert.equal(normalizeCommand({ ...ids, type: "message.created", conversationId: "conversation-1" }).type, COMMAND_TYPES.MESSAGE_SEND);
   assert.equal(normalizeCommand({ ...ids, type: "access.authorization_cancelled" }).type, COMMAND_TYPES.ACCESS_CANCEL);
   assert.equal(normalizeCommand({ ...ids, runId: "legacy-run", taskRunId: undefined, type: COMMAND_TYPES.TASK_START }).taskRunId, "legacy-run");
 });

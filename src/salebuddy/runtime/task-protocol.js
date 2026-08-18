@@ -138,7 +138,19 @@ export function normalizeCommand(input = {}) {
   const type = normalizeCommandType(input.type ?? input.commandType);
   const commandId = requireId(input.commandId, "commandId");
   const idempotencyKey = requireId(input.idempotencyKey, "idempotencyKey");
-  const taskId = requireId(input.taskId, "taskId");
+  const taskId = optionalId(input.taskId, "taskId");
+  const tasklessTypes = new Set([
+    COMMAND_TYPES.TASK_CREATE,
+    COMMAND_TYPES.CONVERSATION_CREATE,
+    COMMAND_TYPES.MESSAGE_SEND
+  ]);
+  if (!tasklessTypes.has(type) && !taskId) {
+    throw new TaskProtocolError("taskId is required", "REQUIRED_FIELD", { field: "taskId" });
+  }
+  const conversationId = optionalId(input.conversationId, "conversationId");
+  if (type === COMMAND_TYPES.MESSAGE_SEND && !conversationId) {
+    throw new TaskProtocolError("conversationId is required for message.send", "REQUIRED_FIELD", { field: "conversationId" });
+  }
   const payload = cloneJson(input.payload == null ? {} : input.payload, "payload");
   if (!isRecord(payload)) throw new TaskProtocolError("Command payload must be an object", "INVALID_COMMAND_PAYLOAD");
   rejectHiddenReasoning(payload, "command.payload");
@@ -159,7 +171,7 @@ export function normalizeCommand(input = {}) {
     idempotencyKey,
     taskId,
     taskRunId: optionalId(input.taskRunId ?? input.runId, "taskRunId"),
-    conversationId: optionalId(input.conversationId, "conversationId"),
+    conversationId,
     agentId: optionalId(input.agentId, "agentId"),
     type,
     payload,
