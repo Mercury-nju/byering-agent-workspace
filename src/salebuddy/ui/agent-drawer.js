@@ -9,6 +9,7 @@ import { memberDashboard, memberResultStory } from "../agents/metrics-store.js";
 import { listFiles } from "../agents/file-store.js";
 import { listTasks, subscribe as subscribeTasks } from "../agents/task-store.js";
 import { mountAgentAvatar } from "./agent-avatar.js";
+import { displayAgentName, displayAgentTitle, localizeAgentText } from "../brand.js";
 
 const CSS = `
 .sb-drawer-mask{display:none}
@@ -176,18 +177,19 @@ export function openAgentDrawer(agentType, profile, status, { teamLive, projectI
     drawer.classList.add("sb-drawer-inline");
   }
   drawer.setAttribute("role", "dialog");
-  drawer.setAttribute("aria-label", `${safeProfile.identity?.name || agentType}工作进展`);
+  const headName = displayAgentName({ agentType, identity: safeProfile.identity });
+  const headTitle = displayAgentTitle({ agentType, identity: safeProfile.identity, role: safeProfile.role });
+  drawer.setAttribute("aria-label", `${headName}工作进展`);
 
   const head = el("div", "sb-drawer-head");
-  const headName = safeProfile.identity?.name || agentType;
   const headAvatar = el("div", `sb-agent-avatar${agentType === "main" ? " sb-main" : ""}`, avatarInitial(headName));
   mountAgentAvatar(headAvatar, agentType, { alt: headName });
   head.appendChild(headAvatar);
   const headText = el("div");
   headText.style.minWidth = "0";
-  headText.appendChild(el("div", "sb-drawer-name", safeProfile.identity?.name || agentType));
+  headText.appendChild(el("div", "sb-drawer-name", headName));
   const titleRow = el("div", "sb-drawer-title");
-  titleRow.appendChild(document.createTextNode(safeProfile.identity?.title || safeProfile.role?.position || agentType));
+  titleRow.appendChild(document.createTextNode(headTitle));
   const live = el("span", `sb-drawer-live ${statusClass(currentStatus.state)}`);
   live.appendChild(el("i"));
   live.appendChild(document.createTextNode(TEAM_STATE_LABELS[currentStatus.state] || "空闲"));
@@ -214,7 +216,7 @@ export function openAgentDrawer(agentType, profile, status, { teamLive, projectI
     heroTop.appendChild(el("div", "sb-work-kicker", "任务状态 / TASK STATUS"));
     heroTop.appendChild(el("div", `sb-work-state ${taskStatus === "已完成" ? "sb-done" : taskStatus === "空闲" ? "sb-idle" : ""}`, taskStatus));
     hero.appendChild(heroTop);
-    hero.appendChild(el("div", "sb-work-task", task?.title || work?.task || currentStatus.currentTask || "当前没有分配任务"));
+    hero.appendChild(el("div", "sb-work-task", task?.title || work?.task || localizeAgentText(currentStatus.currentTask) || "当前没有分配任务"));
     hero.appendChild(el("div", "sb-work-phase", task?.preview || work?.phase || (task ? "任务已创建，等待执行事件" : "该成员当前没有进行中的任务")));
     const context = el("div", "sb-work-context");
     if (projectName) context.appendChild(el("span", null, `项目组 · ${projectName}`));

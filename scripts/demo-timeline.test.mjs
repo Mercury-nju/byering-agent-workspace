@@ -52,8 +52,9 @@ test("zero-to-one demo starts with an explicit least-privilege access setup", ()
 
   assert.equal(setup.provider, "抖音账号");
   assert.match(setup.description, /授权|读取/);
-  assert.equal(setup.scopes.length, 3);
-  assert.match(setup.scopes.join(" "), /直播|粉丝|私信/);
+  assert.equal(setup.scopes.length, 1);
+  assert.match(setup.scopes.join(" "), /私信/);
+  assert.doesNotMatch(setup.scopes.join(" "), /直播|粉丝/);
 });
 
 test("pre-execution assignment plan is explicit before any authorization request", () => {
@@ -62,7 +63,7 @@ test("pre-execution assignment plan is explicit before any authorization request
   const assignments = buildAssignmentPlan({ script, runtimeDefinition });
 
   assert.equal(assignments.length, 4);
-  assert.deepEqual(assignments.map((item) => item.agentName), ["线索猎人", "数据分析师", "内容策划", "销售顾问"]);
+  assert.deepEqual(assignments.map((item) => item.agentName), ["线索猎人", "线索分析师", "内容策划", "触达策略师"]);
   assert.ok(assignments.every((item) => item.skill && item.executor && item.role));
   assert.equal(assignments.findIndex((item) => item.agentName === "线索猎人"), 0);
 });
@@ -77,6 +78,18 @@ test("project assignment plan prefers active project members, including marketpl
   });
 
   assert.deepEqual(assignments.map((item) => item.agentType), ["mkt-lead-miner", "mkt-follow-up", "mkt-lead-miner", "mkt-follow-up"]);
-  assert.match(assignments[0].agentName, /周砚/);
-  assert.match(assignments[1].agentName, /跟跟/);
+  assert.match(assignments[0].agentName, /线索挖掘机/);
+  assert.match(assignments[1].agentName, /跟进管家/);
+});
+
+test("read-only result workflows finish with a result card instead of an approval gate", () => {
+  const taskText = "帮我查看当前项目组的找人、触达和回复结果";
+  const script = getDialogueScript("results", taskText);
+  const runtimeDefinition = getDialogueRuntimeDefinition("results", taskText);
+  const timeline = buildDemoTimeline({ taskText, script, runtimeDefinition });
+
+  assert.equal(script.approvalRequired, false);
+  assert.equal(timeline.some((event) => event.t === "approval-show"), false);
+  assert.equal(timeline.at(-1).t, "summary");
+  assert.ok(timeline.some((event) => event.t === "run-finished"));
 });

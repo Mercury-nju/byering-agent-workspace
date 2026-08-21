@@ -449,6 +449,14 @@ function scheduleRun(state, client, payload) {
     messageId, seq: ++seq, timestamp: now(), ...extra
   });
   const emitSubagent = (name, value) => emit("CUSTOM", { name, value });
+  const emitSubagentProgress = (agentId, agent, index) => emitSubagent("subagent_progress", {
+    agentId,
+    agentName: agent.name,
+    parentAgentId: "main",
+    progress: 42,
+    text: `${agent.name} 已取得阶段性结果，正在整理可核验依据。`,
+    evidence: [{ type: "source", label: "公开工作记录", ref: `${agentId}-evidence-${index + 1}` }]
+  });
   const at = (ms, fn) => setTimeout(fn, ms);
 
   const pending = conversation(conversationId, payload?.title || "新建恢复任务", "in_progress");
@@ -464,6 +472,7 @@ function scheduleRun(state, client, payload) {
       emitSubagent("subagent_start", { agentId, agentName: agent.name, parentAgentId: "main" });
       if (index === 0) emit("TEXT_MESSAGE_CONTENT", { delta: scenario.mainTexts[1] });
     });
+    at(Math.min(agent.endAt - 100, agent.startAt + 350), () => emitSubagentProgress(agentId, agent, index));
     at(agent.endAt, () => emitSubagent("subagent_end", { agentId, agentName: agent.name, parentAgentId: "main", status: agent.status }));
   }
 

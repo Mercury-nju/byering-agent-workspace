@@ -22,3 +22,10 @@ test("real business phrases resolve to the matching operating context", () => {
   assert.equal(resolveBusinessPrompt("补齐咨询项目报价和交付周期").id, "professional_services");
   assert.equal(resolveBusinessPrompt("核验买车线索并安排到店").id, "sales_pipeline");
 });
+
+test("sales context stays within the currently executable public prospect boundary", () => {
+  const sales = resolveBusinessPrompt("分析抖音账号评论中的买车线索");
+  const text = [sales.decompose, sales.objective, sales.scope, sales.deliverable, sales.guardrail, sales.summary, sales.progress, sales.defaultReply].join(" ");
+  assert.match(text, /公开视频|公开评论|公开数据/);
+  assert.doesNotMatch(text, /私信|直播|粉丝关系|全网搜索|自动发送/);
+});

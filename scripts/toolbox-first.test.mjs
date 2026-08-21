@@ -11,3 +11,7 @@ test("toolbox keeps the native virtual list as the only scroll owner", () => {
   assert.match(source, /\[class\*="_panel_"\]:has\(\.sb-toolbox-route\)\{overflow:hidden !important\}/);
   assert.match(source, /route\?\.classList\.add\("sb-toolbox-route"\)/);
 });
+
+test("toolbox setup does not navigate to the skills page", () => {
+  assert.doesNotMatch(source, /\btab\.click\(\)/);
+});

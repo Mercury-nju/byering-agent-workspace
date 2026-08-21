@@ -305,6 +305,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   let location = null;
   let activeMode = null;
   let lastNativeActive = null;
+  let pageRoute = null;
   let knowledgeState = { ...DEFAULT_KNOWLEDGE_STATE };
   let knowledgeToggle = null;
   let knowledgeArrow = null;
@@ -456,24 +457,54 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     return wrap;
   }
 
+  /**
+   * Claim the single custom page route before opening a new page.
+   * openPage() closes the previous page synchronously; the previous page's
+   * onClose must not clear state belonging to the new route.
+   */
+  function claimPageRoute(mode, cleanup = null) {
+    if (pageRoute) {
+      pageRoute.replaced = true;
+      const previousCleanup = pageRoute.cleanup;
+      pageRoute = null;
+      previousCleanup?.();
+    }
+    const route = { mode, cleanup, replaced: false };
+    pageRoute = route;
+    return () => {
+      if (route.replaced || pageRoute !== route) return;
+      route.replaced = true;
+      pageRoute = null;
+      route.cleanup?.();
+      if (mode && activeMode === mode) emit(mode, false);
+    };
+  }
+
   function openChildFromContacts(mode, opener, options = {}) {
+    const onClose = claimPageRoute(mode);
     emit("contacts", false);
     emit(mode, true);
     opener({
       ...options,
-      onClose: () => emit(mode, false)
+      onClose
     });
+  }
+
+  function openRoomsFromContacts(room) {
+    const onClose = claimPageRoute(null);
+    clearActive();
+    openers.rooms({ gateway, teamLive, initialRoom: room, onClose });
   }
 
   function openCustom(mode) {
     if (activeMode === mode && getCurrentPage()) return;
+    const onClose = claimPageRoute(mode);
     emit(mode, true);
-    const onClose = () => emit(mode, false);
     if (mode === "contacts") {
       openers.contacts({
         gateway,
         teamLive,
-        onOpenRoom: (room) => openers.rooms({ gateway, teamLive, initialRoom: room, onClose }),
+        onOpenRoom: (room) => openRoomsFromContacts(room),
         onOpenData: (room) => openChildFromContacts("kanban", openers.kanban, {
           gateway,
           teamLive,
@@ -484,8 +515,9 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
           projectName: room?.name || ""
         }),
         onRecruit: () => {
+          const recruitClose = claimPageRoute("agentSquare");
           emit("agentSquare", true);
-          openers.agentSquare({ teamLive, onChat: (agentType) => openChatWith(agentType), onClose: () => emit("agentSquare", false) });
+          openers.agentSquare({ teamLive, onChat: (agentType) => openChatWith(agentType), onClose: recruitClose });
         },
         onClose
       });
@@ -570,22 +602,35 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       row.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
+        const onClose = claimPageRoute("contacts");
         projectActiveId = room.id;
         renderProjectGroups();
-        (async () => {
-          try { await gateway?.action?.("room.office.switch", { roomId: room.id }); } catch { /* preview mode can open without a switch */ }
-          if (disposed || projectActiveId !== room.id) return;
-          clearActive();
-          openers.rooms({
+        if (disposed) return;
+        clearActive();
+        emit("contacts", true);
+        openers.contacts({
+          gateway,
+          teamLive,
+          initialRoom: room,
+          onOpenRoom: (nextRoom) => openRoomsFromContacts(nextRoom),
+          onOpenData: (nextRoom) => openChildFromContacts("kanban", openers.kanban, {
             gateway,
             teamLive,
-            initialRoom: room,
-            onClose: () => {
-              projectActiveId = null;
-              renderProjectGroups();
-            }
-          });
-        })();
+            initialRoom: nextRoom
+          }),
+          onOpenFiles: (nextRoom) => openChildFromContacts("files", openers.files, {
+            projectId: nextRoom?.id || null,
+            projectName: nextRoom?.name || ""
+          }),
+          onRecruit: () => {
+            const recruitClose = claimPageRoute("agentSquare");
+            emit("agentSquare", true);
+            openers.agentSquare({ teamLive, onChat: (agentType) => openChatWith(agentType), onClose: recruitClose });
+          },
+          onClose
+        });
+        // Keep the office's current-room state in sync without delaying the UI transition.
+        Promise.resolve(gateway?.action?.("room.office.switch", { roomId: room.id })).catch(() => {});
       });
       projectList.appendChild(row);
     }
@@ -889,6 +934,12 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   }
 
   function syncNativeActive() {
+    // Native React rows can retain an active class while a SaleBuddy page is
+    // open. They are hidden/owned by the framework and must not steal the
+    // active route back from the custom page on the next mutation.
+    if (activeMode && !["newTask", "office", "skills"].includes(activeMode)) {
+      return;
+    }
     const candidates = ["newTask", "office", "skills"];
     const next = candidates.find((mode) => hasNativeActiveState(currentTarget(mode))) || null;
     if (next === lastNativeActive) return;
@@ -929,11 +980,12 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   }
 
   function openChatWith(agentType) {
+    const onClose = claimPageRoute("contacts");
     openers.contacts({
       gateway,
       teamLive,
       initialFriend: agentType,
-      onOpenRoom: (room) => openers.rooms({ gateway, teamLive, initialRoom: room }),
+      onOpenRoom: (room) => openRoomsFromContacts(room),
       onOpenData: (room) => openChildFromContacts("kanban", openers.kanban, {
         gateway,
         teamLive,
@@ -943,7 +995,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
         projectId: room?.id || null,
         projectName: room?.name || ""
       }),
-      onClose: () => emit("contacts", false)
+      onClose
     });
     emit("contacts", true);
   }
@@ -985,6 +1037,12 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       if (projectRefreshTimer != null) mountedWindow.clearInterval(projectRefreshTimer);
       projectRefreshRevision += 1;
       if (globalThis.document === mountedDocument) closeCurrentPage();
+      if (pageRoute) {
+        pageRoute.replaced = true;
+        const cleanup = pageRoute.cleanup;
+        pageRoute = null;
+        cleanup?.();
+      }
       owner?.remove();
       restoreNativeRows();
       restoreNativeAttributes();

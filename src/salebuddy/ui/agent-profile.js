@@ -11,7 +11,7 @@ import { listFiles } from "../agents/file-store.js";
 import { getState as getResourceState, KIND_LABELS } from "../agents/resource-store.js";
 import { TEAM_STATE_LABELS, TEAM_STATES } from "../agents/status.js";
 import { openFileCenterPage } from "./file-center.js";
-import { BRAND } from "../brand.js";
+import { BRAND, displayAgentName, displayAgentTitle } from "../brand.js";
 import { fillProfileDefaults, mergeProfilePatch } from "../agents/model.js";
 import { marketplaceProfileSeed } from "../agents/marketplace.js";
 import { saveAgentProfile } from "../agents/registry.js";
@@ -136,6 +136,12 @@ const SECTION_DEFAULTS = {
     tools: ["全员调度", "任务看板", "审批流"],
     scope: { dataAccess: ["全部项目组", "组织知识库"], forbiddenZones: ["用户私人文件"] }
   },
+  "Strategy Agent": {
+    soul: ["先定义目标客户，再扩大检索", "每个来源都说明适用理由", "范围过大时主动收窄"],
+    skills: ["客户画像", "来源策略", "意向信号", "条件拆解"],
+    tools: ["任务模板", "来源目录", "历史线索"],
+    scope: { dataAccess: ["项目目标", "已授权业务资料"], forbiddenZones: ["未经确认的外部执行"] }
+  },
   "Browser Agent": {
     soul: ["来源不明的线索不采纳", "每条线索标注出处", "宁缺毋滥"],
     skills: ["全网检索", "主页分析", "联系方式补全", "真实性验证"],
@@ -148,11 +154,35 @@ const SECTION_DEFAULTS = {
     tools: ["表格", "图表", "数据采购接口"],
     scope: { dataAccess: ["项目共享文件", "采购数据"], forbiddenZones: ["其他项目原始数据"] }
   },
+  "Research Agent": {
+    soul: ["事实和推测分开", "每个判断附带来源", "信息过期时主动提醒"],
+    skills: ["主页研究", "作品分析", "评论解读", "客户简报"],
+    tools: ["抖音公开资料", "证据时间线", "项目文件"],
+    scope: { dataAccess: ["已授权公开资料", "任务线索池"], forbiddenZones: ["私人信息和未授权历史记录"] }
+  },
   "App Agent": {
     soul: ["不承诺做不到的事", "话术不含夸大表述", "频控优先，不打扰客户"],
     skills: ["触达策略", "沟通节奏设计", "转化路径评估"],
     tools: ["邮箱", "企业微信", "短信"],
     scope: { dataAccess: ["线索清单", "话术库"], forbiddenZones: ["客户支付信息"] }
+  },
+  "Risk Agent": {
+    soul: ["先检查权限再允许动作", "风险结论必须可解释", "不确定时先暂停"],
+    skills: ["重复触达拦截", "频控检查", "权限核验", "风险说明"],
+    tools: ["触达记录", "授权范围", "勿扰名单"],
+    scope: { dataAccess: ["触达历史", "项目权限"], forbiddenZones: ["修改原始客户数据"] }
+  },
+  "Outreach Agent": {
+    soul: ["只执行已审批动作", "每次发送都保留结果", "不可用时明确说明"],
+    skills: ["私信触达", "评论回复", "发送结果记录"],
+    tools: ["抖音授权账号", "触达队列", "发送记录"],
+    scope: { dataAccess: ["已审批触达计划", "授权账号"], forbiddenZones: ["未经授权的账号和动作"] }
+  },
+  "Outreach Ops Agent": {
+    soul: ["状态必须可追踪", "失败优先保留现场", "收到回复立即停止计划"],
+    skills: ["分批排期", "失败重试", "暂停恢复", "回复监听"],
+    tools: ["发送队列", "冷却规则", "回复事件"],
+    scope: { dataAccess: ["触达任务", "发送结果"], forbiddenZones: ["绕过风控直接发送"] }
   },
   "File Agent": {
     soul: ["产出即可用", "格式统一规范", "每份文件可追溯作者"],
@@ -318,7 +348,9 @@ export async function renderAgentProfile(container, agentType, fallbackProfile, 
     const version = ++renderVersion;
     const profile = editMode && draft ? draft : await fetchProfile();
     if (disposed || !root.isConnected || version !== renderVersion) return;
-    const name = profile.identity?.name || agentType;
+    const rawName = profile.identity?.name || agentType;
+    const name = displayAgentName({ agentType, name: rawName }) || agentType;
+    const title = displayAgentTitle({ agentType, name: rawName, title: profile.identity?.title });
     const defaults = sectionDefaults(agentType, profile);
     const status = teamLive?.getStatusOf?.(agentType) || { state: TEAM_STATES.IDLE, currentTask: null, activeConversations: 0, waitingApproval: false };
     const editable = editMode;
@@ -326,11 +358,11 @@ export async function renderAgentProfile(container, agentType, fallbackProfile, 
 
     // 运行数据（按成员名归集）
     const resources = getResourceState();
-    const myEntries = resources.entries.filter((e) => e.agent === name);
+    const myEntries = resources.entries.filter((e) => e.agent === rawName || e.agent === name);
     const myTotal = myEntries.reduce((sum, e) => sum + e.amount, 0);
     const myTaskIds = new Set(myEntries.map((e) => e.taskId).filter(Boolean));
     const myTasks = resources.tasks.filter((t) => myTaskIds.has(t.taskId));
-    const myFiles = listFiles().filter((f) => f.createdBy === name);
+    const myFiles = listFiles().filter((f) => f.createdBy === rawName || f.createdBy === name);
 
     root.textContent = "";
 
@@ -382,13 +414,13 @@ export async function renderAgentProfile(container, agentType, fallbackProfile, 
       return row;
     };
     if (editMode) {
-      idSec.appendChild(identityField("姓名", "name", profile.identity?.name, "员工名称"));
-      idSec.appendChild(identityField("职位", "title", profile.identity?.title, "岗位名称"));
+      idSec.appendChild(identityField("姓名", "name", name, "员工名称"));
+      idSec.appendChild(identityField("职位", "title", title, "岗位名称"));
       idSec.appendChild(identityField("语言风格", "languageStyle", profile.identity?.languageStyle, "默认"));
       idSec.appendChild(identityField("对外签名", "signature", profile.identity?.signature, "无"));
     } else {
       idSec.appendChild(kv("姓名", name));
-      idSec.appendChild(kv("职位", profile.identity?.title));
+      idSec.appendChild(kv("职位", title));
       idSec.appendChild(kv("语言风格", profile.identity?.languageStyle || "默认"));
       idSec.appendChild(kv("对外签名", profile.identity?.signature || "无"));
     }

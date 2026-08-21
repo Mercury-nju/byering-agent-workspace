@@ -14,15 +14,27 @@ import { addFile } from "../agents/file-store.js";
 import { recordCost, rollupTask } from "../agents/resource-store.js";
 import { endAllWork, beginWork, pushActivity, finishWork } from "../agents/work-live.js";
 import { openFileCenterPage } from "./file-center.js";
-import { BRAND } from "../brand.js";
+import { BRAND, displayAgentName } from "../brand.js";
 import { mountAgentAvatar } from "./agent-avatar.js";
 import { activityLabelFor, clearAgentActivities, createAgentActivityBadge, setAgentActivity } from "./agent-activity.js";
 import { appendRuntimeEvent, createRuntimeTask, getRuntimeSnapshot, replayRuntimeEvents } from "../runtime/task-runtime.js";
+import { createGatewayEventAdapter } from "../runtime/gateway-events.js";
+import { createTaskCommandClient } from "../runtime/task-command-client.js";
+import { COMMAND_TYPES } from "../runtime/task-protocol.js";
+import { createRemoteTask, startRemoteTask } from "../runtime/remote-task-bootstrap.js";
+import {
+  INTERACTION_COMMANDS,
+  canIssueInteractionCommand,
+  createInteractionCommand,
+  localEventForInteractionCommand
+} from "../runtime/interaction-commands.js";
 import { resolveBusinessPrompt } from "../business/prompt-catalog.js";
 import { buildTouchSimulation, parseTouchRequest } from "../business/touch-audience.js";
 import { buildApprovalTimeline, buildAssignmentPlan, buildDemoTimeline, DEMO_PACING, getDemoAccessSetup } from "../runtime/demo-timeline.js";
+import { requirementRequiresExternalAccess } from "../runtime/workflow-definitions.js";
 import { openDouyinAuthorization } from "./douyin-auth.js";
 import { PRODUCT_VISIBILITY } from "./product-visibility.js";
+import { SB_ACTIONS } from "../bridge/gateway.js";
 
 const DEMO_REVEAL_MS = Object.freeze({
   trace: 620,
@@ -31,9 +43,22 @@ const DEMO_REVEAL_MS = Object.freeze({
 });
 
 let taskRunnerContext = null;
+let taskRunnerNoticeTimer = null;
+
+function showTaskRunnerNotice(message) {
+  document.querySelector(".sb-task-runner-notice")?.remove();
+  const notice = document.createElement("div");
+  notice.className = "sb-task-runner-notice";
+  notice.textContent = message;
+  document.body.appendChild(notice);
+  clearTimeout(taskRunnerNoticeTimer);
+  taskRunnerNoticeTimer = setTimeout(() => notice.remove(), 3200);
+}
 
 const CSS = `
 .sb-chat{display:flex;flex-direction:column;height:100%;background:#FAFAFA}
+.sb-task-runner-notice{position:fixed;left:50%;bottom:28px;z-index:10070;transform:translateX(-50%);max-width:min(520px,calc(100vw - 32px));padding:10px 14px;border-radius:10px;background:#1F2329;color:#fff;font-size:12px;line-height:18px;box-shadow:0 10px 26px rgba(15,15,15,.18);animation:sb-task-runner-notice-in .18s ease-out}
+@keyframes sb-task-runner-notice-in{from{opacity:0;transform:translate(-50%,6px)}to{opacity:1;transform:translate(-50%,0)}}
 .sb-chat-scroll{flex:1;overflow-y:auto}
 .sb-chat-inner{width:calc(100% - 64px);max-width:1280px;box-sizing:border-box;margin:0 auto;padding:32px 40px 28px;display:flex;flex-direction:column;gap:18px}
 .sb-msg{display:flex;gap:14px;opacity:0;animation:sb-chat-in .3s forwards}
@@ -232,6 +257,10 @@ function ensureStyle() {
 
 export function pickDialogueScript(taskText) {
   const t = taskText || "";
+  if (/查看.*结果|总结.*(?:找人|触达|回复).*结果|结果.*(?:异常|下一步)/.test(t)) return "results";
+  if (/分析.*(?:线索|潜客)|线索.*(?:分析|评分|分层)|按意向.*证据/.test(t)) return "analyze";
+  if (/(准备|生成|制定).*(?:触达|首轮|消息草稿)|触达方案/.test(t)) return "outreach";
+  if (/找.*潜客|找一批.*(?:人|账号|客户)|只找人|先找人/.test(t)) return "find";
   if (/买车|车型|购车|到店|留电话|潜客|线索|挖掘|获客|名单|意向客户/.test(t)) return "leads";
   if (/抖音|视频|内容|小红书|文案|账号/.test(t)) return "content";
   return "generic";
@@ -239,9 +268,9 @@ export function pickDialogueScript(taskText) {
 
 const MEMBER_SLOTS = [
   { type: "Browser Agent", fallback: "线索猎人", role: "检索、补全与验证" },
-  { type: "Search Agent", fallback: "数据分析师", role: "清洗与评分" },
+  { type: "Search Agent", fallback: "线索分析师", role: "清洗与评分" },
   { type: "File Agent", fallback: "内容策划", role: "物料产出" },
-  { type: "App Agent", fallback: "销售顾问", role: "触达执行" }
+  { type: "App Agent", fallback: "触达策略师", role: "触达执行" }
 ];
 
 const EMPLOYEE_VOICES = Object.freeze({
@@ -251,7 +280,7 @@ const EMPLOYEE_VOICES = Object.freeze({
     progressLead: "我刚发现一些新情况：",
     completionTitle: "第一轮我看完啦 ✅"
   }),
-  数据分析师: Object.freeze({
+  线索分析师: Object.freeze({
     entranceTitle: "没问题，我来看看",
     entranceBody: ({ role }) => `我会把${role || "现有数据"}理清楚，意向强弱和判断依据都会一起整理好。`,
     progressLead: "我这边分析到一个进展：",
@@ -263,7 +292,7 @@ const EMPLOYEE_VOICES = Object.freeze({
     progressLead: "我先同步一下现在的思路：",
     completionTitle: "内容方案我准备好啦"
   }),
-  销售顾问: Object.freeze({
+  触达策略师: Object.freeze({
     entranceTitle: "好呀，我来接下一棒",
     entranceBody: ({ role }) => `我先把${role || "后续跟进"}接起来，触达前会再检查一遍，需要你判断的地方我会及时来问。`,
     progressLead: "我来同步一下客户这边的进展：",
@@ -333,12 +362,20 @@ export function getEmployeeDialogue(stage, context = {}) {
 /* 一个场景只对应一个专业 Agent；浏览器、搜索、文件和 App 只是执行器。 */
 const SCENARIO_AGENTS = Object.freeze({
   leads: { id: "lead_hunter", name: "线索猎人", role: "监控互动并推进留资", type: "professional_agent" },
+  find: { id: "acquisition_strategist", name: "获客策略师", role: "把业务目标拆成客户画像和找人条件", type: "professional_agent" },
+  analyze: { id: "lead_analyst", name: "线索分析师", role: "按意向、证据和来源整理线索优先级", type: "professional_agent" },
+  outreach: { id: "outreach_strategist", name: "触达策略师", role: "生成首触方案并在审批后推进触达", type: "professional_agent" },
+  results: { id: "result_analyst", name: "数据分析师", role: "汇总找人、触达和回复结果并提出下一步", type: "professional_agent" },
   content: { id: "content_operator", name: "内容策划", role: "验证选题并产出内容计划", type: "professional_agent" },
   generic: { id: "project_operator", name: "项目执行 Agent", role: "按计划拆解并交付结果", type: "professional_agent" }
 });
 
 const SCENARIO_SKILL_IDS = Object.freeze({
   leads: ["observe_interactions", "score_intent", "plan_outreach", "run_conversation"],
+  find: ["define_icp", "discover_prospects", "verify_signals", "deliver_candidate_pool"],
+  analyze: ["deduplicate_leads", "score_intent", "research_prospects", "prioritize_actions"],
+  outreach: ["build_outreach_strategy", "check_risk", "draft_messages", "prepare_approval"],
+  results: ["aggregate_funnel", "analyze_replies", "explain_anomalies", "recommend_next_steps"],
   content: ["research_benchmarks", "analyze_content_gaps", "draft_content_plan", "schedule_distribution"],
   generic: ["collect_context", "score_priorities", "draft_execution_plan", "prepare_handoff"]
 });
@@ -358,12 +395,12 @@ const SCRIPTS = {
         skill: "观察互动",
         role: "互动观察与线索发现",
         executor: "RPA + 线索猎人",
-        completion: "我已完成互动观察：3,842 条抖音评论、粉丝和直播互动已同步，214 位候选都保留了原评论、来源作品和主页证据，交给数据分析师继续评分。",
+        completion: "我已完成互动观察：3,842 条抖音评论、粉丝和直播互动已同步，214 位候选都保留了原评论、来源作品和主页证据，交给线索分析师继续评分。",
         assign: "线索猎人先观察：只读取已授权抖音账号的评论、粉丝和直播互动，保留原始证据。",
         lines: [
           "账号状态 READY，已同步昨晚 3 场直播、2 条车型视频的评论和粉丝互动，共 3,842 条原始记录。",
           "我先排除抽奖、表情刷屏、同行账号和重复互动，再补看用户主页、历史评论和来源作品，不只靠关键词。",
-          "发现 214 位有效候选，其中 68 位出现车型、预算、城市或到店信号；例如「325Li 杭州最近落地多少？」每条都保留原评论、作品和主页证据，交给数据分析师。"
+          "发现 214 位有效候选，其中 68 位出现车型、预算、城市或到店信号；例如「325Li 杭州最近落地多少？」每条都保留原评论、作品和主页证据，交给线索分析师。"
         ]
       },
       {
@@ -371,7 +408,7 @@ const SCRIPTS = {
         role: "意向评分与解释",
         executor: "Python + LLM + Policy",
         completion: "我已完成意向评分：214 位候选分成 A 级 47、B 级 86、C 级 81，6 条证据不足的线索已拦截，没有进入触达队列。",
-        assign: "数据分析师接手：按购买阶段评分，证据不足的线索不进入触达。",
+        assign: "线索分析师接手：按购买阶段评分，证据不足的线索不进入触达。",
         lines: [
           "收到。214 条先去重并校验证据，把单纯讨论车型、同行营销和没有来源的内容标成待核验。",
           "评分完成：A 级 47 位、B 级 86 位、C 级 81 位；预算 + 具体车型 + 城市/时间窗口同时出现，才会进入 A 级。",
@@ -387,7 +424,7 @@ const SCRIPTS = {
         lines: [
           "我按价格、车型对比、置换评估、到店预约四类意图生成短句，第一条只回答客户刚问的问题。",
           "规则检查通过：不主动索要电话、不编造落地价、不承诺现车和优惠；客户未回复时不连续追发。",
-          "已为 47 位 A 级客户生成个性化首触和下一步动作，话术与证据绑定，交给销售顾问执行。"
+          "已为 47 位 A 级客户生成个性化首触和下一步动作，话术与证据绑定，交给触达策略师执行。"
         ]
       },
       {
@@ -395,7 +432,7 @@ const SCRIPTS = {
         role: "私信执行与会话跟进",
         executor: "RPA + LLM + 人工接管",
         completion: "我已完成本轮会话跟进：31 条私信带来 12 条有效回复，5 位确认本周到店；1 位已留联系方式，2 位按规则转人工接管。",
-        assign: "销售顾问执行触达：先通过权限和频控检查，再逐条发送并等待客户回复。",
+        assign: "触达策略师执行触达：先通过权限和频控检查，再逐条发送并等待客户回复。",
         lines: [
           "A 级先处理 12 位明确询问价格、车型或到店时间的客户；B 级只做轻触达，C 级暂不打扰。",
           "已发送 31 条一对一私信，收到 12 条有效回复：5 位确认本周到店、4 位需要报价、3 位仍在车型对比。",
@@ -406,7 +443,7 @@ const SCRIPTS = {
     approval: {
       title: "A 级客户首轮私信待确认",
       body: "即将调用 send_dm：账号状态 READY，已检查触达权限；仅发送 12 条有明确购车信号的个性化消息，遵守单账号日频控 ≤ 20 条。未回复不重复发送，出现投诉、价格承诺或客户要求人工时立即接管。",
-      approveNote: "已通过：销售顾问开始逐条触达，并等待客户回复",
+      approveNote: "已通过：触达策略师开始逐条触达，并等待客户回复",
       rejectNote: "已驳回：已暂停 send_dm，保留名单和证据，改为人工审核"
     },
     stats: [["3,842", "互动已观察"], ["47", "A 级高意向"], ["12", "有效回复"], ["5", "本周到店"]],
@@ -423,6 +460,10 @@ const SCRIPTS = {
     },
     subs: [
       {
+        skill: "竞品内容研究",
+        role: "拆解同类目高表现内容",
+        executor: "线索猎人",
+        completion: "我已完成竞品内容研究，爆款结构、证据和可复用的选题方向都整理好了。",
         assign: "猎人先把同类目头部账号近 30 天的爆款捞出来拆。",
         lines: [
           "收到，开捞。同类目 top 30 账号近 30 天的视频我全过了一遍。",
@@ -431,6 +472,10 @@ const SCRIPTS = {
         ]
       },
       {
+        skill: "内容表现分析",
+        role: "识别账号流量机会和内容缺口",
+        executor: "线索分析师",
+        completion: "我已完成内容表现分析，流量洼地、优先级和判断依据都整理好了。",
         assign: "分析师找找咱们账号的流量洼地。",
         lines: [
           "收到。近 90 天的数据我拉完了，完播和互动都按选题维度切开看。",
@@ -439,14 +484,22 @@ const SCRIPTS = {
         ]
       },
       {
+        skill: "选题与脚本策划",
+        role: "把机会转成选题日历和脚本初稿",
+        executor: "内容策划",
+        completion: "我已完成选题与脚本策划，日历、脚本初稿和 A/B 版本都已归档。",
         assign: "策划按洼地出 14 天选题日历和脚本。",
         lines: [
           "这几个洼地确实香。日历按粉丝活跃时段排：中午 12 点和晚 7 点半两档。",
           "14 天 8 条排好了，先出 3 条脚本初稿，钩子做了 A/B 两版。",
-          "脚本和日历都存共享文件夹了。@销售顾问 发布节奏你过一下。"
+          "脚本和日历都存共享文件夹了。@触达策略师 发布节奏你过一下。"
         ]
       },
       {
+        skill: "发布节奏审校",
+        role: "检查发布排期与对外风险",
+        executor: "触达策略师",
+        completion: "我已完成发布节奏审校，排期和需要审批的表达风险都标出来了。",
         assign: "顾问定发布排期，评论区维护一起带上。",
         lines: [
           "排期没问题，就按日历走。发布后 1 小时内的评论我盯着，高频问题统一应答。",
@@ -457,7 +510,7 @@ const SCRIPTS = {
     approval: {
       title: "视频脚本初稿（3 条）待审批",
       body: "脚本 1 钩子：「别再乱投豆荚了，我们用 0 投放做到单条 50 万播放，方法就这 3 步……」（A/B 两版开头，详见共享文件夹）",
-      approveNote: "已通过：销售顾问按排期执行发布与评论区维护",
+      approveNote: "已通过：触达策略师按排期执行发布与评论区维护",
       rejectNote: "已驳回：内容策划调整钩子表述后重新提交"
     },
     stats: [["24", "爆款拆解"], ["8", "选题日历"], ["3", "脚本初稿"], ["14 天", "排期覆盖"]],
@@ -478,7 +531,7 @@ const SCRIPTS = {
         lines: [
           "收到。目标市场的公开信息和客户动态我先扫一轮。",
           "有效信息 46 条，关键决策人线索补了 12 个。",
-          "情报汇总.md 已存，@数据分析师 接着。"
+          "情报汇总.md 已存，@线索分析师 接着。"
         ]
       },
       {
@@ -506,12 +559,71 @@ const SCRIPTS = {
     approval: {
       title: "执行方案 v1 待审批",
       body: "方案要点：优先触达高评分目标客户，首轮以价值案例切入，三天后跟进。完整文档见项目共享文件夹。",
-      approveNote: "已通过：销售顾问继续执行",
+      approveNote: "已通过：触达策略师继续执行",
       rejectNote: "已驳回：内容策划修订后重新提交"
     },
     stats: [["46", "有效信息"], ["12", "决策人线索"], ["2", "方案文档"], ["4", "执行项"]],
     summary: "任务完成：产出已归档至项目共享文件夹，执行项按优先级推进。"
   }
+};
+
+// Sales shortcuts are explicit read/prepare/result workflows. Keeping them as
+// separate scripts prevents a read-only action from accidentally opening an
+// external-action approval card.
+SCRIPTS.find = {
+  decompose: "我先把客户画像、来源和筛选条件确认清楚，再由获客策略师和线索猎人建立候选池；这里只读公开信息，不触达任何账号。",
+  brief: { title: "找人目标确认", objective: "建立符合画像的潜客候选池", scope: "抖音公开账号、作品、评论和互动信号", deliverable: "候选清单、来源证据和初步优先级", guardrail: "只读公开信息，不连接账号、不发送消息" },
+  subs: [
+    { skill: "定义画像", role: "把业务目标转成筛选条件", executor: "获客策略师", assign: "我先把目标客户的行业、地区、身份和需求信号拆清楚。", lines: ["目标画像已拆成行业、地区、身份和需求信号。", "我补齐了必须条件和可放宽条件，避免一开始把范围卡死。"], completion: "客户画像和找人条件已确认。" },
+    { skill: "发现潜客", role: "从指定来源建立候选池", executor: "线索猎人", assign: "我按已确认的来源去发现账号，保留每条候选的来源和命中依据。", lines: ["正在从账号、粉丝、评论和内容信号中建立候选池。", "候选账号已去重，来源、发现时间和命中条件都已保留。"], completion: "候选池已建立，所有账号都有来源证据。" },
+    { skill: "核验信号", role: "判断候选是否符合画像", executor: "线索分析师", assign: "我会核验主页、作品和互动信号，先把证据不足的候选标出来。", lines: ["正在核对候选的身份、活跃度和需求表达。", "符合画像的候选已分层，证据不足的账号进入待核验区。"], completion: "候选已完成初步分层，等待你查看结果。" }
+  ],
+  approval: { title: "候选池已准备好", body: "这是只读候选结果，不会触达账号。你可以查看证据、调整条件或继续准备触达。", approveNote: "已确认候选结果", rejectNote: "已保留候选和证据，等待调整条件" },
+  approvalRequired: false,
+  stats: [["120", "候选账号"], ["48", "符合画像"], ["16", "高意向"], ["0", "外部动作"]],
+  summary: "找人完成：候选账号、来源证据和初步优先级已整理好，可以继续进入线索分析或触达准备。"
+};
+
+SCRIPTS.analyze = {
+  decompose: "我先合并重复账号，再按意向、来源、证据和时效给线索分层；分析过程只读现有线索，不改变外部客户状态。",
+  brief: { title: "线索分析确认", objective: "找出最值得优先处理的线索", scope: "当前项目组线索、来源、互动和历史触达记录", deliverable: "去重结果、意向分层、证据简报和优先级", guardrail: "不发送消息，不修改客户状态" },
+  subs: [
+    { skill: "合并去重", role: "统一账号身份和多来源记录", executor: "数据分析师", assign: "我先把同一个账号的多条来源合并，保留全部发现路径。", lines: ["正在按账号唯一键合并重复线索。", "重复记录已合并，多来源证据仍然保留。"], completion: "线索已完成去重并统一身份。" },
+    { skill: "意向评分", role: "按需求信号和时效分层", executor: "线索分析师", assign: "我会结合明确需求、互动强度和时间新鲜度解释分数。", lines: ["正在核对需求表达、互动强度和最近活跃时间。", "Hot、Warm、Low 三档已生成，每条都有可展开的评分依据。"], completion: "意向分层完成，优先级和理由已整理。" },
+    { skill: "客户简报", role: "提炼联系前必须知道的上下文", executor: "客户研究员", assign: "我把主页、作品、评论和历史触达整理成每人的联系前简报。", lines: ["正在补齐近期作品、评论和历史触达上下文。", "每条高优先级线索都绑定了切入点和证据时间。"], completion: "客户简报已完成，可以继续准备触达。" }
+  ],
+  approval: { title: "线索分析结果已准备好", body: "分析和研究是只读动作，不会发送消息。你可以查看证据，或者继续生成触达方案。", approveNote: "已确认分析结果", rejectNote: "已保留分析结果，等待调整规则" },
+  approvalRequired: false,
+  stats: [["326", "去重线索"], ["86", "有效线索"], ["42", "高意向"], ["100%", "有依据"]],
+  summary: "线索分析完成：重复账号已合并，高意向线索有分数、来源和证据，可继续进入触达准备。"
+};
+
+SCRIPTS.outreach = {
+  decompose: "我先读取已确认的线索简报，逐条生成触达理由、渠道、首句和后续计划；任何外部动作都先停在审批卡，等你确认。",
+  brief: { title: "触达准备确认", objective: "为已确认线索生成可审核的首轮触达方案", scope: "已选线索的简报、来源证据和历史触达记录", deliverable: "触达理由、渠道、消息草稿、发送时机和后续计划", guardrail: "审批前不执行；重复、拒绝和风险线索自动拦截" },
+  subs: [
+    { skill: "生成触达理由", role: "把证据转成自然的联系起点", executor: "触达策略师", assign: "我会为每条线索写清楚为什么现在联系，以及从哪条证据切入。", lines: ["正在读取每条线索的来源、需求信号和最近行为。", "每条消息都绑定了联系理由，不只替换昵称。"], completion: "触达理由已生成并绑定证据。" },
+    { skill: "风控检查", role: "拦截重复、拒绝和不可触达对象", executor: "风控专员", assign: "我先检查冷却、重复触达、勿扰和账号权限。", lines: ["正在核对历史触达、冷却时间和 Do Not Contact 状态。", "可发送、需修改和跳过的对象已分开标记。"], completion: "风控检查完成，拦截原因已清楚展示。" },
+    { skill: "准备消息草稿", role: "生成逐条个性化首句", executor: "触达策略师", assign: "我会按客户上下文生成首句和轻量 CTA，不编造价格或承诺。", lines: ["首句已按客户原始需求和业务场景生成。", "每条消息都经过敏感承诺和重复触达检查。"], completion: "首轮消息草稿已准备好，等待审批。" }
+  ],
+  approval: { title: "首轮触达方案待确认", body: "即将展示对象、渠道、触达理由、消息正文、风控结果和后续计划。确认后才会进入执行队列。", approveNote: "已通过：触达任务进入执行队列", rejectNote: "已驳回：保留草稿和拦截原因，等待修改" },
+  approvalRequired: true,
+  stats: [["42", "待触达"], ["39", "可发送"], ["2", "需修改"], ["1", "已拦截"]],
+  summary: "触达准备完成：消息、理由和风控结果已整理，等待你审批后进入执行队列。"
+};
+
+SCRIPTS.results = {
+  decompose: "我把当前项目组的找人、触达、回复和异常数据汇总成一张结果简报，并保留每个数字的来源和时间范围。",
+  brief: { title: "结果分析范围确认", objective: "看清当前销售动作的产出、异常和下一步", scope: "项目组任务、线索、触达和回复事件", deliverable: "漏斗数据、异常解释、回复摘要和下一步建议", guardrail: "只读分析，不修改线索，不执行触达" },
+  subs: [
+    { skill: "汇总漏斗", role: "统一找人、触达和回复口径", executor: "数据分析师", assign: "我先把各任务的线索、触达和回复数据统一到同一时间范围。", lines: ["正在汇总当前项目组的任务和业务事件。", "找人、触达、送达和回复漏斗已对齐。"], completion: "结果漏斗已整理完成。" },
+    { skill: "解释异常", role: "定位失败、拦截和未回复原因", executor: "数据分析师", assign: "我会把失败、不可触达和回复下降拆成可处理的原因。", lines: ["正在核对失败、风控暂停和网络不确定状态。", "异常已按影响范围排序，并标注需要人工确认的地方。"], completion: "异常原因和影响范围已整理。" },
+    { skill: "提出下一步", role: "把结果转成下一轮行动建议", executor: "幕僚长", assign: "我把数据结论转成下一轮找人、分析和触达建议。", lines: ["正在结合高意向、未回复和已回复线索制定下一步。", "下一轮建议已按优先级和停止条件整理好。"], completion: "结果简报和下一步建议已完成。" }
+  ],
+  approval: { title: "结果简报已准备好", body: "结果查看是只读动作，不会发送消息或修改客户状态。", approveNote: "已确认结果简报", rejectNote: "已保留结果简报" },
+  approvalRequired: false,
+  stats: [["326", "候选"], ["42", "高意向"], ["39", "已触达"], ["6", "已回复"]],
+  summary: "结果分析完成：当前漏斗、异常原因、回复摘要和下一步建议已整理好。"
 };
 
 function applyBusinessPrompt(base, taskText) {
@@ -546,43 +658,43 @@ function applyBusinessPrompt(base, taskText) {
   };
 }
 
-function buildTouchSubsteps(touchPlan) {
-  const simulation = buildTouchSimulation(touchPlan);
-  const count = simulation.candidates.length;
+function buildTouchSubsteps(touchPlan, { online = false } = {}) {
+  const simulation = online ? null : buildTouchSimulation(touchPlan);
+  const count = simulation?.candidates.length || 0;
   return [
     {
       skill: "找人",
       role: "按来源发现候选并保留依据",
-      executor: "本地模拟筛选",
-      assign: `我先按${touchPlan.source.label}找人，只整理公开描述里的候选，不连接账号。`,
+      executor: online ? "抖音数据连接" : "本地模拟筛选",
+      assign: online ? `我先按${touchPlan.source.label}从已授权的抖音账号建立候选池，保留来源和命中依据。` : `我先按${touchPlan.source.label}找人，只整理公开描述里的候选，不连接账号。`,
       lines: [
         `已根据${touchPlan.source.label}建立候选范围，目标是${touchPlan.audience}。`,
         `我先按${touchPlan.timeWindow}和${touchPlan.signal}筛第一批结果，重复项和无关互动不会进入名单。`,
-        `找到 ${count} 位候选，每位都保留命中原因和待核验项，下一步交给我继续筛选。`
+        online ? "候选正在由已授权账号读取，后端会返回命中原因和待核验项。" : `找到 ${count} 位候选，每位都保留命中原因和待核验项，下一步交给我继续筛选。`
       ],
-      completion: `我已找到 ${count} 位候选，来源、行为信号和待核验项都整理好了。`
+      completion: online ? "候选范围已建立，来源、行为信号和待核验项会随结果返回。" : `我已找到 ${count} 位候选，来源、行为信号和待核验项都整理好了。`
     },
     {
       skill: "筛选",
       role: "核验信号并确定优先级",
-      executor: "本地规则模拟",
-      assign: "我会按需求意向、时间范围和关系类型去重，再把证据不足的候选单独标出来。",
+      executor: online ? "线索分析服务" : "本地规则模拟",
+      assign: online ? "我会按需求意向、时间范围和关系类型去重，并把证据不足的候选单独标出来。" : "我会按需求意向、时间范围和关系类型去重，再把证据不足的候选单独标出来。",
       lines: [
         `筛选条件已应用：${touchPlan.filter}。`,
         `命中${touchPlan.intent}的候选优先保留，缺少明确渠道或需求信号的先标记待确认。`,
-        `筛选完成：${simulation.selectedCount} 位进入首触预览，其余候选不会被自动触达。`
+        online ? "筛选结果会由后端返回，未通过风控的候选不会进入触达队列。" : `筛选完成：${simulation.selectedCount} 位进入首触预览，其余候选不会被自动触达。`
       ],
-      completion: `我已完成候选筛选，${simulation.selectedCount} 位进入首触预览，未通过的候选已留在待核验区。`
+      completion: online ? "候选筛选已完成，结果和证据正在返回。" : `我已完成候选筛选，${simulation.selectedCount} 位进入首触预览，未通过的候选已留在待核验区。`
     },
     {
       skill: "生成首触",
       role: "根据命中信号生成沟通草稿",
-      executor: "本地文案模拟",
-      assign: "我会只承接候选已经表达的需求，先生成一条可审核的首触草稿。",
+      executor: online ? "触达策略服务" : "本地文案模拟",
+      assign: online ? "我会只承接候选已经表达的需求，先生成一条可审核的首触草稿。" : "我会只承接候选已经表达的需求，先生成一条可审核的首触草稿。",
       lines: [
-        `我按${touchPlan.intent}生成一条${simulation.draft.channel}草稿，不添加价格、库存或优惠承诺。`,
+        online ? `我按${touchPlan.intent}生成可审核的触达草稿，不添加价格、库存或优惠承诺。` : `我按${touchPlan.intent}生成一条${simulation.draft.channel}草稿，不添加价格、库存或优惠承诺。`,
         `草稿会解释为什么联系对方，并留一个轻量问题，不会连续追问。`,
-        `首触草稿已生成：${simulation.draft.body}`
+        online ? "草稿会绑定候选证据，发送前仍停在审批卡。" : `首触草稿已生成：${simulation.draft.body}`
       ],
       completion: "我已完成首触草稿，下一步只等你确认候选和沟通内容。"
     },
@@ -590,58 +702,63 @@ function buildTouchSubsteps(touchPlan) {
       skill: "确认触达",
       role: "展示候选与外部动作边界",
       executor: "前端审批卡",
-      assign: "我把候选、命中依据和首触草稿放到审批卡里，你确认后才会推进本地模拟触达。",
+      assign: online ? "我把候选、命中依据和首触草稿放到审批卡里，你确认后才会推进已授权账号的真实触达。" : "我把候选、命中依据和首触草稿放到审批卡里，你确认后才会推进本地模拟触达。",
       lines: [
-        `当前候选：${simulation.candidates.map((candidate) => candidate.name).join("、")}。`,
+        online ? "当前候选、来源证据和草稿将由后端返回到审批卡。" : `当前候选：${simulation.candidates.map((candidate) => candidate.name).join("、")}。`,
         `下一步动作：${touchPlan.action}。`,
-        "审批前不会发送任何消息；确认后只展示本地模拟结果和跟进建议。"
+        online ? "审批前不会发送任何消息；确认后才允许已授权账号进入执行队列。" : "审批前不会发送任何消息；确认后只展示本地模拟结果和跟进建议。"
       ],
-      completion: `我已准备好候选和${simulation.draft.title}，等待你确认 ${simulation.selectedCount} 位对象。`
+      completion: online ? "候选和触达草稿已准备好，等待你确认后执行。" : `我已准备好候选和${simulation.draft.title}，等待你确认 ${simulation.selectedCount} 位对象。`
     }
   ];
 }
 
-function applyTouchAudiencePlan(base, taskText) {
+function applyTouchAudiencePlan(base, taskText, { online = false } = {}) {
   const touchPlan = parseTouchRequest(taskText);
   if (!touchPlan) return base;
-  const simulation = buildTouchSimulation(touchPlan);
-  const waitingCount = simulation.outcomes.filter((item) => item.status === "等待回复").length;
-  const repliedCount = simulation.outcomes.filter((item) => item.status === "已回复").length;
-  const humanCount = simulation.outcomes.filter((item) => item.status === "待人工确认").length;
+  const simulation = online ? null : buildTouchSimulation(touchPlan);
+  const waitingCount = simulation?.outcomes.filter((item) => item.status === "等待回复").length || 0;
+  const repliedCount = simulation?.outcomes.filter((item) => item.status === "已回复").length || 0;
+  const humanCount = simulation?.outcomes.filter((item) => item.status === "待人工确认").length || 0;
   const missingNote = touchPlan.missing.length
     ? `还缺少：${touchPlan.missing.join("、")}。`
     : "关键信息已识别，可以先看候选和触达草稿。";
   return {
     ...base,
     touchPlan,
-    subs: buildTouchSubsteps(touchPlan),
-    decompose: `我先把这次触达拆成来源、人群、行为信号、筛选条件和时间范围，再给你看一小组候选。${missingNote}整个过程先用本地模拟数据展示，不连接账号，也不会真的发消息。`,
+    subs: buildTouchSubsteps(touchPlan, { online }),
+    decompose: online
+      ? `我先把这次触达拆成来源、人群、行为信号、筛选条件和时间范围，再从已授权账号读取结果。${missingNote}外部消息仍会停在审批卡，未确认前不会发送。`
+      : `我先把这次触达拆成来源、人群、行为信号、筛选条件和时间范围，再给你看一小组候选。${missingNote}整个过程先用本地模拟数据展示，不连接账号，也不会真的发消息。`,
     brief: {
       title: "触达目标确认",
       objective: `找到${touchPlan.audience}，依据${touchPlan.signal}筛出值得优先处理的人`,
       scope: `来源：${touchPlan.source.label}；时间：${touchPlan.timeWindow}；关系：${touchPlan.relationship}`,
-      deliverable: "候选预览、筛选依据、首触草稿和模拟触达结果",
-      guardrail: `只展示前端模拟，不连接账号、不发送消息、不修改客户记录。${missingNote}`,
+      deliverable: online ? "候选结果、筛选依据、首触草稿和执行结果" : "候选预览、筛选依据、首触草稿和模拟触达结果",
+      guardrail: online ? `只使用已授权账号和公开数据；发送前必须审批。${missingNote}` : `只展示前端模拟，不连接账号、不发送消息、不修改客户记录。${missingNote}`,
       touchPlan
     },
     approval: {
-      title: "模拟触达预览",
-      body: `将按「${touchPlan.audience}」和「${touchPlan.filter}」展示候选，并生成对应的首触草稿。确认后只推进本地演示状态，不会发送任何外部消息。`,
-      approveNote: "已确认：前端模拟触达完成，结果已整理在当前任务中",
+      title: online ? "首轮触达方案预览" : "模拟触达预览",
+      body: online ? `将按「${touchPlan.audience}」和「${touchPlan.filter}」返回真实候选和首触草稿。确认后才会进入已授权账号的执行队列。` : `将按「${touchPlan.audience}」和「${touchPlan.filter}」展示候选，并生成对应的首触草稿。确认后只推进本地演示状态，不会发送任何外部消息。`,
+      approveNote: online ? "已确认：触达任务进入已授权账号的执行队列" : "已确认：前端模拟触达完成，结果已整理在当前任务中",
       rejectNote: "已暂缓：候选和筛选条件保留，可继续修改目标"
     },
-    stats: [[String(simulation.candidates.length), "找到候选"], [String(simulation.selectedCount), "首触草稿"], [String(repliedCount), "模拟回复"], [String(waitingCount + humanCount), "后续跟进"]],
-    summary: `已完成${touchPlan.source.label}的找人、筛选和模拟触达：${simulation.candidates.length} 位候选，${simulation.selectedCount} 位进入首触，${repliedCount} 位模拟回复，${waitingCount + humanCount} 位进入后续跟进。`
+    stats: online ? [] : [[String(simulation.candidates.length), "找到候选"], [String(simulation.selectedCount), "首触草稿"], [String(repliedCount), "模拟回复"], [String(waitingCount + humanCount), "后续跟进"]],
+    summary: online ? `已完成${touchPlan.source.label}的候选与触达准备，等待后端结果和你的审批。` : `已完成${touchPlan.source.label}的找人、筛选和模拟触达：${simulation.candidates.length} 位候选，${simulation.selectedCount} 位进入首触，${repliedCount} 位模拟回复，${waitingCount + humanCount} 位进入后续跟进。`
   };
 }
 
-export function getDialogueScript(scriptKey, taskText = "") {
-  return applyTouchAudiencePlan(applyBusinessPrompt(SCRIPTS[scriptKey] || SCRIPTS.generic, taskText), taskText);
+export function getDialogueScript(scriptKey, taskText = "", options = {}) {
+  const base = applyBusinessPrompt(SCRIPTS[scriptKey] || SCRIPTS.generic, taskText);
+  return ["find", "analyze", "results"].includes(scriptKey)
+    ? base
+    : applyTouchAudiencePlan(base, taskText, options);
 }
 
-export function getDialogueRuntimeDefinition(scriptKey, taskText = "") {
+export function getDialogueRuntimeDefinition(scriptKey, taskText = "", options = {}) {
   const key = SCRIPTS[scriptKey] ? scriptKey : "generic";
-  const script = getDialogueScript(key, taskText);
+  const script = getDialogueScript(key, taskText, options);
   const business = key === "generic" ? resolveBusinessPrompt(taskText) : null;
   const agent = {
     ...SCENARIO_AGENTS[key],
@@ -663,6 +780,32 @@ export function getDialogueRuntimeDefinition(scriptKey, taskText = "") {
 
 export function getDialogueBrief(scriptKey, taskText = "") {
   return getDialogueScript(scriptKey, taskText).brief;
+}
+
+/** Project an authoritative server proposal into the requirement card shape. */
+export function requirementBriefFromProposal(proposal) {
+  if (!proposal || typeof proposal !== "object" || Array.isArray(proposal)) {
+    throw new TypeError("A server requirement proposal is required");
+  }
+  const required = ["title", "objective", "scope", "deliverable", "guardrail"];
+  const missing = required.filter((key) => typeof proposal[key] !== "string" || !proposal[key].trim());
+  if (missing.length) throw new TypeError(`Server requirement proposal is missing: ${missing.join(", ")}`);
+  const version = proposal.proposalVersion ?? proposal.version ?? proposal.schemaVersion ?? 1;
+  if (!Number.isInteger(Number(version)) || Number(version) < 1) throw new TypeError("Server requirement proposal version is invalid");
+  return {
+    title: proposal.title,
+    objective: proposal.objective,
+    scope: proposal.scope,
+    deliverable: proposal.deliverable,
+    guardrail: proposal.guardrail,
+    ...(proposal.touchPlan && typeof proposal.touchPlan === "object" ? { touchPlan: proposal.touchPlan } : {}),
+    ...(proposal.source ? { source: proposal.source } : {}),
+    proposalVersion: Number(version)
+  };
+}
+
+export function requirementNeedsAccountAccess(proposal, goal = "") {
+  return requirementRequiresExternalAccess(proposal, { goal });
 }
 
 export function getSubCompletionMessage(scriptKey, index, taskText = "") {
@@ -737,9 +880,9 @@ const ARTIFACTS = {
 
 > 禁止编造价格、库存、优惠；客户未回复不重复发送。` },
     { atSub: 3, name: "高意向会话跟进记录.csv", type: "sheet", content: `客户,当前状态,客户回复摘要,下一步,负责人
-上海阿杰,SALES_QUALIFIED,周六下午可以到店,确认门店与试驾车型,销售顾问
-小鹿要换车,ENGAGED,想看两款车落地价差,补充城市与预算,销售顾问
-老周在杭州,CONTACT_READY,询问置换评估需要的资料,客户主动留资后转人工,销售顾问
+上海阿杰,SALES_QUALIFIED,周六下午可以到店,确认门店与试驾车型,触达策略师
+小鹿要换车,ENGAGED,想看两款车落地价差,补充城市与预算,触达策略师
+老周在杭州,CONTACT_READY,询问置换评估需要的资料,客户主动留资后转人工,触达策略师
 橘子汽水,WAITING_CUSTOMER,已读未回,不重复触达,线索猎人
 投诉客户,HUMAN_TAKEOVER,要求人工处理价格问题,停止自动回复并交接上下文,人工` },
     { atSub: null, name: "线索猎人运行总结-抖音买车.md", type: "doc", createdByChief: true, content: `# 线索猎人运行总结
@@ -857,9 +1000,9 @@ const ARTIFACTS = {
 
 ## 分工
 - 线索猎人：名单与补全
-- 数据分析师：评分与优先级
+- 线索分析师：评分与优先级
 - 内容策划：话术与物料
-- 销售顾问：触达执行与反馈回流
+- 触达策略师：触达执行与反馈回流
 
 ## 风险与卡点
 - 对外表述需审批后方可使用（本次卡点）
@@ -894,13 +1037,253 @@ const ARTIFACTS = {
 
 function memberName(teamLive, type, fallback) {
   const raw = teamLive?.getProfiles?.().get(type)?.identity?.name || fallback;
+  const visible = displayAgentName({ agentType: type, name: raw });
   // 档案名可能自带品牌前缀（如「SaleBuddy · 幕僚长」），消息署名会再加一次品牌名，这里剥掉
-  return raw.replace(/^(?:SaleBuddy|Marvis|Byering)\s*[·\-—]\s*/i, "") || fallback;
+  return visible.replace(/^(?:SaleBuddy|Marvis|Byering)\s*[·\-—]\s*/i, "") || fallback;
 }
 
 /* ═══════════ 引擎：任务状态机 + 事件流（模块级，与视图生命周期解耦） ═══════════ */
 
 const RUNS = new Map(); // taskId -> engine
+
+function remoteTaskIdFor(engine) {
+  // The local task-store id is only a UI projection key. Once a task is
+  // online, every command and event must use the authoritative server id.
+  return engine?.remoteTaskId || null;
+}
+
+export function isRemoteTaskNotFound(error) {
+  const candidates = [
+    error?.code,
+    error?.message,
+    error?.cause?.code,
+    error?.cause?.message,
+    error?.cause?.details?.error?.code,
+    error?.details?.error?.code
+  ];
+  return candidates.some((value) => /TASK_NOT_FOUND|TASK\s+NOT\s+FOUND/i.test(String(value || "")));
+}
+
+function commandTaskIdFor(engine) {
+  return engine?.online ? remoteTaskIdFor(engine) : (engine?.taskId || null);
+}
+
+/** Clear a lost server task identity without deleting the local audit trail. */
+function resetRemoteTaskIdentity(engine) {
+  engine.remoteTaskStale = false;
+  engine.remoteTaskId = null;
+  engine.remoteRunId = null;
+  engine.remoteConversationId = null;
+  engine.remoteTaskVersion = null;
+  engine.remoteTaskSeq = null;
+  engine.remoteTaskCreated = false;
+  engine.remoteTaskProvisioning = false;
+  engine.remoteTaskPromise = null;
+  engine.remoteRunStarted = false;
+  engine.remoteUnsubscribe?.();
+  engine.remoteUnsubscribe = null;
+  if (typeof engine.remoteTaskSubscription === "function") engine.remoteTaskSubscription();
+  engine.remoteTaskSubscription = null;
+  engine.remoteAdapter = null;
+  engine.requirementProposal = null;
+  engine.requirementRequested = false;
+  engine.forceRequirementRefresh = true;
+  engine.accessStage = "requirement";
+  engine.paused = false;
+  engine.cancelled = false;
+  engine.approvalShown = false;
+  engine.approvalPending = false;
+  engine.decision = null;
+  engine.touchSelection = null;
+  engine.engineInitialized = false;
+
+  const view = engine.viewState;
+  if (view) {
+    const removeCard = (key) => {
+      const card = view.av?.[key] || view.pv?.[key];
+      card?.closest?.(".sb-msg")?.remove();
+      if (view.av && key in view.av) view.av[key] = null;
+      if (view.pv && key in view.pv) view.pv[key] = null;
+    };
+    ["requirementCard", "assignmentCard", "authCard", "scopeCard"].forEach(removeCard);
+    ["approvalBox", "recoveryCard"].forEach(removeCard);
+    if (view.av) {
+      view.av.requirementTag = null;
+      view.av.requirementButton = null;
+      view.av.requirementEditButton = null;
+      view.av.requirementActions = null;
+      view.av.authTag = null;
+      view.av.authButton = null;
+      view.av.authActions = null;
+      view.av.scopeTag = null;
+      view.av.scopeButton = null;
+    }
+    if (view.pv) {
+      view.pv.approvalBtns = null;
+      view.pv.progressFiles = null;
+      view.pv.resultFiles = null;
+    }
+  }
+  syncTask(engine, { status: "progress", preview: "服务端任务已失效，等待重新建立任务…" });
+}
+
+function remoteAckSources(ack) {
+  return [ack, ack?.data, ack?.data?.data].filter((source) => source && typeof source === "object" && !Array.isArray(source));
+}
+
+function remoteAckField(ack, fields) {
+  for (const source of remoteAckSources(ack)) {
+    for (const field of fields) {
+      if (source[field] != null && source[field] !== "") return source[field];
+    }
+  }
+  return null;
+}
+
+function remoteAckInteger(ack, fields) {
+  const value = remoteAckField(ack, fields);
+  const number = Number(value);
+  return Number.isInteger(number) ? number : null;
+}
+
+export function remoteCommand(engine, type, payload = {}) {
+  if (!engine.online || !engine.commandClient) return Promise.resolve(null);
+  if (!engine.remoteTaskId) {
+    const error = new Error("服务端任务身份已失效，请重新建立任务");
+    error.code = "REMOTE_TASK_ID_MISSING";
+    return Promise.reject(error);
+  }
+  const ready = engine.remoteTaskPromise || Promise.resolve();
+  return ready.then(() => engine.commandClient.send(type, {
+    taskId: engine.remoteTaskId,
+    taskRunId: engine.remoteRunId,
+    conversationId: engine.remoteConversationId,
+    expectedVersion: Number.isInteger(engine.remoteTaskVersion) ? engine.remoteTaskVersion : undefined,
+    payload
+  })).then((ack) => {
+    const taskId = remoteAckField(ack, ["taskId", "task_id"]);
+    const taskRunId = remoteAckField(ack, ["taskRunId", "task_run_id", "runId", "run_id"]);
+    const conversationId = remoteAckField(ack, ["conversationId", "conversation_id"]);
+    const currentVersion = remoteAckInteger(ack, ["currentVersion", "current_version", "version"]);
+    const currentSeq = remoteAckInteger(ack, ["currentSeq", "current_seq", "seq"]);
+    if (taskId) engine.remoteTaskId = taskId;
+    if (taskRunId) engine.remoteRunId = taskRunId;
+    if (conversationId) engine.remoteConversationId = conversationId;
+    if (currentVersion != null) engine.remoteTaskVersion = currentVersion;
+    if (currentSeq != null) engine.remoteTaskSeq = currentSeq;
+    return ack;
+  });
+}
+
+function requirementProposalFromAck(ack) {
+  return ack?.data?.requirement
+    || ack?.data?.data?.requirement
+    || ack?.requirement
+    || ack?.data?.requirementProposal
+    || null;
+}
+
+function requirementProposalFromEvents(events = []) {
+  return [...events].reverse().find((event) => event.t === "requirement-proposed")?.proposal || null;
+}
+
+export function hasOnlineExecutionTransport(engine = {}) {
+  return Boolean(
+    engine?.online
+    && typeof engine?.gateway?.on === "function"
+    && (
+      engine?.gateway?.executionReady === true
+      || typeof engine?.gateway?.nativeGateway?.run === "function"
+      || typeof engine?.gateway?.run === "function" && engine?.gateway?.controlPlane == null
+    )
+  );
+}
+
+function emitRemoteRequirement(engine, proposal) {
+  if (!proposal) {
+    emit(engine, {
+      t: "task-error",
+      text: "服务端没有返回结构化需求理解，任务已停止。请检查我的服务配置后重试。",
+      errorCode: "REQUIREMENT_PROPOSAL_MISSING",
+      retryable: true
+    });
+    return false;
+  }
+  let brief;
+  try {
+    brief = requirementBriefFromProposal(proposal);
+  } catch (error) {
+    emit(engine, {
+      t: "task-error",
+      text: `服务端需求理解格式无效：${error.message}`,
+      errorCode: "INVALID_REQUIREMENT_PROPOSAL",
+      retryable: true
+    });
+    return false;
+  }
+  engine.requirementProposal = proposal;
+  if (!engine.runtime.events.some((event) => event.t === "user")) emit(engine, { t: "user", text: engine.taskText, online: true });
+  if (!engine.runtime.events.some((event) => event.t === "chief" && event.source === "model")) {
+    emit(engine, {
+      t: "chief",
+      text: `我已根据你的目标形成一份可执行理解：${brief.objective}。请核对数据范围、交付结果和停止边界，确认后我才会安排执行。`,
+      source: "model",
+      proposalVersion: brief.proposalVersion
+    });
+  }
+  const refreshRequirement = engine.forceRequirementRefresh === true;
+  if (refreshRequirement || !engine.runtime.events.some((event) => event.t === "requirement-proposed")) {
+    emit(engine, { t: "requirement-proposed", proposal, brief, source: proposal.source || "model" });
+  }
+  if (refreshRequirement) {
+    emit(engine, {
+      t: "requirement-edited",
+      taskText: engine.taskText,
+      proposal,
+      brief,
+      text: "服务端任务已重新建立，请再次确认这份需求理解。"
+    });
+    engine.forceRequirementRefresh = false;
+  } else if (!engine.runtime.events.some((event) => event.t === "requirement-required")) {
+    syncTask(engine, { status: "progress", preview: "我已经理解了你的需求，等你确认…" });
+    emit(engine, {
+      t: "requirement-required",
+      taskText: engine.taskText,
+      brief,
+      proposal,
+      text: "请确认我对任务目标、数据范围、交付结果和停止边界的理解。"
+    });
+  }
+  return true;
+}
+
+function requestRemoteRequirement(engine) {
+  if (engine.requirementRequested) return;
+  engine.requirementRequested = true;
+  if (engine.requirementProposal) {
+    emitRemoteRequirement(engine, engine.requirementProposal);
+    return;
+  }
+  remoteCommand(engine, COMMAND_TYPES.REQUIREMENT_REQUEST, {
+    goal: engine.taskText,
+    taskText: engine.taskText,
+    projectId: engine.projectId || null,
+    projectName: engine.projectName || null,
+    scenario: engine.scriptKey
+  }).then((ack) => {
+    const proposal = requirementProposalFromAck(ack);
+    if (!proposal) throw new Error("服务端未返回需求提案");
+    emitRemoteRequirement(engine, proposal);
+  }).catch((error) => {
+    engine.requirementRequested = false;
+    emit(engine, {
+      t: "task-error",
+      text: `需求理解未完成：${error?.message || "服务端连接异常"}`,
+      errorCode: error?.code || "REQUIREMENT_REQUEST_FAILED",
+      retryable: true
+    });
+  });
+}
 
 export function getTaskRuntimeSnapshot(taskId) {
   const engine = taskId ? RUNS.get(taskId) : null;
@@ -925,7 +1308,11 @@ function emit(engine, event) {
     ...event
   });
   syncTask(engine, {});
-  const activityAgents = [event.agentType, event.agentName].filter(Boolean);
+  const activityAgents = [
+    event.agentType,
+    event.agentName,
+    event.t === "account-resolved" ? "acquisition_strategist" : null
+  ].filter(Boolean);
   if (["user", "chief", "run-started", "progress-start", "requirement-required", "requirement-confirmed", "assignment-plan"].includes(event.t)) activityAgents.push("main");
   for (const activityAgent of new Set(activityAgents)) {
     // An unrelated message must not clear the employee's last meaningful status.
@@ -941,8 +1328,24 @@ function emit(engine, event) {
 function syncTask(engine, patch) {
   if (!engine.taskId) return;
   const snapshot = engine.runtime?.snapshot;
+  const interactionTaskState = snapshot?.interaction?.taskState;
+  const runtimeStatus = {
+    WAITING_APPROVAL: "approval",
+    PAUSED: "blocked",
+    BLOCKED: "blocked",
+    FAILED: "failed",
+    SUCCEEDED: "done",
+    CANCELLED: "blocked"
+  }[interactionTaskState] || null;
   updateTask(engine.taskId, {
     ...patch,
+    remoteTaskId: engine.remoteTaskId || null,
+    remoteTaskRunId: engine.remoteRunId || null,
+    remoteConversationId: engine.remoteConversationId || null,
+    remoteTaskVersion: Number.isInteger(engine.remoteTaskVersion) ? engine.remoteTaskVersion : null,
+    remoteTaskSeq: Number.isInteger(engine.remoteTaskSeq) ? engine.remoteTaskSeq : null,
+    browserSessionId: engine.browserSessionId || null,
+    ...(patch.status === undefined && runtimeStatus ? { status: runtimeStatus } : {}),
     runtimeState: snapshot?.taskState || null,
     runtimeProgress: snapshot?.progress || 0,
     runtimeAgentId: engine.runtime?.agentRun?.agentId || null,
@@ -951,12 +1354,18 @@ function syncTask(engine, patch) {
     activeSkillName: snapshot?.activeSkill?.skill || null,
     runtimeEventSequence: engine.runtime?.events?.length || 0,
     runtimeEvents: engine.runtime?.events || [],
-    runtimeSnapshot: snapshot || null
+    runtimeSnapshot: snapshot || null,
+    runtimeInteraction: snapshot?.interaction || null,
+    ...(snapshot?.resultSnapshot ? { resultSnapshot: snapshot.resultSnapshot } : {}),
+    ...(Array.isArray(snapshot?.artifacts) ? { artifacts: snapshot.artifacts } : {})
   });
 }
 
 function resultSnapshotFor(engine, event = {}) {
-  const supplied = event.resultSnapshot || event.result || event.data?.resultSnapshot;
+  const supplied = event.resultSnapshot
+    || event.result
+    || event.data?.resultSnapshot
+    || engine.runtime?.snapshot?.resultSnapshot;
   if (supplied && typeof supplied === "object") {
     return { schemaVersion: 1, source: supplied.source || (engine.online ? "gateway" : "runtime"), ...supplied };
   }
@@ -987,6 +1396,44 @@ function resultSnapshotFor(engine, event = {}) {
     completedAt: new Date().toISOString(),
     metrics,
     summary: event.text || engine.script?.summary || "任务已完成"
+  };
+}
+
+function numericResultCount(snapshot, keys = [], labelPattern = null) {
+  if (!snapshot || typeof snapshot !== "object") return null;
+  const sources = [snapshot, snapshot.counts, snapshot.summary].filter((value) => value && typeof value === "object");
+  for (const source of sources) {
+    for (const key of keys) {
+      const value = source[key];
+      if (Number.isFinite(Number(value))) return Number(value);
+      if (Array.isArray(value)) return value.length;
+    }
+  }
+  if (labelPattern && Array.isArray(snapshot.metrics)) {
+    const metric = snapshot.metrics.find((item) => labelPattern.test(String(item?.key || "")) || labelPattern.test(String(item?.label || "")));
+    const value = metric?.value ?? metric?.count ?? metric?.displayValue;
+    if (Number.isFinite(Number(value))) return Number(value);
+  }
+  return null;
+}
+
+function resultCountsFor(snapshot) {
+  return {
+    leads: numericResultCount(
+      snapshot,
+      ["leads", "leadCount", "candidateCount", "candidates", "qualifiedCount"],
+      /lead|候选|线索|qualified|candidate/i
+    ),
+    outreach: numericResultCount(
+      snapshot,
+      ["outreach", "outreachCount", "sentCount", "touchCount", "scheduledCount"],
+      /outreach|触达|发送|首触|scheduled|sent/i
+    ),
+    replies: numericResultCount(
+      snapshot,
+      ["replies", "replyCount", "repliedCount"],
+      /reply|回复|replied/i
+    )
   };
 }
 
@@ -1049,32 +1496,77 @@ function recordSubCost(engine, i) {
   }
 }
 
-/** Simulate the external authorization handshake after requirement and assignment gates. */
+/** Start the account-scoped browser workspace after requirement and assignment gates. */
 function beginAccessAuthorization(engine) {
   if (engine.accessStage !== "required") return;
-  engine.accessStage = "authorizing";
-  emit(engine, {
-    t: "auth-started",
-    provider: engine.accessSetup.provider,
-    account: engine.accessSetup.account,
-    text: `正在打开${engine.accessSetup.provider}授权页，等待用户确认。`
-  });
+  const apply = () => {
+    engine.accessStage = "authorizing";
+    emit(engine, {
+      t: "auth-started",
+      provider: engine.accessSetup.provider,
+      account: engine.accessSetup.account,
+      text: `正在打开${engine.accessSetup.provider}授权页，等待用户确认。`
+    });
+  };
+  if (engine.online && engine.commandClient) {
+    remoteCommand(engine, COMMAND_TYPES.ACCESS_REQUEST, {
+      authorizationStarted: true,
+      provider: engine.accessSetup.provider,
+      account: engine.accessSetup.account,
+      scopes: engine.accessSetup.scopes
+    }).then(() => {
+      // The server event remains the source of truth. The scoped view handler
+      // opens the browser workspace after auth-started arrives; this command
+      // callback must not call view-only helpers outside that scope.
+      engine.accessStage = "authorizing";
+      syncTask(engine, { status: "progress", preview: "授权请求已送达，等待真实浏览器工作区打开…" });
+    }).catch((error) => emit(engine, {
+      t: "task-error",
+      text: `授权请求未送达：${error?.message || "连接异常"}`,
+      errorCode: "ACCESS_REQUEST_FAILED",
+      retryable: true
+    }));
+    return;
+  }
+  apply();
 }
 
-/** The cloud window calls this only after the user completes the simulated OAuth flow. */
+/** The browser workspace calls this only after the backend verifies a real login session. */
 function completeAccessAuthorization(engine) {
   if (engine.accessStage !== "authorizing") return;
+  if (engine.online && engine.commandClient) {
+    // Browser login is a real server-side fact. Report it to the control
+    // plane and wait for ACCESS_GRANTED before rendering the scope gate.
+    remoteCommand(engine, COMMAND_TYPES.ACCESS_REQUEST, {
+      authorizationConfirmed: true,
+      provider: engine.accessSetup.provider,
+      account: engine.accessSetup.account,
+      browserSessionId: engine.browserSessionId || null,
+      scopes: engine.accessSetup.scopes
+    }).then(() => {
+      engine.accessStage = "awaiting-server-scope";
+      syncTask(engine, { status: "progress", preview: "抖音登录已由后端核验，等待返回访问范围…" });
+    }).catch((error) => emit(engine, {
+      t: "task-error",
+      text: `登录核验结果未送达：${error?.message || "连接异常"}`,
+      errorCode: error?.code || "ACCESS_AUTHORIZATION_CONFIRM_FAILED",
+      retryable: true
+    }));
+    return;
+  }
   engine.accessStage = "scope";
   emit(engine, {
     t: "auth-granted",
     provider: engine.accessSetup.provider,
     account: engine.accessSetup.account,
+    browserSessionId: engine.browserSessionId || null,
     text: `已完成${engine.accessSetup.provider}登录，尚未开始读取数据。`
   });
   emit(engine, {
     t: "scope-required",
     provider: engine.accessSetup.provider,
     account: engine.accessSetup.account,
+    browserSessionId: engine.browserSessionId || null,
     scopes: engine.accessSetup.scopes,
     text: "请选择本次任务允许读取和执行的范围。"
   });
@@ -1082,31 +1574,81 @@ function completeAccessAuthorization(engine) {
 
 function cancelAccessAuthorization(engine, reason = "cancelled") {
   if (engine.accessStage !== "authorizing") return;
-  engine.accessStage = "required";
-  syncTask(engine, { status: "progress", preview: `等待${engine.accessSetup.provider}授权…` });
-  emit(engine, {
-    t: "auth-cancelled",
-    provider: engine.accessSetup.provider,
-    account: engine.accessSetup.account,
-    reason,
-    text: `云电脑授权未完成（${reason === "denied" ? "用户拒绝授权" : "窗口已关闭"}），任务保持暂停。`
-  });
+  const apply = () => {
+    const sessionId = engine.browserSessionId;
+    if (sessionId && engine.gateway?.browserSessionClose) {
+      engine.gateway.browserSessionClose(sessionId).catch(() => {});
+      engine.browserSessionId = null;
+    }
+    engine.accessStage = "required";
+    syncTask(engine, { status: "progress", preview: `等待${engine.accessSetup.provider}授权…` });
+    emit(engine, {
+      t: "auth-cancelled",
+      provider: engine.accessSetup.provider,
+      account: engine.accessSetup.account,
+      reason,
+      text: `云电脑授权未完成（${reason === "denied" ? "用户拒绝授权" : "窗口已关闭"}），任务保持暂停。`
+    });
+  };
+  if (engine.online && engine.commandClient) {
+    remoteCommand(engine, COMMAND_TYPES.ACCESS_CANCEL, { reason }).then(() => {
+      engine.accessStage = "awaiting-server-cancel";
+    }).catch((error) => emit(engine, {
+      t: "task-error",
+      text: `取消授权未送达：${error?.message || "连接异常"}`,
+      errorCode: "ACCESS_CANCEL_FAILED",
+      retryable: true
+    }));
+    return;
+  }
+  apply();
+}
+
+function applyAuthoritativeAccessSetup(engine, event = {}) {
+  if (!engine.online || !event || typeof event !== "object") return;
+  const scopes = Array.isArray(event.scopes) ? event.scopes.filter(Boolean) : null;
+  engine.accessSetup = {
+    ...engine.accessSetup,
+    ...(event.provider ? { provider: event.provider } : {}),
+    ...(event.account ? { account: event.account } : {}),
+    ...(scopes ? { scopes } : {})
+  };
 }
 
 /** Confirm the least-privilege scope, then release the precomputed execution timeline. */
 function confirmAccessScope(engine) {
   if (engine.accessStage !== "scope") return;
-  engine.accessStage = "ready";
-  emit(engine, {
-    t: "scope-confirmed",
-    provider: engine.accessSetup.provider,
-    account: engine.accessSetup.account,
-    scopes: engine.accessSetup.scopes,
-    text: "授权范围已确认，任务可以按已确认的需求和分工开始。"
-  });
-  syncTask(engine, { status: "progress", preview: "访问范围已确认，幕僚长正在建立任务会话…" });
-  const id = setTimeout(() => engine.scheduleTimeline?.(), Math.round(420 * DEMO_PACING));
-  engine.timers.push(id);
+  const apply = () => {
+    engine.accessStage = "ready";
+    emit(engine, {
+      t: "scope-confirmed",
+      provider: engine.accessSetup.provider,
+      account: engine.accessSetup.account,
+      scopes: engine.accessSetup.scopes,
+      text: "授权范围已确认，任务可以按已确认的需求和分工开始。"
+    });
+    syncTask(engine, { status: "progress", preview: "访问范围已确认，我正在建立任务会话…" });
+    const id = setTimeout(() => engine.scheduleTimeline?.(), Math.round(420 * DEMO_PACING));
+    engine.timers.push(id);
+  };
+  if (engine.online && engine.commandClient) {
+    remoteCommand(engine, COMMAND_TYPES.ACCESS_GRANT, {
+      provider: engine.accessSetup.provider,
+      account: engine.accessSetup.account,
+      browserSessionId: engine.browserSessionId || null,
+      scopes: engine.accessSetup.scopes
+    }).then(() => {
+      engine.accessStage = "awaiting-server-run";
+      syncTask(engine, { status: "progress", preview: "访问范围确认已送达，等待服务端释放执行…" });
+    }).catch((error) => emit(engine, {
+      t: "task-error",
+      text: `授权范围确认未送达：${error?.message || "连接异常"}`,
+      errorCode: "ACCESS_SCOPE_CONFIRM_FAILED",
+      retryable: true
+    }));
+    return;
+  }
+  apply();
 }
 
 /** Only a deliberate user action may release the requirement gate. */
@@ -1118,44 +1660,349 @@ export function isExplicitUserRequirementConfirmation(confirmation = {}) {
 function confirmRequirement(engine, confirmation = {}) {
   if (engine.accessStage !== "requirement") return;
   if (!isExplicitUserRequirementConfirmation(confirmation)) return;
-  engine.accessStage = "required";
-  emit(engine, {
-    t: "requirement-confirmed",
-    taskText: engine.taskText,
-    brief: engine.script.brief,
-    confirmation: {
-      actor: "user",
-      action: "confirm",
-      channel: confirmation.channel || "requirement-card",
-      confirmedAt: new Date().toISOString()
-    },
-    text: "需求已确认。幕僚长先按目标拆解技能和责任 Agent，再申请本次任务所需账号授权。"
-  });
-  emit(engine, {
-    t: "assignment-plan",
-    protocolType: "ASSIGNMENT_PROPOSED",
-    assignments: buildAssignmentPlan({ script: engine.script, runtimeDefinition: engine.runtimeDefinition, projectMembers: engine.projectMembers }),
-    text: "任务已拆解，以下责任 Agent 将按顺序执行；确认账号后才会读取业务数据。"
-  });
-  syncTask(engine, { status: "progress", preview: `需求已确认，等待${engine.accessSetup.provider}授权…` });
-  const id = setTimeout(() => {
-    if (engine.accessStage !== "required") return;
-    if (engine.runtime.events.some((event) => event.t === "auth-required")) return;
+  if (engine.online && !engine.requirementProposal) {
     emit(engine, {
-      t: "auth-required",
+      t: "task-error",
+      text: "服务端需求理解尚未完成，不能使用本地模板确认。请重试需求理解。",
+      errorCode: "REQUIREMENT_PROPOSAL_REQUIRED",
+      retryable: true
+    });
+    return;
+  }
+  const confirmedBrief = engine.online
+    ? requirementBriefFromProposal(engine.requirementProposal)
+    : engine.script.brief;
+  const apply = () => {
+    engine.accessStage = "required";
+    emit(engine, {
+      t: "requirement-confirmed",
+      taskText: engine.taskText,
+      brief: confirmedBrief,
+      proposal: engine.requirementProposal || null,
+      proposalVersion: confirmedBrief.proposalVersion || null,
+      confirmation: {
+        actor: "user",
+        action: "confirm",
+        channel: confirmation.channel || "requirement-card",
+        confirmedAt: new Date().toISOString()
+      },
+      text: "需求已确认。我先按目标拆解技能和责任 Agent，再申请本次任务所需账号授权。"
+    });
+    emit(engine, {
+      t: "assignment-plan",
+      protocolType: "ASSIGNMENT_PROPOSED",
+      assignments: buildAssignmentPlan({ script: engine.script, runtimeDefinition: engine.runtimeDefinition, projectMembers: engine.projectMembers }),
+      text: "任务已拆解，以下责任 Agent 将按顺序执行；确认账号后才会读取业务数据。"
+    });
+    syncTask(engine, { status: "progress", preview: `需求已确认，等待${engine.accessSetup.provider}授权…` });
+    const id = setTimeout(() => {
+      if (engine.accessStage !== "required") return;
+      if (engine.runtime.events.some((event) => event.t === "auth-required")) return;
+      emit(engine, {
+        t: "auth-required",
+        provider: engine.accessSetup.provider,
+        account: engine.accessSetup.account,
+        scopes: engine.accessSetup.scopes,
+        text: `责任 Agent 已安排完成。现在需要连接${engine.accessSetup.provider}，任务仍未读取或发送任何数据。`
+      });
+    }, Math.round(520 * DEMO_PACING));
+    engine.timers.push(id);
+  };
+  if (engine.online && engine.commandClient) {
+    remoteCommand(engine, COMMAND_TYPES.REQUIREMENT_CONFIRM, {
+      requiresAccess: requirementNeedsAccountAccess(engine.requirementProposal, engine.taskText),
+      taskText: engine.taskText,
       provider: engine.accessSetup.provider,
       account: engine.accessSetup.account,
       scopes: engine.accessSetup.scopes,
-      text: `责任 Agent 已安排完成。现在需要连接${engine.accessSetup.provider}，任务仍未读取或发送任何数据。`
-    });
-  }, Math.round(520 * DEMO_PACING));
-  engine.timers.push(id);
+      proposalVersion: engine.requirementProposal?.proposalVersion || engine.requirementProposal?.version || engine.requirementProposal?.schemaVersion || 1,
+      proposal: engine.requirementProposal || null,
+      confirmation: { actor: "user", action: "confirm", channel: confirmation.channel || "requirement-card" }
+    }).then((ack) => {
+      const currentVersion = ack?.data?.currentVersion ?? ack?.currentVersion;
+      if (Number.isInteger(currentVersion)) engine.remoteTaskVersion = currentVersion;
+      engine.accessStage = "awaiting-server-gates";
+      syncTask(engine, { status: "progress", preview: "需求确认已送达，等待服务端生成分工与授权申请…" });
+    }).catch((error) => emit(engine, {
+      t: "task-error",
+      text: `需求确认未送达：${error?.message || "连接异常"}`,
+      errorCode: "REQUIREMENT_CONFIRM_FAILED",
+      retryable: true
+    }));
+    return;
+  }
+  apply();
 }
 
 function startEngine(engine) {
   if (engine.engineInitialized) return;
+  // Keep the conversation visibly alive while task.create and the requirement
+  // model are in flight. The authoritative proposal still replaces this
+  // transport status; it must not be synthesized from the local script.
+  if (engine.online) {
+    if (!engine.runtime.events.some((event) => event.t === "user")) {
+      emit(engine, { t: "user", text: engine.taskText, online: true });
+    }
+    if (!engine.runtime.events.some((event) => event.t === "chief" && event.source === "transport")) {
+      emit(engine, {
+        t: "chief",
+        source: "transport",
+        text: "我已收到任务，正在理解你的需求…"
+      });
+    }
+    syncTask(engine, { status: "progress", preview: "我正在理解你的需求…" });
+  }
+  // Provision the authoritative server task before opening the AG-UI stream.
+  // The local task id remains the task-store key; it must never become a remote
+  // conversation id or task identity.
+  if (engine.online && engine.commandClient && !engine.remoteTaskCreated) {
+    if (engine.remoteTaskProvisioning) return;
+    engine.remoteTaskProvisioning = true;
+    engine.remoteTaskPromise = createRemoteTask({
+      commandClient: engine.commandClient,
+      taskText: engine.taskText,
+      projectId: engine.projectId,
+      projectName: engine.projectName,
+      localTaskId: engine.taskId,
+      scenario: engine.scriptKey
+    }).then((identity) => {
+      engine.remoteTaskId = identity.taskId;
+      engine.remoteRunId = identity.taskRunId;
+      engine.remoteConversationId = identity.conversationId;
+      engine.remoteTaskVersion = identity.currentVersion ?? 0;
+      engine.requirementProposal = identity.requirement || null;
+      engine.remoteTaskCreated = true;
+      engine.remoteTaskProvisioning = false;
+      syncTask(engine, { status: "progress", preview: "已建立服务端任务，等待需求确认…" });
+      // Move CREATED into WAITING_REQUIREMENT before showing the card. The
+      // actual execution command is intentionally blocked until the user
+      // confirms the structured requirement.
+      return startRemoteTask({
+        commandClient: engine.commandClient,
+        identity,
+        taskText: engine.taskText,
+        projectId: engine.projectId,
+        projectName: engine.projectName,
+        localTaskId: engine.taskId,
+        requirementsConfirmed: false,
+        requiresAccess: false
+      }).then((started) => {
+        engine.remoteTaskVersion = started.currentVersion ?? (engine.remoteTaskVersion + 1);
+        engine.remoteTaskPrimed = true;
+        startEngine(engine);
+        return identity;
+      });
+    }).catch((error) => {
+      engine.remoteTaskProvisioning = false;
+      engine.engineInitialized = true;
+      syncTask(engine, { status: "failed", preview: "服务端任务创建失败，等待处理" });
+      emit(engine, { t: "task-error", text: error?.message || "服务端任务创建失败", errorCode: error?.code || "REMOTE_TASK_CREATE_FAILED", retryable: true });
+      return null;
+    });
+    return;
+  }
   engine.engineInitialized = true;
   const { script } = engine;
+
+  // Online runs are event-driven. A production task must never fall through
+  // to the local demo timeline when its real execution transport is missing.
+  if (engine.online && !hasOnlineExecutionTransport(engine)) {
+    syncTask(engine, { status: "failed", preview: "真实 Agent Gateway 未连接，任务未执行" });
+    emit(engine, {
+      t: "task-error",
+      text: "真实 Agent Gateway 未连接，任务未执行。请连接后重试；系统不会用本地模拟替代真实业务动作。",
+      errorCode: "AGENT_GATEWAY_UNAVAILABLE",
+      retryable: true
+    });
+    return;
+  }
+  if (engine.online && !remoteTaskIdFor(engine)) {
+    syncTask(engine, { status: "failed", preview: "服务端任务身份不可用，任务未执行" });
+    emit(engine, {
+      t: "task-error",
+      text: "服务端任务身份不可用，任务未执行。请重新建立任务；系统不会把本地任务编号当成服务端任务。",
+      errorCode: "REMOTE_TASK_ID_MISSING",
+      retryable: true
+    });
+    return;
+  }
+  if (engine.online) {
+    const adapter = createGatewayEventAdapter({
+      taskId: remoteTaskIdFor(engine),
+      onEvent: (event) => {
+        if (event.t === "approval-show") {
+          engine.approvalShown = true;
+          engine.approvalPending = false;
+          engine.decision = null;
+        }
+        if (event.t === "approval-resolved") {
+          engine.approvalPending = false;
+          engine.decision = Boolean(event.ok);
+        }
+        if (event.t === "task-paused") engine.paused = true;
+        if (event.t === "task-resumed" || event.t === "task-retry-requested") engine.paused = false;
+        if (event.t === "sub-start") {
+          beginWork(event.agentType || event.agentName, { task: engine.taskText, phase: event.skill, projectId: engine.projectId });
+        }
+        if (event.t === "sub-done" || event.t === "sub-error") {
+          finishWork(event.agentType || event.agentName, null);
+          if (event.t === "sub-error") endAllWork();
+        }
+        if (event.t === "sub-log") {
+          pushActivity(event.agentType || event.agentName, event.text);
+        }
+        if (event.t === "sub-log" && event.pct != null) emit(engine, { t: "progress", pct: event.pct, stage: "execution" });
+        if (event.t === "task-error") {
+          endAllWork();
+          syncTask(engine, { status: "failed", preview: event.text });
+        }
+        if (event.t === "summary") {
+          const suppliedResult = event.resultSnapshot
+            || event.result
+            || event.data?.resultSnapshot
+            || event.data?.result
+            // A connector may publish the final result in one or more
+            // RESULT_UPDATED events before task.completed. The runtime has
+            // already reduced those events, so use that authoritative
+            // projection instead of rejecting an otherwise valid run.
+            || engine.runtime?.snapshot?.resultSnapshot;
+          if (engine.online && (!suppliedResult || typeof suppliedResult !== "object" || Array.isArray(suppliedResult))) {
+            endAllWork();
+            syncTask(engine, { status: "failed", preview: "服务端未返回结构化结果，任务不能标记为完成" });
+            emit(engine, {
+              t: "task-error",
+              text: "服务端已结束运行，但没有返回可核验的线索、触达或回复结果。系统不会用本地统计补齐结果，请重试或检查 Agent Gateway。",
+              errorCode: "RESULT_SNAPSHOT_MISSING",
+              retryable: true
+            });
+            return;
+          }
+          syncTask(engine, { status: "done", preview: event.text || "任务已完成", resultSnapshot: resultSnapshotFor(engine, event) });
+          const resultCounts = resultCountsFor(suppliedResult);
+          rollupTask(engine.taskId, {
+            title: engine.taskText,
+            projectName: engine.projectName,
+            status: "done",
+            files: engine.runtime.snapshot.evidence.filter((item) => item.type === "artifact").length,
+            ...(resultCounts.leads != null ? { leads: resultCounts.leads } : {}),
+            ...(resultCounts.outreach != null ? { outreach: resultCounts.outreach } : {}),
+            ...(resultCounts.replies != null ? { replies: resultCounts.replies } : {}),
+            durationSec: Math.max(1, Math.round((Date.now() - engine.startedAt) / 1000)),
+            done_at: new Date().toISOString()
+          });
+          endAllWork();
+        }
+        emit(engine, event);
+        if (event.t === "summary") {
+          engine.remoteUnsubscribe?.();
+          engine.remoteUnsubscribe = null;
+          if (typeof engine.remoteTaskSubscription === "function") engine.remoteTaskSubscription();
+          engine.remoteTaskSubscription = null;
+        }
+      }
+    });
+    engine.remoteAdapter = adapter;
+    const handleRemoteEvent = (event) => {
+      const conversationId = event?.conversation_id || event?.conversationId || null;
+      const eventTaskId = event?.task_id || event?.taskId || null;
+      if (eventTaskId && remoteTaskIdFor(engine) && eventTaskId !== remoteTaskIdFor(engine)) return;
+      if (engine.remoteRunId && event?.run_id && event.run_id !== engine.remoteRunId) return;
+      if (conversationId && engine.remoteConversationId && conversationId !== engine.remoteConversationId) return;
+      if (conversationId && !engine.remoteConversationId) engine.remoteConversationId = conversationId;
+      if (event?.run_id && !engine.remoteRunId) engine.remoteRunId = event.run_id;
+      adapter.accept(event);
+    };
+    engine.subscribeRemote = () => {
+      if (!engine.remoteUnsubscribe) engine.remoteUnsubscribe = engine.gateway.on("ag_ui_event", handleRemoteEvent);
+      return engine.remoteUnsubscribe;
+    };
+    engine.subscribeRemote();
+    // Command calls (create/start/confirm) do not automatically open the
+    // durable event stream. Start it before replaying the gate events so the
+    // UI receives assignment/access transitions after requirement confirm.
+    if (!engine.remoteTaskSubscription && typeof engine.gateway.subscribeTask === "function") {
+      engine.remoteTaskSubscription = engine.gateway.subscribeTask(remoteTaskIdFor(engine));
+    } else if (!engine.remoteTaskSubscription && typeof engine.gateway.action === "function") {
+      engine.remoteTaskSubscription = Promise.resolve(
+        engine.gateway.action(SB_ACTIONS.taskRunSubscribe, {
+          taskId: remoteTaskIdFor(engine),
+          taskRunId: engine.remoteRunId,
+          conversationId: engine.remoteConversationId
+        })
+      ).catch((error) => {
+        emit(engine, {
+          t: "task-error",
+          text: `任务事件订阅未建立：${error?.message || "连接异常"}`,
+          errorCode: "TASK_EVENT_SUBSCRIBE_FAILED",
+          retryable: true
+        });
+        return null;
+      });
+    }
+    engine.scheduleTimeline = () => {
+      if (engine.timelineStarted || engine.remoteRunStarted) return;
+      engine.timelineStarted = true;
+      engine.remoteRunStarted = true;
+      const runPayload = {
+        conversation_id: engine.remoteConversationId,
+        client_task_id: engine.taskId,
+        taskId: remoteTaskIdFor(engine),
+        task_run_id: engine.remoteRunId,
+        taskRunId: engine.remoteRunId,
+        title: engine.taskText,
+        input: engine.taskText,
+        project_id: engine.projectId,
+        project_name: engine.projectName,
+        browser_session_id: engine.browserSessionId || null,
+        browserSessionId: engine.browserSessionId || null,
+        scenario: engine.scriptKey,
+        approval_required: engine.script.approvalRequired !== false
+      };
+      const runRequest = engine.gateway.run(runPayload);
+      runRequest.then((ack) => {
+        engine.remoteRunId = ack?.run_id || ack?.runId || ack?.data?.run_id || engine.remoteRunId;
+        engine.remoteConversationId = ack?.conversation_id || ack?.conversationId || ack?.data?.conversation_id || engine.remoteConversationId;
+        syncTask(engine, { status: "progress", preview: "后端已接收任务，正在等待实时进度…" });
+      }).catch((error) => {
+        engine.remoteRunStarted = false;
+        const needsReauthorization = ["AUTHORIZATION_PENDING", "SESSION_NOT_FOUND", "BROWSER_SESSION_TASK_MISMATCH", "REAUTH_REQUIRED"].includes(error?.code);
+        if (needsReauthorization) {
+          engine.accessStage = "required";
+          syncTask(engine, { status: "progress", preview: "抖音登录已失效，等待重新授权…" });
+          emit(engine, {
+            t: "auth-required",
+            provider: engine.accessSetup.provider,
+            account: engine.accessSetup.account,
+            scopes: engine.accessSetup.scopes,
+            text: "抖音浏览器会话已失效。任务已暂停，不会继续读取或发送；请重新打开云电脑完成登录。"
+          });
+        } else {
+          syncTask(engine, { status: "failed", preview: "后端任务启动失败，等待处理" });
+          emit(engine, { t: "task-error", text: `后端任务启动失败：${error?.message || "连接异常"}`, errorCode: "GATEWAY_RUN_START_FAILED" });
+        }
+      });
+    };
+    if (engine.accessStage === "ready") engine.scheduleTimeline();
+    else if (engine.accessStage === "requirement") requestRemoteRequirement(engine);
+    else {
+      // Server events (REQUIREMENT_CONFIRMED -> ASSIGNMENT_PROPOSED ->
+      // ACCESS_REQUIRED) advance the online gates. Do not synthesize any of
+      // those facts from the local dialogue script.
+      syncTask(engine, { status: "progress", preview: "等待服务端返回当前任务门禁状态…" });
+    }
+    return;
+  }
+
+  if (!engine.demoMode) {
+    syncTask(engine, { status: "failed", preview: "非演示任务未连接服务端，未执行本地模拟" });
+    emit(engine, {
+      t: "task-error",
+      text: "服务端执行链未连接，任务未执行。系统不会播放本地模拟结果；请连接控制面后重新建立任务。",
+      errorCode: "REAL_EXECUTION_REQUIRED",
+      retryable: true
+    });
+    return;
+  }
   const timeline = buildDemoTimeline({
     taskText: engine.taskText,
     online: engine.online,
@@ -1164,20 +2011,39 @@ function startEngine(engine) {
     projectMembers: engine.projectMembers
   });
   engine.demoTimeline = timeline;
+  engine.timelineCursor = engine.timelineCursor || 0;
+  engine.timelineTimers = engine.timelineTimers || [];
   const later = (fn, ms) => { const id = setTimeout(fn, ms); engine.timers.push(id); };
 
   // Delays only pace a precomputed event source; they never decide a state transition.
+  // The cursor makes pause/resume/retry deterministic instead of restarting a run.
   engine.scheduleTimeline = () => {
-    if (engine.timelineStarted) return;
+    if (engine.timelineStarted || engine.paused || engine.cancelled) return;
     engine.timelineStarted = true;
-    timeline.forEach((event) => {
+    const startIndex = engine.timelineCursor || 0;
+    let previousDelay = startIndex > 0 ? Number(timeline[startIndex - 1]?.delayMs || 0) : 0;
+    timeline.forEach((event, index) => {
+      if (index < startIndex) return;
       // Requirement understanding and the brief are completed before authorization.
       // Do not repeat them when the authorized run timeline is released.
       const isPreparationHeader = event.t === "user"
         || event.t === "brief"
         || (event.t === "chief" && event.delayMs <= 1500);
-      if (isPreparationHeader) return;
-      later(() => deliverDemoEvent(event), Math.round(event.delayMs * DEMO_PACING));
+      if (isPreparationHeader) {
+        engine.timelineCursor = index + 1;
+        previousDelay = Number(event.delayMs || previousDelay);
+        return;
+      }
+      const delay = Math.max(0, Number(event.delayMs || previousDelay) - previousDelay);
+      previousDelay = Number(event.delayMs || previousDelay);
+      const id = setTimeout(() => {
+        engine.timelineTimers = engine.timelineTimers.filter((timerId) => timerId !== id);
+        engine.timelineCursor = index + 1;
+        if (engine.paused || engine.cancelled) return;
+        deliverDemoEvent(event);
+      }, Math.round(delay * DEMO_PACING));
+      engine.timelineTimers.push(id);
+      engine.timers.push(id);
     });
   };
 
@@ -1188,7 +2054,7 @@ function startEngine(engine) {
     if (!hasEvent("user")) emit(engine, { t: "user", text: engine.taskText, online: engine.online });
 
     if (engine.accessStage === "requirement") {
-      syncTask(engine, { status: "progress", preview: "幕僚长正在理解需求…" });
+      syncTask(engine, { status: "progress", preview: "我正在理解你的需求…" });
       if (!hasEvent("chief")) later(() => {
         if (hasEvent("chief")) return;
         emit(engine, {
@@ -1202,12 +2068,12 @@ function startEngine(engine) {
       }, Math.round(1450 * DEMO_PACING));
       if (!hasEvent("requirement-required")) later(() => {
         if (hasEvent("requirement-required") || engine.accessStage !== "requirement") return;
-        syncTask(engine, { status: "progress", preview: "幕僚长已理解需求，等待用户确认…" });
+        syncTask(engine, { status: "progress", preview: "我已经理解了你的需求，等你确认…" });
         emit(engine, {
           t: "requirement-required",
           taskText: engine.taskText,
           brief: script.brief,
-          text: "请确认幕僚长对任务目标、数据范围、交付结果和停止边界的理解。"
+          text: "请确认我对任务目标、数据范围、交付结果和停止边界的理解。"
         });
       }, Math.round(2200 * DEMO_PACING));
       return;
@@ -1249,19 +2115,26 @@ function startEngine(engine) {
     }
     if (event.t === "sub-log") {
       pushActivity(event.agentType, event.text);
-      emit(engine, { t: "progress", pct: Math.min(88, 10 + Math.round(((event.i + ((event.lineIndex || 0) + 1) / script.subs[event.i].lines.length) / script.subs.length) * 78)) });
+      const stepCount = Math.max(1, script.subs.length);
+      const lineCount = Math.max(1, script.subs[event.i]?.lines?.length || 1);
+      emit(engine, { t: "progress", pct: Math.min(88, 10 + Math.round(((event.i + ((event.lineIndex || 0) + 1) / lineCount) / stepCount) * 78)) });
     }
     if (event.t === "sub-done") {
       const slot = MEMBER_SLOTS[event.i] || { type: event.agentType };
       pushActivity(slot.type, event.text || "已提交验收结果");
     }
     if (event.t === "sub-error" || event.t === "task-error") {
+      if (event.t === "sub-error" && event.i != null) engine.lastFailedIndex = event.i;
       endAllWork();
       syncTask(engine, { status: "failed", preview: event.text });
     }
     if (event.t === "task-blocked") {
       endAllWork();
       syncTask(engine, { status: "blocked", preview: event.text });
+    }
+    if (event.t === "task-error" || event.t === "task-blocked") {
+      engine.paused = true;
+      clearTimelineTimers(engine);
     }
     if (event.t === "summary") {
       produceArtifacts(engine, null);
@@ -1281,11 +2154,308 @@ function startEngine(engine) {
   }
 }
 
+/** Render the same requirement/access gates for both local and remote runs. */
+function prepareEngineGates(engine) {
+  const { script } = engine;
+  const later = (fn, ms) => { const id = setTimeout(fn, ms); engine.timers.push(id); };
+  const hasEvent = (type) => engine.runtime.events.some((event) => event.t === type);
+
+  if (!hasEvent("user")) emit(engine, { t: "user", text: engine.taskText, online: engine.online });
+  if (engine.accessStage === "requirement") {
+    syncTask(engine, { status: "progress", preview: "我正在理解你的需求…" });
+    if (!hasEvent("chief")) later(() => {
+      if (hasEvent("chief")) return;
+      emit(engine, {
+        t: "chief",
+        protocolType: "TEXT_MESSAGE_CONTENT",
+        text: `我先理解你的需求：${script.decompose} 我会先和你确认目标、数据范围、交付结果与停止边界；确认后再安排责任 Agent，最后才申请执行所需的账号权限。`
+      });
+    }, Math.round(520 * DEMO_PACING));
+    if (!hasEvent("brief")) later(() => {
+      if (!hasEvent("brief")) emit(engine, { t: "brief", brief: script.brief, protocolType: "TEXT_MESSAGE_END" });
+    }, Math.round(1450 * DEMO_PACING));
+    if (!hasEvent("requirement-required")) later(() => {
+      if (hasEvent("requirement-required") || engine.accessStage !== "requirement") return;
+      syncTask(engine, { status: "progress", preview: "我已经理解了你的需求，等你确认…" });
+      emit(engine, { t: "requirement-required", taskText: engine.taskText, brief: script.brief, text: "请确认我对任务目标、数据范围、交付结果和停止边界的理解。" });
+    }, Math.round(2200 * DEMO_PACING));
+    return;
+  }
+  if (engine.accessStage === "required" && !hasEvent("auth-required")) {
+    if (!hasEvent("assignment-plan")) {
+      emit(engine, {
+        t: "assignment-plan",
+        protocolType: "ASSIGNMENT_PROPOSED",
+        assignments: buildAssignmentPlan({ script: engine.script, runtimeDefinition: engine.runtimeDefinition, projectMembers: engine.projectMembers }),
+        text: "任务已拆解，以下责任 Agent 将按顺序执行；确认账号后才会读取业务数据。"
+      });
+    }
+    emit(engine, {
+      t: "auth-required",
+      provider: engine.accessSetup.provider,
+      account: engine.accessSetup.account,
+      scopes: engine.accessSetup.scopes,
+      text: `责任 Agent 已安排完成。现在需要连接${engine.accessSetup.provider}，任务仍未读取或发送任何数据。`
+    });
+  }
+}
+
+const REMOTE_INTERACTION_ACTIONS = Object.freeze({
+  [INTERACTION_COMMANDS.PAUSE]: SB_ACTIONS.taskPause,
+  [INTERACTION_COMMANDS.RESUME]: SB_ACTIONS.taskResume,
+  [INTERACTION_COMMANDS.RETRY]: SB_ACTIONS.taskRetry,
+  [INTERACTION_COMMANDS.HANDOFF]: SB_ACTIONS.taskHandoff,
+  [INTERACTION_COMMANDS.CANCEL]: SB_ACTIONS.taskCancel
+});
+
+const REMOTE_INTERACTION_COMMAND_TYPES = Object.freeze({
+  [INTERACTION_COMMANDS.PAUSE]: COMMAND_TYPES.PAUSE,
+  [INTERACTION_COMMANDS.RESUME]: COMMAND_TYPES.RESUME,
+  [INTERACTION_COMMANDS.RETRY]: COMMAND_TYPES.RETRY,
+  [INTERACTION_COMMANDS.HANDOFF]: COMMAND_TYPES.HANDOFF,
+  [INTERACTION_COMMANDS.CANCEL]: COMMAND_TYPES.CANCEL
+});
+
+function interactionStateFor(engine) {
+  return engine?.runtime?.snapshot?.interaction || engine?.runtime?.snapshot || {};
+}
+
+function clearTimelineTimers(engine) {
+  for (const id of engine.timelineTimers?.splice(0) || []) clearTimeout(id);
+  engine.timelineStarted = false;
+}
+
+function clearTaskTimers(engine) {
+  clearTimelineTimers(engine);
+  for (const id of engine.timers?.splice(0) || []) {
+    clearTimeout(id);
+    clearInterval(id);
+  }
+}
+
+function applyLocalInteractionCommand(engine, action, payload = {}) {
+  if (action === INTERACTION_COMMANDS.PAUSE) {
+    engine.paused = true;
+    clearTimelineTimers(engine);
+  }
+  if (action === INTERACTION_COMMANDS.RESUME || action === INTERACTION_COMMANDS.RETRY) {
+    engine.paused = false;
+    engine.cancelled = false;
+  }
+  if (action === INTERACTION_COMMANDS.CANCEL) {
+    engine.cancelled = true;
+    engine.paused = true;
+    clearTaskTimers(engine);
+  }
+  const event = localEventForInteractionCommand(action, payload);
+  if (event) emit(engine, event);
+  if (action === INTERACTION_COMMANDS.RESUME || action === INTERACTION_COMMANDS.RETRY) {
+    const id = setTimeout(() => engine.scheduleTimeline?.(), Math.round(320 * DEMO_PACING));
+    engine.timers.push(id);
+  }
+  if (action === INTERACTION_COMMANDS.RETRY && engine.lastFailedIndex != null && engine.timelineCursor >= (engine.demoTimeline?.length || 0)) {
+    const retryIndex = engine.lastFailedIndex;
+    const id = setTimeout(() => {
+      const skill = engine.runtimeDefinition?.skills?.[retryIndex] || {};
+      emit(engine, {
+        t: "sub-log",
+        i: retryIndex,
+        skillId: skill.id,
+        skill: skill.name,
+        agentName: engine.runtimeDefinition?.agent?.name || "项目执行 Agent",
+        agentType: engine.runtimeDefinition?.agent?.id || "professional_agent",
+        text: "重试已完成，结果依据已重新整理。",
+        lineIndex: 0,
+        pct: 92,
+        evidence: [{ type: "retry", label: "重试结果", ref: `${engine.taskId || "task"}-retry-${engine.runtime.snapshot.interaction.retryCount}` }]
+      });
+      emit(engine, {
+        t: "sub-done",
+        i: retryIndex,
+        skillId: skill.id,
+        skill: skill.name,
+        agentName: engine.runtimeDefinition?.agent?.name || "项目执行 Agent",
+        agentType: engine.runtimeDefinition?.agent?.id || "professional_agent",
+        text: "我已完成重试，结果和工作依据已经整理好。"
+      });
+      emit(engine, { t: "run-finished", text: "重试完成，任务结果已整理。" });
+      emit(engine, { t: "summary", text: "重试完成，任务结果已整理。" });
+    }, Math.round(920 * DEMO_PACING));
+    engine.timers.push(id);
+  }
+  return event;
+}
+
+function gatewayAckError(ack) {
+  if (!ack || typeof ack !== "object") return null;
+  if (ack.ok === false || ack.accepted === false || ack.success === false) {
+    return new Error(ack.message || ack.error || "服务端拒绝了这次操作");
+  }
+  if (typeof ack.code === "string" && /^(ERROR|FAILED|REJECTED|DENIED|INVALID)/i.test(ack.code)) {
+    return new Error(ack.message || ack.error || ack.code);
+  }
+  return null;
+}
+
+/** Issue a recoverable task command and keep the card actionable on failure. */
+function issueInteractionCommand(engine, action, payload = {}) {
+  const state = interactionStateFor(engine);
+  if (!canIssueInteractionCommand(state, action)) return false;
+  const command = createInteractionCommand(action, {
+    taskId: commandTaskIdFor(engine),
+    runId: engine.remoteRunId,
+    stepId: payload.stepId || state.activeSkill?.skillId || null,
+    payload
+  });
+  engine.pendingCommands ||= new Map();
+  engine.pendingCommands.set(command.commandId, command);
+  const remoteAction = REMOTE_INTERACTION_ACTIONS[action];
+  const complete = (ack = {}) => {
+    const ackError = gatewayAckError(ack);
+    if (ackError) return fail(ackError);
+    engine.pendingCommands.delete(command.commandId);
+    const event = ack?.event || ack?.data?.event;
+    if (engine.online) {
+      // An accepted command is not a state transition. The control plane
+      // publishes the authoritative event through the task subscription;
+      // never synthesize pause/resume/retry/handoff state from the ACK.
+      if (event && typeof event === "object") emit(engine, event);
+      else syncTask(engine, { status: "progress", preview: "操作已送达，等待服务端确认…" });
+    } else if (event && typeof event === "object") {
+      emit(engine, event);
+    } else {
+      applyLocalInteractionCommand(engine, action, payload);
+    }
+    return ack;
+  };
+  const fail = (error) => {
+    engine.pendingCommands.delete(command.commandId);
+    const taskNotFound = isRemoteTaskNotFound(error);
+    if (taskNotFound) {
+      resetRemoteTaskIdentity(engine);
+      engine.remoteTaskStale = true;
+    }
+    emit(engine, {
+      t: "task-error",
+      text: taskNotFound
+        ? "服务端任务已失效（通常是控制面重启后旧任务未持久化），请重新建立任务。"
+        : `${action === INTERACTION_COMMANDS.RETRY ? "重试" : "任务操作"}未完成：${error?.message || "连接异常"}`,
+      errorCode: taskNotFound ? "REMOTE_TASK_NOT_FOUND" : "INTERACTION_COMMAND_FAILED",
+      retryable: true
+    });
+  };
+  if (engine.online && !remoteTaskIdFor(engine)) {
+    fail(Object.assign(new Error("服务端任务身份已失效，请重新建立任务"), { code: "REMOTE_TASK_ID_MISSING" }));
+    return true;
+  }
+  if (engine.online && remoteAction && typeof engine.gateway?.action === "function") {
+    const commandType = REMOTE_INTERACTION_COMMAND_TYPES[action];
+    if (engine.commandClient && commandType) {
+      engine.commandClient.send(commandType, {
+        taskId: remoteTaskIdFor(engine),
+        taskRunId: engine.remoteRunId,
+        commandId: command.commandId,
+        idempotencyKey: command.idempotencyKey,
+        payload: { ...payload, stepId: command.stepId, action }
+      }).then(complete).catch(fail);
+    } else {
+      engine.gateway.action(remoteAction, {
+        ...command,
+        taskId: remoteTaskIdFor(engine),
+        taskRunId: engine.remoteRunId || null,
+        conversationId: engine.remoteConversationId || null
+      }).then(complete).catch(fail);
+    }
+  } else {
+    complete({ source: "local" });
+  }
+  return true;
+}
+
 /** 审批决策（视图按钮调用）。 */
 function decide(engine, ok, selectedIds = null) {
-  if (!engine.approvalShown || engine.decision != null) return;
-  engine.decision = ok;
+  if (!engine.approvalShown || engine.decision != null || engine.approvalPending) return;
   engine.touchSelection = Array.isArray(selectedIds) ? selectedIds : null;
+  if (engine.online && typeof engine.gateway?.action === "function") {
+    const remoteTaskId = remoteTaskIdFor(engine);
+    if (!remoteTaskId) {
+      emit(engine, {
+        t: "task-error",
+        text: "审批未送达：服务端任务身份已失效，请重新建立任务。",
+        errorCode: "REMOTE_TASK_ID_MISSING",
+        retryable: true
+      });
+      return;
+    }
+    engine.approvalPending = true;
+    engine.approvalActionUi?.forEach((button) => { button.disabled = true; });
+    engine.approvalActionUi?.[ok ? 1 : 0] && (engine.approvalActionUi[ok ? 1 : 0].textContent = "正在提交…");
+    const approvalId = engine.runtime.snapshot.approvals.at(-1)?.id || null;
+    const approval = engine.remoteApproval && typeof engine.remoteApproval === "object"
+      ? engine.remoteApproval
+      : {};
+    const approvalExecution = approval.execution && typeof approval.execution === "object"
+      ? approval.execution
+      : approval.executionRequest && typeof approval.executionRequest === "object"
+        ? approval.executionRequest
+        : {};
+    const executionSource = { ...approval, ...approvalExecution };
+    const executionFields = {};
+    [
+      "actionType", "action", "channel", "leadId", "recipient", "message", "content",
+      "videoId", "commentId", "shortVideoId", "queue", "scheduleAt"
+    ].forEach((field) => {
+      if (executionSource[field] !== undefined && executionSource[field] !== null && executionSource[field] !== "") {
+        executionFields[field] = executionSource[field];
+      }
+    });
+    const approvalRequestPayload = {
+      taskId: remoteTaskIdFor(engine),
+      taskRunId: engine.remoteRunId,
+      commandId: engine.approvalCommandId || ["approval", engine.taskId, approvalId || "latest"].join("-"),
+      idempotencyKey: engine.approvalIdempotencyKey || ["approval", engine.taskId, approvalId || "latest", ok ? "approved" : "rejected"].join("-"),
+      payload: {
+        approvalId,
+        decision: ok ? "approved" : "rejected",
+        selectedIds: engine.touchSelection,
+        ...(engine.touchSelection ? { selectedLeadIds: engine.touchSelection } : {}),
+        ...(ok ? executionFields : {})
+      }
+    };
+    engine.approvalCommandId = approvalRequestPayload.commandId;
+    engine.approvalIdempotencyKey = approvalRequestPayload.idempotencyKey;
+    const approvalRequest = engine.commandClient
+      ? engine.commandClient.send(COMMAND_TYPES.APPROVAL_DECISION, approvalRequestPayload)
+      : engine.gateway.action(SB_ACTIONS.approvalRespond, {
+        taskId: remoteTaskId,
+        runId: engine.remoteRunId,
+        taskRunId: engine.remoteRunId,
+        conversationId: engine.remoteConversationId,
+        approvalId,
+        ok,
+        selectedIds: engine.touchSelection
+      });
+    approvalRequest.then((ack) => {
+      const ackError = gatewayAckError(ack);
+      if (ackError) throw ackError;
+      const event = ack?.event || ack?.data?.event;
+      if (event && typeof event === "object") {
+        emit(engine, event);
+      } else {
+        // The ACK only confirms that the command was accepted. Keep the
+        // approval pending until approval.resolved arrives from the server;
+        // otherwise a lost event could make the UI claim an external action
+        // was approved when no authoritative decision exists.
+        syncTask(engine, { status: "progress", preview: "审批已送达，等待服务端确认…" });
+      }
+    }).catch((error) => {
+      engine.approvalPending = false;
+      engine.approvalActionUi?.forEach((button) => { button.disabled = false; });
+      emit(engine, { t: "task-error", text: `审批请求未送达：${error?.message || "连接异常"}`, errorCode: "APPROVAL_COMMAND_FAILED", retryable: true });
+    });
+    return;
+  }
+  engine.decision = ok;
   const { script } = engine;
   const timeline = buildApprovalTimeline({ approved: ok, script, taskText: engine.taskText, selectedIds: engine.touchSelection });
   timeline.forEach((event) => {
@@ -1301,16 +2471,81 @@ function decide(engine, ok, selectedIds = null) {
 
 /** 追问（视图输入条调用）。 */
 function followUp(engine, text) {
+  const followupId = `followup-${engine.taskId || "task"}-${Date.now().toString(36)}`;
+  const editingRequirement = engine.editingRequirement === true && engine.accessStage === "requirement";
   emit(engine, { t: "followup-user", text });
+  if (editingRequirement) {
+    const applyEdit = () => {
+      engine.taskText = text;
+      engine.editingRequirement = false;
+      emit(engine, { t: "requirement-edited", taskText: text, text: "已收到修改后的需求，请再次确认任务目标和执行边界。" });
+    };
+    if (engine.online && engine.commandClient) {
+      engine.commandClient.send(COMMAND_TYPES.REQUIREMENT_EDIT, {
+        taskId: remoteTaskIdFor(engine),
+        taskRunId: engine.remoteRunId,
+        payload: { text }
+      }).then((ack) => {
+        const proposal = requirementProposalFromAck(ack);
+        if (!proposal) throw new Error("服务端未返回修改后的需求提案");
+        engine.requirementProposal = proposal;
+        engine.requirementRequested = true;
+        engine.taskText = text;
+        engine.editingRequirement = false;
+        emit(engine, { t: "requirement-proposed", proposal, brief: requirementBriefFromProposal(proposal), source: proposal.source || "model" });
+        emit(engine, { t: "requirement-edited", taskText: text, proposal, text: "已收到修改后的需求，请再次确认任务目标和执行边界。" });
+      }).catch((error) => {
+        emit(engine, { t: "followup-failed", followupId, text: "需求修改未送达：" + (error?.message || "连接异常"), errorCode: "REQUIREMENT_EDIT_FAILED", retryable: true });
+      });
+    } else {
+      applyEdit();
+    }
+    return;
+  }
+  emit(engine, { t: "followup-waiting", followupId });
+  if (engine.online && typeof engine.gateway?.action === "function") {
+    const remoteTaskId = remoteTaskIdFor(engine);
+    if (!remoteTaskId) {
+      emit(engine, { t: "followup-failed", followupId, text: "追问未送达：服务端任务身份已失效，请重新建立任务。", errorCode: "REMOTE_TASK_ID_MISSING", retryable: true });
+      return;
+    }
+    const followupRequest = engine.commandClient
+      ? engine.commandClient.send(COMMAND_TYPES.REPLY, {
+        taskId: remoteTaskIdFor(engine),
+        taskRunId: engine.remoteRunId,
+        idempotencyKey: followupId,
+        payload: { text, followupId }
+      })
+      : engine.gateway.action(SB_ACTIONS.taskFollowup, {
+        taskId: remoteTaskId,
+        runId: engine.remoteRunId,
+        taskRunId: engine.remoteRunId,
+        conversationId: engine.remoteConversationId,
+        text,
+        followupId
+      });
+    followupRequest.then((ack) => {
+      const ackError = gatewayAckError(ack);
+      if (ackError) throw ackError;
+      const reply = ack?.data?.text || ack?.data?.message || ack?.text || ack?.message;
+      if (reply) emit(engine, { t: "followup-chief", text: reply });
+    }).catch((error) => {
+      emit(engine, { t: "followup-failed", followupId, text: `追问未送达：${error?.message || "连接异常"}`, errorCode: "FOLLOWUP_COMMAND_FAILED", retryable: true });
+    });
+    return;
+  }
   const id = setTimeout(() => {
-    emit(engine, { t: "followup-chief", text: followUpReply(text, engine) });
+    emit(engine, { t: "followup-chief", followupId, text: followUpReply(text, engine) });
   }, Math.round((900 + Math.random() * 600) * DEMO_PACING));
   engine.timers.push(id);
 }
 
 function accessStageFromEvents(events = []) {
   for (const event of [...events].reverse()) {
-    if (event.t === "scope-confirmed" || event.t === "run-started") return "ready";
+    // RUN_STARTED is emitted when the server parks a task behind a gate. It
+    // is not proof that access scope was granted and must never release a
+    // remote execution timeline.
+    if (event.t === "scope-confirmed") return "ready";
     if (event.t === "scope-required" || event.t === "auth-granted") return "scope";
     if (event.t === "auth-started") return "authorizing";
     if (event.t === "auth-cancelled" || event.t === "auth-required" || event.t === "assignment-plan" || event.t === "requirement-confirmed") return "required";
@@ -1319,13 +2554,32 @@ function accessStageFromEvents(events = []) {
   return "requirement";
 }
 
+function normalizePersistedRuntimeEvents(events = [], { online = false, demoMode = false, taskStatus = null, resultSnapshot = null } = {}) {
+  const resultStatus = String(resultSnapshot?.status || "").trim().toLowerCase();
+  const shouldDowngrade = online && !demoMode && taskStatus !== "done"
+    && !["done", "completed", "complete", "success", "succeeded"].includes(resultStatus);
+  if (!shouldDowngrade) return events;
+  return events.map((event) => {
+    if (event?.t !== "sub-done" || event.status) return event;
+    return {
+      ...event,
+      t: "sub-log",
+      status: "PENDING",
+      text: event.text || "历史执行记录尚未被服务端确认完成，等待真实结果回传。",
+      legacyCompletionDowngraded: true
+    };
+  });
+}
+
 /** 取任务引擎：不存在则创建并启动；已存在直接返回（重开对话不重跑）。 */
-function ensureEngine({ taskId, taskText, projectId, projectName, projectMembers = [], teamLive, online = false, runtimeEvents = [], taskStatus = null, taskPreview = "" }) {
+function ensureEngine({ taskId, taskText, projectId, projectName, projectMembers = [], teamLive, gateway = null, online = false, demoMode = false, runtimeEvents = [], taskStatus = null, taskResultSnapshot = null, taskPreview = "", remoteTaskId = null, remoteTaskRunId = null, remoteConversationId = null, remoteTaskVersion = null, remoteTaskSeq = null, browserSessionId = null }) {
   if (taskId && RUNS.has(taskId)) return RUNS.get(taskId);
   const scriptKey = pickDialogueScript(taskText);
-  const localTouchRequest = Boolean(parseTouchRequest(taskText));
-  const runtimeOnline = localTouchRequest ? false : Boolean(online);
-  const runtimeDefinition = getDialogueRuntimeDefinition(scriptKey, taskText);
+  // Whether this is a touch request is a business scenario, not a transport
+  // decision. Once the control plane is connected, every supported scenario
+  // must use the same server-authoritative path.
+  const runtimeOnline = Boolean(online);
+  const runtimeDefinition = getDialogueRuntimeDefinition(scriptKey, taskText, { online: runtimeOnline });
   const runtime = createRuntimeTask({
     taskId,
     taskText,
@@ -1343,8 +2597,16 @@ function ensureEngine({ taskId, taskText, projectId, projectName, projectMembers
       acceptance: "verified"
     }))
   });
-  const hasPersistedEvents = Array.isArray(runtimeEvents) && runtimeEvents.length > 0;
-  if (hasPersistedEvents) replayRuntimeEvents(runtime, runtimeEvents);
+  const persistedEvents = normalizePersistedRuntimeEvents(runtimeEvents, {
+    online: runtimeOnline,
+    demoMode,
+    taskStatus,
+    resultSnapshot: taskResultSnapshot
+  });
+  const hasPersistedEvents = Array.isArray(persistedEvents) && persistedEvents.length > 0;
+  const replayPersistedEvents = hasPersistedEvents && (runtimeOnline || demoMode);
+  if (replayPersistedEvents) replayRuntimeEvents(runtime, persistedEvents);
+  const persistedRequirementProposal = requirementProposalFromEvents(runtime.events);
   const engine = {
     taskId: taskId || null,
     taskText,
@@ -1352,17 +2614,43 @@ function ensureEngine({ taskId, taskText, projectId, projectName, projectMembers
     projectName,
     projectMembers,
     teamLive,
+    gateway,
+    commandClient: runtimeOnline && typeof gateway?.action === "function"
+      ? createTaskCommandClient({ gateway, actor: "user" })
+      : null,
     online: runtimeOnline,
+    demoMode: Boolean(demoMode),
+    remoteTaskId: remoteTaskId || null,
+    remoteConversationId: remoteConversationId || null,
+    remoteRunId: remoteTaskRunId || null,
+    remoteTaskVersion: Number.isInteger(remoteTaskVersion) ? remoteTaskVersion : null,
+    remoteTaskSeq: Number.isInteger(remoteTaskSeq) ? remoteTaskSeq : null,
+    browserSessionId: browserSessionId || null,
+    requirementProposal: persistedRequirementProposal,
+    requirementRequested: Boolean(persistedRequirementProposal),
+    remoteTaskCreated: Boolean(remoteTaskId && remoteTaskRunId && remoteConversationId),
+    remoteTaskProvisioning: false,
+    remoteTaskPromise: null,
+    remoteRunStarted: false,
+    paused: false,
+    cancelled: false,
+    timelineCursor: 0,
+    timelineTimers: [],
+    lastFailedIndex: null,
+    pendingCommands: new Map(),
     scriptKey,
-    script: getDialogueScript(scriptKey, taskText),
+    script: getDialogueScript(scriptKey, taskText, { online: runtimeOnline }),
     accessSetup: getDemoAccessSetup(scriptKey),
-    accessStage: hasPersistedEvents ? accessStageFromEvents(runtime.events) : "requirement",
+    accessStage: replayPersistedEvents ? accessStageFromEvents(runtime.events) : "requirement",
     runtimeDefinition,
     runtime,
     events: runtime.events,
     listeners: new Set(),
     timers: [],
     approvalShown: false,
+    approvalPending: false,
+    editingRequirement: false,
+    pendingFollowupId: null,
     decision: null,
     fileCount: 0,
     startedAt: Date.now()
@@ -1401,6 +2689,10 @@ function openConversation(engine) {
       engine.listeners.delete(renderLive);
       clearViewTimers();
       av.authWindow?.close("replaced");
+      engine.remoteUnsubscribe?.();
+      engine.remoteUnsubscribe = null;
+      if (typeof engine.remoteTaskSubscription === "function") engine.remoteTaskSubscription();
+      engine.remoteTaskSubscription = null;
       scroll.removeEventListener("scroll", onScroll);
     }
   });
@@ -1466,8 +2758,11 @@ function openConversation(engine) {
   }
 
   // ── 进展卡片视图状态 ──
-  const pv = { bubble: null, card: null, status: null, statusText: null, bar: null, clock: null, progress: null, summary: null, detail: null, toggle: null, progressExpanded: true, progressUserToggled: false, recoveryCard: null, resultCard: null, resultFiles: null, resultSummary: null, progressFiles: null, subs: [] };
-  const av = { authCard: null, authTag: null, authButton: null, authWindow: null, scopeCard: null, scopeTag: null, scopeButton: null, requirementCard: null, requirementTag: null, requirementButton: null, requirementEditButton: null, requirementActions: null, assignmentCard: null };
+  const pv = { bubble: null, card: null, status: null, statusText: null, bar: null, clock: null, progress: null, summary: null, detail: null, toggle: null, pauseButton: null, cancelButton: null, progressExpanded: true, progressUserToggled: false, recoveryCard: null, resultCard: null, resultFiles: null, resultSummary: null, progressFiles: null, subs: [] };
+  const av = { authCard: null, authTag: null, authButton: null, authActions: null, authWindow: null, authOpening: false, scopeCard: null, scopeTag: null, scopeButton: null, requirementCard: null, requirementTag: null, requirementButton: null, requirementEditButton: null, requirementActions: null, assignmentCard: null };
+  engine.viewState = { pv, av };
+  const chiefStreams = new Map();
+  const followupStreams = new Map();
 
   function openProgressCard(instant) {
     if (pv.card) return;
@@ -1485,7 +2780,25 @@ function openConversation(engine) {
     toggle.setAttribute("aria-expanded", "true");
     const detailId = `sb-progress-details-${engine.taskId || Date.now()}`;
     toggle.setAttribute("aria-controls", detailId);
-    head.append(headMain, toggle);
+    const pauseButton = el("button", "sb-checkpoint-toggle", "暂停任务");
+    pauseButton.type = "button";
+    pauseButton.setAttribute("aria-label", "暂停任务");
+    pauseButton.addEventListener("click", () => {
+      const state = interactionStateFor(engine);
+      const action = state.taskState === "PAUSED" ? INTERACTION_COMMANDS.RESUME : INTERACTION_COMMANDS.PAUSE;
+      issueInteractionCommand(engine, action, { reason: action === INTERACTION_COMMANDS.PAUSE ? "用户暂停" : null });
+    });
+    const cancelButton = el("button", "sb-checkpoint-toggle", "取消任务");
+    cancelButton.type = "button";
+    cancelButton.setAttribute("aria-label", "取消任务");
+    cancelButton.addEventListener("click", () => {
+      if (!window.confirm || window.confirm("确定取消当前任务吗？已完成的工作和证据会保留。")) {
+        issueInteractionCommand(engine, INTERACTION_COMMANDS.CANCEL, { reason: "用户取消" });
+      }
+    });
+    const headActions = el("div", "sb-checkpoint-head-actions");
+    headActions.append(pauseButton, cancelButton, toggle);
+    head.append(headMain, headActions);
     card.appendChild(head);
     const summary = el("div", "sb-progress-summary");
     const summaryDot = el("i");
@@ -1534,6 +2847,8 @@ function openConversation(engine) {
     pv.progressFiles = el("div", "sb-result-files");
     body.appendChild(pv.progressFiles);
     pv.toggle = toggle;
+    pv.pauseButton = pauseButton;
+    pv.cancelButton = cancelButton;
     pv.status = status;
     pv.statusText = statusText;
     pv.bar = barI;
@@ -1584,12 +2899,27 @@ function openConversation(engine) {
     pv.summary.updated.textContent = "刚刚";
   }
 
+  function updateTaskActionControl() {
+    if (!pv.pauseButton) return;
+    const state = interactionStateFor(engine);
+    const paused = state.taskState === "PAUSED" || engine.paused;
+    const waitingApproval = state.taskState === "WAITING_APPROVAL";
+    pv.pauseButton.textContent = paused ? "继续任务" : waitingApproval ? "等待审批" : "暂停任务";
+    pv.pauseButton.setAttribute("aria-label", paused ? "继续任务" : waitingApproval ? "等待审批" : "暂停任务");
+    pv.pauseButton.disabled = waitingApproval || (!paused && !canIssueInteractionCommand(state, INTERACTION_COMMANDS.PAUSE)) || (paused && !canIssueInteractionCommand(state, INTERACTION_COMMANDS.RESUME));
+    if (pv.cancelButton) {
+      pv.cancelButton.disabled = !canIssueInteractionCommand(state, INTERACTION_COMMANDS.CANCEL);
+      pv.cancelButton.textContent = state.taskState === "CANCELLED" ? "已取消" : "取消任务";
+    }
+  }
+
   function markRunFinished() {
     if (!pv.status) return;
     pv.status.classList.remove("sb-accepted", "sb-on", "sb-thinking", "sb-error");
     pv.status.classList.add("sb-done");
     pv.statusText.textContent = "已完成";
     updateProgressSummary("已完成", "所有步骤已完成，结果正在整理");
+    updateTaskActionControl();
   }
 
   function maybeCollapseProgress() {
@@ -1629,8 +2959,21 @@ function openConversation(engine) {
     return box;
   }
 
-  function showApprovalBox(instant) {
+  function showApprovalBox(instant, remoteApproval = null) {
     if (pv.approvalBox) return;
+    if (engine.online && (!remoteApproval || typeof remoteApproval !== "object" || Object.keys(remoteApproval).length === 0)) {
+      showRecoveryCard(
+        "审批信息未返回",
+        "服务端没有返回本次外部动作的对象、方式和风险信息，系统不会用本地模板代替，也不会发送消息。请重试任务。",
+        instant,
+        { preserved: "外部动作尚未执行", actions: [["重试此步骤", INTERACTION_COMMANDS.RETRY]] }
+      );
+      return;
+    }
+    // An online approval must come from the server with its actual target,
+    // policy decision and scope. Never fill the card with a local script.
+    const approval = remoteApproval || (engine.online ? {} : script.approval || {});
+    engine.remoteApproval = engine.online ? { ...approval } : null;
     const bubble = agentMsg(chief, { instant, avatarValue: "main" });
     const box = el("section", "sb-run-approval sb-checkpoint");
     box.setAttribute("data-sb-checkpoint", "approval");
@@ -1642,8 +2985,8 @@ function openConversation(engine) {
     head.appendChild(el("span", "sb-run-apptag", "需要你的确认"));
     box.appendChild(head);
     const body = el("div", "sb-run-appbody");
-    body.innerHTML = `<b>${script.approval.title}</b><br>${script.approval.body}`; // 内容全部来自本文件内置剧本
-    const touchPreview = script.touchPlan ? buildTouchPreview(script.touchPlan) : null;
+    body.innerHTML = `<b>${approval.title || "对外动作确认"}</b><br>${approval.body || approval.description || "请确认本次对外动作的对象、方式和范围。"}`;
+    const touchPreview = script.touchPlan && !engine.online ? buildTouchPreview(script.touchPlan) : null;
     if (touchPreview) body.appendChild(touchPreview);
     box.appendChild(body);
     const btns = el("div", "sb-run-appbtns");
@@ -1656,7 +2999,7 @@ function openConversation(engine) {
       details.setAttribute("aria-expanded", String(!expanded));
       details.textContent = expanded ? "展开内容" : "收起内容";
     });
-    const approve = el("button", "sb-run-btn sb-primary", script.touchPlan ? "确认模拟触达" : "确认执行");
+    const approve = el("button", "sb-run-btn sb-primary", script.touchPlan && !engine.online ? "确认模拟触达" : "确认执行");
     const reject = el("button", "sb-run-btn sb-ghost", "暂不执行");
     if (touchPreview) {
       const count = touchPreview.querySelector(".sb-touch-preview-count");
@@ -1681,6 +3024,7 @@ function openConversation(engine) {
     bubble.appendChild(box);
     pv.approvalBox = box;
     pv.approvalBtns = btns;
+    engine.approvalActionUi = [reject, approve];
     toBottom();
   }
 
@@ -1706,7 +3050,22 @@ function openConversation(engine) {
   }
 
   function showAccessRequired(setup, instant) {
-    if (av.authCard) return;
+    const localMode = engine.gateway?.cloudDesktopMode === "local";
+    const browserLabel = localMode ? "本机浏览器" : "云电脑";
+    if (av.authCard) {
+      av.authCard.classList.remove("sb-access-resolved");
+      av.authTag.textContent = "需要重新登录";
+      av.authButton?.remove();
+      const button = el("button", "sb-run-btn sb-primary sb-access-action", `重新打开${browserLabel}`);
+      button.type = "button";
+      button.addEventListener("click", () => beginAccessAuthorization(engine));
+      av.authActions?.appendChild(button);
+      av.authButton = button;
+      av.authCard.querySelector(".sb-access-note")?.remove();
+      av.authCard.appendChild(el("div", "sb-access-note", "原浏览器会话已失效，请重新登录抖音；任务不会在未验证登录时继续执行。"));
+      toBottom();
+      return;
+    }
     const bubble = agentMsg(chief, { instant, avatarValue: "main" });
     const card = el("div", "sb-access-card");
     const title = el("div", "sb-access-title");
@@ -1729,7 +3088,7 @@ function openConversation(engine) {
     });
     card.appendChild(scopes);
     const actions = el("div", "sb-access-actions");
-    const button = el("button", "sb-run-btn sb-primary sb-access-action", "打开云电脑并授权");
+    const button = el("button", "sb-run-btn sb-primary sb-access-action", `打开${browserLabel}并授权`);
     button.type = "button";
     button.addEventListener("click", () => beginAccessAuthorization(engine));
     actions.appendChild(button);
@@ -1738,30 +3097,72 @@ function openConversation(engine) {
     av.authCard = card;
     av.authTag = tag;
     av.authButton = button;
+    av.authActions = actions;
     toBottom();
   }
 
   function markAccessStarted() {
     if (!av.authCard) return;
+    const localMode = engine.gateway?.cloudDesktopMode === "local";
+    const browserLabel = localMode ? "本机浏览器" : "云电脑";
     av.authTag.textContent = "授权中";
     av.authButton.disabled = true;
-    av.authButton.textContent = "云电脑已打开，等待登录…";
+    av.authButton.textContent = `${browserLabel}已打开，等待登录…`;
   }
 
-  function openAccessWindow(setup) {
-    if (av.authWindow) return;
-    av.authWindow = openDouyinAuthorization({
-      account: setup.account,
-      scopes: setup.scopes,
-      onAuthorized: () => {
-        av.authWindow = null;
-        completeAccessAuthorization(engine);
-      },
-      onCancelled: ({ reason } = {}) => {
-        av.authWindow = null;
-        cancelAccessAuthorization(engine, reason || "cancelled");
+  async function openAccessWindow(setup) {
+    if (av.authWindow || av.authOpening) return;
+    av.authOpening = true;
+    try {
+      const browserStart = engine.gateway?.browserSessionStart;
+      const browserAuthorize = engine.gateway?.browserSessionAuthorize;
+      if (!engine.online || typeof browserStart !== "function" || typeof browserAuthorize !== "function") {
+        throw new Error(engine.gateway?.cloudDesktopMode === "local"
+          ? "本机浏览器工作区未连接，无法打开抖音授权窗口"
+          : "真实云电脑未连接，无法打开抖音授权窗口");
       }
-    });
+      const provider = ["抖音账号", "内容账号"].includes(setup.provider) ? "douyin" : setup.provider;
+      const session = await browserStart({
+        tenantId: engine.tenantId || "local-user",
+        provider,
+        accountKey: setup.account,
+        accountLabel: setup.account,
+        taskId: remoteTaskIdFor(engine),
+        scopes: setup.scopes
+      });
+      if (!session?.sessionId) throw new Error("浏览器工作区没有返回会话身份");
+      engine.browserSessionId = session.sessionId;
+      syncTask(engine, { status: "progress", preview: `${engine.gateway?.cloudDesktopMode === "local" ? "本机浏览器" : "云电脑"}已打开，等待抖音账号登录…` });
+      av.authWindow = openDouyinAuthorization({
+        account: setup.account,
+        scopes: setup.scopes,
+        session,
+        checkAuthorization: () => browserAuthorize(session.sessionId),
+        onAuthorized: () => {
+          av.authWindow = null;
+          completeAccessAuthorization(engine);
+        },
+        onCancelled: ({ reason } = {}) => {
+          av.authWindow = null;
+          cancelAccessAuthorization(engine, reason || "cancelled");
+        }
+      });
+    } catch (error) {
+      if (engine.browserSessionId && engine.gateway?.browserSessionClose) {
+        engine.gateway.browserSessionClose(engine.browserSessionId).catch(() => {});
+        engine.browserSessionId = null;
+      }
+      engine.accessStage = "required";
+      markAccessCancelled();
+      emit(engine, {
+        t: "task-error",
+        text: `真实抖音授权窗口启动失败：${error?.message || "连接异常"}`,
+        errorCode: error?.code || "BROWSER_WORKSPACE_START_FAILED",
+        retryable: true
+      });
+    } finally {
+      av.authOpening = false;
+    }
   }
 
   function markAccessCancelled() {
@@ -1769,7 +3170,7 @@ function openConversation(engine) {
     av.authCard.classList.remove("sb-access-resolved");
     av.authTag.textContent = "未授权";
     av.authButton.disabled = false;
-    av.authButton.textContent = "重新打开云电脑";
+    av.authButton.textContent = `${engine.gateway?.cloudDesktopMode === "local" ? "重新打开本机浏览器" : "重新打开云电脑"}`;
     av.authCard.querySelector(".sb-access-note")?.remove();
   }
 
@@ -1819,10 +3220,10 @@ function openConversation(engine) {
     av.scopeCard.appendChild(el("div", "sb-access-note", "访问范围已锁定，任务将按此前确认的需求与分工开始执行。"));
   }
 
-  function buildTouchPlanCard(plan) {
+  function buildTouchPlanCard(plan, online = engine.online) {
     const box = el("section", "sb-touch-plan");
     const head = el("div", "sb-touch-plan-head");
-    head.append(el("div", "sb-touch-plan-title", "触达目标拆解"), el("span", "sb-touch-plan-tag", "本地识别"));
+    head.append(el("div", "sb-touch-plan-title", "我对触达目标的拆解"), el("span", "sb-touch-plan-tag", online ? "我来拆解" : "本地识别"));
     box.appendChild(head);
     const grid = el("div", "sb-touch-plan-grid");
     const fields = [
@@ -1845,7 +3246,7 @@ function openConversation(engine) {
     return box;
   }
 
-  function showRequirementCard(brief, taskText, instant) {
+  function showRequirementCard(brief, taskText, instant, proposal = null) {
     if (av.requirementCard) return;
     const bubble = agentMsg(chief, { instant, avatarValue: "main" });
     const card = el("section", "sb-access-card sb-checkpoint");
@@ -1854,12 +3255,13 @@ function openConversation(engine) {
     card.setAttribute("aria-label", "确认任务需求");
     card.setAttribute("aria-live", "polite");
     const title = el("div", "sb-access-title");
-    title.append(el("span", null, "请确认幕僚长的需求理解"));
+    title.append(el("span", null, "请确认我对任务的理解"));
     const tag = el("span", "sb-access-tag", "待确认");
     title.appendChild(tag);
     card.appendChild(title);
-    card.appendChild(el("div", "sb-access-copy", "请核对下面的理解是否准确。在你主动确认前，Byering 不会安排 Agent、不会打开账号登录，也不会读取任何业务数据。"));
-    if (brief?.touchPlan) card.appendChild(buildTouchPlanCard(brief.touchPlan));
+    card.appendChild(el("div", "sb-access-copy", "请核对下面的理解是否准确。在你主动确认前，我不会安排 Agent、不会打开账号登录，也不会读取任何业务数据。"));
+    if (brief?.touchPlan) card.appendChild(buildTouchPlanCard(brief.touchPlan, engine.online));
+    if (proposal?.source) card.appendChild(el("div", "sb-access-note", `由我整理 · 版本 ${brief?.proposalVersion || 1}`));
     const grid = el("div", "sb-requirement-grid");
     const fields = [
       ["任务描述", taskText],
@@ -1888,6 +3290,7 @@ function openConversation(engine) {
     const editButton = el("button", "sb-run-btn sb-ghost", "修改要求");
     editButton.type = "button";
     editButton.addEventListener("click", () => {
+      engine.editingRequirement = true;
       input.placeholder = "请补充或修改任务目标、范围、交付结果或停止边界…";
       input.focus();
     });
@@ -1912,7 +3315,7 @@ function openConversation(engine) {
     av.requirementCard.classList.add("sb-access-resolved");
     av.requirementTag.textContent = "已确认";
     av.requirementActions?.remove();
-    av.requirementCard.appendChild(el("div", "sb-access-note", "需求已锁定，幕僚长正在拆解任务并安排责任 Agent。"));
+    av.requirementCard.appendChild(el("div", "sb-access-note", "需求已锁定，我正在拆解任务并安排责任 Agent。"));
   }
 
   function showAssignmentPlan(assignments = [], text = "", instant = false) {
@@ -1922,20 +3325,28 @@ function openConversation(engine) {
     const title = el("div", "sb-assignment-title");
     title.append(el("span", null, "任务拆解与责任分工"), el("span", "sb-assignment-tag", "已安排"));
     card.appendChild(title);
-    card.appendChild(el("div", "sb-assignment-copy", text || "幕僚长已根据确认后的需求完成分工。"));
+    card.appendChild(el("div", "sb-assignment-copy", text || "我已根据确认后的需求完成分工。"));
     const list = el("div", "sb-assignment-list");
     assignments.forEach((assignment, index) => {
+      const assignmentName = displayAgentName({ agentType: assignment.agentType, name: assignment.agentName });
       const row = el("div", "sb-assignment-row");
-      const avatar = el("div", "sb-assignment-avatar", assignment.agentName?.slice(0, 1) || "?");
-      mountAgentAvatar(avatar, assignment.agentName, { alt: `${assignment.agentName || "数字员工"}头像` });
+      const avatar = el("div", "sb-assignment-avatar", assignmentName?.slice(0, 1) || "?");
+      mountAgentAvatar(avatar, assignment.agentType || assignmentName, { alt: `${assignmentName || "数字员工"}头像` });
       const main = el("div", "sb-assignment-main");
       main.append(el("span", "sb-assignment-skill", `${index + 1}. ${assignment.skill}`), el("span", "sb-assignment-role", assignment.role));
-      row.append(avatar, main, el("span", "sb-assignment-owner", assignment.agentName));
+      row.append(avatar, main, el("span", "sb-assignment-owner", assignmentName));
       row.appendChild(el("div", "sb-assignment-executor", `完成标准：${assignment.acceptance}`));
       list.appendChild(row);
     });
     card.appendChild(list);
-    card.appendChild(el("div", "sb-assignment-note", "分工只建立计划，不会触发账号登录、数据读取或对外动作。下一步由你完成授权。"));
+    const requiresAccess = requirementNeedsAccountAccess(engine.requirementProposal, engine.taskText);
+    card.appendChild(el(
+      "div",
+      "sb-assignment-note",
+      requiresAccess
+        ? "分工只建立计划，不会触发账号登录、数据读取或对外动作。下一步由你确认授权范围。"
+        : "公开数据找人链路已就绪，不需要登录抖音账号或打开云电脑；只会读取公开视频和评论并生成可核验线索。"
+    ));
     bubble.appendChild(card);
     av.assignmentCard = card;
     toBottom();
@@ -1945,7 +3356,10 @@ function openConversation(engine) {
     if (!pv.approvalBox) return;
     pv.approvalBox.classList.add("sb-resolved");
     pv.approvalBtns?.remove();
-    pv.approvalBox.appendChild(el("div", "sb-run-appresult", ok ? `✓ ${script.approval.approveNote}` : `↩ ${script.approval.rejectNote}`));
+    engine.approvalActionUi = null;
+    engine.approvalPending = false;
+    const approval = engine.runtime.snapshot.approvals.at(-1) || (engine.online ? {} : script.approval || {});
+    pv.approvalBox.appendChild(el("div", "sb-run-appresult", ok ? `✓ ${approval.approveNote || "已通过，继续执行任务"}` : `↩ ${approval.rejectNote || "已驳回，任务已暂停"}`));
     if (pv.status && !ok) {
       pv.status.classList.remove("sb-accepted", "sb-on", "sb-thinking", "sb-done");
       pv.status.classList.add("sb-error");
@@ -1990,6 +3404,8 @@ function openConversation(engine) {
 
   function showSummaryBox(instant) {
     if (pv.resultCard) return;
+    const summaryEvent = [...engine.runtime.events].reverse().find((event) => event.t === "summary");
+    const resultSnapshot = summaryEvent?.resultSnapshot || resultSnapshotFor(engine, summaryEvent || {});
     if (pv.status) {
       pv.status.classList.add("sb-done");
       pv.statusText.textContent = "已完成";
@@ -2003,17 +3419,29 @@ function openConversation(engine) {
     const head = el("div", "sb-result-head");
     head.append(el("div", "sb-result-mark", "✓"));
     const headCopy = el("div");
-    headCopy.append(el("div", "sb-result-title", "任务完成"), el("div", "sb-result-copy", cleanEmployeeText(script.summary)));
+    headCopy.append(el("div", "sb-result-title", "任务完成"), el("div", "sb-result-copy", cleanEmployeeText(resultSnapshot.summary || script.summary)));
     head.appendChild(headCopy);
     card.appendChild(head);
-    if (script.touchPlan) card.appendChild(buildTouchOutcomeCard(script.touchPlan));
+    const account = resultSnapshot.account || engine.runtime?.snapshot?.resolvedAccounts?.[0] || null;
+    if (account) {
+      const accountLabel = account.nickname || account.uniqueId || account.unique_id || "目标账号";
+      const accountId = account.uniqueId || account.unique_id;
+      card.appendChild(el("div", "sb-result-account", accountId && accountId !== accountLabel
+        ? `已解析账号：${accountLabel} · 抖音号 ${accountId}`
+        : `已解析账号：${accountLabel}`));
+    }
+    if (script.touchPlan && !engine.online) card.appendChild(buildTouchOutcomeCard(script.touchPlan));
     const stats = el("div", "sb-run-stats");
-    for (const [num, label] of (script.stats || []).slice(0, script.touchPlan ? 4 : 3)) {
+    const metrics = Array.isArray(resultSnapshot.metrics) && resultSnapshot.metrics.length
+      ? resultSnapshot.metrics.map((metric) => [metric.value ?? metric.displayValue ?? "—", metric.label || "结果"])
+      : engine.online ? [] : (script.stats || []).slice(0, script.touchPlan ? 4 : 3);
+    for (const [num, label] of metrics) {
       const s = el("div", "sb-run-stat");
       s.append(el("div", "sb-run-statnum", num), el("div", "sb-run-statlabel", label));
       stats.appendChild(s);
     }
     if (stats.childElementCount) card.appendChild(stats);
+    if (engine.online && !metrics.length) card.appendChild(el("div", "sb-access-note", "后端任务已完成，结构化业务结果将在数据返回后补充；当前没有展示示例指标。"));
     const files = el("div", "sb-result-files");
     card.appendChild(files);
     const actions = el("div", "sb-result-actions");
@@ -2049,6 +3477,28 @@ function openConversation(engine) {
     toBottom();
   }
 
+  // Result snapshots can arrive several times before the terminal event
+  // (lead sync, qualification, delivery and replies are all incremental).
+  // Keep the already-visible result card current without manufacturing local
+  // numbers when the task is online.
+  function refreshResultCard(snapshot) {
+    if (!pv.resultCard || !snapshot || typeof snapshot !== "object") return;
+    if (pv.resultSummary && snapshot.summary) {
+      pv.resultSummary.textContent = cleanEmployeeText(snapshot.summary);
+    }
+    const metrics = Array.isArray(snapshot.metrics)
+      ? snapshot.metrics.map((metric) => [metric.value ?? metric.displayValue ?? "—", metric.label || "结果"])
+      : [];
+    const stats = pv.resultCard.querySelector(".sb-run-stats");
+    if (!stats || !metrics.length) return;
+    stats.replaceChildren();
+    for (const [num, label] of metrics) {
+      const stat = el("div", "sb-run-stat");
+      stat.append(el("div", "sb-run-statnum", num), el("div", "sb-run-statlabel", label));
+      stats.appendChild(stat);
+    }
+  }
+
   function appendResultFile(event) {
     if (!pv.resultFiles || !event?.name) return;
     if (pv.resultFiles.querySelector(`[data-file-id="${event.id || event.name}"]`)) return;
@@ -2069,7 +3519,13 @@ function openConversation(engine) {
 
   function showRecoveryCard(title, text, instant, options = {}) {
     if (pv.recoveryCard) {
+      pv.recoveryCard.querySelector(".sb-recovery-title span")?.replaceChildren(document.createTextNode(title));
+      const tag = pv.recoveryCard.querySelector(".sb-recovery-tag");
+      if (tag) tag.textContent = /人工|回复/.test(title) ? "需要你的处理" : "任务已暂停";
       pv.recoveryCard.querySelector(".sb-recovery-copy")?.replaceChildren(document.createTextNode(text));
+      const preserved = pv.recoveryCard.querySelector(".sb-recovery-preserved span");
+      if (preserved) preserved.textContent = options.preserved || "已完成的工作和证据已保留";
+      updateRecoveryActions(pv.recoveryCard, options);
       return;
     }
     const bubble = agentMsg(chief, { instant, avatarValue: "main" });
@@ -2086,13 +3542,58 @@ function openConversation(engine) {
     preserved.append(el("i", null, "✓"), el("span", null, options.preserved || "已完成的工作和证据已保留"));
     card.appendChild(preserved);
     const actions = el("div", "sb-recovery-actions");
-    for (const [label, value] of (options.actions || [["补充信息", "请补充任务信息："], ["修改范围", "请调整任务范围："], ["交给人工", "请将这项任务交给人工处理。"]])) {
-      const button = el("button", "sb-run-btn sb-ghost", label);
-      button.type = "button";
-      button.addEventListener("click", () => { input.value = value; input.placeholder = "补充信息或安排下一步处理…"; input.focus(); });
-      actions.appendChild(button);
-    }
     card.appendChild(actions);
+    function updateRecoveryActions(targetCard, actionOptions = {}) {
+      const target = targetCard.querySelector(".sb-recovery-actions");
+      if (!target) return;
+      target.replaceChildren();
+      const interaction = interactionStateFor(engine);
+      const commandActions = [];
+      const staleRemoteTask = actionOptions.errorCode === "REMOTE_TASK_NOT_FOUND" || engine.remoteTaskStale === true;
+      if (!staleRemoteTask && canIssueInteractionCommand(interaction, INTERACTION_COMMANDS.RETRY)) commandActions.push(["重试此步骤", INTERACTION_COMMANDS.RETRY]);
+      if (!staleRemoteTask && canIssueInteractionCommand(interaction, INTERACTION_COMMANDS.RESUME)) commandActions.push(["继续任务", INTERACTION_COMMANDS.RESUME]);
+      if (!staleRemoteTask && canIssueInteractionCommand(interaction, INTERACTION_COMMANDS.HANDOFF)) commandActions.push(["转人工接手", INTERACTION_COMMANDS.HANDOFF]);
+      for (const [label, value] of [...commandActions, ...(actionOptions.actions || [["补充信息", "请补充任务信息："], ["修改范围", "请调整任务范围："]])]) {
+        const button = el("button", "sb-run-btn sb-ghost", label);
+        button.type = "button";
+        button.addEventListener("click", () => {
+          if (Object.values(INTERACTION_COMMANDS).includes(value)) {
+            if (!issueInteractionCommand(engine, value, { reason: value === INTERACTION_COMMANDS.HANDOFF ? "用户请求人工接手" : undefined })) return;
+            button.disabled = true;
+            button.textContent = value === INTERACTION_COMMANDS.HANDOFF ? "已转人工" : value === INTERACTION_COMMANDS.RETRY ? "已提交重试" : "已提交继续";
+            return;
+          }
+          if (value === "auth-reopen") {
+            beginAccessAuthorization(engine);
+            button.disabled = true;
+            button.textContent = "正在打开授权";
+            return;
+          }
+          if (value === "remote-recreate") {
+            resetRemoteTaskIdentity(engine);
+            button.disabled = true;
+            button.textContent = "正在重新建立";
+            startEngine(engine);
+            return;
+          }
+          if (value === "requirement-retry") {
+            engine.requirementProposal = null;
+            engine.requirementRequested = false;
+            requestRemoteRequirement(engine);
+            button.disabled = true;
+            button.textContent = "正在重新理解";
+            return;
+          }
+          engine.editingRequirement = /调整|修改|补充/.test(value);
+          input.value = value;
+          input.placeholder = "补充信息或安排下一步处理…";
+          input.focus();
+        });
+        target.appendChild(button);
+      }
+    }
+    const interaction = interactionStateFor(engine);
+    updateRecoveryActions(card, options);
     bubble.appendChild(card);
     pv.recoveryCard = card;
     toBottom();
@@ -2128,7 +3629,8 @@ function openConversation(engine) {
   }
 
   function renderAgentTrace(who, title, body, meta = [], instant = false, messageClass = "sb-agent-trace") {
-    const bubble = agentMsg(who, { typing: !instant, instant, avatarValue: who, messageClass });
+    const visibleWho = displayAgentName(who);
+    const bubble = agentMsg(visibleWho, { typing: !instant, instant, avatarValue: who, messageClass });
     if (messageClass.includes("sb-completion")) bubble.closest(".sb-msg")?.querySelector(".sb-agent-activity")?.remove();
     const fill = () => {
       bubble.replaceChildren();
@@ -2156,10 +3658,13 @@ function openConversation(engine) {
         userMsg(event.text, instant);
         break;
       case "assignment-plan":
+        if (engine.online) engine.accessStage = "required";
         setAgentActivity("main", "分派中");
         showAssignmentPlan(event.assignments || [], event.text, instant);
         break;
       case "auth-required":
+        if (engine.online) engine.accessStage = "required";
+        applyAuthoritativeAccessSetup(engine, event);
         showAccessRequired(engine.accessSetup, instant);
         break;
       case "auth-started":
@@ -2167,44 +3672,158 @@ function openConversation(engine) {
         if (!instant || engine.accessStage === "authorizing") openAccessWindow(engine.accessSetup);
         break;
       case "auth-granted":
+        if (engine.online) engine.accessStage = "scope";
+        applyAuthoritativeAccessSetup(engine, event);
         if (av.authCard) {
           av.authCard.classList.add("sb-access-resolved");
           av.authTag.textContent = "已授权";
           av.authButton.remove();
+          av.authButton = null;
           av.authCard.appendChild(el("div", "sb-access-note", "登录已完成，但还没有读取任何数据。"));
         }
         break;
       case "scope-required":
+        if (engine.online) engine.accessStage = "scope";
+        applyAuthoritativeAccessSetup(engine, event);
         showAccessScope(engine.accessSetup, instant);
         break;
       case "scope-confirmed":
+        if (engine.online) engine.accessStage = "ready";
+        applyAuthoritativeAccessSetup(engine, event);
         markScopeConfirmed();
+        if (engine.online) engine.scheduleTimeline?.();
         break;
       case "requirement-required":
         setAgentActivity("main", "等待确认");
-        showRequirementCard(event.brief || engine.script.brief, event.taskText || engine.taskText, instant);
+        if (event.proposal) engine.requirementProposal = event.proposal;
+        if (engine.online && !engine.requirementProposal) {
+          showRecoveryCard("需求理解未完成", "服务端没有返回结构化需求提案，系统不会用本地模板代替。请重试。", instant, { preserved: "尚未安排 Agent、未读取数据", actions: [["重试理解", "requirement-retry"]] });
+          break;
+        }
+        try {
+          const proposalBrief = engine.online
+            ? requirementBriefFromProposal(engine.requirementProposal)
+            : (event.brief || engine.script.brief);
+          showRequirementCard(proposalBrief, event.taskText || engine.taskText, instant, engine.online ? engine.requirementProposal : null);
+        } catch (error) {
+          showRecoveryCard("需求理解结果无效", error.message, instant, { preserved: "尚未安排 Agent、未读取数据", actions: [["重试理解", "requirement-retry"]] });
+        }
+        break;
+      case "requirement-proposed":
+        if (event.proposal) engine.requirementProposal = event.proposal;
         break;
       case "requirement-confirmed":
+        if (engine.online) engine.accessStage = "required";
         setAgentActivity("main", "拆解中");
         markRequirementConfirmed();
         break;
+      case "requirement-edited":
+        if (event.proposal) engine.requirementProposal = event.proposal;
+        if (av.requirementCard) {
+          const oldMessage = av.requirementCard.closest(".sb-msg");
+          oldMessage?.remove();
+          av.requirementCard = null;
+          av.requirementTag = null;
+          av.requirementButton = null;
+          av.requirementActions = null;
+          try {
+            const brief = engine.online
+              ? requirementBriefFromProposal(engine.requirementProposal)
+              : (event.brief || engine.script.brief);
+            showRequirementCard(brief, event.taskText || engine.taskText, instant, engine.online ? engine.requirementProposal : null);
+          } catch (error) {
+            showRecoveryCard("需求理解结果无效", error.message, instant, { preserved: "尚未安排 Agent、未读取数据", actions: [["重试理解", "requirement-retry"]] });
+          }
+        }
+        updateProgressSummary("等待确认", "需求已更新，等待你再次确认");
+        break;
       case "auth-cancelled":
+        if (engine.online) engine.accessStage = "required";
         markAccessCancelled();
-        showRecoveryCard("授权还没有完成", event.text, instant, { preserved: "数据读取尚未开始，任务仍然安全暂停", actions: [["重新打开授权", "请重新打开授权窗口："], ["交给人工", "请将这项任务交给人工处理。"]] });
+        showRecoveryCard("授权还没有完成", event.text, instant, { preserved: "数据读取尚未开始，任务仍然安全暂停", actions: [["重新打开授权", "auth-reopen"], ["交给人工", INTERACTION_COMMANDS.HANDOFF]] });
         updateProgressSummary("待授权", "数据读取尚未开始");
         break;
       case "run-started":
         setAgentActivity("main", "理解中");
-        updateProgressSummary("理解中", "幕僚长正在确认目标、范围和交付边界");
+        updateProgressSummary("理解中", "我正在确认目标、范围和交付边界");
         break;
       case "chief": {
+        // Older persisted tasks contain the pre-ownership transport copy. Keep
+        // replay truthful to the current orchestration model without mutating
+        // the immutable event log.
+        const displayText = String(event.text || "").replace(
+          "已收到任务，正在连接需求理解 Agent…",
+          "我已收到任务，正在理解你的需求…"
+        );
         if (instant) {
-          agentMsg(chief, { instant: true, avatarValue: "main" }).textContent = event.text;
+          agentMsg(chief, { instant: true, avatarValue: "main" }).textContent = displayText;
         } else {
           const bubble = agentMsg(chief, { typing: true, avatarValue: "main" });
-          const id = setTimeout(() => { bubble.textContent = event.text; toBottom(); }, DEMO_REVEAL_MS.chief);
+          const id = setTimeout(() => { bubble.textContent = displayText; toBottom(); }, DEMO_REVEAL_MS.chief);
           viewTimers.push(id);
         }
+        break;
+      }
+      case "chief-stream-start": {
+        const streamId = event.streamId || event.messageId || event.runId || "default";
+        const bubble = agentMsg(chief, { typing: true, instant, avatarValue: "main" });
+        chiefStreams.set(streamId, { bubble, text: "" });
+        break;
+      }
+      case "chief-stream-delta": {
+        const streamId = event.streamId || event.messageId || event.runId || "default";
+        const state = chiefStreams.get(streamId) || (() => {
+          const next = { bubble: agentMsg(chief, { typing: true, instant, avatarValue: "main" }), text: "" };
+          chiefStreams.set(streamId, next);
+          return next;
+        })();
+        state.text += String(event.text || "");
+        state.bubble.textContent = state.text;
+        toBottom();
+        break;
+      }
+      case "chief-stream-end": {
+        const streamId = event.streamId || event.messageId || event.runId || "default";
+        const state = chiefStreams.get(streamId);
+        if (state) {
+          state.text = event.text || state.text;
+          state.bubble.textContent = state.text;
+          chiefStreams.delete(streamId);
+          toBottom();
+        } else if (event.text) {
+          agentMsg(chief, { instant, avatarValue: "main" }).textContent = event.text;
+        }
+        break;
+      }
+      case "followup-stream-start": {
+        const followupId = event.followupId || event.streamId || engine.pendingFollowupId;
+        if (!followupId) break;
+        const bubble = followupStreams.get(followupId) || agentMsg(chief, { typing: true, avatarValue: "main", instant });
+        followupStreams.set(followupId, bubble);
+        engine.pendingFollowupId = followupId;
+        break;
+      }
+      case "followup-stream-delta": {
+        const followupId = event.followupId || event.streamId || engine.pendingFollowupId;
+        if (!followupId) break;
+        const bubble = followupStreams.get(followupId) || agentMsg(chief, { typing: true, avatarValue: "main", instant });
+        bubble.textContent = `${bubble.dataset.sbStreamText || ""}${event.text || ""}`;
+        bubble.dataset.sbStreamText = bubble.textContent;
+        followupStreams.set(followupId, bubble);
+        engine.pendingFollowupId = followupId;
+        toBottom();
+        break;
+      }
+      case "followup-stream-end": {
+        const followupId = event.followupId || event.streamId || engine.pendingFollowupId;
+        const bubble = followupId ? followupStreams.get(followupId) : null;
+        if (bubble) {
+          bubble.textContent = event.text || bubble.dataset.sbStreamText || bubble.textContent;
+          delete bubble.dataset.sbStreamText;
+        }
+        if (followupId) followupStreams.delete(followupId);
+        if (engine.pendingFollowupId === followupId) engine.pendingFollowupId = null;
+        toBottom();
         break;
       }
       case "brief":
@@ -2218,8 +3837,45 @@ function openConversation(engine) {
         // Dispatch remains in the runtime/evidence stream. The employee's own entrance
         // message below is the only user-facing handoff, avoiding protocol-like chatter.
         break;
+      case "account-resolved": {
+        const account = event.account || {};
+        const label = account.nickname || account.uniqueId || account.unique_id || "目标账号";
+        const douyinId = account.uniqueId || account.unique_id;
+        updateProgressSummary("账号已识别", douyinId && douyinId !== label ? `${label} · 抖音号 ${douyinId}` : label);
+        break;
+      }
+      case "lead-candidate":
+        updateProgressSummary("找人中", event.count != null ? `已同步 ${event.count} 条候选线索` : "正在同步候选线索");
+        break;
+      case "lead-qualified":
+        updateProgressSummary("分析中", event.score != null ? `已识别一条 ${event.tier || "高意向"} 线索（${event.score} 分）` : "正在核验线索意向");
+        break;
+      case "result-updated": {
+        const snapshot = event.resultSnapshot || engine.runtime?.snapshot?.resultSnapshot;
+        const counts = resultCountsFor(snapshot);
+        const countText = [
+          counts.leads != null ? `${counts.leads} 条线索` : null,
+          counts.outreach != null ? `${counts.outreach} 次触达` : null,
+          counts.replies != null ? `${counts.replies} 条回复` : null
+        ].filter(Boolean).join(" · ");
+        updateProgressSummary("结果已更新", countText || "已收到新的业务结果");
+        refreshResultCard(snapshot);
+        break;
+      }
       case "sub-start": {
-        const agentName = event.agentName || memberOf();
+        const agentName = displayAgentName({ agentType: event.agentType, name: event.agentName || memberOf() });
+        if (engine.online) {
+          const skill = event.skill || event.skillId || "服务端执行阶段";
+          renderAgentTrace(
+            agentName,
+            "已开始执行",
+            event.text || `${skill}已由${agentName}开始处理。`,
+            [],
+            instant,
+            "sb-human-agent-message"
+          );
+          break;
+        }
         const trace = getDialogueInteractionTrace(engine.scriptKey, event.i, engine.taskText);
         const dialogue = getEmployeeDialogue("entrance", {
           agentName,
@@ -2266,13 +3922,15 @@ function openConversation(engine) {
       case "sub-log": {
         const c = pv.subs[event.i];
         const trace = getDialogueInteractionTrace(engine.scriptKey, event.i, engine.taskText);
+        const waitingForRemoteResult = ["PENDING", "QUEUED", "WAITING", "PROCESSING", "DISPATCHED"].includes(String(event.status || "").toUpperCase());
         if (c) {
           if (c.sub.style.display === "none") { // 历史事件缺少接收节点时，首条回报也要补齐状态轨迹
             revealSub(c, "已开始任务");
             addSubEvent(c, "已开始", "sb-active");
           }
           c.count += 1;
-          c.barI.style.width = `${Math.round((c.count / script.subs[event.i].lines.length) * 100)}%`;
+          const lineCount = Math.max(1, script.subs[event.i]?.lines?.length || c.count || 1);
+          c.barI.style.width = `${Math.min(100, Math.round((c.count / lineCount) * 100))}%`;
           for (const evidence of event.evidence || []) {
             addSubEvent(c, `证据 · ${evidence.label || evidence.ref}`, "sb-evidence");
           }
@@ -2286,8 +3944,22 @@ function openConversation(engine) {
           }
           updateProgressSummary("正在分析", "正在整理证据和判断依据");
         }
-        // 成员发言：像群聊一样用自己的气泡说话（实时带 typing，重放直接落字）
-        const speaker = event.agentName || memberOf();
+        // Online runs render only server status/text. Local employee dialogue is
+        // reserved for explicit demo mode and must never imply real progress.
+        const speaker = displayAgentName({ agentType: event.agentType, name: event.agentName || memberOf() });
+        const evidenceMeta = (event.evidence || []).map((item) => `工作依据 · ${item.label || item.ref}`);
+        if (engine.online) {
+          renderAgentTrace(
+            speaker,
+            waitingForRemoteResult ? "等待异步回调" : "服务端进展",
+            event.text || `${event.skill || event.skillId || "服务端执行阶段"}已更新状态。`,
+            evidenceMeta,
+            instant,
+            "sb-human-agent-message"
+          );
+          toBottom();
+          break;
+        }
         const dialogue = getEmployeeDialogue("progress", {
           agentName: speaker,
           skill: trace.skill,
@@ -2296,7 +3968,6 @@ function openConversation(engine) {
           index: event.i,
           lineIndex: event.lineIndex
         });
-        const evidenceMeta = (event.evidence || []).map((item) => `工作依据 · ${item.label || item.ref}`);
         if (instant) {
           renderAgentTrace(speaker, dialogue.title, dialogue.body, evidenceMeta, true, "sb-human-agent-message");
           if (c) {
@@ -2328,6 +3999,19 @@ function openConversation(engine) {
           }, 800);
           viewTimers.push(id);
         }
+        if (waitingForRemoteResult) {
+          if (c) {
+            c.state.textContent = "等待回调";
+            c.state.classList.remove("sb-accepted", "sb-on", "sb-thinking", "sb-ok");
+            c.state.classList.add("sb-thinking");
+          }
+          if (pv.statusText) {
+            pv.statusText.textContent = "等待数据回调";
+            pv.status.classList.remove("sb-accepted", "sb-on", "sb-ok");
+            pv.status.classList.add("sb-thinking");
+          }
+          updateProgressSummary("等待数据回调", event.text || "真实采集任务已提交，等待异步结果返回");
+        }
         toBottom();
         break;
       }
@@ -2341,7 +4025,21 @@ function openConversation(engine) {
           c.bar.classList.add("sb-ok");
           addSubEvent(c, "已完成", "sb-complete");
         }
-        const speaker = event.agentName || memberOf();
+        const speaker = displayAgentName({ agentType: event.agentType, name: event.agentName || memberOf() });
+        if (engine.online) {
+          renderAgentTrace(
+            speaker,
+            "阶段已返回",
+            event.text || `${event.skill || event.skillId || "服务端执行阶段"}已返回服务端结果。`,
+            event.errorCode ? [`错误码 · ${event.errorCode}`] : [],
+            instant,
+            "sb-human-agent-message sb-completion"
+          );
+          updateProgressSummary("执行中", `${speaker}已返回服务端状态`);
+          maybeCollapseProgress();
+          toBottom();
+          break;
+        }
         const dialogue = getEmployeeDialogue("completion", {
           agentName: speaker,
           skill: trace.skill,
@@ -2375,11 +4073,64 @@ function openConversation(engine) {
       }
       case "handoff":
         updateProgressSummary("需要人工", "自动动作已停止，等待你的处理");
-        showRecoveryCard("这一步需要你来接手", cleanEmployeeText(event.text), instant, { actions: [["补充信息", "请补充人工处理要求："], ["交给人工", "请将这项任务交给人工处理。"]] });
+        showRecoveryCard("这一步需要你来接手", cleanEmployeeText(event.text), instant, { actions: [["补充信息", "请补充人工处理要求："], ["交给人工", INTERACTION_COMMANDS.HANDOFF]] });
         break;
       case "task-error":
-        showRecoveryCard("任务先暂停一下", cleanEmployeeText(event.text), instant);
+        showRecoveryCard(
+          "任务先暂停一下",
+          cleanEmployeeText(event.text),
+          instant,
+          event.errorCode === "REMOTE_TASK_NOT_FOUND"
+            ? { preserved: "本地已完成的工作和证据已保留", errorCode: event.errorCode, actions: [["重新建立任务", "remote-recreate"]] }
+            : {}
+        );
         updateProgressSummary("已暂停", "任务遇到问题，等待你的处理");
+        break;
+      case "task-paused":
+        engine.paused = true;
+        updateProgressSummary("已暂停", event.reason || "任务已暂停，已完成内容和证据会保留");
+        showRecoveryCard("任务已暂停", event.reason || "任务已暂停，继续时会从未完成步骤恢复。", instant, { preserved: "已完成的工作和证据已保留" });
+        break;
+      case "task-resumed":
+        engine.paused = false;
+        updateProgressSummary("继续执行", "任务已恢复，将从剩余步骤继续");
+        break;
+      case "task-retry-requested":
+        engine.paused = false;
+        updateProgressSummary("重试中", "正在重新执行失败步骤，已完成内容不会重复发送");
+        break;
+      case "task-cancelled":
+        engine.cancelled = true;
+        if (pv.status) {
+          pv.status.classList.remove("sb-accepted", "sb-on", "sb-thinking", "sb-done");
+          pv.status.classList.add("sb-error");
+          pv.statusText.textContent = "已取消";
+        }
+        updateProgressSummary("已取消", "任务已停止，历史证据仍可查看");
+        break;
+      case "lead-replied":
+        updateProgressSummary("已收到回复", "未执行的后续触达已停止，等待人工或会话接管");
+        showRecoveryCard("收到客户回复", `${event.replyText || "客户发来了新的回复"} 已停止后续自动跟进，完整上下文保留在当前任务中。`, instant, { preserved: "后续触达已停止，不会重复打扰客户", actions: [["继续追问", "请基于客户刚才的回复，整理下一步人工处理建议："]] });
+        break;
+      case "lead-do-not-contact":
+        updateProgressSummary("已停止触达", "客户已被加入不触达保护，后续自动动作均已拦截");
+        showRecoveryCard("已停止触达", event.reason || "该客户不再接受自动触达。", instant, { preserved: "不触达状态已记录，后续任务会继续拦截" });
+        break;
+      case "outreach-scheduled":
+        updateProgressSummary("已排期", event.at ? `触达计划：${event.at}` : "触达已排入执行队列");
+        break;
+      case "outreach-sending":
+        updateProgressSummary("触达中", "正在逐条执行已确认的触达动作");
+        break;
+      case "outreach-sent":
+        updateProgressSummary("已提交触达", event.deliveryState === "delivered" ? "平台已确认送达，等待客户回复" : "平台已接收请求，正在核对送达状态");
+        break;
+      case "delivery-checking":
+        updateProgressSummary("核对送达", "网络状态不确定，正在核对结果，暂不重复发送");
+        break;
+      case "outreach-failed":
+        showRecoveryCard("触达没有完成", cleanEmployeeText(event.text || "触达执行失败"), instant, { preserved: "已保留对象、动作和失败原因" });
+        updateProgressSummary("触达失败", event.retryable === false ? "需要调整触达方式" : "可以重试失败对象");
         break;
       case "task-blocked":
         if (pv.status) {
@@ -2401,7 +4152,7 @@ function openConversation(engine) {
         break;
       }
       case "approval-show":
-        showApprovalBox(instant);
+        showApprovalBox(instant, event.approval);
         if (engine.decision != null) markApprovalResolved(engine.decision); // 重放时已决策
         break;
       case "approval-resolved":
@@ -2409,7 +4160,10 @@ function openConversation(engine) {
         markApprovalResolved(event.ok);
         break;
       case "touch-sent":
-        updateProgressSummary("已模拟触达", "候选状态已更新，未发送任何外部消息");
+        updateProgressSummary(
+          engine.online ? "已提交触达" : "已模拟触达",
+          engine.online ? "平台已接收请求，正在核对送达状态" : "候选状态已更新，未发送任何外部消息"
+        );
         break;
       case "run-finished":
         markRunFinished();
@@ -2420,8 +4174,30 @@ function openConversation(engine) {
       case "followup-user":
         userMsg(event.text, instant);
         break;
+      case "followup-waiting": {
+        const followupId = event.followupId || `followup-${engine.runtime.events.length}`;
+        const bubble = agentMsg(chief, { typing: true, avatarValue: "main", instant });
+        followupStreams.set(followupId, bubble);
+        engine.pendingFollowupId = followupId;
+        break;
+      }
+      case "followup-failed": {
+        const bubble = followupStreams.get(event.followupId);
+        if (bubble) {
+          bubble.textContent = event.text || "追问未送达，请稍后重试。";
+          followupStreams.delete(event.followupId);
+        }
+        if (engine.pendingFollowupId === event.followupId) engine.pendingFollowupId = null;
+        showRecoveryCard("追问没有送达", event.text || "连接异常，请重试。", instant, { preserved: "原任务状态和已完成证据未受影响" });
+        break;
+      }
       case "followup-chief": {
-        if (instant) {
+        const pending = event.followupId ? followupStreams.get(event.followupId) : null;
+        if (pending) {
+          pending.textContent = event.text;
+          followupStreams.delete(event.followupId);
+          if (engine.pendingFollowupId === event.followupId) engine.pendingFollowupId = null;
+        } else if (instant) {
           agentMsg(chief, { instant: true, avatarValue: "main" }).textContent = event.text;
         } else {
           const bubble = agentMsg(chief, { typing: true, avatarValue: "main" });
@@ -2433,13 +4209,18 @@ function openConversation(engine) {
     }
   }
 
-  const renderLive = (event) => renderEvent(event, false);
+  const renderLive = (event) => {
+    renderEvent(event, false);
+    updateTaskActionControl();
+  };
 
   // 重放历史 + 订阅增量
   let input = null;
   for (const event of engine.events) renderEvent(event, true);
+  updateTaskActionControl();
   engine.listeners.add(renderLive);
   if (!engine.engineInitialized) startEngine(engine);
+  else if (!engine.runtime.events.some((event) => ["summary", "task-cancelled"].includes(event.t))) engine.subscribeRemote?.();
 
   // ── 底部输入条：追问 ──
   const bar = el("div", "sb-chat-bar");
@@ -2480,10 +4261,19 @@ export function reopenTaskConversation({ task, teamLive }) {
     projectName: task.projectName || "潜在客户拓展项目组",
     projectMembers: task.projectMembers || [],
     teamLive,
+    gateway: taskRunnerContext?.gateway || null,
     online: task.online === true,
-    runtimeEvents: task.runtimeEvents || [],
-    taskStatus: task.status,
-    taskPreview: task.preview
+    demoMode: explicitDemoMode(),
+        runtimeEvents: task.runtimeEvents || [],
+        taskStatus: task.status,
+        taskResultSnapshot: task.resultSnapshot || null,
+        taskPreview: task.preview,
+    remoteTaskId: task.remoteTaskId || null,
+    remoteTaskRunId: task.remoteTaskRunId || null,
+    remoteConversationId: task.remoteConversationId || null,
+    remoteTaskVersion: task.remoteTaskVersion ?? null,
+    remoteTaskSeq: task.remoteTaskSeq ?? null,
+    browserSessionId: task.browserSessionId || null
   });
   openConversation(engine);
 }
@@ -2491,17 +4281,24 @@ export function reopenTaskConversation({ task, teamLive }) {
 /** Start a task from an independently executable skill in the toolbox. */
 export async function startSkillTask({ name, prompt, teamLive = null, gateway = null } = {}) {
   const context = taskRunnerContext || { teamLive, gateway };
+  const activeGateway = context.gateway || gateway;
+  const demoMode = explicitDemoMode();
+  if (!canSubmitTask({ gateway: activeGateway, demoMode })) {
+    showTaskRunnerNotice("后端控制面未连接，任务未执行。请先启动 Byering 后端（6681）。");
+    return false;
+  }
   if (!context.teamLive && !teamLive) return false;
-  const project = await currentProject(context.gateway || gateway);
+  const project = await currentProject(activeGateway);
   const taskText = prompt || `请执行技能：${name || "未命名技能"}`;
   const projectMembers = project.members || [];
+  const online = activeGateway?.controlPlaneReady === true;
   const taskId = addTask({
     title: name || taskText.slice(0, 40),
     projectId: project.id,
     projectName: project.name,
     projectMembers,
     taskText,
-    online: false
+    online
   });
   const engine = ensureEngine({
     taskId,
@@ -2510,7 +4307,9 @@ export async function startSkillTask({ name, prompt, teamLive = null, gateway = 
     projectName: project.name,
     projectMembers,
     teamLive: context.teamLive || teamLive,
-    online: false
+    gateway: activeGateway,
+    online,
+    demoMode
   });
   openConversation(engine);
   return true;
@@ -2536,6 +4335,15 @@ function clearEditor(editor) {
     sel.selectAllChildren(editor);
     document.execCommand("delete", false);
   } catch { /* 清空失败不阻塞 */ }
+}
+
+export function canSubmitTask({ gateway = null, demoMode = false } = {}) {
+  return gateway?.controlPlaneReady === true || demoMode === true;
+}
+
+function explicitDemoMode() {
+  return globalThis.__SALEBUDDY_CONFIG__?.demoMode === true
+    || (typeof location !== "undefined" && new URLSearchParams(location.search).get("demo") === "1");
 }
 
 async function currentProject(gateway) {
@@ -2566,6 +4374,12 @@ export function mountTaskRunner({ teamLive, gateway } = {}) {
   async function submit(editor) {
     const text = (editor?.textContent || "").replace(/ /g, " ").trim();
     if (!text || submitting) return;
+    const controlPlaneReady = gateway?.controlPlaneReady === true;
+    const demoMode = explicitDemoMode();
+    if (!canSubmitTask({ gateway, demoMode })) {
+      showTaskRunnerNotice("后端控制面未连接，任务未执行。请先启动 Byering 后端（6681）。");
+      return;
+    }
     submitting = true;
     try {
       clearEditor(editor);
@@ -2574,10 +4388,10 @@ export function mountTaskRunner({ teamLive, gateway } = {}) {
       const projectName = project.name;
       const title = text.length > 40 ? `${text.slice(0, 40)}…` : text;
       const optionInput = editor.closest?.(".semi-aiChatInput");
-      const online = !parseTouchRequest(text) && (optionInput?.dataset.sbOnline === "true" || onlineEnabled);
+      const online = controlPlaneReady;
       const projectMembers = project.members || [];
       const taskId = addTask({ title, projectId, projectName, projectMembers, taskText: text, online });
-      const engine = ensureEngine({ taskId, taskText: text, projectId, projectName, projectMembers, teamLive, online });
+      const engine = ensureEngine({ taskId, taskText: text, projectId, projectName, projectMembers, teamLive, gateway, online, demoMode });
       openConversation(engine);
     } finally {
       submitting = false;
@@ -2608,7 +4422,7 @@ export function mountTaskRunner({ teamLive, gateway } = {}) {
 
   window.addEventListener("keydown", onKeydown, true);
   window.addEventListener("click", onClick, true);
-  console.log("[SaleBuddy] 任务模拟运行（对话式·引擎解耦）已接管首页提交");
+  console.log("[SaleBuddy] 任务运行（对话式·服务端控制面）已接管首页提交");
 
   return {
     unmount() {

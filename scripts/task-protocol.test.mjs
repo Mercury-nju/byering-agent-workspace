@@ -165,6 +165,7 @@ test("invalid and terminal transitions are explicit errors", () => {
   assert.throws(() => transitionTaskState(TASK_STATES.HANDOFF_REQUIRED, COMMAND_TYPES.TASK_START), TaskTransitionError);
   assert.equal(transitionTaskState(TASK_STATES.WAITING_ACCESS, COMMAND_TYPES.ACCESS_CANCEL), TASK_STATES.WAITING_ACCESS);
   assert.equal(transitionTaskState(TASK_STATES.WAITING_REQUIREMENT, COMMAND_TYPES.REQUIREMENT_EDIT), TASK_STATES.WAITING_REQUIREMENT);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_REQUIREMENT, COMMAND_TYPES.REQUIREMENT_REQUEST), TASK_STATES.WAITING_REQUIREMENT);
   assert.equal(transitionTaskState(TASK_STATES.CREATED, { type: COMMAND_TYPES.TASK_START, payload: { requirementsConfirmed: "false", requiresAccess: true } }), TASK_STATES.WAITING_REQUIREMENT);
   assert.equal(transitionTaskState(TASK_STATES.WAITING_APPROVAL, { type: COMMAND_TYPES.APPROVAL_DECISION, payload: { decision: "rejected" } }), TASK_STATES.WAITING_APPROVAL);
   assert.throws(() => transitionTaskState(TASK_STATES.WAITING_APPROVAL, COMMAND_TYPES.RESUME), TaskTransitionError);

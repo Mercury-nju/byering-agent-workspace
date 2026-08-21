@@ -5,6 +5,7 @@
  */
 import { detectIntegrationPoints, waitForIntegrationPoints, listStoreDomains, readRouteInfo } from "./bridge/context.js";
 import { SaleBuddyGatewayClient, SB_ACTIONS } from "./bridge/gateway.js";
+import { ControlPlaneHttpClient, createHybridGateway } from "./bridge/control-plane-http.js";
 import * as registry from "./agents/registry.js";
 import { createTeamLive } from "./agents/live.js";
 import { getUiRoot, mountPanel } from "./ui/mount.js";
@@ -23,18 +24,45 @@ import { mountSharePage } from "./ui/share-page.js";
 
 /** 建立 SaleBuddy 自有 gateway 连接（新 action 命名空间），并注入 registry。 */
 async function connectGateway() {
+  let nativeGateway = null;
   try {
-    const url = await SaleBuddyGatewayClient.discoverUrl();
-    if (!url) return null;
-    const client = new SaleBuddyGatewayClient({ url });
-    await client.connect();
-    registry.attachGateway(client);
-    console.log("[SaleBuddy] gateway connected:", url);
-    return client;
+    const configuredUrl = globalThis.__SALEBUDDY_CONFIG__?.agentGatewayUrl
+      || document.querySelector('meta[name="salebuddy-agent-gateway"]')?.content
+      || new URLSearchParams(location.search).get("agentGateway")
+      || null;
+    const url = configuredUrl || await SaleBuddyGatewayClient.discoverUrl();
+    if (url) {
+      const client = new SaleBuddyGatewayClient({ url });
+      await client.connect();
+      nativeGateway = client;
+      console.log("[SaleBuddy] agent gateway connected:", url);
+    }
   } catch (error) {
-    console.warn("[SaleBuddy] gateway connect failed, 员工模型退化为本地模式", error);
-    return null;
+    console.warn("[SaleBuddy] agent gateway unavailable; trying control plane", error);
   }
+
+  let controlPlane = null;
+  try {
+    const baseUrl = globalThis.__SALEBUDDY_CONFIG__?.controlPlaneUrl
+      || document.querySelector('meta[name="salebuddy-control-plane"]')?.content
+      || "http://127.0.0.1:6681";
+    const apiKey = globalThis.__SALEBUDDY_CONFIG__?.controlPlaneApiKey
+      || document.querySelector('meta[name="salebuddy-control-plane-api-key"]')?.content
+      || null;
+    const apiKeyHeader = globalThis.__SALEBUDDY_CONFIG__?.controlPlaneApiKeyHeader
+      || "authorization";
+    const client = new ControlPlaneHttpClient({ baseUrl, apiKey, apiKeyHeader, timeoutMs: 1200 });
+    await client.connect();
+    controlPlane = client;
+    console.log("[SaleBuddy] control plane connected:", baseUrl);
+  } catch (error) {
+    console.warn("[SaleBuddy] control plane unavailable; task submission is blocked", error);
+  }
+
+  const gateway = createHybridGateway({ nativeGateway, controlPlane });
+  if (!gateway) return null;
+  registry.attachGateway(gateway);
+  return gateway;
 }
 
 async function spike() {
@@ -121,7 +149,7 @@ const agentCardChatReady = Promise.all([teamLiveReady, navFrameworkReady])
     return null;
   });
 
-// 云电脑实时快照：点办公室里成员的电脑或员工卡片电脑入口，当前页弹出该成员云电脑的模拟 LIVE 大屏
+// 云电脑工作快照：点办公室里成员的电脑或员工卡片电脑入口，当前页展示该成员的工作状态
 const cloudDesktopReady = Promise.all([gatewayReady.catch(() => null), teamLiveReady])
   .then(([client, live]) => mountCloudDesktop({ teamLive: live, gateway: client }))
   .catch((error) => {
@@ -129,7 +157,7 @@ const cloudDesktopReady = Promise.all([gatewayReady.catch(() => null), teamLiveR
     return null;
   });
 
-// 技能广场：工具箱页签提到最前并默认选中
+// 技能广场：工具箱页签提到最前并修正列表滚动，不主动切换当前路由
 const toolboxFirstReady = Promise.resolve()
   .then(() => mountToolboxFirst())
   .catch((error) => {
@@ -145,11 +173,11 @@ const salesSkillsReady = Promise.all([gatewayReady.catch(() => null), teamLiveRe
     return null;
   });
 
-// 任务模拟运行：接管首页任务提交（Enter / 发送按钮），整段替换为模拟运行视图
+// 任务运行：接管首页任务提交（Enter / 发送按钮），由服务端控制面驱动
 const taskRunnerReady = Promise.all([gatewayReady.catch(() => null), teamLiveReady])
   .then(([client, live]) => mountTaskRunner({ teamLive: live, gateway: client }))
   .catch((error) => {
-    console.warn("[SaleBuddy] 任务模拟运行挂载失败", error);
+    console.warn("[SaleBuddy] 任务运行挂载失败", error);
     return null;
   });
 
@@ -187,7 +215,7 @@ const api = {
   taskRunnerReady,
   shellFullscreenReady,
   homeSalesFeedReady,
-  bridge: { SaleBuddyGatewayClient, SB_ACTIONS, detectIntegrationPoints },
+  bridge: { SaleBuddyGatewayClient, ControlPlaneHttpClient, SB_ACTIONS, detectIntegrationPoints },
   agents: registry,
   ui: { getUiRoot, mountPanel }
 };

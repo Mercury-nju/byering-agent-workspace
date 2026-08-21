@@ -1,7 +1,7 @@
 /**
- * Simulated Douyin OAuth flow rendered inside a cloud-computer window.
- * The window is intentionally explicit: opening the page, signing in, reviewing
- * scopes, and returning to Byering are separate user-controlled transitions.
+ * Real Douyin account authorization shell.
+ * The backend owns the browser workspace; this view only reports observed
+ * login state and never turns a local click into a fake success.
  */
 
 const CSS = `
@@ -58,7 +58,7 @@ function stepper(active) {
   return wrap;
 }
 
-export function openDouyinAuthorization({ account, scopes = [], onAuthorized, onCancelled } = {}) {
+export function openDouyinAuthorization({ account, scopes = [], session = null, checkAuthorization, onAuthorized, onCancelled } = {}) {
   ensureStyle();
   activeWindow?.close("replaced");
 
@@ -80,18 +80,16 @@ export function openDouyinAuthorization({ account, scopes = [], onAuthorized, on
   head.appendChild(closeButton);
   const toolbar = node("div", "sb-dy-auth-toolbar");
   toolbar.append(node("span", "sb-dy-auth-nav", "‹"), node("span", "sb-dy-auth-nav", "›"), node("span", "sb-dy-auth-nav", "↻"));
-  toolbar.append(node("span", "sb-dy-auth-lock", "⌑"), node("span", "sb-dy-auth-url", "https://www.douyin.com/login?source=byering"));
+  toolbar.append(node("span", "sb-dy-auth-lock", "⌑"), node("span", "sb-dy-auth-url", session?.pageUrl || session?.authUrl || "等待浏览器工作区"));
   const screen = node("div", "sb-dy-auth-screen");
   windowEl.append(head, toolbar, screen);
   root.appendChild(windowEl);
   document.body.appendChild(root);
 
   let closed = false;
-  let timer = null;
   const close = (reason = "cancelled") => {
     if (closed) return;
     closed = true;
-    if (timer) clearTimeout(timer);
     document.removeEventListener("keydown", onKeyDown);
     root.remove();
     if (activeWindow?.root === root) activeWindow = null;
@@ -132,26 +130,38 @@ export function openDouyinAuthorization({ account, scopes = [], onAuthorized, on
   function renderLogin() {
     screen.replaceChildren(brand("账号安全中心"));
     screen.appendChild(stepper(0));
-    const main = header("账号登录", "登录抖音账号", "这是一个隔离的云电脑浏览器窗口。请先完成账号登录，Byering 不会读取浏览器密码。");
+    const main = header("真实浏览器工作区", "在抖音中完成登录", "Byering 已为这个账号打开独立的持久浏览器工作区。请在新打开的浏览器窗口中扫码或登录，Byering 不会读取你的密码。");
     main.appendChild(accountCard());
     const loginBox = node("div", "sb-dy-auth-loginbox");
     const row = node("div", "sb-dy-auth-loginrow");
     const status = node("span", "sb-dy-auth-status");
-    status.append(node("i"), node("span", null, "等待确认"));
-    row.append(node("strong", null, "登录方式"), status);
+    status.append(node("i"), node("span", null, "等待抖音登录"));
+    row.append(node("strong", null, "浏览器状态"), status);
     loginBox.appendChild(row);
     const notice = node("div", "sb-dy-auth-notice");
-    notice.append(document.createTextNode("请确认这是你要连接的业务账号。登录后还会单独展示权限范围，"), node("strong", null, "不会自动开始任务"), document.createTextNode("。"));
+    notice.append(document.createTextNode("登录完成后点击“检查登录状态”。只有后端从该浏览器工作区检测到真实会话，"), node("strong", null, "才会允许继续任务"), document.createTextNode("。"));
     loginBox.appendChild(notice);
     main.appendChild(loginBox);
     const actions = node("div", "sb-dy-auth-actions");
     actions.appendChild(actionButton("取消", () => close("cancelled")));
-    const login = actionButton("确认登录并继续", () => {
-      login.disabled = true;
-      login.textContent = "正在校验登录…";
-      timer = setTimeout(renderPermission, 900);
+    const check = actionButton("检查登录状态", async () => {
+      check.disabled = true;
+      check.textContent = "正在检查…";
+      status.querySelector("span:last-child").textContent = "正在检查真实会话";
+      try {
+        if (typeof checkAuthorization !== "function") throw new Error("真实浏览器工作区未接入");
+        const result = await checkAuthorization();
+        if (result?.state !== "READY") throw new Error("尚未检测到抖音登录状态");
+        status.querySelector("span:last-child").textContent = "已检测到真实登录";
+        renderPermission();
+      } catch (error) {
+        status.querySelector("span:last-child").textContent = "尚未检测到登录";
+        notice.replaceChildren(document.createTextNode(error?.message || "请先在真实抖音浏览器窗口完成登录，再重新检查。"));
+        check.disabled = false;
+        check.textContent = "重新检查登录状态";
+      }
     }, true);
-    actions.appendChild(login);
+    actions.appendChild(check);
     main.appendChild(actions);
     screen.appendChild(main);
   }
@@ -159,7 +169,7 @@ export function openDouyinAuthorization({ account, scopes = [], onAuthorized, on
   function renderPermission() {
     screen.replaceChildren(brand("授权管理"));
     screen.appendChild(stepper(1));
-    const main = header("授权请求", "确认 Byering 的访问范围", "登录已完成。请核对本次任务需要使用的数据和动作，未在下面列出的内容不会进入任务上下文。");
+    const main = header("授权请求", "确认 Byering 的访问范围", "真实登录态已由后端浏览器工作区检测到。请核对本次任务需要使用的数据和动作，未在下面列出的内容不会进入任务上下文。");
     main.appendChild(accountCard());
     const list = node("ul", "sb-dy-auth-scope-list");
     scopes.forEach((scope) => list.appendChild(node("li", null, scope)));
@@ -169,7 +179,22 @@ export function openDouyinAuthorization({ account, scopes = [], onAuthorized, on
     main.appendChild(boundary);
     const actions = node("div", "sb-dy-auth-actions");
     actions.appendChild(actionButton("拒绝并关闭", () => close("denied")));
-    actions.appendChild(actionButton("确认授权", renderSuccess, true));
+    const confirm = actionButton("确认授权", async () => {
+      confirm.disabled = true;
+      confirm.textContent = "正在再次核验…";
+      try {
+        if (typeof checkAuthorization !== "function") throw new Error("真实浏览器工作区未接入");
+        const result = await checkAuthorization();
+        if (result?.state !== "READY") throw new Error("抖音登录态已失效，请回到浏览器窗口重新登录");
+        renderSuccess();
+      } catch (error) {
+        const notice = node("div", "sb-dy-auth-notice", error?.message || "账号状态发生变化，请重新检查登录状态");
+        main.insertBefore(notice, actions);
+        confirm.disabled = false;
+        confirm.textContent = "重新核验并确认";
+      }
+    }, true);
+    actions.appendChild(confirm);
     main.appendChild(actions);
     screen.appendChild(main);
   }
@@ -177,7 +202,7 @@ export function openDouyinAuthorization({ account, scopes = [], onAuthorized, on
   function renderSuccess() {
     screen.replaceChildren(brand("授权管理"));
     screen.appendChild(stepper(2));
-    const main = header("授权完成", "账号已安全连接", "授权结果已写回 Byering，但任务尚未开始。返回后还需要确认本次任务的最小访问范围。");
+    const main = header("授权完成", "账号已安全连接", "登录态已核验，账号工作区已绑定本次任务。任务尚未开始，返回后还需要确认本次任务的最小访问范围。");
     main.classList.add("sb-dy-auth-success");
     main.insertBefore(node("div", "sb-dy-auth-check", "✓"), main.firstChild);
     main.appendChild(accountCard());

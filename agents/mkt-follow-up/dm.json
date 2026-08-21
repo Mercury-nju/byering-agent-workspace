@@ -2062,5 +2062,1269 @@
     "fromName": "跟跟",
     "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
     "createdAt": "2026-08-13T10:21:46.220Z"
+  },
+  {
+    "id": "dm-msylpuhh-bmu8",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-18T11:50:43.349Z"
+  },
+  {
+    "id": "dm-msylpvf0-vxvl",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-18T11:50:44.556Z"
+  },
+  {
+    "id": "dm-msyltofk-24b7",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-18T11:53:42.128Z"
+  },
+  {
+    "id": "dm-msyltpd3-uh4c",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-18T11:53:43.335Z"
+  },
+  {
+    "id": "dm-msyoqo5k-ba2p",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-18T13:15:20.648Z"
+  },
+  {
+    "id": "dm-msyoqp35-rtqt",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-18T13:15:21.857Z"
+  },
+  {
+    "id": "dm-msyoxmvs-aoh8",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-18T13:20:45.592Z"
+  },
+  {
+    "id": "dm-msyoxntb-yvhu",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-18T13:20:46.799Z"
+  },
+  {
+    "id": "dm-msyp6ih8-z4ju",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-18T13:27:39.788Z"
+  },
+  {
+    "id": "dm-msyp6jeq-7o8c",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-18T13:27:40.994Z"
+  },
+  {
+    "id": "dm-msz0bzsa-3fd0",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-18T18:39:51.274Z"
+  },
+  {
+    "id": "dm-msz0c0pu-qq2r",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-18T18:39:52.482Z"
+  },
+  {
+    "id": "dm-msz16zk7-ydjp",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-18T19:03:57.319Z"
+  },
+  {
+    "id": "dm-msz170ho-53ob",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-18T19:03:58.524Z"
+  },
+  {
+    "id": "dm-msz2hw0u-irtg",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-18T19:40:25.566Z"
+  },
+  {
+    "id": "dm-msz2hwya-1if9",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-18T19:40:26.770Z"
+  },
+  {
+    "id": "dm-msz2liw3-ils6",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-18T19:43:15.171Z"
+  },
+  {
+    "id": "dm-msz2ljtl-l8m7",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-18T19:43:16.377Z"
+  },
+  {
+    "id": "dm-mszgnxzg-t43h",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T02:17:02.668Z"
+  },
+  {
+    "id": "dm-mszgnywy-uuwk",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T02:17:03.874Z"
+  },
+  {
+    "id": "dm-mszgwiql-1si5",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T02:23:42.813Z"
+  },
+  {
+    "id": "dm-mszgwjo3-vgg2",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T02:23:44.019Z"
+  },
+  {
+    "id": "dm-mszireep-w9yc",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T03:15:43.153Z"
+  },
+  {
+    "id": "dm-mszirfc9-05vz",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T03:15:44.361Z"
+  },
+  {
+    "id": "dm-mszkc8z9-iwq7",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T03:59:55.509Z"
+  },
+  {
+    "id": "dm-mszkc9wr-5y9p",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T03:59:56.715Z"
+  },
+  {
+    "id": "dm-mszkfzb8-1g0d",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T04:02:49.604Z"
+  },
+  {
+    "id": "dm-mszkg08s-8lt0",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T04:02:50.812Z"
+  },
+  {
+    "id": "dm-mszr9nhq-7v8e",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T07:13:51.662Z"
+  },
+  {
+    "id": "dm-mszr9of7-qhxc",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T07:13:52.867Z"
+  },
+  {
+    "id": "dm-mszraeat-qw72",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T07:14:26.405Z"
+  },
+  {
+    "id": "dm-mszraf8a-eig6",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T07:14:27.610Z"
+  },
+  {
+    "id": "dm-mszsd1bn-1068",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T07:44:29.171Z"
+  },
+  {
+    "id": "dm-mszsd294-bp2l",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T07:44:30.377Z"
+  },
+  {
+    "id": "dm-mszt5neb-e8or",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T08:06:44.147Z"
+  },
+  {
+    "id": "dm-mszt5obq-1s56",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T08:06:45.350Z"
+  },
+  {
+    "id": "dm-mszt8he3-dgzi",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T08:08:56.331Z"
+  },
+  {
+    "id": "dm-mszt8ibl-zx0q",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T08:08:57.537Z"
+  },
+  {
+    "id": "dm-msztapxr-u6xs",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T08:10:40.719Z"
+  },
+  {
+    "id": "dm-msztaqv9-oo95",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T08:10:41.925Z"
+  },
+  {
+    "id": "dm-msztilbw-di3e",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T08:16:47.996Z"
+  },
+  {
+    "id": "dm-msztim9e-hgg2",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T08:16:49.202Z"
+  },
+  {
+    "id": "dm-mszttauh-h9ua",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T08:25:07.625Z"
+  },
+  {
+    "id": "dm-mszttbrz-qn46",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T08:25:08.831Z"
+  },
+  {
+    "id": "dm-mszu8nxl-nefk",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T08:37:04.425Z"
+  },
+  {
+    "id": "dm-mszu8ov4-upf9",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T08:37:05.632Z"
+  },
+  {
+    "id": "dm-mszwwitw-3gkl",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T09:51:36.788Z"
+  },
+  {
+    "id": "dm-mszwwjs3-gr8x",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T09:51:38.019Z"
+  },
+  {
+    "id": "dm-mszx1h9n-nb67",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T09:55:28.043Z"
+  },
+  {
+    "id": "dm-mszx1i73-kqlo",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T09:55:29.247Z"
+  },
+  {
+    "id": "dm-mszx8grp-wtrk",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T10:00:53.989Z"
+  },
+  {
+    "id": "dm-mszx8hp8-mfa7",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T10:00:55.196Z"
+  },
+  {
+    "id": "dm-mszz4usn-yd3o",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T10:54:04.775Z"
+  },
+  {
+    "id": "dm-mszz4vq5-v9dt",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T10:54:05.981Z"
+  },
+  {
+    "id": "dm-mszze0m3-8muv",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T11:01:12.219Z"
+  },
+  {
+    "id": "dm-mszze1jm-7qym",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T11:01:13.426Z"
+  },
+  {
+    "id": "dm-mt006v14-8qzf",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T11:23:38.008Z"
+  },
+  {
+    "id": "dm-mt006vym-hkjw",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T11:23:39.214Z"
+  },
+  {
+    "id": "dm-mt00gym3-9y3e",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T11:31:29.211Z"
+  },
+  {
+    "id": "dm-mt00gzjk-02nm",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T11:31:30.416Z"
+  },
+  {
+    "id": "dm-mt01gkt9-n3q2",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T11:59:10.941Z"
+  },
+  {
+    "id": "dm-mt01glqr-6dgg",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T11:59:12.147Z"
+  },
+  {
+    "id": "dm-mt01hz76-c0j7",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T12:00:16.242Z"
+  },
+  {
+    "id": "dm-mt01i04n-d0ku",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T12:00:17.447Z"
+  },
+  {
+    "id": "dm-mt022s0s-tj39",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T12:16:26.716Z"
+  },
+  {
+    "id": "dm-mt022sy9-ao02",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T12:16:27.921Z"
+  },
+  {
+    "id": "dm-mt02j42n-9nls",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T12:29:08.831Z"
+  },
+  {
+    "id": "dm-mt02j506-rxht",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T12:29:10.038Z"
+  },
+  {
+    "id": "dm-mt038ct6-6c9n",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T12:48:46.554Z"
+  },
+  {
+    "id": "dm-mt038dqp-24lp",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T12:48:47.762Z"
+  },
+  {
+    "id": "dm-mt0a90lf-wn3y",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T16:05:14.691Z"
+  },
+  {
+    "id": "dm-mt0a91j0-xapz",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T16:05:15.900Z"
+  },
+  {
+    "id": "dm-mt0aa0w0-v0g1",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T16:06:01.728Z"
+  },
+  {
+    "id": "dm-mt0aa1ti-yz04",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T16:06:02.934Z"
+  },
+  {
+    "id": "dm-mt0aymjz-em9z",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T16:25:09.551Z"
+  },
+  {
+    "id": "dm-mt0aynhh-jisk",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T16:25:10.757Z"
+  },
+  {
+    "id": "dm-mt0bn23d-yxt6",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T16:44:09.433Z"
+  },
+  {
+    "id": "dm-mt0bn30w-i0sw",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T16:44:10.640Z"
+  },
+  {
+    "id": "dm-mt0ceri8-3opi",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T17:05:42.080Z"
+  },
+  {
+    "id": "dm-mt0cesfq-s4bi",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T17:05:43.286Z"
+  },
+  {
+    "id": "dm-mt0er1t7-vmxs",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T18:11:14.539Z"
+  },
+  {
+    "id": "dm-mt0er2qq-udd8",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T18:11:15.746Z"
+  },
+  {
+    "id": "dm-mt0euo5q-i0pb",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T18:14:03.470Z"
+  },
+  {
+    "id": "dm-mt0eup38-e3tf",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T18:14:04.676Z"
+  },
+  {
+    "id": "dm-mt0ez4t5-eiym",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T18:17:31.673Z"
+  },
+  {
+    "id": "dm-mt0ez5qn-spo1",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T18:17:32.879Z"
+  },
+  {
+    "id": "dm-mt0fbqqr-ljlq",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T18:27:19.971Z"
+  },
+  {
+    "id": "dm-mt0fbro9-2ekk",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T18:27:21.177Z"
+  },
+  {
+    "id": "dm-mt0fjktp-5vdm",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T18:33:25.549Z"
+  },
+  {
+    "id": "dm-mt0fjlr7-x579",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T18:33:26.755Z"
+  },
+  {
+    "id": "dm-mt0fwphj-0sxk",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T18:43:38.119Z"
+  },
+  {
+    "id": "dm-mt0fwqf1-z0vh",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T18:43:39.325Z"
+  },
+  {
+    "id": "dm-mt0g1kt7-4h7i",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-19T18:47:25.339Z"
+  },
+  {
+    "id": "dm-mt0g1lqq-iet4",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-19T18:47:26.546Z"
+  },
+  {
+    "id": "dm-mt0xko16-wjip",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T02:58:09.450Z"
+  },
+  {
+    "id": "dm-mt0xkoyt-88hv",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T02:58:10.661Z"
+  },
+  {
+    "id": "dm-mt10qqg6-6c52",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T04:26:51.366Z"
+  },
+  {
+    "id": "dm-mt10qrds-tvct",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T04:26:52.576Z"
+  },
+  {
+    "id": "dm-mt10tt29-93ja",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T04:29:14.721Z"
+  },
+  {
+    "id": "dm-mt10ttzr-ep13",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T04:29:15.927Z"
+  },
+  {
+    "id": "dm-mt10uthl-o3em",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T04:30:01.929Z"
+  },
+  {
+    "id": "dm-mt10uuf4-xll0",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T04:30:03.136Z"
+  },
+  {
+    "id": "dm-mt115t7d-l4gg",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T04:38:34.777Z"
+  },
+  {
+    "id": "dm-mt115u4w-k75g",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T04:38:35.984Z"
+  },
+  {
+    "id": "dm-mt11c5px-nnlj",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T04:43:30.933Z"
+  },
+  {
+    "id": "dm-mt11c6nh-1sju",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T04:43:32.141Z"
+  },
+  {
+    "id": "dm-mt127auk-ifyt",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T05:07:43.916Z"
+  },
+  {
+    "id": "dm-mt127bs6-0hvz",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T05:07:45.126Z"
+  },
+  {
+    "id": "dm-mt12m60f-73w6",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T05:19:17.487Z"
+  },
+  {
+    "id": "dm-mt12m6xw-mbat",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T05:19:18.692Z"
+  },
+  {
+    "id": "dm-mt12n7wu-ewii",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T05:20:06.606Z"
+  },
+  {
+    "id": "dm-mt12n8ub-tsw5",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T05:20:07.811Z"
+  },
+  {
+    "id": "dm-mt137qr9-e35k",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T05:36:04.149Z"
+  },
+  {
+    "id": "dm-mt137roq-wvu6",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T05:36:05.354Z"
+  },
+  {
+    "id": "dm-mt16torx-brob",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T07:17:06.861Z"
+  },
+  {
+    "id": "dm-mt16tpph-qser",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T07:17:08.069Z"
+  },
+  {
+    "id": "dm-mt16vvyu-q9pn",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T07:18:49.494Z"
+  },
+  {
+    "id": "dm-mt16vwwc-0ikc",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T07:18:50.700Z"
+  },
+  {
+    "id": "dm-mt19ieu5-z70k",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T08:32:19.613Z"
+  },
+  {
+    "id": "dm-mt19ifrn-pouw",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T08:32:20.819Z"
+  },
+  {
+    "id": "dm-mt19letf-pevj",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T08:34:39.555Z"
+  },
+  {
+    "id": "dm-mt19lfqw-97tn",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T08:34:40.760Z"
+  },
+  {
+    "id": "dm-mt19pder-r7kt",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T08:37:44.355Z"
+  },
+  {
+    "id": "dm-mt19peca-jmet",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T08:37:45.562Z"
+  },
+  {
+    "id": "dm-mt1a589g-r1y2",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T08:50:04.180Z"
+  },
+  {
+    "id": "dm-mt1a596z-afcr",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T08:50:05.387Z"
+  },
+  {
+    "id": "dm-mt1bdrxa-a5g8",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T09:24:42.526Z"
+  },
+  {
+    "id": "dm-mt1bdsut-6jo5",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T09:24:43.733Z"
+  },
+  {
+    "id": "dm-mt1gaffq-0cpj",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T11:42:04.454Z"
+  },
+  {
+    "id": "dm-mt1gagda-83h9",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T11:42:05.662Z"
+  },
+  {
+    "id": "dm-mt1he7n3-j3yo",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T12:13:00.591Z"
+  },
+  {
+    "id": "dm-mt1he8km-spb4",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T12:13:01.798Z"
+  },
+  {
+    "id": "dm-mt1hm4d3-ra4u",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T12:19:09.591Z"
+  },
+  {
+    "id": "dm-mt1hm5ao-kveq",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T12:19:10.800Z"
+  },
+  {
+    "id": "dm-mt1hweua-5bk0",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T12:27:09.730Z"
+  },
+  {
+    "id": "dm-mt1hwfrs-nb6o",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T12:27:10.936Z"
+  },
+  {
+    "id": "dm-mt1ikda5-tzwz",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T12:45:47.453Z"
+  },
+  {
+    "id": "dm-mt1ike7m-j0ws",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T12:45:48.658Z"
+  },
+  {
+    "id": "dm-mt1kjlb3-mwo3",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T13:41:10.431Z"
+  },
+  {
+    "id": "dm-mt1kjm8m-8bww",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T13:41:11.638Z"
+  },
+  {
+    "id": "dm-mt1lztd7-343k",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T14:21:46.987Z"
+  },
+  {
+    "id": "dm-mt1lzuaq-n25h",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T14:21:48.194Z"
+  },
+  {
+    "id": "dm-mt1t4sms-8qjn",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T17:41:36.628Z"
+  },
+  {
+    "id": "dm-mt1t4tka-ip7c",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T17:41:37.834Z"
+  },
+  {
+    "id": "dm-mt1wc9s7-pdpd",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T19:11:24.295Z"
+  },
+  {
+    "id": "dm-mt1wcapp-wdkp",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T19:11:25.501Z"
+  },
+  {
+    "id": "dm-mt1x8ihw-mww6",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T19:36:28.580Z"
+  },
+  {
+    "id": "dm-mt1x8jfg-tku6",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T19:36:29.788Z"
+  },
+  {
+    "id": "dm-mt1xw79v-qtpw",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T19:54:53.779Z"
+  },
+  {
+    "id": "dm-mt1xw87f-fphb",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T19:54:54.987Z"
+  },
+  {
+    "id": "dm-mt1ze7zn-i1vh",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T20:36:54.131Z"
+  },
+  {
+    "id": "dm-mt1ze8x4-oe7h",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T20:36:55.336Z"
+  },
+  {
+    "id": "dm-mt1zfof3-ks7y",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-20T20:38:02.079Z"
+  },
+  {
+    "id": "dm-mt1zfpck-wlv2",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-20T20:38:03.284Z"
+  },
+  {
+    "id": "dm-mt2bw6mz-wiil",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-21T02:26:47.579Z"
+  },
+  {
+    "id": "dm-mt2bw7kl-p97e",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-21T02:26:48.789Z"
+  },
+  {
+    "id": "dm-mt2cbek1-wjh5",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-08-21T02:38:37.681Z"
+  },
+  {
+    "id": "dm-mt2cbfhn-xk0w",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
+    "createdAt": "2026-08-21T02:38:38.891Z"
   }
 ]

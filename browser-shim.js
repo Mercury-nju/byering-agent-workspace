@@ -7,6 +7,17 @@ import { marketplaceProfileSeed } from "./src/salebuddy/agents/marketplace.js";
 // processes, so mark the native startup check as passed before the app is imported.
 const isElectronRuntime = /Electron/i.test(navigator.userAgent);
 if (!isElectronRuntime) {
+  // The recovered browser build may expose a deterministic gateway only when
+  // the user explicitly opts into demo mode. Production must fail closed and
+  // wait for the real Agent Gateway instead of replaying fake business work.
+  const isRecoveredDemoMode = (() => {
+    try {
+      return globalThis.__SALEBUDDY_CONFIG__?.demoMode === true
+        || new URLSearchParams(location.search).get("demo") === "1";
+    } catch {
+      return false;
+    }
+  })();
   window.__MARVIS_RECOVERED_BROWSER__ = true;
   const createMemoryStorage = () => {
     const values = Object.create(null);
@@ -110,7 +121,7 @@ if (!isElectronRuntime) {
   // The in-app browser rejects the recovered WebSocket handshake even though
   // native clients accept it. Keep the same AG-UI envelope locally so the
   // renderer can exercise sessions and Agent runs without a native socket.
-  if (!window.__MARVIS_RECOVERED_NATIVE_WEBSOCKET__) {
+  if (isRecoveredDemoMode && !window.__MARVIS_RECOVERED_NATIVE_WEBSOCKET__) {
     const historyMessage = {
       id: "history-assistant-1",
       role: "assistant",
@@ -546,6 +557,14 @@ if (!isElectronRuntime) {
           let seq = 0;
           const sendAgui = (type, extra = {}) => emit(this, "message", { type: "event", event: "ag_ui_event", data: { type, conversation_id: conversationId, run_id: runId, response_id: runId, messageId, seq: ++seq, ...extra } });
           const sendSubagent = (name, value) => sendAgui("CUSTOM", { name, value });
+          const sendSubagentProgress = (agentId, agent, index) => sendSubagent("subagent_progress", {
+            agentId,
+            agentName: agent.name,
+            parentAgentId: "main",
+            progress: 42,
+            text: `${agent.name} 已取得阶段性结果，正在整理可核验依据。`,
+            evidence: [{ type: "source", label: "公开工作记录", ref: `${agentId}-evidence-${index + 1}` }]
+          });
           const markConversation = (status, preview) => {
             const existing = state.conversations.find((item) => item.id === conversationId);
             const record = existing || { id: conversationId, created_at: new Date().toISOString(), metadata: { source: "recovered-office" } };
@@ -563,6 +582,7 @@ if (!isElectronRuntime) {
               sendSubagent("subagent_start", { agentId, agentName: agent.name, parentAgentId: "main" });
               if (index === 0) sendAgui("TEXT_MESSAGE_CONTENT", { delta: scenario.mainTexts[1] });
             }, agent.startAt);
+            window.setTimeout(() => sendSubagentProgress(agentId, agent, index), Math.min(agent.endAt - 100, agent.startAt + 350));
             window.setTimeout(() => sendSubagent("subagent_end", { agentId, agentName: agent.name, parentAgentId: "main", status: agent.status }), agent.endAt);
           }
           window.setTimeout(() => {

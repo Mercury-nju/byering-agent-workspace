@@ -4,17 +4,17 @@
  * A real Gateway can replace this source with the same event envelope later.
  */
 
-const SLOT_FALLBACKS = ["线索猎人", "数据分析师", "内容策划", "销售顾问"];
+const SLOT_FALLBACKS = ["线索猎人", "线索分析师", "内容策划", "触达策略师"];
 const SLOT_TYPES = ["Browser Agent", "Search Agent", "File Agent", "App Agent"];
 const RUNTIME_MEMBER_NAMES = new Map([
   ["Browser Agent", { name: "线索猎人", title: "线索发现" }],
-  ["Search Agent", { name: "数据分析师", title: "数据分析" }],
+  ["Search Agent", { name: "线索分析师", title: "线索分析" }],
   ["File Agent", { name: "内容策划", title: "内容整理" }],
-  ["App Agent", { name: "销售顾问", title: "触达执行" }],
-  ["mkt-lead-miner", { name: "周砚", title: "线索挖掘机" }],
-  ["mkt-follow-up", { name: "跟跟", title: "跟进管家" }],
-  ["mkt-market-scout", { name: "小探", title: "市场情报员" }],
-  ["mkt-cold-writer", { name: "阿触", title: "冷启动外联" }]
+  ["App Agent", { name: "触达策略师", title: "触达执行" }],
+  ["mkt-lead-miner", { name: "线索挖掘机", title: "线索挖掘机" }],
+  ["mkt-follow-up", { name: "跟进管家", title: "跟进管家" }],
+  ["mkt-market-scout", { name: "市场情报员", title: "市场情报员" }],
+  ["mkt-cold-writer", { name: "冷启动外联", title: "冷启动外联" }]
 ]);
 
 function projectMemberDirectory(projectMembers = []) {
@@ -33,8 +33,8 @@ const ACCESS_SETUPS = Object.freeze({
   leads: Object.freeze({
     provider: "抖音账号",
     account: "Byering 汽车销售账号",
-    description: "先连接一个抖音账号，Byering 才能读取互动并在你确认后执行私信触达。",
-    scopes: Object.freeze(["直播互动与评论", "粉丝主页与历史互动", "私信发送（每次触达前仍需确认）"])
+    description: "仅授权一个抖音账号用于已审批的单次触达；公开视频和公开评论由公开采集链路处理。",
+    scopes: Object.freeze(["私信发送（每次触达前仍需确认）"])
   }),
   content: Object.freeze({
     provider: "内容账号",
@@ -52,6 +52,10 @@ const ACCESS_SETUPS = Object.freeze({
 
 /** Initial access contract for a zero-to-one demo. No provider is READY by default. */
 export function getDemoAccessSetup(scriptKey = "generic") {
+  // All Douyin discovery, analysis, outreach, and result workflows use the
+  // same persistent account workspace. The task type changes scopes, not the
+  // identity provider, so a returning user does not need to authorize again.
+  if (["find", "analyze", "outreach", "results"].includes(scriptKey)) return ACCESS_SETUPS.leads;
   return ACCESS_SETUPS[scriptKey] || ACCESS_SETUPS.generic;
 }
 
@@ -201,10 +205,15 @@ function buildSkillTimeline({ script, runtimeDefinition, taskText, projectMember
       delayMs,
       t: "chief",
       ...protocol("TEXT_MESSAGE_CONTENT", {
-        text: "各子任务已完成，有一个对外动作需要你确认："
+        text: script.approvalRequired === false ? "各子任务已完成，我先把结果和下一步建议整理给你：" : "各子任务已完成，有一个对外动作需要你确认："
       })
     });
-    events.push({ delayMs: delayMs + 300, t: "approval-show", ...protocol("APPROVAL_REQUESTED", { approval: { id: "approval-demo", ...script.approval } }) });
+    if (script.approvalRequired !== false) {
+      events.push({ delayMs: delayMs + 300, t: "approval-show", ...protocol("APPROVAL_REQUESTED", { approval: { id: "approval-demo", ...script.approval } }) });
+    } else {
+      events.push({ delayMs: delayMs + 300, t: "run-finished", ...protocol("RUN_FINISHED", { text: script.summary || "只读结果已整理完成。" }) });
+      events.push({ delayMs: delayMs + 420, t: "summary", taskText, resultSnapshot: { summary: script.summary, metrics: (script.stats || []).map(([value, label]) => ({ value, label })) } });
+    }
   }
 
   return events;

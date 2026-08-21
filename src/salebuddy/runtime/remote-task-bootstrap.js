@@ -22,7 +22,8 @@ export function remoteTaskIdentity(response) {
     taskRunId: data.taskRunId || data.task_run_id || data.runId || data.run_id || null,
     conversationId: data.conversationId || data.conversation_id || null,
     currentVersion: data.currentVersion ?? data.version ?? null,
-    currentSeq: data.currentSeq ?? data.seq ?? null
+    currentSeq: data.currentSeq ?? data.seq ?? null,
+    requirement: data.requirement || data.requirementProposal || data.requirement_proposal || null
   };
 }
 
@@ -64,7 +65,7 @@ export async function createRemoteTask({ commandClient, taskText, projectId, pro
 }
 
 /** Move the authoritative task into RUNNING before opening the AG-UI run stream. */
-export async function startRemoteTask({ commandClient, identity, taskText, projectId, projectName, localTaskId } = {}) {
+export async function startRemoteTask({ commandClient, identity, taskText, projectId, projectName, localTaskId, requirementsConfirmed = false, requiresAccess = false } = {}) {
   const remote = requireRemoteIdentity(identity || {}, "任务启动前");
   try {
     const response = await commandClient.send(COMMAND_TYPES.TASK_START, {
@@ -79,8 +80,8 @@ export async function startRemoteTask({ commandClient, identity, taskText, proje
         goal: taskText,
         projectId: projectId || null,
         projectName: projectName || null,
-        requirementsConfirmed: true,
-        requiresAccess: false
+        requirementsConfirmed: requirementsConfirmed === true,
+        requiresAccess: requiresAccess === true
       }
     });
     return { response, ...remoteTaskIdentity(response), taskId: remote.taskId, taskRunId: remote.taskRunId, conversationId: remote.conversationId };

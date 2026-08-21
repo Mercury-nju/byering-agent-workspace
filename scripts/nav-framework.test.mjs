@@ -1085,12 +1085,12 @@ test("office row owns primary geometry without sizing its slot container", () =>
   instance.unmount();
 });
 
-test("office remains wired for recovery but stays hidden from the active sidebar", () => {
+test("office remains visible in the active sidebar and restores cleanly on unmount", () => {
   const { fixture, instance } = mountFixture();
 
   assert.equal(fixture.office.dataset.sbMode, "office");
-  assert.equal(fixture.office.style.display, "none");
-  assert.equal(fixture.office.getAttribute("aria-hidden"), "true");
+  assert.equal(fixture.office.style.display ?? "", "");
+  assert.equal(fixture.office.getAttribute("aria-hidden"), null);
 
   instance.unmount();
   assert.equal(fixture.office.style.display ?? "", "");
@@ -1109,7 +1109,7 @@ test("members row appears above the kanban row in the work group", () => {
   instance.unmount();
 });
 
-test("project groups render in the work nav and open their collaboration room", async () => {
+test("project groups render in the work nav and open the members workspace on their collaboration room", async () => {
   const document = installDom();
   buildSidebarFixture(document);
   const rooms = [
@@ -1121,7 +1121,7 @@ test("project groups render in the work nav and open their collaboration room", 
     gateway: roomGateway({ rooms, activeRoomId: "room-leads" }),
     openers: {
       ...noOpOpeners(),
-      rooms(options) { openedRoom = options.initialRoom; }
+      contacts(options) { openedRoom = options.initialRoom; }
     }
   });
 
@@ -1148,6 +1148,93 @@ test("project groups render in the work nav and open their collaboration room", 
   assert.equal(document.querySelector('[data-sb-project-id="room-content"]').classList.contains("sb-nav-project-on"), true);
   assert.equal(document.querySelector('[data-sb-project-id="room-leads"]').classList.contains("sb-nav-project-on"), false);
 
+  instance.unmount();
+});
+
+test("replacing the members page cannot clear the newly selected project group", async () => {
+  const document = installDom();
+  buildSidebarFixture(document);
+  const rooms = [
+    { id: "room-leads", name: "潜在客户拓展项目组", goal: "找到高意向客户", members: ["main"], status: "active" },
+    { id: "room-content", name: "触达内容共创项目组", goal: "产出首轮沟通内容", members: ["main"], status: "active" }
+  ];
+  let currentContactsClose = null;
+  let contactsOpenCount = 0;
+  const instance = mountNavFramework({
+    gateway: roomGateway({ rooms, activeRoomId: "room-leads" }),
+    openers: {
+      ...noOpOpeners(),
+      contacts(options) {
+        currentContactsClose?.();
+        currentContactsClose = options.onClose;
+        contactsOpenCount += 1;
+      }
+    }
+  });
+
+  await settleDom();
+  modeRow(document, "contacts").click();
+  assertSingleActive(document, "contacts");
+
+  document.querySelectorAll("[data-sb-project-id]")[1].click();
+  await settleDom();
+
+  assert.equal(contactsOpenCount, 2);
+  assertSingleActive(document, "contacts");
+  assert.equal(document.querySelector('[data-sb-project-id="room-content"]').classList.contains("sb-nav-project-on"), true);
+  assert.equal(document.querySelector('[data-sb-project-id="room-leads"]').classList.contains("sb-nav-project-on"), false);
+
+  instance.unmount();
+});
+
+test("a stale native active class cannot override an open custom page", () => {
+  const { document, fixture, instance } = mountFixture();
+  fixture.skills.classList.add("_selfActive_xyz_");
+  FakeMutationObserver.flush();
+  assertSingleActive(document, "skills");
+
+  modeRow(document, "contacts").click();
+  assertSingleActive(document, "contacts");
+  FakeMutationObserver.flush();
+  assertSingleActive(document, "contacts");
+
+  instance.unmount();
+});
+
+test("project context stays selected while its data view replaces the members page", async () => {
+  const document = installDom();
+  buildSidebarFixture(document);
+  const rooms = [
+    { id: "room-leads", name: "潜在客户拓展项目组", goal: "找到高意向客户", members: ["main"], status: "active" }
+  ];
+  let contactsOptions = null;
+  let kanbanOptions = null;
+  let currentClose = null;
+  const instance = mountNavFramework({
+    gateway: roomGateway({ rooms, activeRoomId: "room-leads" }),
+    openers: {
+      ...noOpOpeners(),
+      contacts(options) {
+        currentClose?.();
+        currentClose = options.onClose;
+        contactsOptions = options;
+      },
+      kanban(options) { kanbanOptions = options; }
+    }
+  });
+
+  await settleDom();
+  document.querySelector('[data-sb-project-id="room-leads"]').click();
+  assertSingleActive(document, "contacts");
+  assert.equal(document.querySelector('[data-sb-project-id="room-leads"]').classList.contains("sb-nav-project-on"), true);
+
+  contactsOptions.onOpenData(rooms[0]);
+  assertSingleActive(document, "kanban");
+  assert.equal(kanbanOptions.initialRoom.id, "room-leads");
+  assert.equal(document.querySelector('[data-sb-project-id="room-leads"]').classList.contains("sb-nav-project-on"), true);
+
+  kanbanOptions.onClose();
+  assert.equal(document.querySelector('[data-sb-project-id="room-leads"]').classList.contains("sb-nav-project-on"), true);
   instance.unmount();
 });
 

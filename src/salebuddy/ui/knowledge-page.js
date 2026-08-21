@@ -9,7 +9,7 @@ import { el, openPage } from "./pages.js";
 import { avatarInitial } from "./agent-drawer.js";
 import { mountAgentAvatar } from "./agent-avatar.js";
 import { listHiredAgents } from "../agents/marketplace.js";
-import { BRAND } from "../brand.js";
+import { BRAND, displayAgentName } from "../brand.js";
 
 const CSS = `
 .sb-kb{min-height:100%;padding:20px 28px 28px}
@@ -65,25 +65,25 @@ const KB_DOCS = [
     color: "#3B6BD4",
     docs: [
       { name: `${BRAND.name} 产品手册.pdf`, meta: "PDF · 4.2 MB · 昨天更新", side: "幕僚长 上传" },
-      { name: "标准报价模板（2026Q3）.docx", meta: "Word · 380 KB · 3 天前更新", side: "价价 上传" },
-      { name: "行业解决方案一览.pptx", meta: "PPT · 12.8 MB · 上周更新", side: "笔笔 上传" }
+      { name: "标准报价模板（2026Q3）.docx", meta: "Word · 380 KB · 3 天前更新", side: "报价合同 上传" },
+      { name: "行业解决方案一览.pptx", meta: "PPT · 12.8 MB · 上周更新", side: "内容写手 上传" }
     ]
   },
   {
     group: "客户案例",
     color: "#2E9E6B",
     docs: [
-      { name: "华东制造业标杆客户案例集.docx", meta: "Word · 2.1 MB · 昨天更新", side: "安安 上传" },
-      { name: "SaaS 行业成交复盘.pdf", meta: "PDF · 1.6 MB · 5 天前更新", side: "数数 上传" }
+      { name: "华东制造业标杆客户案例集.docx", meta: "Word · 2.1 MB · 昨天更新", side: "客户成功 上传" },
+      { name: "SaaS 行业成交复盘.pdf", meta: "PDF · 1.6 MB · 5 天前更新", side: "销售数据分析 上传" }
     ]
   },
   {
     group: "话术与模板",
     color: "#E8A33D",
     docs: [
-      { name: "首触邮件模板库.md", meta: "Markdown · 96 KB · 2 天前更新", side: "阿触 上传" },
-      { name: "异议应答应对手册.pdf", meta: "PDF · 880 KB · 上周更新", side: "声声 上传" },
-      { name: "朋友圈文案日历（8 月）.xlsx", meta: "Excel · 210 KB · 昨天更新", side: "营营 上传" }
+      { name: "首触邮件模板库.md", meta: "Markdown · 96 KB · 2 天前更新", side: "外联专员 上传" },
+      { name: "异议应答应对手册.pdf", meta: "PDF · 880 KB · 上周更新", side: "电销专员 上传" },
+      { name: "朋友圈文案日历（8 月）.xlsx", meta: "Excel · 210 KB · 昨天更新", side: "私域运营 上传" }
     ]
   }
 ];
@@ -118,10 +118,10 @@ function fmtTime(iso) {
 async function renderMemory(body, { gateway, teamLive }) {
   const agents = [];
   for (const [agentType, profile] of teamLive?.getProfiles?.() || new Map()) {
-    agents.push({ id: agentType, name: profile.identity?.name || agentType, color: agentType === "main" ? "#1F2329" : "#5B6B8C" });
+    agents.push({ id: agentType, name: displayAgentName({ agentType, name: profile.identity?.name || agentType }), color: agentType === "main" ? "#1F2329" : "#5B6B8C" });
   }
   for (const hired of listHiredAgents()) {
-    agents.push({ id: hired.id, name: hired.name, color: hired.color });
+    agents.push({ id: hired.id, name: displayAgentName({ id: hired.id, name: hired.name }), color: hired.color });
   }
 
   let totalCount = 0;

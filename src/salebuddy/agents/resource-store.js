@@ -48,22 +48,22 @@ function seedState() {
   // T1（6 天前完成）
   push(T1, P1, "线索猎人", "token", "模型 Token · 检索与判断", 2.86, daysAgo(6, 9));
   push(T1, P1, "线索猎人", "api", "地图/点评 API · 商户检索", 1.45, daysAgo(6, 9));
-  push(T1, P1, "数据分析师", "token", "模型 Token · 清洗评分", 2.12, daysAgo(6, 10));
-  push(T1, P1, "数据分析师", "data", "数据采购 · 工商信息补全", 4.80, daysAgo(6, 10));
+  push(T1, P1, "线索分析师", "token", "模型 Token · 清洗评分", 2.12, daysAgo(6, 10));
+  push(T1, P1, "线索分析师", "data", "数据采购 · 工商信息补全", 4.80, daysAgo(6, 10));
   push(T1, P1, "内容策划", "token", "模型 Token · 名单标注", 1.36, daysAgo(6, 11));
-  push(T1, P1, "销售顾问", "mail", "邮件短信 · 首触 86 人", 3.44, daysAgo(6, 14));
-  push(T1, P1, "销售顾问", "cloud", "云电脑 · 4.2 小时", 6.30, daysAgo(6, 14));
+  push(T1, P1, "触达策略师", "mail", "邮件短信 · 首触 86 人", 3.44, daysAgo(6, 14));
+  push(T1, P1, "触达策略师", "cloud", "云电脑 · 4.2 小时", 6.30, daysAgo(6, 14));
   // T2（3 天前完成）
   push(T2, P2, "线索猎人", "api", "热点/搜索 API · 趋势采样", 0.92, daysAgo(3, 9));
-  push(T2, P2, "数据分析师", "token", "模型 Token · 对标拆解", 2.64, daysAgo(3, 10));
+  push(T2, P2, "线索分析师", "token", "模型 Token · 对标拆解", 2.64, daysAgo(3, 10));
   push(T2, P2, "内容策划", "token", "模型 Token · 日历与脚本", 3.18, daysAgo(3, 11));
   push(T2, P2, "内容策划", "cloud", "云电脑 · 2.6 小时", 3.90, daysAgo(3, 11));
   push(T2, P2, "内容策划", "storage", "文件存储 · 5 份产出", 0.10, daysAgo(3, 11));
   // T3（1 天前完成）
   push(T3, P1, "内容策划", "token", "模型 Token · 话术撰写", 2.42, daysAgo(1, 15));
-  push(T3, P1, "销售顾问", "token", "模型 Token · 要点清单", 1.58, daysAgo(1, 16));
-  push(T3, P1, "销售顾问", "cloud", "云电脑 · 1.8 小时", 2.70, daysAgo(1, 16));
-  push(T3, P1, "销售顾问", "storage", "文件存储 · 3 份产出", 0.06, daysAgo(1, 16));
+  push(T3, P1, "触达策略师", "token", "模型 Token · 要点清单", 1.58, daysAgo(1, 16));
+  push(T3, P1, "触达策略师", "cloud", "云电脑 · 1.8 小时", 2.70, daysAgo(1, 16));
+  push(T3, P1, "触达策略师", "storage", "文件存储 · 3 份产出", 0.06, daysAgo(1, 16));
 
   const tasks = {};
   tasks[T1] = { taskId: T1, title: "本地餐饮客户名单整理", projectName: P1, cost: 22.23, files: 3, leads: 86, status: "done", durationMin: 47, done_at: daysAgo(6, 14) };

@@ -64,18 +64,32 @@ export class SaleBuddyGatewayClient {
     });
   }
 
-  /** 调用一个新 action，返回 ack.data。 */
-  action(actionName, payload = {}, { timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
+  /** Send a gateway envelope and resolve its acknowledgement. */
+  request(event, payload = {}, { timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
     const requestId = `sb-${++this.requestSeq}`;
-    const envelope = { event: "gateway.action", requestId, payload: { action: actionName, ...payload } };
+    const envelope = { event, requestId, payload };
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(requestId);
-        reject(new Error(`gateway action timeout: ${actionName}`));
+        reject(new Error(`gateway request timeout: ${event}`));
       }, timeoutMs);
       this.pending.set(requestId, { resolve, reject, timer });
       this.socket.send(JSON.stringify(envelope));
     });
+  }
+
+  /** 调用一个新 action，返回 ack.data。 */
+  action(actionName, payload = {}, options = {}) {
+    return this.request("gateway.action", { action: actionName, ...payload }, options);
+  }
+
+  /** Start a real AG-UI run. The event stream arrives through on("ag_ui_event"). */
+  run(payload = {}, options = {}) {
+    return this.request("agent.run", payload, options);
+  }
+
+  cancel(payload = {}, options = {}) {
+    return this.request("agent.cancel", payload, options);
   }
 
   on(eventName, listener) {
@@ -122,5 +136,26 @@ export const SB_ACTIONS = Object.freeze({
   blockerReport: "blocker.action.report",
   shareCreate: "share.create",
   shareGet: "share.get",
-  materialGenerate: "material.generate"
+  materialGenerate: "material.generate",
+  taskCreate: "task.create",
+  conversationCreate: "conversation.create",
+  messageSend: "message.send",
+  taskRunStart: "task.run.start",
+  taskRequirementRequest: "task.requirement.request",
+  taskRequirementEdit: "task.requirement.edit",
+  taskRequirementConfirm: "task.requirement.confirm",
+  accessAuthorizationStart: "access.authorization.start",
+  accessAuthorizationCancel: "access.authorization.cancel",
+  accessScopeConfirm: "access.scope.confirm",
+  approvalRequest: "approval.action.request",
+  taskRunSnapshot: "task.run.snapshot",
+  taskRunSubscribe: "task.run.subscribe",
+  taskPause: "task.pause",
+  taskResume: "task.resume",
+  taskRetry: "task.retry",
+  taskHandoff: "task.handoff",
+  taskCancel: "task.cancel",
+  taskFollowup: "task.followup.send",
+  conversationReplyRequest: "conversation.reply.request",
+  taskHandoffResolve: "task.handoff.resolve"
 });

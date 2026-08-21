@@ -3,18 +3,19 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
-import { HOME_SALES_FEED, KNOWLEDGE_CONNECTORS, SALES_DOMAINS, domainPromptItems, domainPromptTabs, domainPromptPlaceholder, domainWorkflowPrompt, employeePromptItems, domainEmployeeChoices } from "../src/salebuddy/ui/home-sales-feed.js";
+import { HOME_SALES_FEED, KNOWLEDGE_CONNECTORS, SALES_DOMAINS, SALES_SHORTCUTS, SALES_SHORTCUT_AGENT_IDS, domainPromptItems, domainPromptTabs, domainPromptPlaceholder, domainWorkflowPrompt, employeePromptItems, domainEmployeeChoices, shortcutAgentChoices, shortcutPromptItems } from "../src/salebuddy/ui/home-sales-feed.js";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
 
-test("touch feed exposes three separate gold-service capabilities", () => {
-  const cards = HOME_SALES_FEED["触达"];
-  const titles = cards.map(([, title]) => title);
-
-  assert.equal(titles.filter((title) => title === "金牌客服接管").length, 1);
-  assert.equal(titles.filter((title) => title === "金牌话术教练").length, 1);
-  assert.equal(titles.filter((title) => title === "客诉安抚专家").length, 1);
-  assert.equal(new Set(cards.slice(-3).map((card) => card[3])).size, 3);
+test("homepage feed only exposes executable public-data paths", () => {
+  const forbidden = /直播|粉丝|竞品|私信|全网搜索/;
+  const cards = Object.values(HOME_SALES_FEED).flat();
+  assert.equal(cards.length, 36);
+  assert.ok(cards.every(([, title, description, prompt]) => title && description && prompt));
+  assert.ok(cards.every((card) => card.slice(1).every((value) => !forbidden.test(value))));
+  assert.ok(cards.some(([, title]) => title === "解析指定抖音账号"));
+  assert.ok(cards.some(([, title]) => title === "分析指定作品评论"));
+  assert.ok(cards.some(([, title]) => title === "批量分析指定账号"));
 });
 
 test("knowledge connectors expose local logo assets", () => {
@@ -82,19 +83,19 @@ test("recommended industry prompts explain the result and ask for required conte
 test("employee selection is the shared source for prompt cards", () => {
   const choices = domainEmployeeChoices(SALES_DOMAINS[0]);
   const hunter = employeePromptItems("sales", "Browser Agent");
-  const content = employeePromptItems("sales", "File Agent");
+  const content = employeePromptItems("sales", "Research Agent");
   const analysis = employeePromptItems("sales", "Search Agent");
   const education = employeePromptItems("education", "Browser Agent");
 
-  assert.deepEqual(choices.map(({ agent }) => agent.name), ["线索猎人", "内容策划", "数据分析师", "销售顾问"]);
+  assert.deepEqual(choices.map(({ agent }) => agent.name), ["账号发现与解析师", "线索猎人", "线索分析师", "客户研究员"]);
   assert.equal(hunter.length, 4);
   assert.ok(hunter.every(({ employeeName, prompt }) => employeeName === "线索猎人" && /^帮我/.test(prompt)));
-  assert.ok(content.every(({ employeeName, prompt }) => employeeName === "内容策划" && /^帮我/.test(prompt)));
-  assert.ok(analysis.every(({ employeeName, prompt }) => employeeName === "数据分析师" && /^帮我/.test(prompt)));
-  assert.match(hunter[0].title, /找出最值得优先处理/);
-  assert.match(content[0].title, /首触话术/);
-  assert.match(analysis[0].title, /线索漏斗/);
-  assert.match(employeePromptItems("sales", "App Agent")[0].title, /今天要联系/);
+  assert.ok(content.every(({ employeeName, prompt }) => employeeName === "客户研究员" && /^帮我/.test(prompt)));
+  assert.ok(analysis.every(({ employeeName, prompt }) => employeeName === "线索分析师" && /^帮我/.test(prompt)));
+  assert.match(hunter[0].title, /采集账号公开视频/);
+  assert.match(content[0].title, /整理线索证据/);
+  assert.match(analysis[0].title, /筛选购车意向/);
+  assert.match(shortcutPromptItems("outreach", "Research Agent")[0].title, /整理线索证据/);
   assert.ok(education.every(({ prompt }) => /^帮我/.test(prompt)));
   assert.notDeepEqual(hunter, content);
   assert.notDeepEqual(content, analysis);
@@ -102,14 +103,50 @@ test("employee selection is the shared source for prompt cards", () => {
 
 test("homepage renders the guidance line without a second taxonomy row", () => {
   const source = readFileSync(path.join(projectRoot, "src/salebuddy/ui/home-sales-feed.js"), "utf8");
-  assert.match(source, /buildQuickRail\(activeDomain\(\), \{ selectedEmployeeId: activeEmployeeId, onEmployeeSelect: selectEmployee \}/);
-  assert.match(source, /employeePromptItems\(activeDomainId, activeEmployeeId\)/);
+  assert.match(source, /buildQuickRail\(activeDomain\(\), \{[\s\S]*?choices: activeShortcutAgents\(\)/);
+  assert.match(source, /shortcutPromptItems\(activeShortcutId, activeEmployeeId\)/);
   assert.match(source, /selectEmployee\(employeeId\)/);
   assert.match(source, /if \(event\.pointerType !== "touch"\) return;/);
-  assert.match(source, /不知道怎么开始？下面是/);
+  assert.match(source, /围绕.*activeShortcut\(\)\.label.*销售工作中常见的问题/);
   assert.match(source, /sb-feed-section-label/);
   assert.doesNotMatch(source, /sb-feed-skill-tab/);
   assert.doesNotMatch(source, /renderTabs\(\)/);
+});
+
+test("homepage exposes only the four sales task shortcuts", () => {
+  assert.deepEqual(SALES_SHORTCUTS.map(({ id, label }) => [id, label]), [
+    ["find", "找潜客"],
+    ["analyze", "分析线索"],
+    ["outreach", "触达线索"],
+    ["results", "查看结果"]
+  ]);
+  assert.ok(SALES_SHORTCUTS.every(({ prompt }) => prompt.length >= 24));
+  const source = readFileSync(path.join(projectRoot, "src/salebuddy/ui/home-sales-feed.js"), "utf8");
+  assert.match(source, /SALES_SHORTCUTS\.forEach/);
+  assert.match(source, /dataset\.shortcutId/);
+  assert.match(source, /onShortcutSelect\?\.\(\{ id, label, prompt \}\)/);
+  assert.doesNotMatch(source, /SALES_DOMAINS\.forEach\(\(\{ id, icon, label, entry \}\)/);
+});
+
+test("sales shortcuts switch the visible team and task prompts together", () => {
+  assert.deepEqual(Object.fromEntries(Object.entries(SALES_SHORTCUT_AGENT_IDS).map(([id, agentIds]) => [id, agentIds.length])), {
+    find: 4,
+    analyze: 4,
+    outreach: 4,
+    results: 4
+  });
+  assert.deepEqual(shortcutAgentChoices("find").map(({ agent }) => agent.name), ["账号发现与解析师", "线索猎人", "线索分析师", "客户研究员"]);
+  assert.deepEqual(shortcutAgentChoices("outreach").map(({ agent }) => agent.name), ["客户研究员", "风控专员", "线索分析师", "幕僚长"]);
+  assert.equal(shortcutAgentChoices("results")[0].agent.name, "线索分析师");
+  assert.equal(shortcutAgentChoices("results")[0].title, "数据分析与结果复盘");
+  assert.match(shortcutAgentChoices("results")[0].task, /账号、作品、评论和意向数据/);
+  const findPrompts = shortcutPromptItems("find", "Browser Agent");
+  const outreachPrompts = shortcutPromptItems("outreach", "Outreach Agent");
+  assert.ok(findPrompts.every(({ shortcutId, prompt }) => shortcutId === "find" && /^帮我/.test(prompt)));
+  assert.ok(outreachPrompts.every(({ shortcutId, prompt }) => shortcutId === "outreach" && /^帮我/.test(prompt)));
+  const forbidden = /直播|粉丝|竞品|私信|全网搜索/;
+  assert.ok([...findPrompts, ...outreachPrompts].every(({ title, description, prompt }) => !forbidden.test(`${title}${description}${prompt}`)));
+  assert.notDeepEqual(findPrompts, outreachPrompts);
 });
 
 test("industry switching owns the composer placeholder and Tab prompt", () => {
@@ -147,9 +184,9 @@ test("quick employee rail keeps avatar identity separate from task labels", () =
 
 test("sales toolbox skills expose executable input, steps, and output contracts", () => {
   const source = readFileSync(path.join(projectRoot, "src/salebuddy/ui/sales-skills.js"), "utf8");
-  assert.match(source, /input: "目标行业、地区、客户画像与排除条件"/);
-  assert.match(source, /steps: \["搜索公开企业与客户线索"/);
-  assert.match(source, /output: "线索清单（含来源、决策人和核验状态）"/);
+  assert.match(source, /input: "抖音号、账号名称或主页链接"/);
+  assert.match(source, /steps: \["识别账号引用并核验候选"/);
+  assert.match(source, /output: "账号身份卡（昵称、抖音号、sec_id、来源）"/);
   assert.match(source, /buildSkillModal/);
   assert.match(source, /startSkillTask\(\{/);
   assert.match(source, /textContent = "开始执行"/);
@@ -161,7 +198,7 @@ test("sales skills mount outside the native virtual list so scrolling cannot lea
   assert.match(source, /host\.insertBefore\(section, cardList \|\| grid\)/);
 });
 
-test("homepage domain rail uses fixed icon and label alignment slots", () => {
+test("homepage shortcut rail uses fixed icon and label alignment slots", () => {
   const source = readFileSync(path.join(projectRoot, "src/salebuddy/ui/home-sales-feed.js"), "utf8");
   assert.match(source, /\.sb-home-hero-nav-item\{[^}]*align-items:center;[^}]*justify-content:flex-start;[^}]*height:32px;min-height:32px/);
   assert.match(source, /\.sb-home-hero-nav-icon\{[^}]*display:inline-flex;align-items:center;justify-content:center;width:28px;height:24px;flex:0 0 28px/);
@@ -169,12 +206,11 @@ test("homepage domain rail uses fixed icon and label alignment slots", () => {
   assert.match(source, /item\.append\(el\("span", "sb-home-hero-nav-icon", icon\), el\("span", "sb-home-hero-nav-label", label\)\)/);
 });
 
-test("recording navigation opens a local choice tray before entering the workspace", () => {
+test("sales shortcut clicks fill the existing chat composer instead of opening a route", () => {
   const source = readFileSync(path.join(projectRoot, "src/salebuddy/ui/home-sales-feed.js"), "utf8");
-  assert.match(source, /\.sb-home-hero-record-menu\{[^}]*position:absolute/);
-  assert.match(source, /openRecordMenu\(item\)/);
-  assert.match(source, /onEarOpen\?\.\(\{ autoStart: true \}\)/);
-  assert.match(source, /onEarOpen\?\.\(\{ autoStart: false \}\)/);
+  assert.match(source, /fillEditor\(shortcut\.prompt\)/);
+  assert.match(source, /decorateHomeHero\(\{ activeShortcutId, onShortcutSelect: selectShortcut \}\)/);
+  assert.doesNotMatch(source, /openRecordMenu|onEarOpen|openEarPage/);
 });
 
 test("homepage wordmark crops transparent source padding to align with hero content", () => {

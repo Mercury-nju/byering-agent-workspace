@@ -8,6 +8,7 @@
 import { el, openPage } from "./pages.js";
 import { avatarInitial } from "./agent-drawer.js";
 import { mountAgentAvatar, mountGroupAvatar } from "./agent-avatar.js";
+import { BYERING_DEFAULT_AGENT_TYPES } from "../agents/model.js";
 import { listHiredAgents, getMarketplaceAgent, assignAgentToProject } from "../agents/marketplace.js";
 import { BRAND, displayAgentName, projectMessage } from "../brand.js";
 import { memberDashboard, memberResultStory } from "../agents/metrics-store.js";
@@ -112,9 +113,9 @@ function ensureStyle() {
 
 function memberName(teamLive, agentType) {
   const profile = teamLive?.getProfiles?.().get(agentType);
-  if (profile?.identity?.name) return profile.identity.name;
+  if (profile?.identity?.name) return displayAgentName({ agentType, name: profile.identity.name });
   const market = getMarketplaceAgent(agentType);
-  if (market) return market.name;
+  if (market) return displayAgentName({ id: agentType, name: market.name });
   return agentType === "main" ? BRAND.name : displayAgentName({ agentType }) || agentType || "—";
 }
 
@@ -320,8 +321,10 @@ export async function openRoomsPage({ gateway, teamLive, initialRoom = null, onC
     const hired = listHiredAgents();
     const hiredIds = new Set(hired.map(({ id }) => id));
     const agentOptions = [
-      ...[...profiles.keys()].filter((type) => !hiredIds.has(type)).map((type) => ({ id: type, name: memberName(teamLive, type) })),
-      ...hired.map((a) => ({ id: a.id, name: a.name }))
+      ...BYERING_DEFAULT_AGENT_TYPES
+        .filter((type) => profiles.has(type) && !hiredIds.has(type))
+        .map((type) => ({ id: type, name: memberName(teamLive, type) })),
+      ...hired.map((a) => ({ id: a.id, name: displayAgentName({ id: a.id, name: a.name }) }))
     ];
     const form = {
       name: "", goal: "", owner: "main",

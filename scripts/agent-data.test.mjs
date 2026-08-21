@@ -87,7 +87,7 @@ await run("model: profile defaults fill empty fields without overwriting edits",
 
 await run("model: IDENTITY.md 文本包含姓名职位与职责", () => {
   const md = renderIdentityMarkdown(createDefaultProfile("Search Agent"));
-  assert(md.includes("数据分析师") && md.includes("汇报对象: main"), "IDENTITY.md 内容不完整");
+  assert(md.includes("线索分析师") && md.includes("汇报对象: main"), "IDENTITY.md 内容不完整");
 });
 
 // ── agent-store 磁盘持久化 ────────────────────────────────────

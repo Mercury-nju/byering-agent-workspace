@@ -1,0 +1,48 @@
+{
+  "agentType": "Outreach Agent",
+  "identity": {
+    "name": "外联专员",
+    "avatar": null,
+    "title": "外联专员",
+    "languageStyle": "",
+    "signature": ""
+  },
+  "soul": {
+    "principles": [],
+    "deliveryStandard": "",
+    "safetyRules": [],
+    "honestyRules": []
+  },
+  "role": {
+    "position": "外联专员",
+    "responsibilities": [
+      "执行已批准的私信和评论动作",
+      "逐条记录提交与平台结果",
+      "遇到不可用账号时保留失败原因"
+    ],
+    "reportsTo": "main"
+  },
+  "skills": [],
+  "tools": [],
+  "scope": {
+    "dataAccess": [],
+    "forbiddenZones": []
+  },
+  "permission": {
+    "approvalRequired": [],
+    "limits": {},
+    "forbidden": []
+  },
+  "budget": {
+    "daily": null,
+    "monthly": null,
+    "perTask": null,
+    "modelTier": "standard",
+    "maxCalls": null
+  },
+  "meta": {
+    "createdAt": "2026-08-19T08:27:17.521Z",
+    "updatedAt": "2026-08-19T08:27:17.521Z",
+    "version": 1
+  }
+}

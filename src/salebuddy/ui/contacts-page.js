@@ -13,7 +13,7 @@ import { listHiredAgents, getMarketplaceAgent, getEmployment, markEmploymentWelc
 import { renderAgentProfile } from "./agent-profile.js";
 import { addFile } from "../agents/file-store.js";
 import { openFileCenterPage } from "./file-center.js";
-import { projectMessage } from "../brand.js";
+import { displayAgentName, displayAgentTitle, projectMessage } from "../brand.js";
 import { getWork, subscribeWork } from "../agents/work-live.js";
 import { mountAgentAvatar, mountGroupAvatar } from "./agent-avatar.js";
 import { createAgentActivityBadge } from "./agent-activity.js";
@@ -150,10 +150,11 @@ function groupMembers(room) {
 
 /**
  * 打开通讯录页。
- * deps: { teamLive, gateway, onOpenRoom(room), onOpenData(room), onOpenFiles(room), onRecruit, onClose, initialFriend }
+ * deps: { teamLive, gateway, onOpenRoom(room), onOpenData(room), onOpenFiles(room), onRecruit, onClose, initialFriend, initialRoom }
  * initialFriend：打开后自动选中该成员并进入私聊（agentType）。
+ * initialRoom：打开后自动选中该项目组并进入群聊。
  */
-export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenData, onOpenFiles, onRecruit, onClose, initialFriend = null }) {
+export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenData, onOpenFiles, onRecruit, onClose, initialFriend = null, initialRoom = null }) {
   ensureStyle();
   const page = openPage({ title: "成员", onClose });
   // The contacts workspace already provides its own master-detail context;
@@ -190,17 +191,28 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
 
   function profileOf(agentType) {
     const profile = teamLive?.getProfiles?.().get(agentType);
-    if (profile) return profile;
+    if (profile) {
+      return {
+        ...profile,
+        identity: {
+          ...(profile.identity || {}),
+          name: displayAgentName({ agentType, identity: profile.identity }),
+          title: displayAgentTitle({ agentType, identity: profile.identity, role: profile.role })
+        }
+      };
+    }
     // Agent广场雇佣的成员：用目录信息兜底出档案形状
     const market = getMarketplaceAgent(agentType);
     if (market) {
+      const name = displayAgentName({ id: agentType, name: market.name });
+      const title = displayAgentTitle({ id: agentType, name: market.name, title: market.title });
       return {
-        identity: { name: market.name, title: market.title },
+        identity: { name, title },
         role: { reportsTo: "main", responsibilities: market.skills },
         permission: { approvalRequired: [], forbidden: [] }
       };
     }
-    return { identity: { name: agentType } };
+    return { identity: { name: displayAgentName({ agentType }), title: displayAgentTitle({ agentType }) } };
   }
 
   // ── 左栏 ──
@@ -224,7 +236,8 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
     });
     friendTitle.appendChild(recruitButton);
     listCol.appendChild(friendTitle);
-    for (const [agentType, profile] of visibleProfiles) {
+    for (const [agentType] of visibleProfiles) {
+      const profile = profileOf(agentType);
       const status = teamLive.getStatusOf(agentType);
       const row = el("div", `sb-crow${state.selected?.kind === "friend" && state.selected.id === agentType ? " sb-on" : ""}`);
       const avatar = el("div", `sb-cavatar${agentType === "main" ? " sb-main" : ""}`, avatarInitial(profile.identity?.name));
@@ -246,19 +259,21 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
     }
     // Agent广场雇佣的成员
     for (const agent of hired) {
+      const profile = profileOf(agent.id);
+      const agentName = profile.identity?.name || agent.id;
       const row = el("div", `sb-crow${state.selected?.kind === "friend" && state.selected.id === agent.id ? " sb-on" : ""}`);
-      const ava = el("div", "sb-cavatar", avatarInitial(agent.name));
+      const ava = el("div", "sb-cavatar", avatarInitial(agentName));
       ava.style.background = agent.color;
-      mountAgentAvatar(ava, agent.id, { alt: agent.name });
+      mountAgentAvatar(ava, agent.id, { alt: agentName });
       row.appendChild(ava);
       const text = el("div", "sb-ctext");
       const nameRow = el("div", "sb-cname-row");
-      nameRow.appendChild(el("div", "sb-cname", agent.name));
+      nameRow.appendChild(el("div", "sb-cname", agentName));
       const activity = createAgentActivityBadge(agent.id, { status: teamLive?.getStatusOf?.(agent.id) });
       if (activity) nameRow.appendChild(activity);
       text.appendChild(nameRow);
       const sub = el("div", "sb-csub");
-      sub.append(el("span", "sb-cdot"), el("span", null, workLabel(agent.id, { state: TEAM_STATES.IDLE }, `已雇佣 · ${agent.title}`)));
+      sub.append(el("span", "sb-cdot"), el("span", null, workLabel(agent.id, { state: TEAM_STATES.IDLE }, `已雇佣 · ${profile.identity?.title || agent.title}`)));
       text.appendChild(sub);
       row.appendChild(text);
       row.addEventListener("click", () => select({ kind: "friend", id: agent.id }));
@@ -630,12 +645,19 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
 
   // ── 启动与订阅 ──
   state.rooms = await fetchRooms();
+  const initialRoomId = initialRoom?.id && state.rooms.some((room) => room.id === initialRoom.id)
+    ? initialRoom.id
+    : null;
   renderList();
   renderDetail();
+  // 外部入口指定了项目组（如侧边栏项目组）：直接选中并进入群聊
+  if (initialRoomId) {
+    select({ kind: "room", id: initialRoomId });
+  }
   // 外部入口指定了成员（如办公室卡片「沟通」）：直接选中并进入私聊
   const initialProfile = initialFriend ? teamLive?.getProfiles?.().has(initialFriend) : false;
   const initialHire = initialFriend && listHiredAgents().some(({ id }) => id === initialFriend);
-  if (initialFriend && (initialProfile || initialHire)) {
+  if (!initialRoomId && initialFriend && (initialProfile || initialHire)) {
     select({ kind: "friend", id: initialFriend });
   }
   const unsubscribe = teamLive?.subscribe?.(() => {

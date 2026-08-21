@@ -153,7 +153,7 @@ export function createDefaultBoardConfig(room = SEED_SALES_ROOM, dashboard = nul
   const tasks = [
     makeTask("补全潜客线索联系方式", "联系方式补全率目标 ≥ 60%，优先处理高意向客户", "todo", used),
     makeTask(firstRecord?.title || "分级高意向客户", firstRecord?.meta || "按行业、规模和购买意向分级", "doing", used),
-    makeTask(`审核${deliverables[1] || "首触方案"}`, room?.acceptance || "销售顾问确认话术与触达节奏", "approval", used),
+    makeTask(`审核${deliverables[1] || "首触方案"}`, room?.acceptance || "触达策略师确认话术与触达节奏", "approval", used),
     makeTask(dashboard?.primary ? `${dashboard.primary.label} ${dashboard.primary.value}${dashboard.primary.unit || ""}` : "完成首轮客户触达", "沉淀到项目共享文件并同步跟进结果", "done", used)
   ];
   const columns = DEFAULT_COLUMNS.map((column) => ({ ...column, tasks: [] }));
@@ -201,7 +201,7 @@ export function suggestBoardConfig(prompt, room = SEED_SALES_ROOM, dashboard = n
       columns: [
         ["todo", "待选题", "收集客户问题", "从真实客户对话中提炼选题和内容目标"],
         ["doing", "创作中", "生成个性化沟通内容", "按客户画像输出首触文案和 A/B 版本"],
-        ["approval", "待审核", "销售顾问审核", "检查事实、承诺边界和品牌语气"],
+        ["approval", "待审核", "触达策略师审核", "检查事实、承诺边界和品牌语气"],
         ["done", "已发布", "发布并复盘", "记录触达、回复和转化结果" ]
       ]
     },
@@ -210,7 +210,7 @@ export function suggestBoardConfig(prompt, room = SEED_SALES_ROOM, dashboard = n
       columns: [
         ["todo", "待跟进", "补全潜客线索联系方式", "联系方式补全率目标 ≥ 60%，优先处理高意向客户"],
         ["doing", "触达中", "分级高意向客户", "按行业、规模和购买意向分级"],
-        ["approval", "待审核", "审核触达方案", room?.acceptance || "销售顾问确认话术与触达节奏"],
+        ["approval", "待审核", "审核触达方案", room?.acceptance || "触达策略师确认话术与触达节奏"],
         ["done", "已完成", dashboard?.primary ? `${dashboard.primary.label} ${dashboard.primary.value}${dashboard.primary.unit || ""}` : "完成首轮客户触达", "沉淀到项目共享文件并同步跟进结果"]
       ]
     }

@@ -8,9 +8,14 @@ import { getWork } from "../agents/work-live.js";
 
 const ROLE_STAGES = Object.freeze({
   main: ["理解中", "确认中", "拆解中", "分派中"],
+  "Strategy Agent": ["拆解中", "定义画像", "选择来源", "锁定范围"],
   "Browser Agent": ["检索中", "识别中", "挖掘中", "整理中"],
   "Search Agent": ["识别中", "清洗中", "挖掘中", "核验中"],
+  "Research Agent": ["整理中", "核对中", "提炼中", "生成 Brief"],
   "App Agent": ["准备触达", "生成话术", "排队发送", "跟进中"],
+  "Risk Agent": ["检查中", "核验权限", "判断风险", "输出结论"],
+  "Outreach Agent": ["准备触达", "逐条发送", "核对结果", "记录中"],
+  "Outreach Ops Agent": ["排队中", "分批执行", "处理失败", "监听回复"],
   "File Agent": ["整理中", "撰写中", "排版中", "准备交付"],
   "Computer Agent": ["执行中", "运行中", "校验中", "部署中"],
   "线索猎人": ["检索中", "识别中", "挖掘中", "整理中"],

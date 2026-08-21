@@ -3,7 +3,7 @@
  * 在制工作实时源：任务引擎（task-runner）把每个成员当前在干什么写进来，
  * 云电脑快照（cloud-desktop）据此渲染真实工作画面——
  * 任务跑到哪一步，对应成员的云电脑就显示他在干的这件事。
- * 纯内存（模块级），随页面刷新清空；成员无在制工作时快照回退到通用模拟。
+ * 纯内存（模块级），随页面刷新清空；成员无在制工作时由云电脑显示空状态。
  */
 
 const works = new Map(); // agentType -> { task, phase, projectId, activities: [], state: "working"|"done", artifact }
@@ -45,7 +45,7 @@ export function finishWork(agentType, artifact = null) {
   notify(agentType);
 }
 
-/** 读取某成员的在制工作；无则 null（快照据此回退通用模拟）。 */
+/** 读取某成员的在制工作；无则 null（云电脑据此显示空状态）。 */
 export function getWork(agentType) {
   return works.get(agentType) || null;
 }

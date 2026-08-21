@@ -55,7 +55,11 @@ export function patchRecoveredBundle(filePath, body) {
 }
 
 export function createStaticServer({ rootDir = root, port = defaultPort, gatewayPort = Number(process.env.MARVIS_GATEWAY_PORT || 5152) } = {}) {
-  if (process.env.MARVIS_DISABLE_GATEWAY_MOCK !== "1") startGatewayMock({ port: gatewayPort });
+  // The recovered Gateway mock is a development fixture. Production and
+  // normal local runs must fail closed when no real Agent Gateway is present.
+  if (process.env.MARVIS_ENABLE_GATEWAY_MOCK === "1" && process.env.MARVIS_DISABLE_GATEWAY_MOCK !== "1") {
+    startGatewayMock({ port: gatewayPort });
+  }
   return http.createServer(async (request, response) => {
     const filePath = safePath(rootDir, request.url || "/");
     if (!filePath) {

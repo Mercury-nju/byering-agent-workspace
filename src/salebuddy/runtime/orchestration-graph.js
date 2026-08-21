@@ -13,8 +13,9 @@ const NODE_METADATA = Object.freeze({
     interruptPoints: ["requirement", "access", "handoff"]
   },
   acquisition_strategist: {
-    inputContract: ["goal", "market_context", "constraints"],
-    outputContract: ["segment_definition", "channel_plan", "funnel_hypothesis"],
+    inputContract: ["goal", "market_context", "constraints", "account_reference"],
+    outputContract: ["segment_definition", "channel_plan", "funnel_hypothesis", "resolved_accounts"],
+    tools: ["account.resolve"],
     interruptPoints: []
   },
   lead_miner: {
@@ -77,6 +78,7 @@ const EDGES = Object.freeze([
   edge("lead_analyst", "chief_of_staff", "analyze.insufficient", "conditional"),
   edge("prospect_researcher", "access_gate", "research.requires_access", "conditional", "access"),
   edge("access_gate", "prospect_researcher", "research.access_granted", "conditional", "access"),
+  edge("prospect_researcher", "risk_specialist", "research.find_only_completed", "conditional"),
   edge("prospect_researcher", "sales_consultant", "research.public_completed", "conditional"),
   edge("sales_consultant", "risk_specialist", "outreach.plan.ready", "ordered"),
   edge("risk_specialist", "approval_gate", "risk.reviewed", "ordered", "approval"),
@@ -87,7 +89,8 @@ const EDGES = Object.freeze([
   edge("approval_gate", "chief_of_staff", "outreach.approval.rejected", "conditional", "approval"),
   edge("outreach_operator", "reply_gate", "outreach.sent", "ordered", "reply"),
   edge("reply_gate", "chief_of_staff", "reply.received", "conditional", "reply"),
-  edge("reply_gate", "terminal", "outreach.completed", "conditional", "reply")
+  edge("reply_gate", "terminal", "outreach.completed", "conditional", "reply"),
+  edge("risk_specialist", "terminal", "find_only.completed", "conditional")
 ]);
 
 const GRAPH_STATE = Object.freeze({
@@ -151,6 +154,7 @@ function createAgentNode(agentId) {
     reportsTo: manifest.reportsTo,
     inputContract: [...metadata.inputContract],
     outputContract: [...metadata.outputContract],
+    tools: [...(metadata.tools || [])],
     interruptPoints: [...metadata.interruptPoints]
   };
 }

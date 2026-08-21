@@ -267,7 +267,18 @@ test("avatar images load eagerly and remove broken alt text on failure", () => {
 });
 
 test("active employee roster excludes the retired development assistant", () => {
-  assert.deepEqual(listKnownAgentTypes(), ["main", "Browser Agent", "Search Agent", "App Agent", "File Agent"]);
+  assert.deepEqual(listKnownAgentTypes(), [
+    "main",
+    "Strategy Agent",
+    "Browser Agent",
+    "Search Agent",
+    "Research Agent",
+    "App Agent",
+    "Risk Agent",
+    "Outreach Agent",
+    "Outreach Ops Agent",
+    "File Agent"
+  ]);
   assert.equal(avatarUrlFor("Computer Agent"), null);
   assert.equal(avatarUrlFor("开发助手"), null);
 });

@@ -1,7 +1,7 @@
 /**
  * ui/toolbox-first.js
- * 技能广场：把「工具箱」页签提到「探索发现」前面，并在打开技能广场时默认选中工具箱。
- * 纯 CSS order 调视觉顺序 + 首次出现时补一次原生点击，不改任何冻结文件。
+ * 技能广场：把「工具箱」页签提到「探索发现」前面，并修正工具箱列表的滚动容器。
+ * 只调整现有页面的视觉和布局，不主动触发技能广场路由。
  */
 
 const CSS = `
@@ -33,13 +33,8 @@ export function mountToolboxFirst() {
   function sweep() {
     const tab = findToolboxTab();
     if (!tab) return;
-    const container = tab.closest('[class*="_mainTabs_"]');
     const route = tab.closest('[class*="_root_"]');
     route?.classList.add("sb-toolbox-route");
-    // 每次页面重新挂载只自动选一次；用户手动切回「探索发现」不强制
-    if (container?.dataset.sbToolboxFirst) return;
-    if (container) container.dataset.sbToolboxFirst = "1";
-    if (![...tab.classList].some((cls) => /mainTabActive/i.test(cls))) tab.click();
   }
 
   let scheduled = false;

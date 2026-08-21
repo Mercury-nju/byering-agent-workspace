@@ -8,6 +8,8 @@ import {
   getDialogueScript,
   getEmployeeDialogue,
   getSubCompletionMessage,
+  canSubmitTask,
+  hasOnlineExecutionTransport,
   isExplicitUserRequirementConfirmation,
   pickDialogueScript
 } from "../src/salebuddy/ui/task-runner.js";
@@ -46,6 +48,15 @@ test("touch requests become a local audience plan before simulated execution", (
   assert.match(script.brief.guardrail, /本地模拟|不连接账号/);
   assert.match(script.approval.title, /模拟触达/);
   assert.doesNotMatch(script.approval.body, /send_dm/);
+});
+
+test("online touch requests never invent local candidates or send results", () => {
+  const script = getDialogueScript("leads", "找最近 30 天在我视频下面问过价格的人", { online: true });
+
+  assert.deepEqual(script.stats, []);
+  assert.doesNotMatch(script.decompose, /本地模拟|不连接账号|不会真的发消息/);
+  assert.doesNotMatch(script.approval.body, /本地演示|本地模拟/);
+  assert.ok(script.subs.every((step) => !/本地模拟/.test(`${step.executor}${step.assign}${step.lines.join(" ")}`)));
 });
 
 test("content tasks do not get mistaken for lead-hunter work", () => {
@@ -223,6 +234,7 @@ test("the visible conversation renderer does not expose lifecycle protocol label
   assert.doesNotMatch(renderer, /执行器：|HUMAN_TAKEOVER|\["结果已归档", "工作依据已保留"\]/);
   assert.doesNotMatch(renderer, /大家正在协作|过程和结果会实时同步到这里|目标 → 分工 → 执行 → 交付/);
   assert.match(renderer, /case "run-started":\s*setAgentActivity\("main", "理解中"\);\s*updateProgressSummary\("理解中"/);
+  assert.match(renderer, /case "account-resolved":[\s\S]*?updateProgressSummary\("账号已识别"/);
   assert.match(renderer, /mountAgentAvatar\(avatar, employeeName/);
   assert.match(renderer, /text: event\.text/);
   assert.match(renderer, /role", "log"/);
@@ -239,7 +251,7 @@ test("the visible conversation renderer does not expose lifecycle protocol label
   assert.match(renderer, /继续追问结果，或安排下一步工作/);
   assert.match(renderer, /调整需求并创建后续任务/);
   assert.match(renderer, /任务恢复建议/);
-  assert.match(renderer, /触达目标拆解/);
+  assert.match(renderer, /我对触达目标的拆解/);
   assert.match(renderer, /模拟候选预览/);
   assert.match(renderer, /模拟首触草稿/);
   assert.match(renderer, /触达结果/);
@@ -271,4 +283,32 @@ test("requirement gate advances only from an explicit user confirmation", () => 
   assert.equal(isExplicitUserRequirementConfirmation({ actor: "system", action: "confirm" }), false);
   assert.equal(isExplicitUserRequirementConfirmation({ actor: "user", action: "preview" }), false);
   assert.equal(isExplicitUserRequirementConfirmation({ actor: "user", action: "confirm" }), true);
+});
+
+test("the four sales shortcut intents resolve to distinct frontend workflows", () => {
+  assert.equal(pickDialogueScript("帮我找一批符合条件的抖音潜客"), "find");
+  assert.equal(pickDialogueScript("帮我分析现有线索，按意向和证据分层"), "analyze");
+  assert.equal(pickDialogueScript("根据已确认的潜客准备首轮触达方案"), "outreach");
+  assert.equal(pickDialogueScript("帮我查看当前项目组的找人、触达和回复结果"), "results");
+
+  assert.equal(getDialogueScript("find", "帮我找潜客").approvalRequired, false);
+  assert.equal(getDialogueScript("analyze", "帮我分析线索").approvalRequired, false);
+  assert.equal(getDialogueScript("outreach", "帮我准备触达").approvalRequired, true);
+  assert.equal(getDialogueScript("results", "帮我查看结果").approvalRequired, false);
+});
+
+test("production task submission fails closed when the control plane is unavailable", () => {
+  assert.equal(canSubmitTask({ gateway: { controlPlaneReady: false } }), false);
+  assert.equal(canSubmitTask({ gateway: null }), false);
+  assert.equal(canSubmitTask({ gateway: { controlPlaneReady: true } }), true);
+  assert.equal(canSubmitTask({ gateway: null, demoMode: true }), true);
+});
+
+test("online tasks require a real Agent Gateway transport", () => {
+  assert.equal(hasOnlineExecutionTransport({ online: true, gateway: null }), false);
+  assert.equal(hasOnlineExecutionTransport({ online: true, gateway: { run() {} } }), false);
+  assert.equal(hasOnlineExecutionTransport({ online: true, gateway: { run() {}, on() {}, executionReady: true } }), true);
+  assert.equal(hasOnlineExecutionTransport({ online: true, gateway: { run() {}, on() {}, nativeGateway: { run() {} } } }), true);
+  assert.equal(hasOnlineExecutionTransport({ online: true, gateway: { run() {}, on() {} } }), true);
+  assert.equal(hasOnlineExecutionTransport({ online: false, gateway: { run() {}, on() {} } }), false);
 });

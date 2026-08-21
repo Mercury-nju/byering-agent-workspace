@@ -9,23 +9,48 @@
 export const AGENT_TYPE_DEFAULTS = Object.freeze({
   main: {
     role: "Byering · 幕僚长",
-    title: "AI 组织负责人",
+    title: "智能组织负责人",
     responsibilities: ["理解用户目标", "拆解任务", "组织与协调 Agent 团队", "审核交付质量", "向用户汇报"]
+  },
+  "Strategy Agent": {
+    role: "获客策略师",
+    title: "获客策略师",
+    responsibilities: ["将业务目标转成客户画像", "选择抖音找人来源与意向信号", "确定筛选条件、时间范围和任务规模"]
   },
   "Browser Agent": {
     role: "线索猎人",
-    title: "B2B 线索研究员",
-    responsibilities: ["搜索潜在客户", "分析公司主页", "补全联系方式", "验证线索真实性"]
+    title: "抖音线索发现",
+    responsibilities: ["检索账号、粉丝、评论和直播互动", "保留原始来源证据", "补全公开画像并验证身份"]
   },
   "Search Agent": {
-    role: "数据分析师",
-    title: "数据清洗与评估",
-    responsibilities: ["清洗重复数据", "线索评分", "数据归因与来源核验", "输出分析结论"]
+    role: "线索分析师",
+    title: "线索分析师",
+    responsibilities: ["合并重复账号", "按意向和画像进行评分", "核验来源与证据", "输出可解释的优先级"]
+  },
+  "Research Agent": {
+    role: "客户研究员",
+    title: "客户研究与客户简报",
+    responsibilities: ["整理客户主页、作品和评论", "提炼需求信号与切入点", "生成可追溯的 Prospect Brief"]
   },
   "App Agent": {
-    role: "销售顾问",
-    title: "触达策略制定",
-    responsibilities: ["制定触达方案", "设计沟通节奏", "评估转化路径"]
+    role: "触达策略师",
+    title: "触达策略师",
+    responsibilities: ["制定触达方式和沟通节奏", "基于证据生成个性化首触", "评估转化路径与下一步动作"]
+  },
+  "Risk Agent": {
+    role: "风控专员",
+    title: "触达风险控制",
+    responsibilities: ["检查重复触达和冷却期", "校验权限、频控与勿扰状态", "解释允许、延迟、修改或拦截原因"]
+  },
+  "Outreach Agent": {
+    role: "外联专员",
+    title: "外联专员",
+    responsibilities: ["执行已批准的私信和评论动作", "逐条记录提交与平台结果", "遇到不可用账号时保留失败原因"]
+  },
+  "Outreach Ops Agent": {
+    role: "触达运营专员",
+    title: "触达运营专员",
+    responsibilities: ["管理发送队列和分批计划", "处理失败、重试和暂停恢复", "监听回复并停止后续未回复计划"]
   },
   "File Agent": {
     role: "内容策划",
@@ -33,6 +58,19 @@ export const AGENT_TYPE_DEFAULTS = Object.freeze({
     responsibilities: ["生成沟通内容", "撰写报告", "管理文件产出"]
   }
 });
+
+/** Default Byering team shown as installed members in the Agent Square. */
+export const BYERING_DEFAULT_AGENT_TYPES = Object.freeze([
+  "main",
+  "Strategy Agent",
+  "Browser Agent",
+  "Search Agent",
+  "Research Agent",
+  "App Agent",
+  "Risk Agent",
+  "Outreach Agent",
+  "Outreach Ops Agent"
+]);
 
 /** 反馈/规则的生效范围（PRD 四档）。 */
 export const FEEDBACK_SCOPES = Object.freeze(["task", "project", "agent", "organization"]);

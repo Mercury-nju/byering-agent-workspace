@@ -1,9 +1,14 @@
 /** Role-specific office skin contract. Keeps native scene layout as the source of truth. */
 
 export const OFFICE_ROLE_SHEETS = Object.freeze({
+  "Strategy Agent": "竞品调研",
   "Browser Agent": "线索猎人",
   "Search Agent": "数据分析",
+  "Research Agent": "内容营销",
   "App Agent": "金牌客服",
+  "Risk Agent": "专业服务",
+  "Outreach Agent": "金牌客服",
+  "Outreach Ops Agent": "金牌客服",
   "File Agent": "内容营销",
   "Computer Agent": "录音总结",
   "mkt-market-scout": "竞品调研"

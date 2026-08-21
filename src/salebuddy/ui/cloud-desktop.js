@@ -1,8 +1,7 @@
 /**
  * ui/cloud-desktop.js
- * 云电脑实时快照：点击办公室工位上的「显示器」或员工卡片电脑入口，弹出该成员云电脑的大屏模拟实时画面
- * （点角色形象打开该员工的工作进展，两者通过 Pixi 场景节点精确区分）：
- * 按岗位渲染对应的工作窗口（浏览器 / 终端 / 文档 / 触达序列 / 调度台），内容持续滚动模拟 LIVE。
+ * 云电脑实时快照：只展示真实任务事件驱动的工作画面。
+ * 没有真实在制任务时显示空状态，不播放岗位剧本、不伪造 LIVE。
  * 状态与 teamLive 同源（空闲/工作/待审批实时刷新），纯运行时注入，不改冻结文件。
  */
 import { TEAM_STATE_LABELS, TEAM_STATES } from "../agents/status.js";
@@ -34,6 +33,7 @@ const CSS = `
 .sb-cloud-dot.sb-waiting{background:#D45B5B}
 .sb-cloud-task{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sb-cloud-mock{flex:none;color:#B0B4BB;font-size:10px}
+.sb-cloud-offline{display:inline-flex;align-items:center;font-size:10px;color:#9A7B42}
 
 /* 屏幕里的窗口 */
 .sb-win{position:absolute;inset:10px;border-radius:9px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 4px 14px rgba(15,15,15,0.10)}
@@ -98,7 +98,7 @@ const SCENARIOS = {
     ]
   },
   "App Agent": {
-    app: "触达序列 · 销售顾问",
+    app: "触达序列 · 触达策略师",
     theme: "light",
     url: "salebuddy://sequences/潜在客户拓展",
     lines: [
@@ -154,16 +154,23 @@ const SCENARIOS = {
     lines: [
       ["[调度] 项目组「潜在客户拓展」任务分解 ✓", "sb-hi"],
       ["  ├─ 线索猎人：搜索 + 补全（进行中）", ""],
-      ["  ├─ 数据分析师：清洗评分（排队）", ""],
+      ["  ├─ 线索分析师：清洗评分（排队）", ""],
       ["  └─ 内容策划：首触物料 v5（进行中）", ""],
       ["[汇总] 各成员心跳正常 · 4/4 在线", "sb-ok"],
-      ["[审批] 销售顾问提交话术 v4 → 等待用户确认", "sb-hi"],
+      ["[审批] 触达策略师提交话术 v4 → 等待用户确认", "sb-hi"],
       ["[调度] 重排优先级：高评分线索优先触达", ""],
       ["[汇总] 今日产出：线索 214 · 邮件 32 · 文档 3", "sb-ok"],
       ["[提醒] 17:00 向用户汇报阶段进展", "sb-dim"]
     ]
   }
 };
+
+const NO_LIVE_SCENARIO = Object.freeze({
+  app: "云电脑 · 暂无实时任务",
+  theme: "light",
+  url: "salebuddy://workspace/idle",
+  lines: [["当前没有真实在制任务。", "sb-dim"], ["启动任务后，真实进度和产出会显示在这里。", ""]]
+});
 
 let styleInjected = false;
 function ensureStyle() {
@@ -263,11 +270,11 @@ function startLineFeed(body, lines, { prefill = 6, intervalMs = 1100 } = {}) {
   return () => clearInterval(timer);
 }
 
-/** 按岗位建一个工作窗口（浏览器/终端/文档等）；有在制工作时显示真实工作内容，否则通用模拟。返回 { el, dispose }。 */
+/** 按真实在制工作建一个工作窗口；没有任务时只显示空状态。返回 { el, dispose }。 */
 export function createSnapshotScreen(agentType, { height = 264, projectId = null } = {}) {
   ensureStyle();
   const live = liveScenarioFor(agentType, projectId);
-  const scenario = live || SCENARIOS[agentType] || SCENARIOS.main;
+  const scenario = live || NO_LIVE_SCENARIO;
   const screen = el("div", "sb-cloud-screen");
   screen.style.height = `${height}px`;
   const win = el("div", `sb-win ${scenario.theme === "dark" ? "sb-win-dark" : "sb-win-light"}`);
@@ -282,7 +289,13 @@ export function createSnapshotScreen(agentType, { height = 264, projectId = null
   const body = el("div", "sb-win-body");
   win.appendChild(body);
   screen.appendChild(win);
-  const dispose = live ? (startWorkFeed(body, agentType, projectId) || (() => {})) : startLineFeed(body, scenario.lines);
+  const dispose = live ? (startWorkFeed(body, agentType, projectId) || (() => {})) : (() => {
+    for (const [text, tone] of NO_LIVE_SCENARIO.lines) {
+      const row = el("div", `sb-line${tone ? ` ${tone}` : ""}`, text);
+      row.style.opacity = "1";
+      body.appendChild(row);
+    }
+  });
   return { el: screen, dispose };
 }
 
@@ -353,7 +366,7 @@ export function mountCloudDesktop({ teamLive, gateway } = {}) {
 
   function openFor(type) {
     const live = liveScenarioFor(type);
-    const scenario = live || SCENARIOS[type] || SCENARIOS.main;
+    const scenario = live || NO_LIVE_SCENARIO;
     if (panel && agentType === type) return; // 已在看这台
     close();
     agentType = type;
@@ -370,8 +383,13 @@ export function mountCloudDesktop({ teamLive, gateway } = {}) {
 
     const head = el("div", "sb-cloud-head");
     head.appendChild(el("div", "sb-cloud-title", `云电脑 · ${profileName(type)}`));
-    const liveBadge = el("span", "sb-cloud-live");
-    liveBadge.appendChild(el("i")); liveBadge.appendChild(document.createTextNode("LIVE"));
+    const liveBadge = el("span", live ? "sb-cloud-live" : "sb-cloud-offline");
+    if (live) {
+      liveBadge.appendChild(el("i"));
+      liveBadge.appendChild(document.createTextNode("LIVE"));
+    } else {
+      liveBadge.textContent = "暂无任务";
+    }
     head.appendChild(liveBadge);
     const clock = el("span", "sb-cloud-clock", "--:--:--");
     head.appendChild(clock);
@@ -396,7 +414,7 @@ export function mountCloudDesktop({ teamLive, gateway } = {}) {
     const foot = el("div", "sb-cloud-foot");
     foot.appendChild(el("span", "sb-cloud-dot"));
     foot.appendChild(el("span", "sb-cloud-task", "…"));
-    foot.appendChild(el("span", "sb-cloud-mock", live ? "任务实时同步" : "模拟实时快照"));
+    foot.appendChild(el("span", live ? "sb-cloud-mock" : "sb-cloud-offline", live ? "任务实时同步" : "暂无实时任务"));
 
     shell.append(head, screen, foot);
     backdrop.appendChild(shell);
@@ -414,9 +432,8 @@ export function mountCloudDesktop({ teamLive, gateway } = {}) {
         unsubscribe = () => { disposeFeed(); prevUnsub?.(); };
       }
     } else {
-      // 预填几行，再按节奏吐新行（通用模拟）
-      for (let i = 0; i < 6; i++) pushLine(body, scenario.lines);
-      lineTimer = setInterval(() => pushLine(body, scenario.lines), 1100);
+      for (const [text, tone] of NO_LIVE_SCENARIO.lines) pushLine(body, [[text, tone]]);
+      lineTimer = null;
     }
     const tick = () => { clock.textContent = new Date().toLocaleTimeString("zh-CN", { hour12: false }); };
     tick();

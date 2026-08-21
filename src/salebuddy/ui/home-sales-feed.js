@@ -2,14 +2,13 @@
  * ui/home-sales-feed.js
  * 首页推荐区销售业务化：原生热词卡片来自线上接口（游戏/生活向，与销售业务无关），
  * 整体隐藏原生 `_hotWordsArea_`，原位注入 SaleBuddy 销售业务推荐区——
- * Shared homepage flow: industry -> digital employee -> employee task prompts.
+ * Shared homepage flow: sales shortcut -> digital employee -> employee task prompts.
  * 视觉沿用原生卡片语言（白卡 + 图标 + 标题 + 描述，三列网格），运行时注入，不改冻结文件。
  */
 import { BRAND } from "../brand.js";
 import { mountAgentAvatar } from "./agent-avatar.js";
 import { openAgentSquarePage } from "./agent-square.js";
 import { NAV_EVENT } from "./nav-framework.js";
-import { openEarPage } from "./ear-page.js";
 import { CUSTOMER_DOMAIN_LABELS } from "../business/customer-domains.js";
 
 const BYERING_AGENT_VIDEO_URL = new URL("../../../assets/byering-agent-action-alpha.webm", import.meta.url).href;
@@ -289,59 +288,27 @@ const TONES = [
   ["rgba(70,180,190,0.15)", "#2E868E"]
 ];
 
-export const HOME_SALES_FEED = {
-  推荐: [
-    ["🎯", "抖音买车线索猎人", "观察抖音评论、粉丝和直播互动，识别有车型、预算、城市或到店信号的高意向买车客户", "帮我监控抖音上的互动，找到高意向买车客户，并自动持续跟进到客户留电话"],
-    ["✉️", "首触话术生成", "为 A 级潜客生成 3 套首触私信话术，口语化、无承诺类表述，附跟进节奏建议", "为「潜在客户拓展」项目组的 A 级潜客生成 3 套首触私信话术，要求口语化、不含承诺类表述，并给出 3 天跟进节奏建议"],
-    ["📊", "本周线索漏斗周报", "汇总本周新增线索、有效率、首触回复率和转化，输出一页纸周报", "汇总本周的新增线索数量、有效率、首触回复率和转化情况，输出一页纸周报并存到项目共享文件夹"],
-    ["🏷️", "竞品动态监控", "监控 3 家主要竞品的账号与官网动态，整理本周新动作并给出应对建议", "监控 3 家主要竞品的抖音账号和官网动态，整理他们本周的新动作、促销活动和内容方向，给出我们的应对建议"],
-    ["📞", "今日跟进清单", "筛出超过 3 天未跟进的 B 级以上潜客，按优先级排出今日清单和切入话术", "整理所有超过 3 天未跟进的 B 级以上潜客，按优先级排出今日跟进清单，并为每家准备一句切入话术"],
-    ["🤝", "成单复盘沉淀", "复盘本周成单客户从线索到成交的关键动作，沉淀可复制经验到知识库", "复盘本周 2 个成单客户的完整旅程：从线索来源到成交的关键动作各是什么，把可复制的经验沉淀到知识库"]
-  ],
-  获客: [
-    ["🎣", "评论区潜客打捞", "监控同行业账号最新视频评论区，打捞咨询类评论用户整理成清单", "监控同行业 10 个账号的最新视频评论区，打捞有咨询意向的评论用户，整理成潜客清单并标注意向类型"],
-    ["👥", "粉丝画像分析", "分析账号粉丝的行业分布、活跃时段、互动偏好，给出内容调整建议", "分析我的抖音账号粉丝画像：行业分布、活跃时段、互动偏好，基于画像给出下周内容方向调整建议"],
-    ["🤝", "异业合作名单", "筛选业务互补的本地商家账号，输出 20 个合作候选及切入点", "筛选与我业务互补的本地商家账号，输出 20 个异业合作候选名单，并给出每家的合作切入点"],
-    ["📺", "直播线索整理", "整理最近一场直播的观众互动数据，筛出高意向观众并生成跟进话术", "整理最近一场直播的观众互动数据，筛出高意向观众，为每人生成一条个性化的跟进私信话术"],
-    ["🔄", "老客转介绍激活", "筛选高满意度成交客户，生成转介绍邀请话术和激励方案", "从成交客户中筛选满意度高的名单，生成转介绍邀请话术和一套转介绍激励方案"],
-    ["📈", "行业新榜发现", "监控行业榜单变化，发现新崛起的潜在客户账号", "监控抖音相关行业榜单的变化，发现新崛起的潜在客户账号，输出名单并标注值得关注的原因"]
-  ],
-  触达: [
-    ["📅", "三天触达排期", "为 A 级潜客制定首日私信、次日互动、三日跟进的排期，附每条话术", "为 A 级潜客制定 3 天触达排期：首日私信破冰、次日评论区互动、第三日跟进，每一步都给出具体话术"],
-    ["🆚", "破冰话术 A/B", "为同一批潜客生成 A/B 两版破冰私信，设计回复率对比方案", "为同一批潜客生成 A/B 两版破冰私信，并设计一个回复率对比方案，一周后自动统计哪个版本更好"],
-    ["⏰", "沉默客户唤醒", "给 30 天未互动的老客户生成唤醒话术，结合历史记录个性化", "给 30 天未互动的老客户生成唤醒话术，结合每家的历史购买记录做个性化，避免群发感"],
-    ["🎄", "节日营销触达", "结合最近节日节点，为客户分层设计触达内容和发送排期", "结合最近的节日节点，为全部客户分层设计节日触达内容和发送排期，新老客户话术区分开"],
-    ["🔁", "未读客户换道", "把私信未读的潜客改走评论互动路径，生成自然的互动话术", "把私信一直未读的潜客改走评论区互动路径，生成自然不突兀的互动话术，逐步建立熟悉感"],
-    ["🎯", "高意向直达", "识别本周有高意向信号的客户，生成一对一专属跟进方案", "识别本周出现高意向信号（反复观看、主动咨询）的客户，为每人生成一对一的专属跟进方案"],
-    ["🏅", "金牌客服接管", "持续接管客户咨询，结合历史对话处理异议、判断意向，关键节点转交人工", "接管当前项目组的客户咨询：结合历史对话持续回复，识别并处理价格、配置、试驾和置换异议，实时更新客户意向等级；遇到投诉、承诺、价格审批或高意向成交节点时立即转交人工"],
-    ["💬", "金牌话术教练", "实时分析客户消息，生成专业回复建议、沟通策略和下一步跟进动作", "分析当前项目组最近的客户对话，为每条待回复消息生成一版专业回复、一版更亲和的回复，并说明客户情绪、核心诉求、沟通风险和建议的下一步跟进动作，由我确认后再发送"],
-    ["🛟", "客诉安抚专家", "识别投诉与负面情绪，生成安抚话术、补救方案和人工升级建议", "筛选当前项目组中带有投诉、不满或明显负面情绪的客户对话，逐条判断客诉等级，生成克制的安抚回复和补救建议；涉及退款、赔付、法律风险或舆情扩散时标记为高优先级并转交人工"]
-  ],
-  内容: [
-    ["🔥", "爆款对标拆解", "拆解同类目 10 条爆款的开头钩子、节奏和转化点，输出可复用模板", "拆解同类目 10 条爆款视频的开头钩子、节奏设计和转化点，输出一套可复用的内容模板"],
-    ["🗓️", "14 天选题日历", "生成未来 14 天选题日历，每天一条，贴合粉丝活跃时段", "生成未来 14 天的抖音选题日历，每天一条选题并标注发布时段，贴合粉丝活跃时间"],
-    ["🎬", "口播脚本撰写", "为指定主题写 3 条 60 秒口播脚本，含 A/B 两版开头钩子", "为「客户案例拆解」主题写 3 条 60 秒口播脚本，每条含 A/B 两版开头钩子，结尾引导私信咨询"],
-    ["💬", "评论区话术库", "整理常见咨询问题的回复话术库，分售前、比价、售后三类", "整理评论区常见咨询问题的回复话术库，分售前咨询、比价应对、售后问题三类，每类 10 条"],
-    ["🎙️", "直播大纲设计", "生成完整直播大纲：开场留人、产品讲解、逼单话术、结尾预告", "为下一场直播生成完整大纲：开场留人话术、产品讲解节奏、逼单环节设计、结尾预告钩子"],
-    ["📱", "朋友圈文案周包", "生成一周朋友圈营销文案，软广与干货按 3:7 配比", "生成未来一周的朋友圈营销文案，软广与干货内容按 3:7 配比，每天 2 条配发布时段"]
-  ],
-  复盘: [
-    ["📉", "周度数据复盘", "汇总本周播放、涨粉、互动、线索转化，对比上周给出结论", "汇总本周抖音账号数据：播放量、涨粉、互动率、线索转化数，对比上周数据给出结论和改进点"],
-    ["📊", "话术效果分析", "统计各版本触达话术的回复率，找出最优版本并分析原因", "统计近期各版本触达话术的回复率，找出效果最好的版本，分析它好在哪里并固化为默认模板"],
-    ["⚠️", "客户流失预警", "识别互动频率下降的客户，分析可能原因并给出挽回动作", "识别互动频率明显下降的客户名单，分析可能的原因，为每家给出具体的挽回动作建议"],
-    ["⚖️", "渠道 ROI 对比", "对比抖音、转介绍、自然到店三个渠道的线索成本与成交率", "对比抖音、老客转介绍、自然到店三个渠道的线索成本和成交率，给出下月预算倾斜建议"],
-    ["👥", "团队产出周报", "汇总四位成员本周产出：线索数、触达数、物料数，标注卡点", "汇总项目组四位成员本周的产出：线索数、触达数、物料产出数，标注还没解决的卡点事项"],
-    ["🎯", "月度目标校准", "对照月度目标检查进度，给出下半月冲刺计划和资源倾斜建议", "对照本月获客目标检查当前进度，给出下半月的冲刺计划，明确资源应该向哪个渠道倾斜"]
-  ],
-  演示: [
-    ["▶", "完整销售闭环", "演示从线索核验、意向评分、触达到审批归档的完整链路", "演示：监控抖音买车线索，完成首轮跟进并提交触达审批"],
-    ["!", "Executor 故障演示", "演示外部数据源超时后的证据保留、任务暂停和重试入口", "模拟失败：核验买车线索并安排到店"],
-    ["⌁", "人工接管演示", "演示客户投诉或要求人工时停止自动动作并交接上下文", "演示人工接管：处理客户投诉并保留完整会话上下文"]
-  ]
-};
+const PUBLIC_PROSPECT_FEED = Object.freeze([
+  ["🔎", "解析指定抖音账号", "用账号名称、抖音号或主页链接解析公开账号身份", "帮我解析这个抖音账号：账号名称、抖音号或主页链接：[填写]"],
+  ["🎬", "采集账号作品与评论", "抓取指定账号的公开视频和公开评论，保留来源与时间", "帮我抓取这个抖音账号最近的公开视频和公开评论：账号名称、抖音号或主页链接：[填写]"],
+  ["💬", "分析指定作品评论", "按作品 ID 或完整视频 URL抓取公开评论并整理证据", "帮我抓取这个抖音作品的公开评论并分析购车意向：作品 ID 或完整视频 URL：[填写]"],
+  ["👥", "批量分析指定账号", "逐个解析一批账号并采集各自公开视频、评论和意向线索", "帮我批量分析这些抖音账号的公开视频和评论，逐个输出账号身份、作品、评论和购车意向：账号清单：[填写]"],
+  ["🎯", "筛选购车意向", "从公开评论原文识别车型、预算、价格、试驾和购车时间信号", "帮我从这批抖音公开评论中筛选有购车意向的潜客，按评论原文、意向等级和证据排序"],
+  ["🧾", "整理线索证据", "输出作品、评论、时间、账号标识和意向判断，缺失项明确标记", "帮我整理每条抖音线索的评论原文、作品链接、发布时间和意向判断，标出无法确认的信息"]
+]);
+
+// Every card on the homepage maps to a currently executable public-data path.
+export const HOME_SALES_FEED = Object.freeze({
+  推荐: PUBLIC_PROSPECT_FEED,
+  账号: PUBLIC_PROSPECT_FEED,
+  作品: PUBLIC_PROSPECT_FEED,
+  评论: PUBLIC_PROSPECT_FEED,
+  意向: PUBLIC_PROSPECT_FEED,
+  结果: PUBLIC_PROSPECT_FEED
+});
 
 export const SALES_DOMAINS = Object.freeze([
-  { id: "sales", icon: "📈", label: CUSTOMER_DOMAIN_LABELS.sales, promptPrefix: "销售", skills: [["🎯", "线索猎人", "从评论、私信和表单中识别高意向客户"], ["✉️", "首触话术生成", "按客户画像和业务场景生成个性化首触话术"], ["📊", "线索漏斗周报", "汇总线索、触达、商机和成交转化数据"], ["🏷️", "竞品动态监控", "追踪竞品产品、报价和客户案例变化"], ["📞", "今日跟进清单", "按客户意向和跟进时效排出今日优先级"], ["🤝", "成单复盘沉淀", "复盘从线索到成交的关键动作并沉淀方法"]] },
+  { id: "sales", icon: "📈", label: CUSTOMER_DOMAIN_LABELS.sales, promptPrefix: "销售", skills: [["🔎", "账号发现与解析", "从账号名称、抖音号或主页链接解析公开账号身份"], ["🎬", "公开作品采集", "读取指定账号的公开视频和公开评论"], ["💬", "指定作品评论", "按作品 ID 或完整视频 URL抓取公开评论"], ["🎯", "购车意向筛选", "从评论原文识别车型、预算、价格和购车时间信号"], ["👥", "批量账号分析", "逐个解析一批账号并整理公开作品、评论和意向线索"], ["🧾", "线索证据整理", "输出作品、评论、时间、账号标识和意向判断"]] },
   { id: "customer-success", icon: "🤝", label: CUSTOMER_DOMAIN_LABELS["customer-success"], promptPrefix: "客户成功", skills: [["🎯", "客户健康度", "从使用、反馈和互动信号识别高风险客户"], ["✉️", "续费沟通生成", "按客户目标和使用阶段生成续费沟通话术"], ["📊", "客户价值周报", "汇总活跃、使用深度、续费和扩容数据"], ["🏷️", "客户需求监控", "整理行业变化与客户反馈中的共性需求"], ["📞", "重点客户跟进", "按健康度和续费节点安排今日跟进"], ["🤝", "成功案例沉淀", "复盘客户从启用到续费的关键成功动作"]] },
   { id: "recruiting", icon: "🧭", label: CUSTOMER_DOMAIN_LABELS.recruiting, promptPrefix: "招聘猎头", skills: [["🎯", "候选人挖掘", "从公开资料和人才库筛选匹配候选人"], ["✉️", "首触沟通生成", "按职位、经历和候选人动机生成首触话术"], ["📊", "招聘漏斗周报", "汇总推荐、面试、Offer 和入职转化数据"], ["🏷️", "人才市场监控", "追踪同类职位、薪资和人才流动变化"], ["📞", "候选人跟进清单", "按沟通阶段和反馈时效安排今日跟进"], ["🤝", "入职复盘沉淀", "复盘从推荐到入职的关键推进节点"]] },
   { id: "education", icon: "🎓", label: CUSTOMER_DOMAIN_LABELS.education, promptPrefix: "教育培训", skills: [["🎯", "报名线索挖掘", "识别试听、咨询和课程关注中的高意向学员"], ["✉️", "咨询话术生成", "按年龄、目标和课程阶段生成沟通话术"], ["📊", "招生漏斗周报", "汇总咨询、试听、报名和续费转化数据"], ["🏷️", "竞品课程监控", "追踪竞品课程、定价和招生内容变化"], ["📞", "学员跟进清单", "按学习目标和跟进时效安排今日触达"], ["🤝", "报名复盘沉淀", "复盘从咨询到报名的关键动作和异议"]] },
@@ -349,8 +316,52 @@ export const SALES_DOMAINS = Object.freeze([
   { id: "ear", icon: "🎙️", label: CUSTOMER_DOMAIN_LABELS.ear, promptPrefix: "倾耳", entry: "ear", skills: [["🎙️", "客户访谈录音", "录下客户访谈并提炼关键需求与异议"], ["📝", "销售复盘录音", "把销售复盘整理成可执行的改进清单"], ["📚", "培训会议录音", "将培训内容整理成结构化知识材料"], ["📊", "经营会议录音", "从会议录音中提取结论、负责人和截止时间"], ["🧩", "方案讲解录音", "把方案讲解转成客户可读的交付材料"], ["↗", "录音分享物料", "生成可分享的 PPT、HTML、PDF 或信息图"]] }
 ]);
 
+export const SALES_SHORTCUTS = Object.freeze([
+  { id: "find", icon: "🎯", label: "找潜客", prompt: "帮我从指定的一个或一批抖音账号找潜客：先解析账号，再抓取公开视频和公开评论。" },
+  { id: "analyze", icon: "🔎", label: "分析线索", prompt: "帮我分析指定抖音作品的公开评论，按购车意向、评论原文和证据分层。" },
+  { id: "outreach", icon: "🧾", label: "触达线索", prompt: "帮我把已采集的抖音公开线索整理成带作品、评论和意向依据的人工跟进清单。" },
+  { id: "results", icon: "📊", label: "查看结果", prompt: "帮我总结本次公开找人结果：账号、作品、评论、候选线索、意向等级和缺失信息。" }
+]);
+
+// The homepage is organized around four user outcomes. Each outcome exposes
+// the concrete default team that can carry it forward in the conversation.
+export const SALES_SHORTCUT_AGENT_IDS = Object.freeze({
+  find: Object.freeze(["Strategy Agent", "Browser Agent", "Search Agent", "Research Agent"]),
+  analyze: Object.freeze(["Search Agent", "Research Agent", "Risk Agent", "Strategy Agent"]),
+  outreach: Object.freeze(["Research Agent", "Risk Agent", "Search Agent", "main"]),
+  results: Object.freeze(["Search Agent", "Research Agent", "Risk Agent", "main"])
+});
+
+const SALES_SHORTCUT_AGENT_DETAILS = Object.freeze({
+  "Strategy Agent": { icon: "🧭", title: "账号发现与解析", task: "把账号名称、抖音号或主页链接整理成可采集的公开账号身份" },
+  "Browser Agent": { icon: "🎯", title: "公开作品与评论采集", task: "读取指定账号或作品的公开视频和评论" },
+  "Search Agent": { icon: "📊", title: "购车意向分层", task: "按评论原文中的车型、预算、价格和时间信号排出优先级" },
+  "Research Agent": { icon: "🧾", title: "线索证据简报", task: "整理主页、作品、评论、时间和判断依据" },
+  "App Agent": { icon: "🧾", title: "人工跟进交接", task: "把公开线索整理成负责人可核验的跟进清单" },
+  "Risk Agent": { icon: "🛡️", title: "证据边界检查", task: "检查来源、时间、重复记录和无法确认的信息" },
+  "Outreach Agent": { icon: "📋", title: "线索清单整理", task: "按意向等级和证据完整度整理公开线索" },
+  "Outreach Ops Agent": { icon: "⏱️", title: "结果队列整理", task: "汇总账号、作品、评论、候选和待核验状态" },
+  main: { icon: "🧩", title: "公开数据交付", task: "汇总采集、评分、证据和缺失信息" }
+});
+
+const SALES_SHORTCUT_AGENT_DETAIL_OVERRIDES = Object.freeze({
+  results: Object.freeze({
+    "Search Agent": { icon: "📊", title: "数据分析与结果复盘", task: "汇总账号、作品、评论和意向数据，找出变化与缺口" },
+    "Outreach Ops Agent": { icon: "📈", title: "公开任务统计", task: "核对完成、等待、受限和失败状态" },
+    "Risk Agent": { icon: "⚠️", title: "数据异常分析", task: "解释解析、重复、不可用和回调等待的影响" },
+    main: { icon: "🧩", title: "公开数据汇总", task: "把采集、评分和证据结论整理成下一步清单" }
+  })
+});
+
+const SALES_SHORTCUT_PROMPT_CONTEXT = Object.freeze({
+  find: { subject: "抖音公开潜客", signals: "账号、作品、公开评论和发布时间", outcome: "高意向线索", channel: "指定账号或作品" },
+  analyze: { subject: "公开评论线索", signals: "评论原文、作品、账号标识和时间", outcome: "购车意向分层", channel: "公开评论证据" },
+  outreach: { subject: "已采集的公开线索", signals: "评论原文、作品链接、意向等级和证据", outcome: "人工跟进清单", channel: "公开数据交接" },
+  results: { subject: "公开找人结果", signals: "账号、作品、评论、候选数量和缺失信息", outcome: "可核验交付", channel: "公开数据分析阶段" }
+});
+
 const DOMAIN_PROMPT_CONTEXT = Object.freeze({
-  sales: { tabs: ["推荐", "获客", "触达", "内容", "复盘", "演示"], subject: "潜在客户", outcome: "成交", signals: "评论、私信、表单和历史跟进记录", channel: "获客渠道" },
+  sales: { tabs: ["推荐", "账号", "作品", "评论", "意向", "结果"], subject: "抖音公开线索", outcome: "购车意向分层", signals: "账号、作品、公开评论和发布时间", channel: "指定账号或作品" },
   "customer-success": { tabs: ["推荐", "风险", "续费", "运营", "复盘", "演示"], subject: "重点客户", outcome: "续费与扩容", signals: "产品使用、客户反馈、健康度和续费节点", channel: "客户运营动作" },
   recruiting: { tabs: ["推荐", "寻访", "沟通", "招聘内容", "复盘", "演示"], subject: "候选人", outcome: "到面与入职", signals: "人才库、公开履历、沟通记录和职位要求", channel: "人才渠道" },
   education: { tabs: ["推荐", "招生", "咨询", "课程内容", "复盘", "演示"], subject: "意向学员", outcome: "试听、报名与续费", signals: "课程咨询、试听记录、学习目标和家长反馈", channel: "招生渠道" },
@@ -361,18 +372,18 @@ const DOMAIN_PROMPT_CONTEXT = Object.freeze({
 // Each industry keeps the same orchestration contract while naming its real data, roles, outputs, and approval boundaries.
 const DOMAIN_WORKFLOW_CONTEXT = Object.freeze({
   sales: {
-    objective: "从获客渠道识别高意向买家，并推进到一次有效沟通或留资",
-    sources: "抖音评论、私信、直播互动、表单和 CRM 历史记录",
-    agents: "线索猎人负责发现，数据分析师负责评分，销售顾问负责沟通，幕僚长负责汇总",
-    steps: "去重并核验线索 → 按车型、预算、城市、购车时间和到店信号分级 → 生成个性化首触 → 记录回复与下一步 → 对高意向客户转人工",
-    deliverables: "带原始证据的线索清单、意向等级、首触话术、今日跟进队列和漏斗摘要",
-    guardrails: "价格、库存、优惠、试驾承诺、投诉或个人信息缺失",
-    example: "从抖音互动中找出有车型和预算信号的买车客户，完成首触并把愿意留电话的人交给销售顾问"
+    objective: "从指定抖音账号或作品的公开数据识别高意向买车线索",
+    sources: "抖音账号名称、抖音号、主页链接、作品 ID/视频 URL、公开视频和公开评论",
+    agents: "账号发现与解析师负责身份解析，线索猎人负责公开数据采集，线索分析师负责意向评分，客户研究员负责证据整理",
+    steps: "解析账号或作品 → 采集公开视频与公开评论 → 去重并按车型、预算、价格、试驾和购车时间信号分级 → 输出线索证据与待核验项",
+    deliverables: "账号解析结果、视频与评论清单、购车意向等级、原始证据和可核验线索简报",
+    guardrails: "只使用公开数据；不登录账号、不读取私域数据、不发送消息；访问受限或信息缺失时明确标记",
+    example: "分析一个指定抖音账号的公开作品和评论，解析账号身份，筛出有车型或预算信号的购车意向线索并保留评论证据"
   },
   "customer-success": {
     objective: "识别客户健康度变化，降低流失风险并推进续费或扩容",
     sources: "产品使用日志、工单、客户反馈、沟通记录、合同和续费节点",
-    agents: "客户健康度专员负责识别风险，数据分析师负责评分，客户顾问负责沟通，幕僚长负责复盘",
+    agents: "客户健康度专员负责识别风险，线索分析师负责评分，客户顾问负责沟通，幕僚长负责复盘",
     steps: "补齐客户与合同信息 → 计算健康度并解释变化 → 按风险和续费时间排序 → 生成针对性触达 → 记录客户回应并升级风险",
     deliverables: "客户健康度清单、风险证据、续费沟通草稿、跟进节奏、续费与扩容机会摘要",
     guardrails: "退款、赔偿、合同变更、服务级别承诺或客户投诉",
@@ -381,7 +392,7 @@ const DOMAIN_WORKFLOW_CONTEXT = Object.freeze({
   recruiting: {
     objective: "从授权人才来源筛选匹配候选人，并推进到有效沟通、面试和入职",
     sources: "职位要求、人才库、公开履历、候选人偏好和沟通记录",
-    agents: "候选人挖掘负责寻访，数据分析师负责匹配，招聘顾问负责沟通，幕僚长负责推进",
+    agents: "候选人挖掘负责寻访，线索分析师负责匹配，招聘顾问负责沟通，幕僚长负责推进",
     steps: "解析职位硬性条件 → 核验候选人经历与意愿 → 按匹配度和风险分级 → 生成个性化首触 → 跟踪回复、面试和 Offer 节点",
     deliverables: "候选人 shortlist、匹配依据、首触话术、面试推进表、风险与待确认问题",
     guardrails: "敏感个人信息、未经授权的联系方式、薪资承诺、录用决定或歧视性判断",
@@ -418,7 +429,7 @@ const DOMAIN_WORKFLOW_CONTEXT = Object.freeze({
 
 function buildWorkflowPrompt(_domainId, request) {
   let value = String(request || "").trim();
-  value = value.replace(/^让(?:线索猎人|内容策划|数据分析师|销售顾问)/, "").trim();
+  value = value.replace(/^让(?:账号发现与解析师|获客策略师|线索猎人|线索分析师|客户研究员|线索交接师|触达策略师|风控专员|线索归档师|外联专员|公开任务运营师|触达运营专员|内容策划|幕僚长)/, "").trim();
   value = value.replace(/；重点能力是“[^”]+”/g, "").trim();
   value = value.replace(/[。；]+$/, "").trim();
   if (!value) return "帮我完成这项工作";
@@ -490,6 +501,15 @@ export function domainPromptTabs(domainId) {
 export function domainPromptItems(domainId, tab = "推荐") {
   const domain = SALES_DOMAINS.find(({ id }) => id === domainId) || SALES_DOMAINS[0];
   const context = DOMAIN_PROMPT_CONTEXT[domain.id] || DOMAIN_PROMPT_CONTEXT.sales;
+  if (domain.id === "sales") {
+    return HOME_SALES_FEED["推荐"].map(([icon, title, description, prompt]) => ({
+      icon,
+      title,
+      description,
+      prompt,
+      capability: title
+    }));
+  }
   const tabs = domainPromptTabs(domain.id);
   const tabIndex = Math.max(0, tabs.indexOf(tab));
   const workflow = promptWorkflowKey(tab, tabIndex);
@@ -515,6 +535,12 @@ export function domainPromptItems(domainId, tab = "推荐") {
 }
 
 const EMPLOYEE_PROMPT_BLUEPRINTS = Object.freeze({
+  "Strategy Agent": [
+    ["🧭", ({ employeeName }) => `让${employeeName}把获客目标拆成可执行条件`, ({ subject, signals }) => `围绕${subject}明确客户画像、来源和筛选条件，并说明每个条件需要什么${signals}`],
+    ["🗺️", ({ employeeName }) => `让${employeeName}比较不同找人来源`, ({ channel, outcome }) => `比较${channel}的覆盖、质量和成本，说明哪条路径更可能带来${outcome}`],
+    ["🎚️", ({ employeeName }) => `让${employeeName}调整这次任务的筛选范围`, ({ signals }) => `从${signals}里区分硬条件、软信号和排除项，避免候选过大或过窄`],
+    ["✅", ({ employeeName }) => `让${employeeName}确认这次找人的验收标准`, ({ outcome }) => `把${outcome}的数量、质量、证据完整度和下一步动作写成可核对的标准`]
+  ],
   "Browser Agent": [
     ["🎯", ({ employeeName, subject }) => `让${employeeName}找出最值得优先处理的${subject}`, ({ signals }) => `从${signals}中筛选真实意向信号，给出名单、优先级和原始依据`],
     ["🔎", ({ employeeName }) => `让${employeeName}监控最新互动，识别正在升温的客户`, ({ signals }) => `持续观察${signals}，标注新出现的车型、预算、时间和主动咨询信号`],
@@ -533,13 +559,117 @@ const EMPLOYEE_PROMPT_BLUEPRINTS = Object.freeze({
     ["🧭", ({ employeeName }) => `让${employeeName}给下一周的资源投入排优先级`, ({ signals }) => `比较${signals}的质量、成本和转化效率，说明建议依据`],
     ["📝", ({ employeeName }) => `让${employeeName}生成一份可核验的周报`, ({ signals }) => `把${signals}汇总成结论、证据、未解决问题和下一步动作`]
   ],
+  "Research Agent": [
+    ["🧾", ({ employeeName }) => `让${employeeName}补齐每条线索的客户简报`, ({ signals }) => `从${signals}中整理身份、近期行为、需求信号和可引用证据`],
+    ["🔍", ({ employeeName }) => `让${employeeName}找出客户最近释放的需求信号`, ({ signals }) => `按时间线核对${signals}，区分明确需求、推测和无法确认的信息`],
+    ["💡", ({ employeeName }) => `让${employeeName}给每位客户找一个自然切入点`, ({ subject }) => `基于${subject}的公开信息，给出有依据且不冒犯的沟通切入点`],
+    ["📌", ({ employeeName }) => `让${employeeName}标出还需要人工确认的客户信息`, ({ signals }) => `检查${signals}中的身份、需求和联系条件，把不确定项单独列出`]
+  ],
   "App Agent": [
     ["📞", ({ employeeName }) => `让${employeeName}整理今天要联系的客户`, ({ signals }) => `根据${signals}和跟进时效排出今日队列，为每家标注下一步动作`],
     ["💬", ({ employeeName }) => `让${employeeName}准备每位客户的跟进切入点`, ({ signals }) => `结合${signals}生成一句自然的开场和一个需要确认的问题`],
     ["⏰", ({ employeeName }) => `让${employeeName}找出超过 3 天未跟进的客户`, ({ signals }) => `核对${signals}中的最后联系时间和当前阶段，区分可唤醒与应暂停对象`],
     ["🛟", ({ employeeName }) => `让${employeeName}识别需要人工接管的对话`, ({ signals }) => `从${signals}中标注投诉、承诺、价格审批和高意向成交节点，保留完整上下文`]
+  ],
+  "Risk Agent": [
+    ["🛡️", ({ employeeName }) => `让${employeeName}检查这批线索能否触达`, ({ signals }) => `核对${signals}中的重复、冷却期、勿扰和账号可用性，逐条说明结论`],
+    ["🔁", ({ employeeName }) => `让${employeeName}拦截可能的重复触达`, ({ signals }) => `从${signals}里找出已发送、已回复或明确拒绝的对象，保留拦截依据`],
+    ["⚠️", ({ employeeName }) => `让${employeeName}标出需要人工审批的动作`, ({ signals }) => `识别${signals}里的权限、频控、敏感承诺和身份不明风险`],
+    ["🧯", ({ employeeName }) => `让${employeeName}解释哪些触达会被暂停`, ({ signals }) => `按风险等级说明允许、延迟、修改和拦截的原因，以及恢复条件`]
+  ],
+  "Outreach Agent": [
+    ["📤", ({ employeeName }) => `让${employeeName}执行已经批准的首轮触达`, ({ signals }) => `按${signals}逐条提交私信或评论动作，记录提交结果和不可用原因`],
+    ["💬", ({ employeeName }) => `让${employeeName}核对每条消息和对应客户`, ({ signals }) => `检查${signals}里的个性化依据、渠道和正文，避免错配后再执行`],
+    ["📦", ({ employeeName }) => `让${employeeName}按批次安排触达`, ({ outcome }) => `围绕${outcome}设置分批数量、发送时机和每批之间的冷却时间`],
+    ["🧾", ({ employeeName }) => `让${employeeName}整理本次触达的执行记录`, ({ signals }) => `汇总${signals}中的成功、失败、不可用和风控暂停对象，保留动作证据`]
+  ],
+  "Outreach Ops Agent": [
+    ["⏱️", ({ employeeName }) => `让${employeeName}安排未回复客户的后续节奏`, ({ signals }) => `根据${signals}设置次数、间隔和停止条件，默认不重复打扰`],
+    ["🔄", ({ employeeName }) => `让${employeeName}重试可以恢复的失败触达`, ({ signals }) => `区分网络、平台和权限错误，只对可幂等重试的${signals}恢复执行`],
+    ["⏸️", ({ employeeName }) => `让${employeeName}暂停这批触达并保留进度`, ({ signals }) => `停止未执行动作，保留${signals}的完成结果，恢复时先核对再继续`],
+    ["↩️", ({ employeeName }) => `让${employeeName}在客户回复后停止后续计划`, ({ signals }) => `监听${signals}里的有效回复，停止未发送动作并整理交给销售处理的上下文`]
+  ],
+  main: [
+    ["🧩", ({ employeeName }) => `让${employeeName}把这次任务拆成清晰的工作步骤`, ({ outcome }) => `围绕${outcome}安排找人、分析、研究、触达和结果汇总，并标明需要你确认的节点`],
+    ["📣", ({ employeeName }) => `让${employeeName}汇总每位成员当前的进展`, ({ signals }) => `把${signals}整理成已完成、进行中、阻断和待决策四类状态`],
+    ["✅", ({ employeeName }) => `让${employeeName}检查这次交付是否完整`, ({ outcome }) => `对照${outcome}核对数量、证据、执行记录和后续动作，指出缺口`],
+    ["🚦", ({ employeeName }) => `让${employeeName}告诉我下一步最该处理什么`, ({ signals }) => `结合${signals}按影响和紧急程度排出下一步，并说明暂不处理的原因`]
   ]
 });
+
+// Sales homepage prompts are intentionally narrower than the generic Agent
+// library. Every item below maps to the public prospect service: account
+// resolution, public video/comment collection, intent scoring, and evidence
+// delivery. No item implies login, private data, or an external send action.
+const SALES_PUBLIC_PROMPT_BLUEPRINTS = Object.freeze({
+  "Strategy Agent": [
+    ["🔎", "解析账号身份", "输入账号名称、抖音号或主页链接，返回唯一公开账号标识和可采集范围。", "帮我解析指定抖音账号，支持账号名称、抖音号或主页链接；返回唯一账号标识和可采集范围。"],
+    ["👥", "批量解析账号", "逐个解析一批账号；出现多个候选时列出候选，不替我猜选。", "帮我批量解析这批抖音账号（名称、抖音号或主页链接），逐个返回唯一账号标识；遇到多个候选先列出供我选择。"],
+    ["🎬", "识别作品入口", "整理抖音作品 ID 或完整视频 URL，形成可抓取的作品清单。", "帮我识别这些抖音作品 ID 或完整视频 URL，整理可抓取的公开作品清单。"],
+    ["✅", "确认采集范围", "限定为公开视频、公开评论、作品时间和公开账号标识。", "帮我确认这次只采集指定抖音账号或作品的公开视频、公开评论、作品时间和公开账号标识。"]
+  ],
+  "Browser Agent": [
+    ["🎬", "采集账号公开视频", "读取指定账号的公开视频基础信息，保留作品 ID、链接和发布时间。", "帮我抓取指定抖音账号最近的公开视频：账号名称、抖音号或主页链接：[填写]。"],
+    ["💬", "采集账号公开评论", "读取账号公开视频下的公开评论，保留评论原文、作品和时间。", "帮我抓取这个抖音账号公开视频下的公开评论，并保留评论原文、作品链接和评论时间：账号信息：[填写]。"],
+    ["📌", "采集指定作品评论", "按作品 ID 或完整视频 URL抓取公开评论，不需要账号登录。", "帮我抓取这个抖音作品的公开评论：作品 ID 或完整视频 URL：[填写]。"],
+    ["👥", "批量采集公开数据", "逐个采集一批账号或作品的公开视频和公开评论，按来源分组。", "帮我批量采集这些抖音账号或作品的公开视频和公开评论，按账号、作品和评论来源分组：清单：[填写]。"]
+  ],
+  "Search Agent": [
+    ["🎯", "筛选购车意向", "从评论原文识别车型、预算、价格、试驾、现车和购车时间信号。", "帮我从这批抖音公开评论中筛选有购车意向的潜客，按评论原文、意向等级和证据排序。"],
+    ["⚖️", "按条件分层", "按车型、预算、城市、购车时间和明确咨询信号分层，缺失项保留为空。", "帮我按车型、预算、城市、购车时间和明确咨询信号给这些公开评论分层，说明每条判断依据。"],
+    ["🧹", "去重候选线索", "按公开账号标识、评论和作品来源去重，不合并无法确认的用户。", "帮我对这批抖音公开评论线索去重，保留每条线索的账号标识、作品、评论原文和来源。"],
+    ["📊", "解释意向判断", "把命中的评论词和证据列出来，区分明确意向、弱信号和无法判断。", "帮我解释每条抖音线索的购车意向判断，列出命中词、评论证据和无法确认的信息。"]
+  ],
+  "Research Agent": [
+    ["🧾", "整理线索证据", "汇总账号、作品、评论、发布时间和意向判断，所有结论可回到原文。", "帮我整理每条抖音线索的评论原文、作品链接、发布时间、账号标识和意向判断，标出无法确认的信息。"],
+    ["📋", "输出账号简报", "把一个或一批账号的解析结果、作品数量和评论采集结果整理成简报。", "帮我输出这批抖音账号的公开数据简报：账号身份、作品清单、评论数量、意向线索和采集状态。"],
+    ["💬", "输出作品评论摘要", "按作品汇总评论主题、购车信号和代表性原文，不改写评论事实。", "帮我按抖音作品汇总公开评论主题、购车信号和代表性原文，并保留作品链接和评论时间。"],
+    ["⚠️", "标记待核验信息", "单独列出匿名、缺少标识、访问受限或证据不足的记录。", "帮我标出这批抖音公开线索中匿名、缺少账号标识、访问受限或证据不足的记录。"]
+  ],
+  "App Agent": [
+    ["🧾", "生成人工跟进清单", "按意向等级、证据完整度和负责人整理待人工处理的线索。", "帮我把已采集的抖音公开线索整理成按意向等级排序的人工跟进清单，保留每条证据。"],
+    ["📋", "生成线索交接摘要", "将账号、作品、评论原文和判断依据整理成可交接记录。", "帮我为每条抖音购车意向线索生成交接摘要：账号、作品、评论原文、意向等级和判断依据。"],
+    ["⏱️", "排序待处理线索", "按明确需求、时间窗口和证据完整度排出人工优先级。", "帮我按明确购车需求、时间窗口和证据完整度排出这批公开线索的人工处理优先级。"],
+    ["🛟", "列出人工确认项", "把价格、库存、联系方式和身份等无法从公开数据确认的事项单独列出。", "帮我列出这些抖音公开线索还需要人工确认的事项，不要把缺失信息推断成事实。"]
+  ],
+  "Risk Agent": [
+    ["🛡️", "检查来源完整性", "核对每条线索是否有账号、作品、评论原文和时间来源。", "帮我检查这批抖音线索的来源完整性，逐条标出缺少账号、作品、评论或时间证据的记录。"],
+    ["🔁", "标记重复或匿名线索", "识别同一公开账号的重复评论和无法归属账号的记录。", "帮我标记这批抖音公开评论中的重复线索、匿名记录和无法确认归属的用户。"],
+    ["🚧", "检查公开数据边界", "确认结果只来自公开账号、公开视频和公开评论，不扩展到私域信息。", "帮我检查这次结果是否严格来自抖音公开账号、公开视频和公开评论，并列出超出公开范围的字段。"],
+    ["⚠️", "解释不可访问项", "把删除、隐藏、受限或异步等待的作品与评论标记为未获取。", "帮我列出这次抖音公开数据采集中删除、隐藏、访问受限或等待回调的作品和评论。"]
+  ],
+  "Outreach Agent": [
+    ["📋", "整理已确认线索", "把通过人工复核的公开线索按账号、作品、评论和意向等级归档。", "帮我整理已人工确认的抖音公开线索，按账号、作品、评论原文和意向等级归档。"],
+    ["🧾", "复核线索与证据对应", "逐条检查意向等级是否能由公开评论原文支持。", "帮我复核每条抖音线索的意向等级是否有对应的公开评论原文和作品来源。"],
+    ["📊", "汇总处理优先级", "根据意向等级和证据完整度生成下一步人工处理顺序。", "帮我根据购车意向等级和证据完整度生成这批公开线索的下一步人工处理顺序。"],
+    ["✅", "确认交付清单", "核对账号解析、作品、评论、评分和证据是否全部交付。", "帮我检查这次抖音公开找人任务是否已交付账号解析、作品、评论、评分和证据清单。"]
+  ],
+  "Outreach Ops Agent": [
+    ["⏱️", "汇总批量任务状态", "按账号或作品汇总已完成、等待回调、受限和失败状态。", "帮我汇总这批抖音账号或作品的公开采集状态，分为已完成、等待回调、受限和失败。"],
+    ["📈", "对比账号采集结果", "对比每个账号的作品、评论和购车意向线索数量。", "帮我对比这些抖音账号的公开视频数、公开评论数和购车意向线索数，并保留统计口径。"],
+    ["🔄", "列出待回调项", "整理异步 Spider 任务的 trace、账号、作品和当前状态。", "帮我列出仍在等待抖音公开数据回调的任务、账号、作品和 trace 状态。"],
+    ["🧩", "整理本次交付", "把批量采集、评分、证据和待核验项合并成一份结果摘要。", "帮我把本次抖音公开数据采集、购车意向评分、证据和待核验项合并成结果摘要。"]
+  ],
+  main: [
+    ["🧩", "拆解公开数据任务", "按账号解析、作品评论采集、意向筛选和证据交付拆分任务。", "帮我把这次抖音公开找人任务拆成账号解析、作品评论采集、购车意向筛选和证据交付四步。"],
+    ["📣", "汇总 Agent 进度", "把各阶段整理成已完成、进行中、受限和待核验四类状态。", "帮我汇总这次抖音公开数据任务中账号解析、采集、评分和证据整理各阶段的进度。"],
+    ["✅", "检查交付完整性", "核对账号、作品、评论、意向等级、证据和缺失信息。", "帮我检查这次抖音公开找人交付是否包含账号、作品、评论、意向等级、证据和缺失信息。"],
+    ["🚦", "说明下一步", "基于公开数据结果列出需要人工核验或补充的最小事项。", "帮我根据这次抖音公开数据结果列出下一步最少需要人工核验或补充的事项。"]
+  ]
+});
+
+function salesPublicPromptItems(agentId, { shortcutId = null } = {}) {
+  const employeeName = QUICK_AGENT_NAMES[agentId] || agentId || "幕僚长";
+  return (SALES_PUBLIC_PROMPT_BLUEPRINTS[agentId] || SALES_PUBLIC_PROMPT_BLUEPRINTS.main).map(([icon, title, description, prompt]) => ({
+    icon,
+    title,
+    description,
+    prompt,
+    capability: title,
+    employeeName,
+    ...(shortcutId ? { shortcutId } : {})
+  }));
+}
 
 export function employeePromptItems(domainId, selection = 0) {
   const domain = SALES_DOMAINS.find(({ id }) => id === domainId) || SALES_DOMAINS[0];
@@ -549,6 +679,7 @@ export function employeePromptItems(domainId, selection = 0) {
     ? choices.find(({ agent }) => agent.id === selection || agent.name === selection)
     : choices.find(({ skillIndex }) => skillIndex === selection);
   const selected = choice || choices[0];
+  if (domain.id === "sales") return salesPublicPromptItems(selected?.agent.id || "main");
   const skillRows = selected?.skillIndexes?.map((index) => domain.skills[index]).filter(Boolean) || [domain.skills[0]];
   const [skillIcon, skillName, skillDescription] = skillRows[0];
   const employeeName = selected?.agent.name || quickAgentFor(skillName, skillDescription).name;
@@ -567,6 +698,14 @@ export function employeePromptItems(domainId, selection = 0) {
       employeeName
     };
   });
+}
+
+export function shortcutPromptItems(shortcutId = SALES_SHORTCUTS[0].id, selection = null) {
+  const shortcut = SALES_SHORTCUTS.find(({ id }) => id === shortcutId) || SALES_SHORTCUTS[0];
+  const choices = shortcutAgentChoices(shortcut.id);
+  const selected = choices.find(({ agent }) => agent.id === selection) || choices[0];
+  const agentId = selected?.agent.id || "main";
+  return salesPublicPromptItems(agentId, { shortcutId: shortcut.id });
 }
 
 let styleInjected = false;
@@ -759,9 +898,9 @@ function bindInputOptions(input) {
   actionArea.insertBefore(options, send);
 }
 
-function buildQuickRail(domain = SALES_DOMAINS[0], { selectedEmployeeId = null, onEmployeeSelect = null } = {}) {
+function buildQuickRail(domain = SALES_DOMAINS[0], { selectedEmployeeId = null, onEmployeeSelect = null, choices = null } = {}) {
   const rail = el("div", "sb-feed-quick");
-  domainEmployeeChoices(domain).forEach((choice) => {
+  (choices || domainEmployeeChoices(domain)).forEach((choice) => {
     const { icon, title, task, skillIndex, agent } = choice;
     const item = el("button", "sb-feed-quick-card");
     item.type = "button";
@@ -832,15 +971,26 @@ function buildQuickRail(domain = SALES_DOMAINS[0], { selectedEmployeeId = null, 
 
 const QUICK_AGENT_NAMES = Object.freeze({
   main: "幕僚长",
+  "Strategy Agent": "账号发现与解析师",
   "Browser Agent": "线索猎人",
-  "Search Agent": "数据分析师",
-  "App Agent": "销售顾问",
+  "Search Agent": "线索分析师",
+  "Research Agent": "客户研究员",
+  "App Agent": "线索交接师",
+  "Risk Agent": "风控专员",
+  "Outreach Agent": "线索归档师",
+  "Outreach Ops Agent": "公开任务运营师",
   "File Agent": "内容策划"
 });
 
 const QUICK_AGENT_BY_TITLE = Object.freeze({
   "线索猎人": "Browser Agent",
   "抖音买车线索猎人": "Browser Agent",
+  "账号发现与解析": "Strategy Agent",
+  "公开作品采集": "Browser Agent",
+  "指定作品评论": "Browser Agent",
+  "购车意向筛选": "Search Agent",
+  "批量账号分析": "Browser Agent",
+  "线索证据整理": "Research Agent",
   "首触话术生成": "File Agent",
   "本周线索漏斗周报": "Search Agent",
   "线索漏斗周报": "Search Agent"
@@ -850,8 +1000,10 @@ function quickAgentFor(title, task = "") {
   const source = `${title} ${task}`;
   let id = QUICK_AGENT_BY_TITLE[title] || "main";
   if (id !== "main") return { id, name: QUICK_AGENT_NAMES[id] };
+  if (/账号解析|账号发现|主页链接/.test(source)) id = "Strategy Agent";
   if (/线索|潜客|客户|商机|候选人|学员|需求|合作|粉丝|直播/.test(source)) id = "Browser Agent";
   if (/数据|漏斗|周报|复盘|分析|ROI|经营|效果|流失|目标|画像/.test(source)) id = "Search Agent";
+  if (/证据|研究|简报/.test(source)) id = "Research Agent";
   if (/内容|脚本|文案|方案|录音|会议|培训|物料|分享/.test(source)) id = "File Agent";
   if (/沟通|触达|跟进|客服|客诉|报名|续费|电话/.test(source)) id = "App Agent";
   return { id, name: QUICK_AGENT_NAMES[id] || "幕僚长" };
@@ -869,6 +1021,24 @@ export function domainEmployeeChoices(domain = SALES_DOMAINS[0]) {
     byAgent.set(agent.id, { icon, title: skillTitle, task, skillIndex, skillIndexes: [skillIndex], agent });
   });
   return [...byAgent.values()];
+}
+
+export function shortcutAgentChoices(shortcutId = SALES_SHORTCUTS[0].id) {
+  const ids = SALES_SHORTCUT_AGENT_IDS[shortcutId] || SALES_SHORTCUT_AGENT_IDS.find;
+  return ids.map((agentId, index) => {
+    const detail = SALES_SHORTCUT_AGENT_DETAIL_OVERRIDES[shortcutId]?.[agentId]
+      || SALES_SHORTCUT_AGENT_DETAILS[agentId]
+      || { icon: "•", title: QUICK_AGENT_NAMES[agentId] || agentId, task: "可被幕僚长调度完成销售工作" };
+    const agent = { id: agentId, name: QUICK_AGENT_NAMES[agentId] || agentId };
+    return {
+      icon: detail.icon,
+      title: detail.title,
+      task: detail.task,
+      skillIndex: index,
+      skillIndexes: [index],
+      agent
+    };
+  });
 }
 
 const CONNECTOR_STORAGE_KEY = "byering.knowledge-connectors";
@@ -1601,7 +1771,7 @@ function buildConnectStrip({ gateway = null } = {}) {
   return strip;
 }
 
-function decorateHomeHero({ activeDomainId = SALES_DOMAINS[0].id, onDomainChange = null, onEarOpen = null } = {}) {
+function decorateHomeHero({ activeShortcutId = SALES_SHORTCUTS[0].id, onShortcutSelect = null } = {}) {
   const hero = document.querySelector('[class*="_agentIntro_1e9r5_"]');
   if (!hero) return false;
   if (!hero.dataset.sbHeroDecorated) {
@@ -1614,72 +1784,29 @@ function decorateHomeHero({ activeDomainId = SALES_DOMAINS[0].id, onDomainChange
     brand.appendChild(lockup);
 
     const nav = el("div", "sb-home-hero-nav");
-    let recordMenu = null;
-    const closeRecordMenu = () => {
-      recordMenu?.remove();
-      recordMenu = null;
-      nav.dataset.recordMenu = "closed";
-      hero.dataset.recordMenu = "closed";
-      nav.querySelector('[data-domain-id="ear"]')?.setAttribute("aria-expanded", "false");
-    };
-    const openRecordMenu = (item) => {
-      if (recordMenu) {
-        closeRecordMenu();
-        return;
-      }
-      recordMenu = el("div", "sb-home-hero-record-menu");
-      recordMenu.setAttribute("role", "dialog");
-      recordMenu.setAttribute("aria-label", "录音总结入口");
-      const head = el("div", "sb-home-hero-record-menu-head");
-      const copy = el("div", "sb-home-hero-record-menu-copy");
-      copy.append(el("h3", "sb-home-hero-record-menu-title", "录音总结"), el("p", "sb-home-hero-record-menu-subtitle", "把访谈、复盘或会议整理成可交付物料"));
-      head.append(el("span", "sb-home-hero-record-menu-icon", "🎙️"), copy);
-      const close = el("button", "sb-home-hero-record-menu-close", "×");
-      close.type = "button";
-      close.setAttribute("aria-label", "关闭录音入口");
-      close.addEventListener("click", closeRecordMenu);
-      const actions = el("div", "sb-home-hero-record-menu-actions");
-      const quickStart = el("button", "sb-home-hero-record-menu-action", "立即开始录音");
-      quickStart.type = "button";
-      quickStart.dataset.primary = "true";
-      quickStart.addEventListener("click", () => { closeRecordMenu(); onEarOpen?.({ autoStart: true }); });
-      const openWorkspace = el("button", "sb-home-hero-record-menu-action", "进入录音工作台");
-      openWorkspace.type = "button";
-      openWorkspace.addEventListener("click", () => { closeRecordMenu(); onEarOpen?.({ autoStart: false }); });
-      actions.append(quickStart, openWorkspace);
-      recordMenu.append(head, close, actions);
-      nav.appendChild(recordMenu);
-      nav.dataset.recordMenu = "open";
-      hero.dataset.recordMenu = "open";
-      item.setAttribute("aria-expanded", "true");
-    };
-    const setActiveDomain = (domainId) => {
+    nav.setAttribute("aria-label", "销售任务快捷入口");
+    const setActiveShortcut = (shortcutId) => {
       nav.querySelectorAll(".sb-home-hero-nav-item").forEach((item) => {
-        const active = item.dataset.domainId === domainId;
+        const active = item.dataset.shortcutId === shortcutId;
         item.dataset.active = String(active);
         item.setAttribute("aria-pressed", String(active));
       });
     };
-    SALES_DOMAINS.forEach(({ id, icon, label, entry }) => {
+    SALES_SHORTCUTS.forEach(({ id, icon, label, prompt }) => {
       const item = el("button", "sb-home-hero-nav-item");
       item.type = "button";
-      item.dataset.domainId = id;
-      item.setAttribute("aria-label", entry === "ear" ? "打开录音总结（倾耳）" : `切换到${label}领域`);
-      if (entry === "ear") item.setAttribute("aria-expanded", "false");
+      item.dataset.shortcutId = id;
+      item.setAttribute("aria-label", `开始${label}任务`);
+      item.setAttribute("title", prompt);
       item.append(el("span", "sb-home-hero-nav-icon", icon), el("span", "sb-home-hero-nav-label", label));
       item.addEventListener("click", (event) => {
         event.stopPropagation();
-        if (entry === "ear") {
-          openRecordMenu(item);
-          return;
-        }
-        if (recordMenu) closeRecordMenu();
-        setActiveDomain(id);
-        onDomainChange?.(id);
+        setActiveShortcut(id);
+        onShortcutSelect?.({ id, label, prompt });
       });
       nav.appendChild(item);
     });
-    setActiveDomain(activeDomainId);
+    setActiveShortcut(activeShortcutId);
 
     const bubbles = el("div", "sb-home-hero-bubbles");
     ["线索池", "客户画像", "品牌", "数据", "转化路径"].forEach((label) => bubbles.appendChild(el("span", "sb-home-hero-bubble", label)));
@@ -1694,6 +1821,12 @@ function decorateHomeHero({ activeDomainId = SALES_DOMAINS[0].id, onDomainChange
     hero.append(brand, nav, bubbles, bird);
     hero.dataset.sbHeroDecorated = "1";
   }
+
+  hero.querySelectorAll(".sb-home-hero-nav-item").forEach((item) => {
+    const active = item.dataset.shortcutId === activeShortcutId;
+    item.dataset.active = String(active);
+    item.setAttribute("aria-pressed", String(active));
+  });
 
   return true;
 }
@@ -1716,6 +1849,7 @@ export function mountHomeSalesFeed({ gateway = null } = {}) {
   const mountedWindow = globalThis.window;
   let area = null;
   let activeDomainId = SALES_DOMAINS[0].id;
+  let activeShortcutId = SALES_SHORTCUTS[0].id;
   let activeEmployeeId = null;
   let quickRail = null;
   let sectionLabel = null;
@@ -1726,9 +1860,11 @@ export function mountHomeSalesFeed({ gateway = null } = {}) {
   document.addEventListener("salebuddy:account-action", onAccountAction);
 
   const activeDomain = () => SALES_DOMAINS.find(({ id }) => id === activeDomainId) || SALES_DOMAINS[0];
+  const activeShortcut = () => SALES_SHORTCUTS.find(({ id }) => id === activeShortcutId) || SALES_SHORTCUTS[0];
+  const activeShortcutAgents = () => shortcutAgentChoices(activeShortcutId);
 
   function domainItems() {
-    return employeePromptItems(activeDomainId, activeEmployeeId);
+    return shortcutPromptItems(activeShortcutId, activeEmployeeId);
   }
 
   function renderGrid(grid) {
@@ -1756,15 +1892,15 @@ export function mountHomeSalesFeed({ gateway = null } = {}) {
   function renderQuickRail() {
     const next = buildQuickRail(activeDomain(), {
       selectedEmployeeId: activeEmployeeId,
-      onEmployeeSelect: selectEmployee
+      onEmployeeSelect: selectEmployee,
+      choices: activeShortcutAgents()
     });
     quickRail?.replaceWith(next);
     quickRail = next;
   }
 
   function selectEmployee(employeeId) {
-    const domain = activeDomain();
-    const choice = domainEmployeeChoices(domain).find(({ agent }) => agent.id === employeeId);
+    const choice = activeShortcutAgents().find(({ agent }) => agent.id === employeeId);
     if (!choice || activeEmployeeId === employeeId) return;
     activeEmployeeId = employeeId;
     if (area?.isConnected) renderQuickRail();
@@ -1773,7 +1909,19 @@ export function mountHomeSalesFeed({ gateway = null } = {}) {
 
   function updateSectionLabel() {
     sectionLabel.textContent = "";
-    sectionLabel.append("不知道怎么开始？下面是", el("strong", "", `${activeDomain().label}`), "中常见的问题，你可以直接这样问。");
+    sectionLabel.append("围绕", el("strong", null, `「${activeShortcut().label}」`), "，下面是销售工作中常见的问题，你可以直接这样问。");
+  }
+
+  function selectShortcut(shortcut) {
+    if (!shortcut?.id || !SALES_SHORTCUTS.some(({ id }) => id === shortcut.id)) return;
+    activeShortcutId = shortcut.id;
+    activeEmployeeId = activeShortcutAgents()[0]?.agent.id || "main";
+    if (area?.isConnected) {
+      renderQuickRail();
+      updateSectionLabel();
+      renderGrid(grid);
+    }
+    fillEditor(shortcut.prompt);
   }
 
   function build() {
@@ -1782,29 +1930,18 @@ export function mountHomeSalesFeed({ gateway = null } = {}) {
     area.setAttribute("translate", "no");
     area.appendChild(buildConnectStrip({ gateway }));
     updateStripConnectorState();
-    activeEmployeeId = domainEmployeeChoices(activeDomain())[0]?.agent.id || "main";
-    quickRail = buildQuickRail(activeDomain(), { selectedEmployeeId: activeEmployeeId, onEmployeeSelect: selectEmployee });
+    activeEmployeeId = activeShortcutAgents()[0]?.agent.id || "main";
+    quickRail = buildQuickRail(activeDomain(), {
+      selectedEmployeeId: activeEmployeeId,
+      onEmployeeSelect: selectEmployee,
+      choices: activeShortcutAgents()
+    });
     area.appendChild(quickRail);
     sectionLabel = el("div", "sb-feed-section-label");
     area.appendChild(sectionLabel);
     updateSectionLabel();
     grid = el("div", "sb-feed-grid");
     area.appendChild(grid);
-    renderGrid(grid);
-  }
-
-  function switchDomain(domainId) {
-    if (!SALES_DOMAINS.some(({ id }) => id === domainId) || domainId === activeDomainId) return;
-    activeDomainId = domainId;
-    if (!area) return;
-    activeEmployeeId = domainEmployeeChoices(activeDomain())[0]?.agent.id || "main";
-    const promptEditor = document.querySelector('[class*="_chatInput_17vjn_"] .semi-aiChatInput-editor-content .tiptap p');
-    const promptInput = promptEditor?.closest(".semi-aiChatInput");
-    const nextPrompt = domainPromptPlaceholder(domainId);
-    if (promptInput) promptInput.dataset.sbPromptPlaceholder = nextPrompt;
-    if (promptEditor && !promptEditor.textContent.trim()) promptEditor.dataset.placeholder = nextPrompt;
-    renderQuickRail();
-    updateSectionLabel();
     renderGrid(grid);
   }
 
@@ -1815,7 +1952,7 @@ export function mountHomeSalesFeed({ gateway = null } = {}) {
   }
 
   function ensureInjected() {
-    decorateHomeHero({ activeDomainId, onDomainChange: switchDomain, onEarOpen: (options = {}) => openEarPage({ gateway, ...options }) });
+    decorateHomeHero({ activeShortcutId, onShortcutSelect: selectShortcut });
     tuneHomePrompt(domainPromptPlaceholder(activeDomainId));
     const native = homeMain();
     if (!native) return false;
