@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Byering Agent Runtime 总体架构图</title>
+  <desc id="desc">用户目标由 Byering 主 Agent 转成 Goal 和 Task，确定性 Runtime 调度线索猎人子 Agent；子 Agent 通过 Skill Runtime 选择 Workflow、Python、LLM 或 API，连接云电脑、抖音以及可选的 CRM 和销售团队。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f4f8f6"/></linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eef6f2"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#9aa8a2" flood-opacity=".2"/></filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#55b8a8"/></marker>
+    <marker id="arrowCoral" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f26a4f"/></marker>
+    <style>
+      .title { font: 700 16px 'Avenir Next', 'PingFang SC', sans-serif; letter-spacing: 2px; fill: #4c9e91; }
+      .headline { font: 500 33px Georgia, 'Songti SC', serif; fill: #17232e; }
+      .eyebrow { font: 700 11px 'Avenir Next', 'PingFang SC', sans-serif; letter-spacing: 3px; fill: #f26a4f; }
+      .box-title { font: 700 18px 'Avenir Next', 'PingFang SC', sans-serif; fill: #17232e; }
+      .box-sub { font: 400 12px 'Avenir Next', 'PingFang SC', sans-serif; fill: #64717b; }
+      .mini-title { font: 700 13px 'SFMono-Regular', Consolas, monospace; fill: #17232e; }
+      .mini-sub { font: 400 11px 'Avenir Next', 'PingFang SC', sans-serif; fill: #64717b; }
+      .band-label { font: 700 11px 'SFMono-Regular', Consolas, monospace; letter-spacing: 1px; fill: #4c9e91; }
+    </style>
+  </defs>
+  <rect width="1600" height="900" rx="28" fill="url(#bg)" stroke="#d7ddda" stroke-width="2"/>
+  <circle cx="1420" cy="140" r="230" fill="none" stroke="#55b8a8" stroke-opacity=".11" stroke-width="2"/>
+  <circle cx="1420" cy="140" r="170" fill="none" stroke="#55b8a8" stroke-opacity=".09" stroke-width="2"/>
+  <text x="72" y="78" class="title">BYERING / AGENT RUNTIME BLUEPRINT</text>
+  <text x="72" y="128" class="headline">从用户目标到可审计的数字员工执行</text>
+  <text x="72" y="160" class="box-sub">主 Agent 理解与决策，Runtime 控制执行，子 Agent 组织专业工作，Skill Runtime 选择 Executor。</text>
+
+  <line x1="268" y1="330" x2="322" y2="330" stroke="#55b8a8" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="520" y1="330" x2="574" y2="330" stroke="#55b8a8" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="772" y1="330" x2="826" y2="330" stroke="#f26a4f" stroke-width="3" marker-end="url(#arrowCoral)"/>
+  <line x1="1024" y1="330" x2="1078" y2="330" stroke="#55b8a8" stroke-width="3" marker-end="url(#arrow)"/>
+  <line x1="1276" y1="330" x2="1330" y2="330" stroke="#55b8a8" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="260" width="196" height="140" rx="16" fill="#fff1eb" stroke="#f26a4f" stroke-width="2"/>
+    <text x="96" y="294" class="eyebrow" fill="#fff">INPUT</text>
+    <text x="96" y="340" class="box-title">用户目标 / Chat</text>
+    <text x="96" y="370" class="box-sub">“找到高意向买车客户”</text>
+
+    <rect x="322" y="260" width="198" height="140" rx="16" fill="url(#panel)" stroke="#5eb7a9" stroke-width="1.5"/>
+    <text x="346" y="294" class="eyebrow">ORCHESTRATOR</text>
+    <text x="346" y="340" class="box-title">Byering 主 Agent</text>
+    <text x="346" y="370" class="box-sub">理解、拆解、验收</text>
+
+    <rect x="574" y="260" width="198" height="140" rx="16" fill="url(#panel)" stroke="#5eb7a9" stroke-width="1.5"/>
+    <text x="598" y="294" class="eyebrow">WORK PLAN</text>
+    <text x="598" y="340" class="box-title">Goal / Task</text>
+    <text x="598" y="370" class="box-sub">长期目标与运行任务</text>
+
+    <rect x="826" y="238" width="198" height="184" rx="16" fill="#fff5f1" stroke="#f26a4f" stroke-width="2"/>
+    <text x="850" y="274" class="eyebrow">CONTROL PLANE</text>
+    <text x="850" y="320" class="box-title">确定性 Runtime</text>
+    <text x="850" y="350" class="box-sub">顺序 · 状态 · 调度</text>
+    <text x="850" y="374" class="box-sub">权限 · Policy · 重试 · 预算</text>
+
+    <rect x="1078" y="260" width="198" height="140" rx="16" fill="url(#panel)" stroke="#5eb7a9" stroke-width="1.5"/>
+    <text x="1102" y="294" class="eyebrow">SPECIALIST</text>
+    <text x="1102" y="340" class="box-title">线索猎人子 Agent</text>
+    <text x="1102" y="370" class="box-sub">监听 · 识别 · 沟通 · 留资</text>
+
+    <rect x="1330" y="260" width="198" height="140" rx="16" fill="#eaf7f2" stroke="#55b8a8" stroke-width="2"/>
+    <text x="1354" y="294" class="eyebrow">CAPABILITY</text>
+    <text x="1354" y="340" class="box-title">Skill Runtime</text>
+    <text x="1354" y="370" class="box-sub">Registry · Schema · Executor</text>
+  </g>
+
+  <rect x="826" y="474" width="702" height="88" rx="16" fill="#f3f8f5" stroke="#c7dcd5"/>
+  <text x="850" y="505" class="band-label">SHARED RUNTIME SERVICES</text>
+  <text x="850" y="538" class="mini-sub">Memory  ·  Policy  ·  Permission  ·  State Machine  ·  Scheduler  ·  Event Bus  ·  Trace  ·  Evaluation</text>
+  <line x1="925" y1="422" x2="925" y2="474" stroke="#f26a4f" stroke-width="2" marker-end="url(#arrowCoral)"/>
+  <line x1="1428" y1="400" x2="1428" y2="474" stroke="#55b8a8" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <text x="72" y="507" class="band-label">EXECUTOR IMPLEMENTATIONS</text>
+  <g filter="url(#shadow)">
+    <rect x="72" y="530" width="160" height="106" rx="14" fill="#f4f0e6"/>
+    <text x="96" y="570" class="mini-title" fill="#102431">WORKFLOW / RPA</text><text x="96" y="596" class="mini-sub" fill="#64717b">真实页面操作</text>
+    <rect x="246" y="530" width="160" height="106" rx="14" fill="#f4f0e6"/>
+    <text x="270" y="570" class="mini-title" fill="#102431">PYTHON</text><text x="270" y="596" class="mini-sub" fill="#64717b">清洗与规则计算</text>
+    <rect x="420" y="530" width="160" height="106" rx="14" fill="#f4f0e6"/>
+    <text x="444" y="570" class="mini-title" fill="#102431">LLM</text><text x="444" y="596" class="mini-sub" fill="#64717b">语义理解与生成</text>
+    <rect x="594" y="530" width="160" height="106" rx="14" fill="#f4f0e6"/>
+    <text x="618" y="570" class="mini-title" fill="#102431">API</text><text x="618" y="596" class="mini-sub" fill="#64717b">外部系统连接</text>
+  </g>
+  <path d="M 1428 400 L 1428 450 L 780 450 L 780 583 L 754 583" fill="none" stroke="#55b8a8" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="850" y="464" class="mini-sub">Skill Runtime routes each Skill to one executor implementation</text>
+  <text x="850" y="615" class="band-label">INTEGRATED SYSTEMS</text>
+  <g>
+    <rect x="850" y="642" width="200" height="82" rx="13" fill="#ffffff" stroke="#c7dcd5"/>
+    <text x="876" y="681" class="box-title" font-size="16">云电脑 / RPA Platform</text><text x="876" y="705" class="box-sub">账号与页面执行</text>
+    <rect x="1070" y="642" width="200" height="82" rx="13" fill="#ffffff" stroke="#c7dcd5"/>
+    <text x="1096" y="681" class="box-title" font-size="16">抖音</text><text x="1096" y="705" class="box-sub">互动、私信、直播</text>
+    <rect x="1290" y="642" width="200" height="82" rx="13" fill="#ffffff" stroke="#c7dcd5"/>
+    <text x="1316" y="681" class="box-title" font-size="16">可选 CRM / 销售团队</text><text x="1316" y="705" class="box-sub">线索交付与跟进</text>
+  </g>
+  <line x1="950" y1="562" x2="950" y2="642" stroke="#55b8a8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="1170" y1="562" x2="1170" y2="642" stroke="#55b8a8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="1390" y1="562" x2="1390" y2="642" stroke="#55b8a8" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="72" y="808" class="box-sub">阅读提示：上层回答“谁负责决策”，横向能力回答“如何治理与观测”，下层回答“具体由哪个 Executor 执行”。</text>
+</svg>

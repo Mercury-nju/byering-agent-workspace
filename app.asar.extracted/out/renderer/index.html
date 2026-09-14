@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marvis</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #fff;
+      /* transparent:true 下 body 背景须透明，让四角真正镂空 */
+      background: transparent;
+      /* transparent:true 下 body 背景须透明，让四角真正镂空 */
+      background: transparent;
+    }
+
+    /* Tab 切换栏 */
+    .jsb-tabs {
+      display: flex;
+      gap: 6px;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      padding-bottom: 6px;
+    }
+    .jsb-tab {
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      border: 1px solid transparent;
+      border-radius: 8px 8px 0 0;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s;
+      -webkit-app-region: no-drag;
+    }
+    .jsb-tab:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .jsb-tab.active {
+      color: #fff;
+      background: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.2);
+      font-weight: 600;
+    }
+    .jsb-panel { display: none; }
+    .jsb-panel.active { display: block; }
+    .jsb-btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    /* 主容器：占满窗口，渐变背景 + 圆角（由 OS 原生阴影跟随轮廓投影） */
+    .window-content {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      /* 圆角：transparent 窗口下四角透明区域裁掉，OS hasShadow 自动沿轮廓投影 */
+      border-radius: 32px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /*
+     * 顶部拖动带：高度 44px，-webkit-app-region: drag 让整个顶部可拖动窗口。
+     * 内部按钮/可点击元素须显式声明 no-drag。
+     */
+    .titlebar-drag {
+      flex: 0 0 auto;
+      height: 44px;
+      -webkit-app-region: drag;
+      user-select: none;
+    }
+
+    /* 内容滚动区：承载原有业务 UI，独立滚动，不影响拖动带 */
+    .content-scroll {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 0 24px 24px;
+    }
+
+    .app-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .app-header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .app-header .subtitle {
+      font-size: 0.95rem;
+      opacity: 0.7;
+    }
+
+    /* 状态卡片 */
+    .status-card {
+      max-width: 720px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 14px;
+      padding: 22px 26px;
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.15);
+    }
+    .status-card + .status-card {
+      margin-top: 20px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 状态点 */
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      background: #888;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+    }
+    .status-dot.connected   { background: #10d876; box-shadow: 0 0 0 3px rgba(16, 216, 118, 0.25); animation: pulse-green 2s infinite; }
+    .status-dot.starting    { background: #ffb53d; box-shadow: 0 0 0 3px rgba(255, 181, 61, 0.25); animation: pulse-yellow 1.2s infinite; }
+    .status-dot.disconnected{ background: #ff5e5e; box-shadow: 0 0 0 3px rgba(255, 94, 94, 0.25); }
+    .status-dot.circuit     { background: #e74c3c; box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3); animation: pulse-red 1s infinite; }
+
+    @keyframes pulse-green  { 0%,100% { box-shadow: 0 0 0 3px rgba(16, 216, 118, 0.25); } 50% { box-shadow: 0 0 0 8px rgba(16, 216, 118, 0); } }
+    @keyframes pulse-yellow { 0%,100% { box-shadow: 0 0 0 3px rgba(255, 181, 61, 0.25); } 50% { box-shadow: 0 0 0 8px rgba(255, 181, 61, 0); } }
+    @keyframes pulse-red    { 0%,100% { box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3); }   50% { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0); } }
+
+    /* 字段列表 */
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.93rem;
+    }
+    .field-row:last-child { border-bottom: none; }
+    .field-row .key   { opacity: 0.72; font-weight: 500; }
+    .field-row .value { font-family: 'SF Mono', Menlo, Consolas, monospace; text-align: right; word-break: break-all; max-width: 60%; }
+    .value.emphasis { color: #fff; font-weight: 600; }
+    .value.muted    { opacity: 0.6; }
+
+    /* 事件日志 */
+    .events-list {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      max-height: 220px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .events-list .empty { opacity: 0.5; font-style: italic; padding: 6px 0; }
+    .event-item {
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+      line-height: 1.5;
+    }
+    .event-item:last-child { border-bottom: none; }
+    .event-item .time   { opacity: 0.5; margin-right: 8px; }
+    .event-item .ev-type { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 6px; }
+    .ev-type.spawned    { background: #3498db; }
+    .ev-type.exit       { background: #e67e22; }
+    .ev-type.restart    { background: #f39c12; }
+    .ev-type.circuit    { background: #e74c3c; }
+    .ev-type.stopped    { background: #7f8c8d; }
+
+    .refresh-btn {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+      /* 按钮位于拖动带或其他 drag 区域时，确保可点击 */
+      -webkit-app-region: no-drag;
+    }
+    .refresh-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .card-title-row .card-title { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <div class="window-content">
+    <!-- 顶部 44px 拖动带 -->
+    <div class="titlebar-drag"></div>
+
+    <div class="content-scroll">
+        <header class="app-header">
+    <h1>Marvis</h1>
+    <div class="subtitle">AI 对话助手桌面应用 — 网关状态监控</div>
+  </header>
+
+  <!-- 网关连接状态 -->
+  <section class="status-card">
+    <div class="card-title-row">
+      <div class="card-title">
+        <span id="gw-dot" class="status-dot"></span>
+        <span>网关连接状态</span>
+      </div>
+      <button class="refresh-btn" id="refresh-btn" type="button">刷新</button>
+    </div>
+    <div class="field-row">
+      <span class="key">连接状态</span>
+      <span class="value emphasis" id="gw-state">等待中...</span>
+    </div>
+    <div class="field-row">
+      <span class="key">监听端口</span>
+      <span class="value emphasis" id="gw-port">—</span>
+    </div>
+    <div class="field-row">
+      <span class="key">监听 Host</span>
+      <span class="value" id="gw-host">—</span>
+    </div>
+    <div class="field-row">
+      <span class="key">进程 PID</span>
+      <span class="value" id="gw-pid">—</span>
+    </div>
+    <div class="field-row">
+      <span class="key">进程状态</span>
+      <span class="value" id="gw-proc-status">—</span>
+    </div>
+    <div class="field-row">
+      <span class="key">累计重启</span>
+      <span class="value" id="gw-restart-count">0</span>
+    </div>
+    <div class="field-row">
+      <span class="key">Token</span>
+      <span class="value muted" id="gw-token">—</span>
+    </div>
+    <div class="field-row">
+      <span class="key">登记时间</span>
+      <span class="value muted" id="gw-registered-at">—</span>
+    </div>
+  </section>
+
+  <!-- 进程事件 -->
+  <section class="status-card">
+    <div class="card-title">
+      <span>子进程事件（最近 20 条）</span>
+    </div>
+    <div class="events-list" id="events-list">
+      <div class="empty">暂无事件</div>
+    </div>
+  </section>
+
+  <!-- JSBridge 测试（Tab 切换 M1 / M2 / M3.1；默认显示 M3.1） -->
+  <section class="status-card">
+    <div class="card-title-row">
+      <div class="card-title">
+        <span id="jsb-dot" class="status-dot"></span>
+        <span>JSBridge 测试</span>
+      </div>
+      <button class="refresh-btn" id="jsb-clear-btn" type="button">清空日志</button>
+    </div>
+    <div class="field-row">
+      <span class="key">CallBridge 注入</span>
+      <span class="value" id="jsb-injected">—</span>
+    </div>
+    <div class="field-row">
+      <span class="key">GetApiList</span>
+      <span class="value muted" id="jsb-api-list">—</span>
+    </div>
+    <div class="field-row">
+      <span class="key">Gateway（JSBridge 拿到）</span>
+      <span class="value muted" id="jsb-gateway">—</span>
+    </div>
+    <div class="field-row">
+      <span class="key">窗口位置（节流推送）</span>
+      <span class="value muted" id="jsb-pos">—</span>
+    </div>
+    <div style="margin-top:6px;font-size:0.8rem;opacity:0.7;">里程碑切换（默认显示 M3.1）：</div>
+    <div class="jsb-tabs">
+      <button class="jsb-tab" data-tab="m1" type="button">M1</button>
+      <button class="jsb-tab" data-tab="m2" type="button">M2</button>
+      <button class="jsb-tab active" data-tab="m3" type="button">M3.1</button>
+    </div>
+
+    <!-- M1 面板 -->
+    <div class="jsb-panel" data-panel="m1">
+      <div class="jsb-btn-group">
+        <button class="refresh-btn" id="jsb-btn-apilist" type="button">window.GetApiList</button>
+        <button class="refresh-btn" id="jsb-btn-minimize" type="button">window.Minimize</button>
+        <button class="refresh-btn" id="jsb-btn-openfile-tmp" type="button">OpenFile /tmp</button>
+        <button class="refresh-btn" id="jsb-btn-openfile-home" type="button">OpenFile ~</button>
+        <button class="refresh-btn" id="jsb-btn-exists-ok" type="button">Exists /tmp</button>
+        <button class="refresh-btn" id="jsb-btn-exists-bad" type="button">Exists /no-such</button>
+        <button class="refresh-btn" id="jsb-btn-nomethod" type="button">不存在的方法（错误码测试）</button>
+        <button class="refresh-btn" id="jsb-btn-nomodule" type="button">不存在的模块（错误码测试）</button>
+      </div>
+    </div>
+
+    <!-- M2 面板 -->
+    <div class="jsb-panel" data-panel="m2">
+      <div class="jsb-btn-group">
+        <button class="refresh-btn" id="jsb-btn-gettoken" type="button">AiStarter.GetGatewayToken</button>
+        <button class="refresh-btn" id="jsb-btn-addtokenlistener" type="button">AddGatewayTokenListener</button>
+        <button class="refresh-btn" id="jsb-btn-geom" type="button">window.GeometryToScreen</button>
+        <button class="refresh-btn" id="jsb-btn-addposlistener" type="button">AddPosToScreenListener</button>
+        <button class="refresh-btn" id="jsb-btn-close" type="button">window.Close（隐藏窗口）</button>
+        <button class="refresh-btn" id="jsb-btn-hideorclose" type="button">window.HideOrClose</button>
+      </div>
+    </div>
+
+    <!-- M3.1 面板（默认激活） -->
+    <div class="jsb-panel active" data-panel="m3">
+      <div class="jsb-btn-group">
+        <button class="refresh-btn" id="jsb-btn-openfolder-tmp" type="button">OpenFolder /tmp（目录）</button>
+        <button class="refresh-btn" id="jsb-btn-openfolder-file" type="button">OpenFolder /etc/hosts（定位文件）</button>
+        <button class="refresh-btn" id="jsb-btn-selfile" type="button">ShowFileSelectDialog 选文件（多选）</button>
+        <button class="refresh-btn" id="jsb-btn-selfolder" type="button">ShowFileSelectDialog 选目录</button>
+        <button class="refresh-btn" id="jsb-btn-selimg" type="button">ShowFileSelectDialog 图片过滤</button>
+        <button class="refresh-btn" id="jsb-btn-getfileinfo" type="button">GetFileInfo [/tmp, /etc/hosts]</button>
+        <button class="refresh-btn" id="jsb-btn-getwindowstate" type="button">GetWindowState</button>
+        <button class="refresh-btn" id="jsb-btn-addwindowstatelistener" type="button">AddWindowStateListener</button>
+      </div>
+    </div>
+
+    <div class="events-list" id="jsb-log" style="margin-top:12px;">
+      <div class="empty">点击上方按钮测试 JSBridge 调用</div>
+    </div>
+  </section>
+
+  <script>
+    'use strict';
+
+    // preload 暴露的 API 挂在 window.marvis
+    const api = window.marvis;
+    if (!api) {
+      document.body.innerHTML = '<p style="padding:40px;text-align:center;">preload 未加载，window.marvis 不可用</p>';
+      throw new Error('window.marvis not found');
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  最大化状态同步
+    //  已对齐 Windows JSBridge 协议：前端通过 Window.GetWindowState /
+    //  Window.addListener('AddWindowStateListener', cb) 获取最大化状态，
+    //  无需 preload 自定义 IPC 通道。
+    // ══════════════════════════════════════════════════════════════════════
+
+    // ─── DOM 引用 ────────────────────────────────────────────────────────
+    const el = {
+      dot:           document.getElementById('gw-dot'),
+      state:         document.getElementById('gw-state'),
+      port:          document.getElementById('gw-port'),
+      host:          document.getElementById('gw-host'),
+      pid:           document.getElementById('gw-pid'),
+      procStatus:    document.getElementById('gw-proc-status'),
+      restartCount:  document.getElementById('gw-restart-count'),
+      token:         document.getElementById('gw-token'),
+      registeredAt:  document.getElementById('gw-registered-at'),
+      eventsList:    document.getElementById('events-list'),
+      refreshBtn:    document.getElementById('refresh-btn'),
+    };
+
+    // ─── 内部状态 ────────────────────────────────────────────────────────
+    const state = {
+      port: null,
+      host: null,
+      token: null,
+      registeredAt: null,
+      pid: null,
+      procStatus: null,
+      restartCount: 0,
+    };
+
+    // ─── 工具函数 ────────────────────────────────────────────────────────
+    const maskToken = (t) => {
+      if (!t) return '—';
+      if (t.length <= 10) return '***';
+      return t.slice(0, 6) + '***' + t.slice(-4);
+    };
+
+    const fmtTime = (ms) => {
+      if (!ms) return '—';
+      const d = new Date(ms);
+      return d.toLocaleTimeString('zh-CN', { hour12: false }) + '.' + String(d.getMilliseconds()).padStart(3, '0');
+    };
+
+    function setDot(kind) {
+      el.dot.className = 'status-dot ' + kind;
+    }
+
+    function render() {
+      el.port.textContent         = state.port ?? '—';
+      el.host.textContent         = state.host ?? '—';
+      el.pid.textContent          = state.pid ?? '—';
+      el.procStatus.textContent   = state.procStatus ?? '—';
+      el.restartCount.textContent = state.restartCount ?? 0;
+      el.token.textContent        = maskToken(state.token);
+      el.registeredAt.textContent = fmtTime(state.registeredAt);
+
+      // 根据多个信号决定总体状态
+      if (state.procStatus === 'circuit-open') {
+        setDot('circuit');
+        el.state.textContent = '🔥 熔断（请手动恢复）';
+      } else if (state.port != null && state.procStatus === 'running') {
+        setDot('connected');
+        el.state.textContent = '✅ 已连接';
+      } else if (state.procStatus === 'starting' || state.procStatus === 'restarting') {
+        setDot('starting');
+        el.state.textContent = state.procStatus === 'starting' ? '⏳ 启动中...' : '⏳ 重启中...';
+      } else if (state.procStatus === 'stopped') {
+        setDot('disconnected');
+        el.state.textContent = '⏹ 已停止';
+      } else {
+        setDot('disconnected');
+        el.state.textContent = '等待网关接入...';
+      }
+    }
+
+    // ─── 事件日志 ────────────────────────────────────────────────────────
+    const MAX_EVENTS = 20;
+    const events = [];
+
+    function pushEvent(ev) {
+      events.unshift({ time: Date.now(), ev });
+      if (events.length > MAX_EVENTS) events.pop();
+      renderEvents();
+    }
+
+    function renderEvents() {
+      if (events.length === 0) {
+        el.eventsList.innerHTML = '<div class="empty">暂无事件</div>';
+        return;
+      }
+      el.eventsList.innerHTML = events.map(({ time, ev }) => {
+        const t = fmtTime(time);
+        const type = ev.type || 'unknown';
+        const typeClass = type === 'circuit-open' ? 'circuit' : type;
+        const detail = formatEventDetail(ev);
+        return '<div class="event-item">'
+          + '<span class="time">' + t + '</span>'
+          + '<span class="ev-type ' + typeClass + '">' + type + '</span>'
+          + '<span>' + detail + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    function formatEventDetail(ev) {
+      if (ev.type === 'spawned')      return ev.name + ' pid=' + ev.pid;
+      if (ev.type === 'exit')         return ev.name + ' code=' + (ev.code ?? 'null') + ' signal=' + (ev.signal ?? 'null');
+      if (ev.type === 'restart')      return ev.name + ' attempt=' + ev.attempt + ' delay=' + ev.delayMs + 'ms';
+      if (ev.type === 'circuit-open') return ev.name + ' reason=' + (ev.reason || '—');
+      if (ev.type === 'stopped')      return ev.name;
+      return JSON.stringify(ev);
+    }
+
+    // ─── 初始化 ────────────────────────────────────────────────────────
+    async function refreshSnapshot() {
+      try {
+        const snap = await api.getServicePorts();
+        if (snap && snap.gateway) {
+          const gw = snap.gateway;
+          state.port         = gw.port;
+          state.host         = gw.host;
+          state.token        = gw.token;
+          state.registeredAt = gw.registeredAt;
+        } else {
+          // 清空
+          state.port         = null;
+          state.host         = null;
+          state.token        = null;
+          state.registeredAt = null;
+        }
+        render();
+      } catch (err) {
+        console.warn('getServicePorts 失败:', err);
+      }
+    }
+
+    // 订阅端口变更
+    api.onServicePortChanged((info) => {
+      if (!info || info.name !== 'gateway') return;
+      state.port         = info.port;
+      state.host         = info.host;
+      state.token        = info.token;
+      state.registeredAt = info.registeredAt;
+      render();
+    });
+
+    // 订阅进程事件
+    api.onProcessEvent((ev) => {
+      if (!ev || ev.name !== 'gateway') return;
+      pushEvent(ev);
+      // 同步更新状态
+      if (ev.type === 'spawned') {
+        state.pid = ev.pid;
+        state.procStatus = 'starting';
+      } else if (ev.type === 'exit') {
+        state.pid = null;
+        // 保留 port 信息，等下次 spawned / port-changed 更新
+      } else if (ev.type === 'restart') {
+        state.procStatus = 'restarting';
+        state.restartCount = (state.restartCount || 0) + 1;
+      } else if (ev.type === 'circuit-open') {
+        state.procStatus = 'circuit-open';
+      } else if (ev.type === 'stopped') {
+        state.procStatus = 'stopped';
+        state.pid = null;
+        state.port = null;
+      }
+      render();
+    });
+
+    // 点击刷新
+    el.refreshBtn.addEventListener('click', () => {
+      refreshSnapshot();
+    });
+
+    // 首次 + 每 3 秒轮询一次（作为兜底，避免事件错过）
+    refreshSnapshot();
+
+    // 渲染初始状态
+    render();
+
+    // 兜底：如果网关启动慢，等到收到 port 也可刷新 procStatus
+    setInterval(() => {
+      if (state.port && state.procStatus == null) {
+        state.procStatus = 'running';
+        render();
+      }
+    }, 2000);
+
+    // ══════════════════════════════════════════════════════════════════════
+    //  JSBridge 测试区（M1 验收）
+    // ══════════════════════════════════════════════════════════════════════
+
+    // ─── Tab 切换：M1 / M2 / M3.1（默认激活 M3.1）─────────────────────────
+    document.querySelectorAll('.jsb-tab').forEach((tabBtn) => {
+      tabBtn.addEventListener('click', () => {
+        const tabName = tabBtn.getAttribute('data-tab');
+        // 更新 tab 样式
+        document.querySelectorAll('.jsb-tab').forEach((b) => b.classList.remove('active'));
+        tabBtn.classList.add('active');
+        // 切换 panel 可见性
+        document.querySelectorAll('.jsb-panel').forEach((p) => {
+          p.classList.toggle('active', p.getAttribute('data-panel') === tabName);
+        });
+      });
+    });
+
+    const jsb = {
+      el: {
+        dot:       document.getElementById('jsb-dot'),
+        injected:  document.getElementById('jsb-injected'),
+        apiList:   document.getElementById('jsb-api-list'),
+        gateway:   document.getElementById('jsb-gateway'),
+        pos:       document.getElementById('jsb-pos'),
+        log:       document.getElementById('jsb-log'),
+        clearBtn:  document.getElementById('jsb-clear-btn'),
+      },
+      callbackId: 0,
+      pending: new Map(),   // callbackId → { methodName, resolve, startTs }
+      logs: [],
+      /** 记录监听类接口的 cid → 动作名（用于 ContentChanged 多次回调的展示） */
+      listenerCids: new Map(),
+    };
+
+    function jsbLog(level, text) {
+      jsb.logs.unshift({ time: Date.now(), level, text });
+      if (jsb.logs.length > 30) jsb.logs.pop();
+      jsb.el.log.innerHTML = jsb.logs.map(({ time, level, text }) => {
+        const t = fmtTime(time);
+        const cls = level === 'ok' ? 'spawned' : level === 'err' ? 'circuit' : 'restart';
+        return '<div class="event-item">'
+          + '<span class="time">' + t + '</span>'
+          + '<span class="ev-type ' + cls + '">' + level + '</span>'
+          + '<span>' + text + '</span>'
+          + '</div>';
+      }).join('');
+    }
+
+    // 初始化：检查 CallBridge 是否被注入
+    if (window.CallBridge
+        && typeof window.CallBridge.invokeMethod === 'function'
+        && typeof window.CallBridge.addEventListener === 'function') {
+      jsb.el.dot.className = 'status-dot connected';
+      jsb.el.injected.textContent = '✅ 已注入';
+      jsb.el.injected.classList.add('emphasis');
+
+      // 订阅 ContentChanged 总线，按 callbackId 分发到对应 pending
+      window.CallBridge.addEventListener('ContentChanged', (cid, code, data, message) => {
+        const pending = jsb.pending.get(cid);
+        const listener = jsb.listenerCids.get(cid);
+        const shortData = data && data.length > 120 ? data.slice(0, 120) + '...' : data;
+        const tag = code === 0 ? 'ok' : 'err';
+
+        if (pending) {
+          // 方法类：一次性响应，消费 pending
+          const costMs = Date.now() - pending.startTs;
+          jsbLog(tag, pending.methodName + ' ← code=' + code
+            + ' cost=' + costMs + 'ms'
+            + (data ? ' data=' + shortData : '')
+            + (message ? ' msg=' + message : ''));
+          jsb.pending.delete(cid);
+          if (pending.resolve) pending.resolve({ code, data, message });
+
+          // 如果是 GetGatewayToken，同步更新展示区
+          if (pending.methodName === 'AiStarter.GetGatewayToken' && code === 0 && data) {
+            try {
+              const gw = JSON.parse(data);
+              jsb.el.gateway.textContent = 'token=' + (gw.token || '').slice(0, 10) + '...  port=' + gw.port;
+              jsb.el.gateway.classList.add('emphasis');
+              jsb.el.gateway.classList.remove('muted');
+            } catch {}
+          }
+          if (pending.methodName === 'window.GeometryToScreen' && code === 0 && data) {
+            try {
+              const g = JSON.parse(data);
+              jsb.el.pos.textContent = 'x=' + g.x + ' y=' + g.y + ' w=' + g.w + ' h=' + g.h;
+              jsb.el.pos.classList.add('emphasis');
+              jsb.el.pos.classList.remove('muted');
+            } catch {}
+          }
+          if (pending.methodName === 'window.GetWindowState' && code === 0) {
+            try {
+              const stateNum = JSON.parse(data);
+              const stateStr = stateNum === 1 ? '最大化' : '非最大化';
+              jsbLog('ok', 'GetWindowState → ' + stateStr + ' (raw=' + data + ')');
+            } catch {}
+          }
+          return;
+        }
+
+        if (listener) {
+          // 监听类：不消费 cid，按动作名展示
+          jsbLog(tag, '[' + listener + '] push code=' + code
+            + (data ? ' data=' + shortData : '')
+            + (message ? ' msg=' + message : ''));
+
+          if (listener === 'AddGatewayTokenListener' && code === 0 && data) {
+            try {
+              const gw = JSON.parse(data);
+              jsb.el.gateway.textContent = 'token=' + (gw.token || '').slice(0, 10) + '...  port=' + gw.port + '  (推送)';
+              jsb.el.gateway.classList.add('emphasis');
+              jsb.el.gateway.classList.remove('muted');
+            } catch {}
+          }
+          if (listener === 'AddPosToScreenListener' && code === 0 && data) {
+            try {
+              const g = JSON.parse(data);
+              jsb.el.pos.textContent = 'x=' + g.x + ' y=' + g.y + ' w=' + g.w + ' h=' + g.h + '  (推送)';
+              jsb.el.pos.classList.add('emphasis');
+              jsb.el.pos.classList.remove('muted');
+            } catch {}
+          }
+          if (listener === 'AddWindowStateListener' && code === 0 && data) {
+            try {
+              const stateNum = JSON.parse(data);
+              const stateStr = stateNum === 1 ? '最大化' : '非最大化';
+              jsbLog('ok', '[AddWindowStateListener] 状态=' + stateStr + ' (raw=' + data + ')');
+            } catch {}
+          }
+          return;
+        }
+
+        jsbLog('info', '未匹配的回调: cid=' + cid + ' code=' + code);
+      });
+    } else {
+      jsb.el.dot.className = 'status-dot disconnected';
+      jsb.el.injected.textContent = '❌ 未注入（preload 没生效？）';
+    }
+
+    function jsbCall(methodName, args = []) {
+      if (!window.CallBridge) {
+        jsbLog('err', 'CallBridge 不可用');
+        return Promise.reject(new Error('CallBridge not available'));
+      }
+      // 防呆：jsbCall 约定 args 必须是数组（内部会用 ...args 展开给 invokeMethod）。
+      // 如果误传了字符串/数字/对象，自动用 [arg] 包装，避免字符串被按字符展开成 N 个参数。
+      if (!Array.isArray(args)) {
+        jsbLog('info', methodName + ' ⚠ args 非数组，已自动包装：typeof=' + typeof args);
+        args = [args];
+      }
+      const cid = methodName.replace('.', '_') + '_' + (++jsb.callbackId);
+      jsbLog('info', methodName + ' → cid=' + cid + (args.length ? ' args=' + JSON.stringify(args) : ''));
+      return new Promise((resolve) => {
+        jsb.pending.set(cid, { methodName, resolve, startTs: Date.now() });
+        try {
+          window.CallBridge.invokeMethod(methodName, cid, ...args);
+        } catch (err) {
+          jsbLog('err', methodName + ' 调用异常: ' + (err && err.message));
+          jsb.pending.delete(cid);
+          resolve({ code: -1, data: '', message: String(err) });
+        }
+      });
+    }
+
+    // ─── 按钮绑定 ────────────────────────────────────────────────────
+    document.getElementById('jsb-btn-apilist').addEventListener('click', async () => {
+      const res = await jsbCall('window.GetApiList');
+      if (res.code === 0) {
+        try {
+          const list = JSON.parse(res.data);
+          jsb.el.apiList.textContent = list.map(x => x.module_name + '(' + x.apis.length + ')').join(' | ');
+          jsb.el.apiList.classList.add('emphasis');
+          jsb.el.apiList.classList.remove('muted');
+        } catch {}
+      }
+    });
+
+    document.getElementById('jsb-btn-minimize').addEventListener('click', () => {
+      jsbCall('window.Minimize');
+    });
+
+    document.getElementById('jsb-btn-openfile-tmp').addEventListener('click', () => {
+      jsbCall('AiStarter.OpenFile', ['/tmp']);
+    });
+
+    document.getElementById('jsb-btn-openfile-home').addEventListener('click', () => {
+      // Mac home 目录
+      jsbCall('AiStarter.OpenFile', ['/Users']);
+    });
+
+    document.getElementById('jsb-btn-exists-ok').addEventListener('click', () => {
+      jsbCall('file.Exists', ['/tmp']);
+    });
+
+    document.getElementById('jsb-btn-exists-bad').addEventListener('click', () => {
+      jsbCall('file.Exists', ['/definitely-not-exist-' + Date.now()]);
+    });
+
+    document.getElementById('jsb-btn-nomethod').addEventListener('click', () => {
+      jsbCall('AiStarter.NotExistMethod');
+    });
+
+    document.getElementById('jsb-btn-nomodule').addEventListener('click', () => {
+      jsbCall('UnknownModule.Whatever');
+    });
+
+    // ─── M2 按钮 ────────────────────────────────────────────────────
+    document.getElementById('jsb-btn-gettoken').addEventListener('click', () => {
+      jsbCall('AiStarter.GetGatewayToken');
+    });
+
+    /**
+     * 监听类接口：使用固定 cid，手动注册到 listenerCids 以便 ContentChanged 能正确展示
+     * （不走 jsbCall 的 pending 机制，因为后续会有多次推送）
+     */
+    function jsbAddListener(methodName, actionName) {
+      const cid = methodName.replace('.', '_');  // 对齐前端 CefChannel 的固定 cid 规则
+      jsb.listenerCids.set(cid, actionName);
+      jsbLog('info', methodName + ' → 注册监听 cid=' + cid);
+      try {
+        window.CallBridge.invokeMethod(methodName, cid);
+      } catch (err) {
+        jsbLog('err', methodName + ' 调用异常: ' + (err && err.message));
+      }
+    }
+
+    document.getElementById('jsb-btn-addtokenlistener').addEventListener('click', () => {
+      jsbAddListener('AiStarter.AddGatewayTokenListener', 'AddGatewayTokenListener');
+    });
+
+    document.getElementById('jsb-btn-geom').addEventListener('click', () => {
+      jsbCall('window.GeometryToScreen');
+    });
+
+    document.getElementById('jsb-btn-addposlistener').addEventListener('click', () => {
+      jsbAddListener('window.AddPosToScreenListener', 'AddPosToScreenListener');
+    });
+
+    document.getElementById('jsb-btn-close').addEventListener('click', () => {
+      jsbCall('window.Close');
+    });
+
+    document.getElementById('jsb-btn-hideorclose').addEventListener('click', () => {
+      jsbCall('window.HideOrClose');
+    });
+
+    // ─── M3.1 按钮 ──────────────────────────────────────────────────
+    document.getElementById('jsb-btn-openfolder-tmp').addEventListener('click', () => {
+      jsbCall('AiStarter.OpenFolder', ['/tmp']);
+    });
+
+    document.getElementById('jsb-btn-openfolder-file').addEventListener('click', () => {
+      jsbCall('AiStarter.OpenFolder', ['/etc/hosts']);
+    });
+
+    document.getElementById('jsb-btn-selfile').addEventListener('click', () => {
+      jsbCall('AiStarter.ShowFileSelectDialog', [JSON.stringify({
+        mode: 'file',
+        multi_select: true,
+        modal: true,
+        title: '选择文件（测试）',
+      })]);
+    });
+
+    document.getElementById('jsb-btn-selfolder').addEventListener('click', () => {
+      jsbCall('AiStarter.ShowFileSelectDialog', [JSON.stringify({
+        mode: 'folder',
+        multi_select: false,
+        modal: true,
+        title: '选择目录（测试）',
+      })]);
+    });
+
+    document.getElementById('jsb-btn-selimg').addEventListener('click', () => {
+      jsbCall('AiStarter.ShowFileSelectDialog', [JSON.stringify({
+        mode: 'file',
+        multi_select: true,
+        modal: true,
+        title: '选择图片（测试）',
+        filters: [['图片', 'png', 'jpg', 'jpeg', 'gif', 'webp']],
+      })]);
+    });
+
+    document.getElementById('jsb-btn-getfileinfo').addEventListener('click', () => {
+      jsbCall('file.GetFileInfo', [JSON.stringify(['/tmp', '/etc/hosts', '/not/exist'])]);
+    });
+
+    document.getElementById('jsb-btn-getwindowstate').addEventListener('click', () => {
+      jsbCall('window.GetWindowState');
+    });
+
+    document.getElementById('jsb-btn-addwindowstatelistener').addEventListener('click', () => {
+      jsbAddListener('window.AddWindowStateListener', 'AddWindowStateListener');
+    });
+
+    jsb.el.clearBtn.addEventListener('click', () => {
+      jsb.logs = [];
+      jsb.el.log.innerHTML = '<div class="empty">点击上方按钮测试 JSBridge 调用</div>';
+    });
+
+  </script>
+    </div><!-- /.content-scroll -->
+  </div><!-- /.window-content -->
+</body>
+</html>

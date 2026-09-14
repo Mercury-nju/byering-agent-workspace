@@ -1,0 +1,86 @@
+{
+  "channelId": "4000000002",
+  "version": "1.60.1411",
+  "buildTime": "20260730234205",
+  "buildId": "b-3e73340833dd4252abd2a1d955bbb42e",
+  "arch": "arm64",
+  "appBundleId": "com.tencent.mac.marvis",
+  "components": [
+    {
+      "componentType": "401",
+      "name": "Marvis",
+      "version": "1.0.0.10331"
+    },
+    {
+      "componentType": "404",
+      "name": "MarvisBorderlessspace",
+      "version": "1.0.0.10016",
+      "seedZip": "component-seeds/MarvisBorderlessspace-darwin-arm64-1.0.0.10016.zip",
+      "sha256": "",
+      "executable": "BorderlessSpace",
+      "md5": "db3e87e7bf17e98072e19a56d757c96f"
+    },
+    {
+      "componentType": "405",
+      "name": "DocPreview",
+      "version": "1.0.0.10006",
+      "seedZip": "component-seeds/DocPreview-darwin-arm64-1.0.0.10006.zip",
+      "sha256": "",
+      "executable": "",
+      "md5": "8b3345ddc767bb531f98ef0f69929b8a"
+    },
+    {
+      "componentType": "402",
+      "name": "MarvisGateway",
+      "version": "1.0.0.10095",
+      "seedZip": "component-seeds/MarvisGateway-darwin-arm64-1.0.0.10095.zip",
+      "sha256": "",
+      "executable": "MarvisHost",
+      "md5": "6ccec36cf6639586a494336e35bcd12a"
+    },
+    {
+      "componentType": "403",
+      "name": "MarvisKnowledgebase",
+      "version": "1.0.0.10090",
+      "seedZip": "component-seeds/MarvisKnowledgebase-darwin-arm64-1.0.0.10090.zip",
+      "sha256": "",
+      "executable": "MarvisKnowledgebase",
+      "md5": "fe452c13847cf2d183d75ce1cd92cb8e"
+    },
+    {
+      "componentType": "400",
+      "name": "MarvisAgent",
+      "version": "1.0.0.10213",
+      "seedZip": "component-seeds/MarvisAgent-darwin-arm64-1.0.0.10213.zip",
+      "sha256": "",
+      "executable": "MarvisAgent",
+      "md5": "40213f6df9f87a8cb4cf25d7957ea3d5"
+    }
+  ],
+  "daemonVersion": "1.0.15",
+  "installSource": {
+    "app_id": "",
+    "app_type": 1,
+    "channel_id": 4000000002,
+    "install_priority": 0,
+    "build_id": 0,
+    "display_name": "Marvis",
+    "pullup_type": 1,
+    "app_pullup_type": 0,
+    "install_mode": 0,
+    "report_info": {},
+    "extra_info": {},
+    "oem_type": 0,
+    "oem_preinstall": 1,
+    "client_type": 0,
+    "create_desktop_link": 1,
+    "auto_start_market": 1,
+    "create_start_menu_link": 1,
+    "create_service": 1,
+    "client_pseudo_protocol": "",
+    "show_tray_icon": 1,
+    "ctrl_code": 0,
+    "architecture": 1
+  },
+  "supid": "630"
+}

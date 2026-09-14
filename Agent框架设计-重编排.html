@@ -1,0 +1,3724 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Agent 框架设计需求文档的重编排阅读版，完整保留原始技术信息。">
+<title>Agent框架设计 · Byering Runtime Blueprint</title>
+<style>
+:root {
+  --ink: #17232e;
+  --muted: #64717b;
+  --paper: #f6f3ec;
+  --paper-2: #fffdf8;
+  --line: #d9d7d0;
+  --nav: #102431;
+  --nav-2: #173545;
+  --accent: #f26a4f;
+  --mint: #55b8a8;
+  --gold: #d4a943;
+  --shadow: 0 20px 55px rgba(16, 36, 49, .12);
+  --radius: 14px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.72; }
+body.night { --paper: #0f1c24; --paper-2: #162832; --ink: #e7efec; --muted: #a4b5b0; --line: #304651; --nav: #08151d; }
+.domain-explainer { max-width: 930px; margin: 18px 0 30px; padding: 23px; border: 1px solid #c9ded8; border-radius: 14px; background: linear-gradient(135deg, #f2faf7 0%, #fffdf8 62%); }
+.domain-kicker { color: var(--mint); font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.domain-explainer h3 { margin: 8px 0 9px; color: var(--nav); font-family: Georgia, "Songti SC", serif; font-size: 23px; font-weight: 500; }
+.domain-explainer > p { max-width: none; margin: 0; font-size: 14px; }
+.domain-legend { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 18px 0; }
+.domain-legend div { padding: 12px; border: 1px solid #d8e5df; background: rgba(255,255,255,.72); }
+.domain-legend b { display: block; color: var(--accent); font-family: "SFMono-Regular", Consolas, monospace; font-size: 13px; }
+.domain-legend span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.domain-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 17px 0 16px; }
+.domain-step { padding: 7px 10px; border-radius: 7px; background: var(--nav); color: white; font: 11px "SFMono-Regular", Consolas, monospace; }
+.domain-arrow { color: var(--accent); font-weight: 800; }
+.domain-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 17px; }
+.domain-card { padding: 12px 13px; border-left: 3px solid var(--mint); background: rgba(255,255,255,.7); }
+.domain-card:nth-child(2n) { border-left-color: var(--gold); }
+.domain-card strong { display: block; color: var(--nav); font: 700 12px "SFMono-Regular", Consolas, monospace; }
+.domain-card span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.domain-example { margin-top: 18px; padding: 13px 15px; border-left: 3px solid var(--accent); background: #fff5f0; color: #65463c; font-size: 12px; }
+.domain-example strong { color: var(--accent); }
+body.night .domain-explainer { border-color: #345b57; background: #142a30; }
+body.night .domain-legend div, body.night .domain-card { border-color: #34504e; background: rgba(8,21,29,.55); }
+body.night .domain-explainer h3, body.night .domain-card strong { color: var(--ink); }
+body.night .domain-example { background: #2b2523; color: #e8cbc0; }
+.behavior-overlay { max-width: 930px; margin: 18px 0 30px; padding: 22px; border: 1px solid #c9ded8; border-radius: 14px; background: linear-gradient(135deg, #f4faf8 0%, #fffdf8 66%); }
+.behavior-overlay-kicker { color: var(--accent); font: 800 10px "SFMono-Regular", Consolas, monospace; letter-spacing: .15em; text-transform: uppercase; }
+.behavior-overlay h3 { margin: 8px 0 9px; color: var(--nav); font-family: Georgia, "Songti SC", serif; font-size: 23px; font-weight: 500; }
+.behavior-overlay > p { max-width: none; margin: 0 0 13px; font-size: 13px; }
+.behavior-overlay-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 15px 0; }
+.behavior-overlay-card { padding: 13px; border: 1px solid #d8e5df; background: rgba(255,255,255,.75); }
+.behavior-overlay-card strong { display: block; color: var(--nav); font-size: 12px; }
+.behavior-overlay-card p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.behavior-overlay table { width: 100%; border-collapse: collapse; margin-top: 13px; font-size: 11px; }
+.behavior-overlay th, .behavior-overlay td { padding: 8px 9px; border-bottom: 1px solid #dce9e5; text-align: left; vertical-align: top; }
+.behavior-overlay th { color: #367d72; font-size: 10px; white-space: nowrap; }
+.behavior-overlay td code { color: #2b7066; font: 10px "SFMono-Regular", Consolas, monospace; }
+.behavior-overlay-boundary { margin-top: 14px; padding: 10px 12px; border-left: 3px solid var(--gold); background: #fff9e9; color: #6b5938; font-size: 11px; }
+body.night .behavior-overlay { border-color: #345b57; background: #142a30; }
+body.night .behavior-overlay-card { border-color: #34504e; background: rgba(8,21,29,.55); }
+body.night .behavior-overlay h3, body.night .behavior-overlay-card strong { color: var(--ink); }
+body.night .behavior-overlay th, body.night .behavior-overlay td { border-color: #34504e; }
+body.night .behavior-overlay-boundary { background: #302b1e; color: #eadbb4; }
+.memory-architecture { max-width: 930px; margin: 18px 0 30px; padding: 22px; border: 1px solid #c9ded8; border-radius: 14px; background: linear-gradient(135deg, #f5faf8 0%, #fffdf8 68%); }
+.memory-architecture-kicker { color: var(--mint); font: 800 10px "SFMono-Regular", Consolas, monospace; letter-spacing: .15em; text-transform: uppercase; }
+.memory-architecture h3 { margin: 8px 0 9px; color: var(--nav); font-family: Georgia, "Songti SC", serif; font-size: 23px; font-weight: 500; }
+.memory-architecture > p { max-width: none; margin: 0 0 13px; font-size: 13px; }
+.memory-architecture-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: 15px 0; }
+.memory-architecture-card { padding: 12px; border: 1px solid #d8e5df; background: rgba(255,255,255,.75); }
+.memory-architecture-card strong { display: block; color: var(--nav); font-size: 12px; }
+.memory-architecture-card p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.memory-architecture-flow { overflow: auto; margin: 15px 0; padding: 13px; border-radius: 8px; background: var(--nav); color: #e4f0ec; font: 11px/1.7 "SFMono-Regular", Consolas, monospace; white-space: pre; }
+.memory-architecture table { width: 100%; border-collapse: collapse; margin-top: 13px; font-size: 11px; }
+.memory-architecture th, .memory-architecture td { padding: 8px 9px; border-bottom: 1px solid #dce9e5; text-align: left; vertical-align: top; }
+.memory-architecture th { color: #367d72; font-size: 10px; white-space: nowrap; }
+.memory-architecture td code { color: #2b7066; font: 10px "SFMono-Regular", Consolas, monospace; }
+.memory-architecture-boundary { margin-top: 14px; padding: 10px 12px; border-left: 3px solid var(--accent); background: #fff5f0; color: #6b4c43; font-size: 11px; }
+body.night .memory-architecture { border-color: #345b57; background: #142a30; }
+body.night .memory-architecture-card { border-color: #34504e; background: rgba(8,21,29,.55); }
+body.night .memory-architecture h3, body.night .memory-architecture-card strong { color: var(--ink); }
+body.night .memory-architecture th, body.night .memory-architecture td { border-color: #34504e; }
+body.night .memory-architecture-boundary { background: #2b2523; color: #e8cbc0; }
+@media (max-width: 620px) { .domain-legend, .domain-grid { grid-template-columns: 1fr; } .domain-explainer { padding: 17px; } }
+@media (max-width: 620px) { .behavior-overlay { padding: 17px; } .behavior-overlay-grid { grid-template-columns: 1fr; } }
+@media (max-width: 820px) { .memory-architecture { padding: 17px; } .memory-architecture-grid { grid-template-columns: 1fr; } }
+
+button, input { font: inherit; }
+.shell { min-height: 100vh; display: grid; grid-template-columns: 292px minmax(0, 1fr); }
+.sidebar { position: sticky; top: 0; height: 100vh; overflow: auto; padding: 28px 18px 24px; background: var(--nav); color: #e9f0ee; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 0 12px 25px; border-bottom: 1px solid rgba(255,255,255,.15); }
+.brand-mark { width: 38px; height: 38px; display: grid; place-items: center; background: var(--accent); color: white; font-weight: 800; border-radius: 11px; letter-spacing: -.06em; }
+.brand strong { display: block; font-size: 14px; letter-spacing: .08em; }
+.brand small { display: block; margin-top: 2px; color: #a8c0bd; font-size: 11px; }
+.nav-title { padding: 22px 12px 9px; color: #89aaa4; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
+.toc { display: grid; gap: 3px; }
+.toc a { display: grid; grid-template-columns: 30px 1fr; gap: 8px; padding: 7px 10px; border-left: 2px solid transparent; color: #c5d4d1; text-decoration: none; font-size: 12px; line-height: 1.4; transition: .2s ease; }
+.toc a span { color: #71958f; font-variant-numeric: tabular-nums; }
+.toc a:hover, .toc a.active { border-left-color: var(--accent); background: rgba(255,255,255,.08); color: white; }
+.sidebar-foot { margin: 28px 12px 0; color: #78958f; font-size: 11px; }
+.main { min-width: 0; }
+.topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px clamp(22px, 5vw, 72px); background: rgba(246,243,236,.9); border-bottom: 1px solid rgba(217,215,208,.88); backdrop-filter: blur(15px); }
+.crumb { color: var(--muted); font-size: 12px; letter-spacing: .09em; text-transform: uppercase; }
+.tools { display: flex; align-items: center; gap: 8px; }
+.search { width: min(260px, 42vw); padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,253,248,.75); color: var(--ink); outline: none; }
+.search:focus { border-color: var(--mint); box-shadow: 0 0 0 3px rgba(85,184,168,.18); }
+.tool-btn { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 10px; background: var(--paper-2); color: var(--ink); cursor: pointer; }
+.tool-btn:hover { border-color: var(--accent); color: var(--accent); }
+.content { width: min(1160px, calc(100% - 44px)); margin: 0 auto; padding: 40px 0 100px; }
+.hero { position: relative; overflow: hidden; padding: 32px 38px; border-radius: 18px; background: var(--nav); color: white; box-shadow: var(--shadow); }
+.hero::after { content: ""; position: absolute; right: -60px; bottom: -110px; width: 260px; height: 260px; border: 1px solid rgba(85,184,168,.48); border-radius: 50%; box-shadow: 0 0 0 25px rgba(85,184,168,.06), 0 0 0 50px rgba(85,184,168,.04); }
+.eyebrow { position: relative; z-index: 1; margin: 0 0 10px; color: #88c7bc; font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.hero h1 { position: relative; z-index: 1; max-width: 760px; margin: 0; color: #f8f4ec; font-family: Georgia, "Songti SC", serif; font-size: clamp(30px, 4vw, 48px); font-weight: 500; letter-spacing: -.045em; line-height: 1.08; }
+.hero p { position: relative; z-index: 1; max-width: 780px; margin: 14px 0 0; color: #c8d7d2; font-size: 14px; }
+.hero-meta { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.hero-tag { padding: 6px 10px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; color: #dbe8e4; font-size: 11px; }
+
+
+.mindmap { margin: 22px 0 20px; padding: 23px; overflow: hidden; border: 1px solid #244554; border-radius: 18px; background: #102431; color: #f3f8f5; box-shadow: var(--shadow); }
+.mindmap-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; padding-bottom: 17px; border-bottom: 1px solid rgba(190,220,211,.18); }
+.mindmap-kicker { color: #7fc9bb; font: 800 10px/1 "SFMono-Regular", Consolas, monospace; letter-spacing: .16em; text-transform: uppercase; }
+.mindmap h2 { margin: 7px 0 0; color: #f8f4ec; font-family: Georgia, "Songti SC", serif; font-size: 27px; font-weight: 500; }
+.mindmap-intro { max-width: none !important; margin: 7px 0 0 !important; color: #afc4bf; font-size: 12px !important; }
+.mindmap-legend { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; color: #9db8b3; font: 10px "SFMono-Regular", Consolas, monospace; }
+.mindmap-legend span { padding: 5px 7px; border: 1px solid rgba(190,220,211,.22); border-radius: 6px; }
+.mindmap-canvas { position: relative; min-height: 500px; margin-top: 20px; }
+.mindmap-connectors { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.mindmap-connectors path { fill: none; stroke: #5b9b92; stroke-width: 2; stroke-dasharray: 6 7; opacity: .72; }
+.mindmap-core { position: absolute; top: 174px; left: 50%; z-index: 2; width: 300px; min-height: 138px; padding: 20px 22px; transform: translateX(-50%); border: 1px solid #75bcb0; border-radius: 15px; background: #183746; box-shadow: 0 14px 30px rgba(0,0,0,.2); text-align: center; }
+.mindmap-core-label { color: #7fc9bb; font: 800 9px "SFMono-Regular", Consolas, monospace; letter-spacing: .16em; }
+.mindmap-core h3 { margin: 7px 0 6px; color: #fffaf1; font: 500 25px/1.05 Georgia, "Songti SC", serif; letter-spacing: .02em; }
+.mindmap-core h3 em { color: #f58a70; font: 800 10px "SFMono-Regular", Consolas, monospace; font-style: normal; letter-spacing: .14em; }
+.mindmap-core p { margin: 0; color: #c6d8d3; font-size: 11px; line-height: 1.5; }
+.mindmap-branch { position: absolute; z-index: 2; width: 29%; min-height: 155px; padding: 14px 15px; border: 1px solid rgba(190,220,211,.28); border-radius: 12px; background: rgba(255,255,255,.075); }
+.mindmap-branch--identity { top: 10px; left: 0; border-top: 3px solid #f26a4f; }
+.mindmap-branch--cognitive { top: 180px; left: 0; border-top: 3px solid #d08a2b; }
+.mindmap-branch--flow { bottom: 10px; left: 0; border-top: 3px solid #b15a6b; }
+.mindmap-branch--runtime { top: 10px; right: 0; border-top: 3px solid #5d9ac5; }
+.mindmap-branch--capability { top: 180px; right: 0; border-top: 3px solid #4ea878; }
+.mindmap-branch--systems { right: 0; bottom: 10px; border-top: 3px solid #277f7a; }
+.mindmap-branch-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.mindmap-index { color: #f58a70; font: 800 10px "SFMono-Regular", Consolas, monospace; letter-spacing: .08em; }
+.mindmap-branch strong { color: #f7fbf8; font-size: 14px; }
+.mindmap-branch p { margin: 0 0 9px; color: #afc4bf; font-size: 10px; line-height: 1.45; }
+.mindmap-flowline { display: flex; flex-wrap: wrap; gap: 4px; margin: 7px 0 10px; }
+.mindmap-flowline span { padding: 4px 5px; border-radius: 5px; background: rgba(208,138,43,.16); color: #f2c47b; font: 9px "SFMono-Regular", Consolas, monospace; }
+.mindmap-links { display: flex; flex-wrap: wrap; gap: 5px; }
+.mindmap-links a { padding: 4px 6px; border: 1px solid rgba(190,220,211,.22); border-radius: 5px; color: #c8ddd8; font-size: 9px; line-height: 1.25; text-decoration: none; }
+.mindmap-links a:hover, .mindmap-links a:focus { border-color: #f58a70; color: white; outline: none; }
+body.night .mindmap { border-color: #31534f; }
+@media (max-width: 760px) { .mindmap { padding: 17px; } .mindmap-head { align-items: flex-start; flex-direction: column; } .mindmap-legend { justify-content: flex-start; } .mindmap-canvas { display: grid; gap: 10px; min-height: 0; } .mindmap-connectors { display: none; } .mindmap-core, .mindmap-branch { position: relative; inset: auto; width: auto; transform: none; } .mindmap-core { min-height: 0; } .mindmap-branch { min-height: 0; } }
+.overview { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+.panel { padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper-2); box-shadow: 0 8px 25px rgba(16,36,49,.05); }
+.panel h2 { margin: 0 0 17px; font-family: Georgia, "Songti SC", serif; font-size: 22px; font-weight: 500; letter-spacing: -.03em; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.stat { padding: 15px; border-top: 3px solid var(--mint); background: #f3f8f5; }
+.stat:nth-child(2) { border-color: var(--accent); background: #fff5f1; }
+.stat:nth-child(3) { border-color: var(--gold); background: #fff9e9; }
+.stat b { display: block; font-family: Georgia, serif; font-size: 29px; font-weight: 500; line-height: 1.1; }
+.stat span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+.blueprint { display: grid; gap: 10px; margin-top: 18px; }
+.node { position: relative; display: grid; grid-template-columns: 42px 1fr; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid #d8e3df; background: #f7fbf9; }
+.node:not(:last-child)::after { content: "↓"; position: absolute; left: 19px; bottom: -20px; color: var(--mint); font-size: 18px; }
+.node-icon { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; background: var(--nav); color: white; font-weight: 700; font-size: 12px; }
+.node strong { display: block; font-size: 13px; }
+.node small { color: var(--muted); font-size: 11px; }
+.reader-note { margin: 22px 0 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: #fff8f3; color: #6d4a3f; font-size: 12px; }
+
+.guide-link { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 18px 12px 4px; padding: 10px 11px; border: 1px solid rgba(135,188,177,.3); border-radius: 9px; color: #dceae6; text-decoration: none; font-size: 12px; }
+.guide-link span { color: #84b7ad; font-size: 9px; letter-spacing: .1em; }
+.guide-link:hover { border-color: var(--accent); color: white; }
+.reader-brief { margin-top: 24px; padding: 27px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper-2); box-shadow: 0 8px 25px rgba(16,36,49,.05); }
+.brief-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.brief-kicker { margin: 0 0 7px; color: var(--mint); font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.reader-brief h2 { margin: 0; font-family: Georgia, "Songti SC", serif; font-size: 27px; font-weight: 500; letter-spacing: -.035em; }
+.brief-badge { padding: 7px 10px; border: 1px solid #cadfd8; border-radius: 999px; color: var(--muted); font: 10px "SFMono-Regular", Consolas, monospace; white-space: nowrap; }
+.brief-intro { max-width: 850px; margin: 13px 0 19px; color: var(--muted); font-size: 13px; }
+.audience-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.audience-card { padding: 15px; border-top: 3px solid var(--accent); background: #fff6f2; }
+.audience-card.arch { border-color: var(--mint); background: #f1faf7; }
+.audience-card.dev { border-color: var(--gold); background: #fff9ea; }
+.audience-card strong { display: block; color: var(--nav); font-size: 13px; }
+.audience-card small { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.layer-row { display: grid; grid-template-columns: 150px 1fr 220px; gap: 14px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 12px; }
+.layer-row:first-child { margin-top: 20px; border-top: 2px solid var(--nav); }
+.layer-row strong { color: var(--nav); }
+.layer-row span { color: var(--muted); }
+.layer-row em { color: var(--accent); font-size: 11px; font-style: normal; }
+.guide-callout { margin-top: 18px; padding: 13px 15px; border-left: 3px solid var(--gold); background: #fff9e8; color: #62543b; font-size: 12px; }
+.guide-callout strong { color: #9b7922; }
+body.night .reader-brief { background: var(--paper-2); }
+body.night .brief-badge { border-color: #34504e; }
+body.night .audience-card { background: #2b2523; }
+body.night .audience-card.arch { background: #172d2c; }
+body.night .audience-card.dev { background: #302b1e; }
+body.night .audience-card strong, body.night .layer-row strong { color: var(--ink); }
+body.night .guide-callout { background: #302b1e; color: #eadbb4; }
+@media (max-width: 760px) { .brief-head { flex-direction: column; } .audience-grid { grid-template-columns: 1fr; } .layer-row { grid-template-columns: 1fr; gap: 3px; } .reader-brief { padding: 19px; } }
+.document { margin-top: 42px; }
+.document h2 { display: flex; align-items: baseline; gap: 12px; margin: 64px 0 16px; padding-top: 14px; border-top: 1px solid var(--line); font-family: Georgia, "Songti SC", serif; font-size: clamp(23px, 3vw, 32px); font-weight: 500; letter-spacing: -.035em; line-height: 1.2; scroll-margin-top: 80px; }
+.section-no { color: var(--accent); font-family: "Avenir Next", sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .13em; }
+.document h3 { margin: 31px 0 9px; color: var(--nav); font-size: 16px; line-height: 1.3; }
+.document p { max-width: 850px; margin: 9px 0; font-size: 14px; }
+.document .label-line { margin-top: 22px; color: var(--nav); font-weight: 700; }
+.document blockquote { max-width: 780px; margin: 15px 0; padding: 13px 17px; border-left: 3px solid var(--gold); background: #fff8e5; color: #5f533b; font-family: Georgia, "Songti SC", serif; font-size: 16px; }
+.code-card { position: relative; max-width: 930px; margin: 17px 0 23px; overflow: hidden; border: 1px solid #213c4b; border-radius: 11px; background: #102431; box-shadow: 0 10px 22px rgba(16,36,49,.12); }
+.code-card-head { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,.12); color: #a7c0bc; font-size: 10px; letter-spacing: .11em; }
+.code-label { color: #78c4b6; font-weight: 700; }
+.code-index { margin-left: auto; color: #718c96; }
+.copy-btn { padding: 4px 9px; border: 1px solid rgba(255,255,255,.2); border-radius: 6px; background: transparent; color: #d4e3df; font-size: 11px; cursor: pointer; }
+.copy-btn:hover { border-color: var(--accent); color: white; }
+.code-card pre { margin: 0; padding: 16px; overflow: auto; color: #eef5f2; font: 12px/1.65 "SFMono-Regular", Consolas, monospace; tab-size: 2; white-space: pre-wrap; word-break: break-word; }
+
+
+.runtime-sequence { max-width: 930px; margin: 25px 0 35px; padding: 21px; border: 1px solid #c8d9d5; border-radius: 17px; background: #eef7f3; box-shadow: 0 12px 25px rgba(16,36,49,.08); }
+.runtime-sequence-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; padding-bottom: 17px; border-bottom: 1px solid #cadbd7; }
+.runtime-sequence-kicker { color: var(--accent); font: 800 10px/1 "SFMono-Regular", Consolas, monospace; letter-spacing: .15em; text-transform: uppercase; }
+.runtime-sequence h3 { margin: 7px 0 0; color: var(--nav); font-family: Georgia, "Songti SC", serif; font-size: 24px; font-weight: 500; }
+.runtime-sequence-lead { max-width: none !important; margin: 6px 0 0 !important; color: var(--muted); font-size: 12px !important; }
+.runtime-sequence-total { flex: 0 0 auto; padding: 8px 10px; border: 1px solid #b7cbc5; border-radius: 9px; background: rgba(255,255,255,.65); color: var(--nav); font: 700 11px "SFMono-Regular", Consolas, monospace; }
+.runtime-phase { --phase-color: #f26a4f; --phase-soft: #fff2ed; position: relative; margin-top: 15px; padding: 16px 17px 17px 20px; border: 1px solid #d0dfdb; border-left: 4px solid var(--phase-color); border-radius: 12px; background: rgba(255,255,255,.72); }
+.runtime-phase + .runtime-phase { margin-top: 26px; }
+.runtime-phase + .runtime-phase::before { content: "↓"; position: absolute; top: -24px; left: 18px; color: var(--phase-color); font: 800 17px/1 "SFMono-Regular", Consolas, monospace; }
+.runtime-phase-head { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 11px; }
+.runtime-phase-index { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--phase-color); color: white; font: 800 11px "SFMono-Regular", Consolas, monospace; }
+.runtime-phase-title { color: var(--nav); font-size: 14px; font-weight: 800; }
+.runtime-phase-desc { margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.runtime-phase-range { padding: 5px 7px; border-radius: 6px; background: var(--phase-soft); color: var(--phase-color); font: 700 10px "SFMono-Regular", Consolas, monospace; white-space: nowrap; }
+.runtime-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 15px; padding-left: 47px; }
+.runtime-step { display: grid; grid-template-columns: 29px 1fr; align-items: start; gap: 8px; min-height: 53px; padding: 9px 10px; border: 1px solid #d6e3df; border-radius: 9px; background: var(--paper); }
+.runtime-step-number { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 7px; background: var(--nav); color: #a9c5bd; font: 700 10px "SFMono-Regular", Consolas, monospace; }
+.runtime-step-text { align-self: center; color: var(--ink); font-size: 11px; line-height: 1.4; }
+.runtime-step--milestone { border-color: #f0b6a5; background: var(--phase-soft); }
+.runtime-step--milestone .runtime-step-number { background: var(--phase-color); color: white; }
+.runtime-source { margin-top: 18px; border-top: 1px dashed #b9cec8; }
+.runtime-source summary { padding-top: 13px; cursor: pointer; color: var(--muted); font-size: 11px; }
+.runtime-source pre { max-height: 250px; margin: 10px 0 0; padding: 13px; overflow: auto; border-radius: 8px; background: var(--nav); color: #eaf2ef; font: 11px/1.7 "SFMono-Regular", Consolas, monospace; white-space: pre-wrap; }
+.runtime-skill-bridge { margin: 22px 0 8px; padding: 17px 18px; border: 1px solid #c9ded8; border-left: 4px solid #4c9e91; border-radius: 11px; background: #f7fbf9; }
+.runtime-skill-bridge h4 { margin: 0 0 7px; color: var(--nav); font-size: 14px; }
+.runtime-skill-bridge p { margin: 6px 0; color: var(--muted); font-size: 11px; }
+.runtime-skill-bridge table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 11px; }
+.runtime-skill-bridge th, .runtime-skill-bridge td { padding: 8px 9px; border-bottom: 1px solid #dce9e5; text-align: left; vertical-align: top; }
+.runtime-skill-bridge th { color: #367d72; font-size: 10px; font-weight: 800; white-space: nowrap; }
+.runtime-skill-bridge td code { color: #2b7066; font: 10px "SFMono-Regular", Consolas, monospace; }
+.runtime-skill-bridge .runtime-skill-note { margin-top: 11px; padding: 9px 10px; border-left: 3px solid #d08a2b; background: #fff9e9; color: #6b5938; }
+body.night .runtime-sequence { border-color: #31534f; background: #142a30; }
+body.night .runtime-sequence-head { border-color: #34504e; }
+body.night .runtime-sequence h3, body.night .runtime-phase-title, body.night .runtime-sequence-total { color: var(--ink); }
+body.night .runtime-sequence-total { border-color: #45605d; background: rgba(8,21,29,.55); }
+body.night .runtime-phase { border-color: #34504e; background: rgba(8,21,29,.5); }
+body.night .runtime-skill-bridge { border-color: #34504e; background: #172d2c; }
+body.night .runtime-skill-bridge h4 { color: var(--ink); }
+body.night .runtime-skill-bridge th, body.night .runtime-skill-bridge td { border-color: #34504e; }
+body.night .runtime-skill-bridge .runtime-skill-note { background: #302b1e; color: #eadbb4; }
+body.night .runtime-step { border-color: #34504e; background: #10232c; }
+body.night .runtime-step--milestone { border-color: #765149; background: #302523; }
+body.night .runtime-source { border-color: #45605d; }
+@media (max-width: 700px) { .runtime-sequence { padding: 16px; } .runtime-sequence-head { align-items: flex-start; flex-direction: column; } .runtime-steps { grid-template-columns: 1fr; padding-left: 0; } .runtime-phase-head { grid-template-columns: 32px 1fr; } .runtime-phase-range { grid-column: 2; justify-self: start; } }
+.workflow-guide { max-width: 930px; margin: 24px 0 32px; padding: 22px; border: 1px solid #cadbd7; border-radius: 15px; background: #f3faf7; }
+.workflow-guide h3 { margin: 0 0 7px; color: var(--nav); font-family: Georgia, "Songti SC", serif; font-size: 24px; font-weight: 500; }
+.workflow-guide-intro { max-width: none !important; margin: 0 0 17px !important; color: var(--muted); font-size: 13px !important; }
+.workflow-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 16px 0 20px; }
+.workflow-flow span { padding: 6px 9px; border-radius: 7px; background: var(--nav); color: white; font: 11px "SFMono-Regular", Consolas, monospace; }
+.workflow-flow i { color: var(--accent); font-style: normal; font-weight: 800; }
+.workflow-contract { margin: 0 0 18px; padding: 11px 13px; border-left: 3px solid var(--gold); background: #fff9e8; color: #62543b; font-size: 12px; }
+.workflow-contract strong { color: #9b7922; }
+.workflow-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+.workflow-card { padding: 14px; border: 1px solid #d4e4df; border-radius: 10px; background: rgba(255,255,255,.75); }
+.workflow-card-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.workflow-number { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 7px; background: var(--accent); color: white; font: 700 11px "SFMono-Regular", Consolas, monospace; }
+.workflow-card code { color: var(--nav); font: 700 12px "SFMono-Regular", Consolas, monospace; }
+.workflow-role { margin-left: auto; color: var(--mint); font-size: 9px; font-weight: 800; letter-spacing: .1em; }
+.workflow-card p { max-width: none !important; margin: 9px 0 !important; color: var(--ink); font-size: 12px !important; line-height: 1.55; }
+.workflow-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.workflow-meta b { display: block; color: var(--nav); font-size: 10px; }
+body.night .workflow-guide { border-color: #31534f; background: #142a30; }
+body.night .workflow-card { border-color: #34504e; background: rgba(8,21,29,.52); }
+body.night .workflow-card code, body.night .workflow-meta b, body.night .workflow-card p { color: var(--ink); }
+body.night .workflow-contract { background: #302b1e; color: #eadbb4; }
+@media (max-width: 700px) { .workflow-grid { grid-template-columns: 1fr; } .workflow-meta { grid-template-columns: 1fr; } .workflow-role { margin-left: 0; } .workflow-guide { padding: 17px; } }
+.data-table-wrap { max-width: 930px; margin: 23px 0 31px; overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; background: var(--paper-2); }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table caption { padding: 13px 15px; text-align: left; color: var(--muted); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.data-table th, .data-table td { padding: 10px 14px; border-top: 1px solid #e5e2d9; text-align: left; }
+.data-table th { background: #eef5f1; color: var(--nav); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.data-table td:last-child { color: var(--accent); font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+.footer { margin-top: 68px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+
+.chapter-nav { display: grid; gap: 3px; }
+.chapter-link { display: grid; grid-template-columns: 30px 1fr; gap: 8px; padding: 8px 10px; border-left: 2px solid transparent; color: #d5e2df; text-decoration: none; font-size: 12px; line-height: 1.4; transition: .2s ease; }
+.chapter-link span { color: #82b4aa; font-variant-numeric: tabular-nums; }
+.chapter-link:hover { border-left-color: var(--accent); background: rgba(255,255,255,.08); color: white; }
+.chapter-link.active { border-left-color: var(--accent); background: rgba(255,255,255,.1); color: white; }
+.toc-original { margin-top: 3px; }
+.toc-original summary { padding: 7px 10px; color: #9eb9b3; cursor: pointer; font-size: 11px; list-style: none; }
+.toc-original summary::before { content: "+  "; color: var(--accent); font-weight: 800; }
+.toc-original[open] summary::before { content: "-  "; }
+.chapter-break { margin: 70px 0 10px; padding: 21px 22px 18px; border: 1px solid #c7dcd5; border-left: 5px solid var(--accent); border-radius: 13px; background: linear-gradient(110deg, #eff8f4 0%, #fffdf8 70%); scroll-margin-top: 80px; }
+.chapter-kicker { color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.chapter-break h3 { margin: 5px 0 3px; color: var(--nav); font-family: Georgia, "Songti SC", serif; font-size: 26px; font-weight: 500; letter-spacing: -.03em; }
+.chapter-break p { max-width: none; margin: 0; color: var(--muted); font-size: 12px; }
+.document h2 { margin-top: 34px; font-size: clamp(20px, 2.4vw, 26px); }
+body.night .chapter-break { border-color: #31534f; background: #142a30; }
+body.night .chapter-break h3 { color: var(--ink); }
+@media (max-width: 980px) { .chapter-nav { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 9px; } .chapter-link { min-width: 180px; border-left: 0; border-bottom: 2px solid transparent; } .chapter-link:hover, .chapter-link.active { border-bottom-color: var(--accent); } }
+.hidden { display: none !important; }
+.search-empty { display: none; padding: 32px 0; color: var(--muted); text-align: center; }
+@media (max-width: 980px) { .shell { grid-template-columns: 1fr; } .sidebar { position: relative; height: auto; max-height: none; padding-bottom: 12px; } .toc { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 9px; } .toc a { min-width: 170px; border-left: 0; border-bottom: 2px solid transparent; } .toc a:hover, .toc a.active { border-bottom-color: var(--accent); } .sidebar-foot, .nav-title { display: none; } .brand { border-bottom: 0; padding-bottom: 12px; } .overview { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .topbar { align-items: flex-start; flex-direction: column; } .tools { width: 100%; } .search { width: 100%; } .content { width: min(100% - 26px, 1160px); padding-top: 28px; } .hero { padding: 26px 22px; border-radius: 16px; } .stats { grid-template-columns: 1fr; } .document h2 { margin-top: 44px; } }
+@media print { .sidebar, .topbar, .tools, .overview, .hero-meta, .copy-btn { display: none !important; } .shell { display: block; } .content { width: auto; padding: 0; } .hero { color: black; background: white; box-shadow: none; padding: 0 0 20px; border-bottom: 2px solid black; } .hero h1 { color: black; } .hero p { color: black; } .document h2 { break-before: page; } .code-card { color: black; background: #f6f6f6; box-shadow: none; border-color: #bbb; } .code-card-head { color: #333; border-color: #bbb; } .code-card pre { color: #111; } .panel, .data-table-wrap { box-shadow: none; } }
+/* Default editorial surface: white canvas with restrained color accents. */
+:root { --paper: #ffffff; --paper-2: #ffffff; --line: #d7ddda; --nav: #17232e; --nav-2: #f3f7f5; --shadow: 0 14px 35px rgba(23,35,46,.08); }
+body { background: #ffffff; }
+.sidebar { background: #ffffff; color: var(--ink); border-right: 1px solid var(--line); }
+.brand { border-bottom-color: var(--line); }
+.brand strong { color: var(--ink); }
+.brand small, .nav-title, .sidebar-foot { color: var(--muted); }
+.toc a, .chapter-link { color: var(--muted); }
+.toc a span, .chapter-link span { color: #4c9e91; }
+.toc a:hover, .toc a.active, .chapter-link:hover, .chapter-link.active { background: #f1f6f3; color: var(--ink); }
+.guide-link { border-color: #c8e1da; background: #f5faf8; color: var(--ink); }
+.guide-link span { color: #4c9e91; }
+.guide-link:hover { color: var(--ink); }
+.topbar { background: rgba(255,255,255,.94); border-bottom-color: var(--line); }
+.hero { background: #ffffff; border: 1px solid var(--line); color: var(--ink); }
+.hero h1 { color: var(--ink); }
+.hero p { color: var(--muted); }
+.hero-tag { border-color: #c9d7d3; color: var(--muted); }
+.hero::after { border-color: rgba(85,184,168,.28); box-shadow: 0 0 0 25px rgba(85,184,168,.045), 0 0 0 50px rgba(85,184,168,.025); }
+.mindmap { border-color: #cbded8; background: #ffffff; color: var(--ink); }
+.mindmap-head { border-bottom-color: var(--line); }
+.mindmap h2 { color: var(--ink); }
+.mindmap-intro, .mindmap-legend { color: var(--muted); }
+.mindmap-legend span { border-color: #cbded8; }
+.mindmap-core { border-color: #9bcfc3; background: #f1f8f5; box-shadow: 0 10px 24px rgba(23,35,46,.08); }
+.mindmap-core h3, .mindmap-branch strong { color: var(--ink); }
+.mindmap-core p, .mindmap-branch p { color: var(--muted); }
+.mindmap-branch { border-color: #d4e2de; background: #ffffff; }
+.mindmap-links a { border-color: #cbded8; color: var(--muted); }
+.mindmap-links a:hover, .mindmap-links a:focus { color: var(--ink); }
+.mindmap, a[href="#mindmap"] { display: none !important; }
+.node-icon { border: 1px solid #c8e1da; background: #eef8f4; color: #246e62; }
+.domain-step, .workflow-flow span { background: #eef8f4; color: #246e62; }
+.code-card { border-color: #d2dcd8; background: #ffffff; box-shadow: 0 8px 20px rgba(23,35,46,.06); }
+.code-card-head { border-bottom-color: var(--line); color: var(--muted); }
+.code-label { color: #4c9e91; }
+.code-index { color: var(--muted); }
+.code-card pre { color: var(--ink); }
+.copy-btn { border-color: #cbd8d4; color: var(--muted); }
+.copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+.runtime-sequence { border-color: #cbded8; background: #ffffff; box-shadow: 0 10px 24px rgba(23,35,46,.06); }
+.runtime-sequence-head { border-bottom-color: var(--line); }
+.runtime-sequence h3, .runtime-phase-title { color: var(--ink); }
+.runtime-sequence-total { border-color: #cbded8; background: #f5faf8; color: var(--ink); }
+.runtime-phase { border-color: #d4e2de; background: #ffffff; }
+.runtime-step { border-color: #d8e3df; background: #ffffff; }
+.runtime-step-number { background: #eef5f2; color: #246e62; }
+.runtime-source { border-top-color: #cbded8; }
+.runtime-source pre { border: 1px solid #d2dcd8; background: #ffffff; color: var(--ink); }
+.workflow-guide { border-color: #cbded8; background: #f7fbf9; }
+.workflow-card { border-color: #d4e2de; background: #ffffff; }
+.workflow-card code, .workflow-meta b, .workflow-card p { color: var(--ink); }
+.data-table-wrap, .panel { background: #ffffff; }
+.chapter-group { margin: 46px 0 0; padding: 0 0 26px 22px; border-left: 2px solid #dce8e4; }
+.chapter-group:first-of-type { margin-top: 26px; }
+.chapter-group .chapter-break { margin: 0 0 20px -22px; }
+.chapter-group > h2 { margin: 25px 0 14px; padding: 12px 0 0 14px; border-top: 1px solid var(--line); border-left: 3px solid #dce8e4; font-size: clamp(18px, 2.2vw, 24px); }
+.chapter-group > h2 .section-no { color: var(--mint); font-size: 10px; }
+.toc-parent { margin: 4px 8px; border-left: 1px solid rgba(135,188,177,.35); }
+.toc-parent summary { padding: 7px 10px; color: #d5e2df; cursor: pointer; font-size: 11px; font-weight: 700; list-style: none; }
+.toc-parent summary::before { content: "+  "; color: var(--accent); font-weight: 800; }
+.toc-parent[open] summary::before { content: "-  "; }
+.toc-children { display: grid; gap: 2px; padding: 1px 0 7px 8px; }
+.toc-children a { font-size: 11px; }
+body.night .chapter-group { border-color: #34504e; }
+body.night .chapter-group > h2 { border-color: #34504e; }
+body.night .toc-parent { border-color: #34504e; }
+@media (max-width: 760px) { .chapter-group { padding-left: 14px; } .chapter-group .chapter-break { margin-left: -14px; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">B</div><div><strong>BYERING</strong><small>AGENT RUNTIME BLUEPRINT</small></div></div><a class="guide-link" href="#reader-guide">阅读指南 <span>ARCH / DEV / QA</span></a><a class="guide-link" href="#mindmap">总览思维导图 <span>11 CHAPTERS</span></a>
+    <div class="nav-title">Chapter map</div>
+    <nav class="chapter-nav" aria-label="主题章节导航"><a class="chapter-link" href="#chapter-01"><span>01</span>产品目标与总体架构</a><a class="chapter-link" href="#chapter-02"><span>02</span>Agent 配置与能力体系</a><a class="chapter-link" href="#chapter-03"><span>03</span>数据采集与 Lead 建模</a><a class="chapter-link" href="#chapter-04"><span>04</span>意向分析与评分</a><a class="chapter-link" href="#chapter-05"><span>05</span>主动触达编排</a><a class="chapter-link" href="#chapter-06"><span>06</span>对话与留资转化</a><a class="chapter-link" href="#chapter-07"><span>07</span>Runtime 状态与事件</a><a class="chapter-link" href="#chapter-08"><span>08</span>治理、权限与可观测性</a><a class="chapter-link" href="#chapter-09"><span>09</span>Goal、Task 与完整时序</a><a class="chapter-link" href="#chapter-10"><span>10</span>技术实现与边界</a><a class="chapter-link" href="#chapter-11"><span>11</span>交付、验收与上线</a></nav>
+    <div class="nav-title">Section index</div>
+    <details class="toc-original"><summary>展开 84 个细分标题</summary>
+    <nav class="toc" aria-label="文档章节导航"><a href="#section-1-一-核心结构-主-agent-确定性运行时-专业子agent" data-section-link="section-1-一-核心结构-主-agent-确定性运行时-专业子agent"><span>01</span>一、核心结构：主 Agent + 确定性运行时 + 专业子Agent</a><a href="#section-2-二-核心原则" data-section-link="section-2-二-核心原则"><span>02</span>二、核心原则</a><a href="#section-3-三-产品总体定义" data-section-link="section-3-三-产品总体定义"><span>03</span>三、产品总体定义</a><a href="#section-4-四-现有线索猎人项目背景" data-section-link="section-4-四-现有线索猎人项目背景"><span>04</span>四、现有线索猎人项目背景</a><a href="#section-5-五-线索猎人agent设计原则及详情" data-section-link="section-5-五-线索猎人agent设计原则及详情"><span>05</span>五、线索猎人agent设计原则及详情</a><a href="#section-6-六-线索猎人agent定义" data-section-link="section-6-六-线索猎人agent定义"><span>06</span>六、线索猎人Agent定义</a><a href="#section-7-七-soul-文件" data-section-link="section-7-七-soul-文件"><span>07</span>七. Soul 文件</a><a href="#section-8-八-skill-domain" data-section-link="section-8-八-skill-domain"><span>08</span>八. Skill Domain</a><a href="#section-9-九-skill-executor-映射" data-section-link="section-9-九-skill-executor-映射"><span>09</span>九. Skill Executor 映射</a><a href="#section-10-十-rpa-workflow-需求" data-section-link="section-10-十-rpa-workflow-需求"><span>10</span>十. RPA Workflow 需求</a><a href="#section-11-十一-rpa-workflow-请求协议" data-section-link="section-11-十一-rpa-workflow-请求协议"><span>11</span>十一. RPA Workflow 请求协议</a><a href="#section-12-十二-rpa-workflow-返回协议" data-section-link="section-12-十二-rpa-workflow-返回协议"><span>12</span>十二. RPA Workflow 返回协议</a><a href="#section-13-十三-评论采集需求" data-section-link="section-13-十三-评论采集需求"><span>13</span>十三. 评论采集需求</a><a href="#section-14-十四-新增关注采集需求" data-section-link="section-14-十四-新增关注采集需求"><span>14</span>十四. 新增关注采集需求</a><a href="#section-15-十五-私信采集需求" data-section-link="section-15-十五-私信采集需求"><span>15</span>十五. 私信采集需求</a><a href="#section-16-十六-直播互动采集需求" data-section-link="section-16-十六-直播互动采集需求"><span>16</span>十六. 直播互动采集需求</a><a href="#section-17-十七-social-event-统一模型" data-section-link="section-17-十七-social-event-统一模型"><span>17</span>十七. Social Event 统一模型</a><a href="#section-18-十八-lead-创建与身份绑定" data-section-link="section-18-十八-lead-创建与身份绑定"><span>18</span>十八. Lead 创建与身份绑定</a><a href="#section-19-十九-lead-表" data-section-link="section-19-十九-lead-表"><span>19</span>十九. Lead 表</a><a href="#section-20-二十-lead-identity-表" data-section-link="section-20-二十-lead-identity-表"><span>20</span>二十. Lead Identity 表</a><a href="#section-21-二十一-lead-signal-聚合" data-section-link="section-21-二十一-lead-signal-聚合"><span>21</span>二十一. Lead Signal 聚合</a><a href="#section-22-二十二-意向分析-pipeline" data-section-link="section-22-二十二-意向分析-pipeline"><span>22</span>二十二. 意向分析 Pipeline</a><a href="#section-23-二十三-extract_intent_signals" data-section-link="section-23-二十三-extract_intent_signals"><span>23</span>二十三. extract_intent_signals</a><a href="#section-24-二十四-signal-类型" data-section-link="section-24-二十四-signal-类型"><span>24</span>二十四. Signal 类型</a><a href="#section-25-二十五-lead-signal-表" data-section-link="section-25-二十五-lead-signal-表"><span>25</span>二十五. Lead Signal 表</a><a href="#section-26-二十六-购买阶段" data-section-link="section-26-二十六-购买阶段"><span>26</span>二十六. 购买阶段</a><a href="#section-27-二十七-意向评分" data-section-link="section-27-二十七-意向评分"><span>27</span>二十七. 意向评分</a><a href="#section-28-二十八-主动触达判断" data-section-link="section-28-二十八-主动触达判断"><span>28</span>二十八. 主动触达判断</a><a href="#section-29-二十九-outreach-policy" data-section-link="section-29-二十九-outreach-policy"><span>29</span>二十九. Outreach Policy</a><a href="#section-30-三十-check_outreach_eligibility" data-section-link="section-30-三十-check_outreach_eligibility"><span>30</span>三十. check_outreach_eligibility</a><a href="#section-31-三十一-outreach-pipeline" data-section-link="section-31-三十一-outreach-pipeline"><span>31</span>三十一. Outreach Pipeline</a><a href="#section-32-三十二-首次触达策略" data-section-link="section-32-三十二-首次触达策略"><span>32</span>三十二. 首次触达策略</a><a href="#section-33-三十三-generate_outreach_message" data-section-link="section-33-三十三-generate_outreach_message"><span>33</span>三十三. generate_outreach_message</a><a href="#section-34-三十四-validate_message" data-section-link="section-34-三十四-validate_message"><span>34</span>三十四. validate_message</a><a href="#section-35-三十五-send_dm" data-section-link="section-35-三十五-send_dm"><span>35</span>三十五. send_dm</a><a href="#section-36-三十六-message-幂等" data-section-link="section-36-三十六-message-幂等"><span>36</span>三十六. Message 幂等</a><a href="#section-37-三十七-message-表" data-section-link="section-37-三十七-message-表"><span>37</span>三十七. Message 表</a><a href="#section-38-三十八-conversation-表" data-section-link="section-38-三十八-conversation-表"><span>38</span>三十八. Conversation 表</a><a href="#section-39-三十九-conversation-loop" data-section-link="section-39-三十九-conversation-loop"><span>39</span>三十九. Conversation Loop</a><a href="#section-40-四十-understand_reply" data-section-link="section-40-四十-understand_reply"><span>40</span>四十. understand_reply</a><a href="#section-41-四十一-lead-memory" data-section-link="section-41-四十一-lead-memory"><span>41</span>四十一. Lead Memory</a><a href="#section-42-四十二-update_lead_memory" data-section-link="section-42-四十二-update_lead_memory"><span>42</span>四十二. update_lead_memory</a><a href="#section-43-四十三-decide_next_action" data-section-link="section-43-四十三-decide_next_action"><span>43</span>四十三. decide_next_action</a><a href="#section-44-四十四-context-builder" data-section-link="section-44-四十四-context-builder"><span>44</span>四十四. Context Builder</a><a href="#section-45-四十五-conversation-summary" data-section-link="section-45-四十五-conversation-summary"><span>45</span>四十五. Conversation Summary</a><a href="#section-46-四十六-留资判断" data-section-link="section-46-四十六-留资判断"><span>46</span>四十六. 留资判断</a><a href="#section-47-四十七-extract_contact" data-section-link="section-47-四十七-extract_contact"><span>47</span>四十七. extract_contact</a><a href="#section-48-四十八-lead-contact-表" data-section-link="section-48-四十八-lead-contact-表"><span>48</span>四十八. Lead Contact 表</a><a href="#section-49-四十九-留资成功流程" data-section-link="section-49-四十九-留资成功流程"><span>49</span>四十九. 留资成功流程</a><a href="#section-50-五十-lead-summary" data-section-link="section-50-五十-lead-summary"><span>50</span>五十. Lead Summary</a><a href="#section-51-五十一-lead-状态机" data-section-link="section-51-五十一-lead-状态机"><span>51</span>五十一. Lead 状态机</a><a href="#section-52-五十二-conversation-状态机" data-section-link="section-52-五十二-conversation-状态机"><span>52</span>五十二. Conversation 状态机</a><a href="#section-53-五十三-account-状态机" data-section-link="section-53-五十三-account-状态机"><span>53</span>五十三. Account 状态机</a><a href="#section-54-五十四-cloud-session" data-section-link="section-54-五十四-cloud-session"><span>54</span>五十四. Cloud Session</a><a href="#section-55-五十五-account-lock" data-section-link="section-55-五十五-account-lock"><span>55</span>五十五. Account Lock</a><a href="#section-56-五十六-scheduler" data-section-link="section-56-五十六-scheduler"><span>56</span>五十六. Scheduler</a><a href="#section-57-五十七-event-bus" data-section-link="section-57-五十七-event-bus"><span>57</span>五十七. Event Bus</a><a href="#section-58-五十八-关键-event" data-section-link="section-58-五十八-关键-event"><span>58</span>五十八. 关键 Event</a><a href="#section-59-五十九-event-结构" data-section-link="section-59-五十九-event-结构"><span>59</span>五十九. Event 结构</a><a href="#section-60-六十-skill-registry" data-section-link="section-60-六十-skill-registry"><span>60</span>六十. Skill Registry</a><a href="#section-61-六十一哦-skill-schema-示例" data-section-link="section-61-六十一哦-skill-schema-示例"><span>61</span>六十一哦. Skill Schema 示例</a><a href="#section-62-六十二-permission" data-section-link="section-62-六十二-permission"><span>62</span>六十二. Permission</a><a href="#section-63-六十三-policy" data-section-link="section-63-六十三-policy"><span>63</span>六十三. Policy</a><a href="#section-64-六十四-approval" data-section-link="section-64-六十四-approval"><span>64</span>六十四. Approval</a><a href="#section-65-六十五-agent-run" data-section-link="section-65-六十五-agent-run"><span>65</span>六十五. Agent Run</a><a href="#section-66-六十六-skill-run" data-section-link="section-66-六十六-skill-run"><span>66</span>六十六. Skill Run</a><a href="#section-67-六十七-trace-要求" data-section-link="section-67-六十七-trace-要求"><span>67</span>六十七. Trace 要求</a><a href="#section-68-六十八-错误码" data-section-link="section-68-六十八-错误码"><span>68</span>六十八. 错误码</a><a href="#section-69-六十九-retry-规则" data-section-link="section-69-六十九-retry-规则"><span>69</span>六十九. Retry 规则</a><a href="#section-70-七十-goal" data-section-link="section-70-七十-goal"><span>70</span>七十. Goal</a><a href="#section-71-七十一-task" data-section-link="section-71-七十一-task"><span>71</span>七十一. Task</a><a href="#section-72-七十二-完整运行时序" data-section-link="section-72-七十二-完整运行时序"><span>72</span>七十二. 完整运行时序</a><a href="#section-73-七十三-v1-技术实现形态" data-section-link="section-73-七十三-v1-技术实现形态"><span>73</span>七十三. V1 技术实现形态</a><a href="#section-74-七十四-后端模块建议" data-section-link="section-74-七十四-后端模块建议"><span>74</span>七十四. 后端模块建议</a><a href="#section-75-七十五-rpa-adapter" data-section-link="section-75-七十五-rpa-adapter"><span>75</span>七十五. RPA Adapter</a><a href="#section-76-七十六-llm-executor" data-section-link="section-76-七十六-llm-executor"><span>76</span>七十六. LLM Executor</a><a href="#section-77-七十七-prompt-template" data-section-link="section-77-七十七-prompt-template"><span>77</span>七十七. Prompt Template</a><a href="#section-78-七十八-v1-明确不做" data-section-link="section-78-七十八-v1-明确不做"><span>78</span>七十八. V1 明确不做</a><a href="#section-79-七十九-开发团队职责" data-section-link="section-79-七十九-开发团队职责"><span>79</span>七十九. 开发团队职责</a><a href="#section-80-八十-第一阶段开发-ticket" data-section-link="section-80-八十-第一阶段开发-ticket"><span>80</span>八十. 第一阶段开发 Ticket</a><a href="#section-81-八十一-v1-核心验收场景" data-section-link="section-81-八十一-v1-核心验收场景"><span>81</span>八十一. V1 核心验收场景</a><a href="#section-82-八十二-v1-上线标准" data-section-link="section-82-八十二-v1-上线标准"><span>82</span>八十二. V1 上线标准</a><a href="#section-83-八十三-待业务确认项" data-section-link="section-83-八十三-待业务确认项"><span>83</span>八十三. 待业务确认项</a><a href="#section-84-八十四-最终技术边界" data-section-link="section-84-八十四-最终技术边界"><span>84</span>八十四. 最终技术边界</a></nav></details>
+    <div class="sidebar-foot">后端内容保留 · UI 仅用于阅读导航</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="crumb">Byering / Agent Framework Design</div>
+      <div class="tools">
+        <input class="search" id="search" type="search" placeholder="搜索文档内容…" aria-label="搜索文档内容">
+        <button class="tool-btn" id="theme" type="button" title="切换主题">◐</button>
+        <button class="tool-btn" id="print" type="button" title="打印或导出 PDF">↗</button>
+      </div>
+    </header>
+    <div class="content">
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow">Agent Framework / Backend Baseline</p>
+        <h1 id="page-title">Agent框架设计</h1>
+        <p>这是一份面向 Byering 数字员工平台的架构基线与落地导览。主 Agent 负责理解与决策，确定性运行时负责控制，专业子 Agent 负责专业工作，现有 RPA Workflow 继续承担真实界面操作。</p>
+        <div class="hero-meta"><span class="hero-tag">V1 / 线索猎人</span><span class="hero-tag">Douyin Lead Generation</span><span class="hero-tag">Runtime + RPA + LLM</span></div>
+      </section>
+      <section class="mindmap" id="mindmap" aria-labelledby="mindmap-title">
+        <div class="mindmap-head"><div><div class="mindmap-kicker">AGENT STRUCTURE / ONE MAP</div><h2 id="mindmap-title">一张图讲清 Agent 结构</h2><p class="mindmap-intro">中心是 Agent，外围是角色、认知、能力、Runtime、业务闭环和真实执行面；链接只用于定位实现细节。</p></div><div class="mindmap-legend"><span>结构关系</span><span>点击节点定位细节</span></div></div>
+        <div class="mindmap-canvas">
+          <svg class="mindmap-connectors" viewBox="0 0 1000 500" preserveAspectRatio="none" aria-hidden="true"><path d="M 350 218 C 285 190 240 105 145 76"></path><path d="M 350 245 C 285 245 235 245 145 245"></path><path d="M 350 285 C 285 320 235 405 145 424"></path><path d="M 650 218 C 715 190 760 105 855 76"></path><path d="M 650 245 C 715 245 765 245 855 245"></path><path d="M 650 285 C 715 320 765 405 855 424"></path></svg>
+          <div class="mindmap-core"><div class="mindmap-core-label">AGENT STRUCTURE</div><h3>BYERING<br><em>AGENT FRAMEWORK</em></h3><p>主 Agent → 子 Agent → Skill → Executor<br>Runtime 横向控制全链路</p></div>
+          <article class="mindmap-branch mindmap-branch--identity"><div class="mindmap-branch-head"><span class="mindmap-index">ROLE</span><strong>Agent 角色层</strong></div><p>定义谁负责理解、决策、专业执行和人工接管。</p><div class="mindmap-flowline"><span>Byering 主 Agent</span><span>线索猎人子 Agent</span><span>Human Handoff</span></div><div class="mindmap-links"><a href="#section-1-一-核心结构-主-agent-确定性运行时-专业子agent">主 Agent 关系</a><a href="#section-6-六-线索猎人agent定义">子 Agent 定义</a></div></article>
+          <article class="mindmap-branch mindmap-branch--cognitive"><div class="mindmap-branch-head"><span class="mindmap-index">COGNITION</span><strong>认知与记忆层</strong></div><p>Agent 通过身份、上下文和结构化记忆形成判断。</p><div class="mindmap-flowline"><span>Soul</span><span>Lead Memory</span><span>Context Builder</span><span>LLM</span></div><div class="mindmap-links"><a href="#section-7-七-soul-文件">Soul</a><a href="#section-41-四十一-lead-memory">Memory</a><a href="#section-44-四十四-context-builder">Context</a></div></article>
+          <article class="mindmap-branch mindmap-branch--flow"><div class="mindmap-branch-head"><span class="mindmap-index">BEHAVIOR</span><strong>业务行为闭环</strong></div><p>子 Agent 围绕一条线索完成观察、判断、触达、对话和留资。</p><div class="mindmap-flowline"><span>Observe</span><span>Lead</span><span>Intent</span><span>Outreach</span><span>Conversation</span><span>Conversion</span></div><div class="mindmap-links"><a href="#chapter-03">采集与建模</a><a href="#chapter-04">意向分析</a><a href="#chapter-05">主动触达</a><a href="#chapter-06">对话与留资</a></div></article>
+          <article class="mindmap-branch mindmap-branch--runtime"><div class="mindmap-branch-head"><span class="mindmap-index">CONTROL</span><strong>Runtime 控制层</strong></div><p>把 Agent 的决策变成有状态、可调度、可撤销和可审计的运行。</p><div class="mindmap-flowline"><span>Goal / Task</span><span>State</span><span>Scheduler</span><span>Event Bus</span><span>Policy</span><span>Trace</span></div><div class="mindmap-links"><a href="#chapter-07">状态与事件</a><a href="#chapter-08">权限与观测</a><a href="#section-70-七十-goal">Goal / Task</a></div></article>
+          <article class="mindmap-branch mindmap-branch--capability"><div class="mindmap-branch-head"><span class="mindmap-index">CAPABILITY</span><strong>Skill 能力层</strong></div><p>Skill 描述业务能力，Runtime 根据映射选择具体 Executor。</p><div class="mindmap-flowline"><span>Skill Domain</span><span>Registry</span><span>Executor</span><span>RPA</span></div><div class="mindmap-links"><a href="#section-8-八-skill-domain">Skill Domain</a><a href="#section-9-九-skill-executor-映射">Executor 映射</a><a href="#section-60-六十-skill-registry">Registry</a></div></article>
+          <article class="mindmap-branch mindmap-branch--systems"><div class="mindmap-branch-head"><span class="mindmap-index">EXECUTION</span><strong>外部执行面</strong></div><p>真实动作落在云电脑、抖音和可选的 CRM / 销售团队。</p><div class="mindmap-flowline"><span>Cloud PC</span><span>Douyin</span><span>CRM optional</span></div><div class="mindmap-links"><a href="#chapter-10">实现与边界</a><a href="#section-10-十-rpa-workflow-需求">Workflow</a><a href="#section-49-四十九-留资成功流程">线索交付</a></div></article>
+        </div>
+      </section>
+      <section class="overview" aria-label="快速总览">
+        <div class="panel">
+          <h2>Runtime Blueprint</h2>
+          <div class="blueprint">
+            <div class="node"><div class="node-icon">01</div><div><strong>Byering 主 Agent</strong><small>理解用户目标、创建 Goal / Task、组织数字员工</small></div></div>
+            <div class="node"><div class="node-icon">02</div><div><strong>确定性运行时</strong><small>顺序、状态、权限、预算、重试、调度与审计</small></div></div>
+            <div class="node"><div class="node-icon">03</div><div><strong>线索猎人子 Agent</strong><small>监听互动、识别意向、触达沟通、完成留资</small></div></div>
+            <div class="node"><div class="node-icon">04</div><div><strong>Skill Executor</strong><small>Workflow / Python / LLM / API 统一执行能力</small></div></div>
+          </div>
+        </div>
+      </section>
+      <section class="reader-brief" id="reader-guide" aria-labelledby="reader-guide-title">
+        <div class="brief-head"><div><p class="brief-kicker">Delivery guide / how to use this document</p><h2 id="reader-guide-title">这份后端基线怎么读，读完能交付什么</h2></div><span class="brief-badge">11 chapters / 84 details</span></div>
+        <p class="brief-intro">这是一份面向后端落地的交付基线：先理解业务边界和运行原理，再进入协议、数据、状态、权限、执行和验收细节。前端页面与 UI 设计不纳入本版实现范围。</p>
+        <div class="audience-grid">
+          <article class="audience-card"><strong>后端开发 DEV</strong><small>优先阅读第 01、02、07、08、09、10、11 章：目标、Runtime、状态、权限、实现边界和上线标准。</small></article>
+          <article class="audience-card arch"><strong>架构师 ARCH</strong><small>优先阅读第 01、02、04、07、08、09 章：Agent、Skill、Executor、Event、State、Policy 和 Trace。</small></article>
+          <article class="audience-card dev"><strong>测试与交付 QA</strong><small>优先阅读第 03～11 章：数据模型、协议、状态机、异常、模块边界、Ticket 和验收 Case。</small></article>
+        </div>
+        <div class="layer-row"><strong>业务层</strong><span>目标、角色、业务流程、事件、V1 范围</span><em>回答：为什么做</em></div>
+        <div class="layer-row"><strong>行为层</strong><span>Agent 如何监听、判断、触达、沟通、留资和人工接管</span><em>回答：系统应该怎么表现</em></div>
+        <div class="layer-row"><strong>架构层</strong><span>Runtime、Skill、Executor、Event、State、Policy、Permission</span><em>回答：系统如何组织</em></div>
+        <div class="layer-row"><strong>实现层</strong><span>接口、字段约束、状态转移、重试、幂等、监控、部署和验收</span><em>回答：开发如何交付</em></div>
+        <div class="guide-callout"><strong>落地提醒：</strong>当前文档已经覆盖后端架构、接口协议、状态机和主要验收场景；真正进入开发前，还需要把字段约束、状态转移矩阵、非功能指标和环境配置固化成可执行规范。</div>
+      </section>
+      <div class="document" id="document"><p>Agent框架设计</p><div class="chapter-break" id="chapter-01"><div class="chapter-kicker">Chapter 01 / 11</div><h3>产品目标与总体架构</h3><p>先理解 Byering、主 Agent、运行时和线索猎人的整体关系。</p></div><h2 id="section-1-一-核心结构-主-agent-确定性运行时-专业子agent"><span class="section-no">01</span>一、核心结构：主 Agent + 确定性运行时 + 专业子Agent</h2><p>主 Agent 负责决策，确定性程序负责执行控制，子 Agent 负责专业工作。</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 001</span><button class="copy-btn" type="button" data-copy="主 Agent：决定做什么、找谁、如何验收
+运行时：控制顺序、权限、预算、状态、重试
+子 Agent：调用工具并产生真实结果">复制</button></div><pre><code>主 Agent：决定做什么、找谁、如何验收
+运行时：控制顺序、权限、预算、状态、重试
+子 Agent：调用工具并产生真实结果</code></pre></div><p>优点是可控、可观察、可恢复，也最适合现有办公室、任务房间、资源中心和 Agent 档案系统。</p><h2 id="section-2-二-核心原则"><span class="section-no">02</span>二、核心原则</h2><p>现有 RPA Workflow 继续作为核心执行资产。Agent 负责理解、判断、决策和组织，RPA 负责稳定操作真实界面，Python 负责确定性数据处理，LLM 负责语义理解和动态决策，Skill 负责把这些能力统一封装。</p><p class="label-line">整个产品最终可以抽象成：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 002</span><button class="copy-btn" type="button" data-copy="用户
+  ↓
+Byering 主 Agent
+  ↓
+Goal / Task / Agent 调度
+  ↓
+数字员工 Agent
+  ↓
+Skill
+  ↓
+Skill Executor
+  ↓
+┌─────────┬─────────┬─────────┬─────────┐
+│ Workflow│ Python  │   LLM   │   API   │
+│   RPA   │         │         │         │
+└────┬────┴─────────┴─────────┴─────────┘
+     ↓
+   云电脑
+     ↓
+   抖音">复制</button></div><pre><code>用户
+  ↓
+Byering 主 Agent
+  ↓
+Goal / Task / Agent 调度
+  ↓
+数字员工 Agent
+  ↓
+Skill
+  ↓
+Skill Executor
+  ↓
+┌─────────┬─────────┬─────────┬─────────┐
+│ Workflow│ Python  │   LLM   │   API   │
+│   RPA   │         │         │         │
+└────┬────┴─────────┴─────────┴─────────┘
+     ↓
+   云电脑
+     ↓
+   抖音</code></pre></div><p>这套架构里，Agent 永远不直接拥有 click()、type()、moveMouse() 之类的 UI 原子操作能力。</p><h2 id="section-3-三-产品总体定义"><span class="section-no">03</span>三、产品总体定义</h2><p class="label-line">产品可以理解为：</p><p>Byering</p><p>一个“数字员工管理系统 + Agent Runtime”。</p><p>用户看到的是自己的数字团队。</p><p class="label-line">用户主要和 Byering 沟通：</p><blockquote>帮我多找一些最近有购车需求的人。</blockquote><blockquote>为什么今天线索这么少？</blockquote><blockquote>线索猎人以后不要那么早问客户电话。</blockquote><blockquote>这个客户我来接管。</blockquote><p>Byering 负责理解这些要求，再管理下面的数字员工。</p><h2 id="section-4-四-现有线索猎人项目背景"><span class="section-no">04</span>四、现有线索猎人项目背景</h2><p>当前已有一套基于云电脑、RPA、Python 和大模型运行的抖音获客 Workflow。</p><p class="label-line">现有业务流程如下：</p><p>用户通过云电脑授权登录自己的抖音账号</p><p>RPA 接管云电脑中的抖音账号</p><p>RPA 定时或持续采集账号相关互动信息</p><p class="label-line">采集范围包括：</p><p>用户作品评论</p><p>新增关注</p><p>私信</p><p>直播间互动</p><p>Python 对原始数据进行清洗、去重、结构化等处理</p><p>大模型分析互动内容及用户行为</p><p>判断潜在客户的购车意向</p><p>将客户划分为高、低意向</p><p>对符合触达规则的高意向客户主动发送私信</p><p>后续持续监听客户回复</p><p>大模型结合客户上下文继续回复</p><p>持续推进客户沟通</p><p>当客户提供手机号、微信等联系方式后，认为完成留资</p><p>生成客户摘要并交付真人销售或后续 CRM</p><p>V1.0 的目标，是把现有 Workflow 封装成为一个具备岗位身份、Soul、Memory、Skill、状态、权限和绩效的数字员工。</p><p>该数字员工统一命名为：线索猎人</p><p>线索猎人核心目标：持续监控抖音账号产生的用户互动，从中识别潜在购车客户，对高价值客户进行主动触达，并通过持续沟通推进客户完成留资。</p><p class="label-line">最终成功标准：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 003</span><button class="copy-btn" type="button" data-copy="发现用户
+→ 识别需求
+→ 判断意向
+→ 高意向客户
+→ 主动触达
+→ 客户回复
+→ 持续沟通
+→ 获取联系方式
+→ 生成有效销售线索">复制</button></div><pre><code>发现用户
+→ 识别需求
+→ 判断意向
+→ 高意向客户
+→ 主动触达
+→ 客户回复
+→ 持续沟通
+→ 获取联系方式
+→ 生成有效销售线索</code></pre></div><h2 id="section-5-五-线索猎人agent设计原则及详情"><span class="section-no">05</span>五、线索猎人agent设计原则及详情</h2><p>已有稳定的 RPA Workflow 原则上保留。</p><p>RPA 继续承担真实页面操作</p><p class="label-line">包括：</p><p>打开抖音</p><p>打开作品</p><p>展开评论</p><p>滚动页面</p><p>获取评论</p><p>获取新增关注</p><p>获取私信</p><p>获取直播互动</p><p>打开用户主页</p><p>打开私信窗口</p><p>打开私信页面</p><p>输入文字</p><p>点击发送</p><p>校验发送结果</p><p>Agent 不直接获得鼠标、键盘、坐标点击等底层操作权限。</p><p>Agent 负责语义理解和业务决策</p><p class="label-line">Agent 主要负责：</p><p>判断客户是否具有购车意向</p><p>理解客户具体需求</p><p>判断当前购车阶段</p><p>判断是否应该触达</p><p>制定触达策略</p><p>理解客户回复</p><p>决定下一步沟通动作</p><p>判断何时适合索取联系方式</p><p>判断何时转人工</p><p>Skill 作为统一能力接口</p><p>Skill 的具体执行方式由 Executor 决定。</p><p class="label-line">支持以下 Executor：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 004</span><button class="copy-btn" type="button" data-copy="WORKFLOW
+PYTHON
+LLM
+API">复制</button></div><pre><code>WORKFLOW
+PYTHON
+LLM
+API</code></pre></div><p class="label-line">例如：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 005</span><button class="copy-btn" type="button" data-copy="sync_video_comments
+Executor = WORKFLOW
+
+score_lead
+Executor = PYTHON
+
+infer_purchase_intent
+Executor = LLM
+
+push_to_crm
+Executor = API">复制</button></div><pre><code>sync_video_comments
+Executor = WORKFLOW
+
+score_lead
+Executor = PYTHON
+
+infer_purchase_intent
+Executor = LLM
+
+push_to_crm
+Executor = API</code></pre></div><p>系统总体架构</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 006</span><button class="copy-btn" type="button" data-copy="用户
+↓
+Byering Chat
+↓
+Byering 主 Agent
+↓
+Goal
+↓
+Task
+↓
+线索猎人 Agent
+↓
+Skill Runtime
+↓
+Skill Executor
+↓
+┌──────────┬──────────┬──────────┬──────────┐
+│ Workflow │ Python   │ LLM      │ API      │
+└────┬─────┴──────────┴──────────┴──────────┘
+     ↓
+RPA Platform
+     ↓
+Cloud PC
+     ↓
+Douyin">复制</button></div><pre><code>用户
+↓
+Byering Chat
+↓
+Byering 主 Agent
+↓
+Goal
+↓
+Task
+↓
+线索猎人 Agent
+↓
+Skill Runtime
+↓
+Skill Executor
+↓
+┌──────────┬──────────┬──────────┬──────────┐
+│ Workflow │ Python   │ LLM      │ API      │
+└────┬─────┴──────────┴──────────┴──────────┘
+     ↓
+RPA Platform
+     ↓
+Cloud PC
+     ↓
+Douyin</code></pre></div><p class="label-line">同时存在横向公共能力：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 007</span><button class="copy-btn" type="button" data-copy="Memory
+Policy
+Permission
+State Machine
+Scheduler
+Event Bus
+Trace
+Evaluation">复制</button></div><pre><code>Memory
+Policy
+Permission
+State Machine
+Scheduler
+Event Bus
+Trace
+Evaluation</code></pre></div><p>Byering和线索猎人agent关系</p><p>Byering属于主 Agent。</p><p>线索猎人属于子 Agent。</p><p class="label-line">Byering负责：</p><p>理解用户需求</p><p>创建 Goal</p><p>创建长期 Task</p><p>启动线索猎人</p><p>暂停线索猎人</p><p>查询执行状态</p><p>汇总线索猎人的结果</p><p>处理人工确认</p><p>接收线索猎人异常通知</p><p class="label-line">线索猎人负责具体执行：</p><p>账号监听</p><p>用户互动采集</p><p>潜客识别</p><p>购车意向判断</p><p>主动触达</p><p>持续私信沟通</p><p>留资</p><p>客户摘要</p><h2 id="section-6-六-线索猎人agent定义"><span class="section-no">06</span>六、线索猎人Agent定义</h2><h3>6.1 Agent ID</h3><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 008</span><button class="copy-btn" type="button" data-copy="lead_hunter">复制</button></div><pre><code>lead_hunter</code></pre></div><h3>6.2 Agent Name</h3><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 009</span><button class="copy-btn" type="button" data-copy="线索猎人">复制</button></div><pre><code>线索猎人</code></pre></div><h3>6.3 Role</h3><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 010</span><button class="copy-btn" type="button" data-copy="AI Lead Generation Specialist">复制</button></div><pre><code>AI Lead Generation Specialist</code></pre></div><h3>6.4 Mission</h3><p>持续发现企业抖音账号中的潜在购车客户，对用户行为和文本信息进行分析，筛选高价值潜客，并主动建立联系，通过持续沟通推动客户完成留资。</p><div class="chapter-break" id="chapter-02"><div class="chapter-kicker">Chapter 02 / 11</div><h3>Agent 配置与能力体系</h3><p>明确 Soul、Skill Domain，以及 Skill 到 Executor 的分工。</p></div><h2 id="section-7-七-soul-文件"><span class="section-no">07</span>七. Soul 文件</h2><p>线索猎人的 Soul 需要作为独立配置进行版本管理。</p><p class="label-line">包含：</p><h3>7.1 Mission</h3><p>帮助企业持续发现真实潜客，并将高价值互动推进成为有效销售线索。</p><h3>7.2 工作原则</h3><p>判断意向需要有明确证据</p><p>单一弱行为不能直接判定高意向</p><p>已知信息不重复询问</p><p>不虚构车型、价格、优惠和政策</p><p>客户明确拒绝后停止营销</p><p>无法确认的重要交易信息交给真人</p><p>每次沟通应有明确销售目标</p><p>及时更新客户信息和沟通状态</p><h3>7.3 升级人工条件</h3><p class="label-line">出现以下情况时，可以进入人工处理：</p><p>抖音登录失效</p><p>验证码</p><p>账号风控</p><p>客户投诉</p><p>客户要求真人</p><p>模型无法判断关键信息</p><p>特殊报价</p><p>特殊优惠</p><p>高风险承诺</p><p>用户主动接管客户</p><h2 id="section-8-八-skill-domain"><span class="section-no">08</span>八. Skill Domain</h2>
+<aside class="domain-explainer" aria-labelledby="domain-explainer-title">
+  <div class="domain-kicker">How to read this section</div>
+  <h3 id="domain-explainer-title">Skill Domain 是能力分组，不是 Agent 或独立服务</h3>
+  <p>在本 V1 设计里，Domain 只是把线索猎人的工作按业务阶段归类。真正被 Runtime 调用、记录和重试的是 Skill；Skill 再交给对应的 Executor 执行。因此，一个 Domain 可以包含多个 Skill，但不需要对应一个新的 Agent 或微服务。</p>
+  <div class="domain-legend">
+    <div><b>Domain</b><span>回答“这项能力属于哪个业务阶段”。</span></div>
+    <div><b>Skill</b><span>回答“系统具体要完成什么动作”。</span></div>
+    <div><b>Executor</b><span>回答“这个动作由什么技术方式执行”。</span></div>
+  </div>
+  <div class="domain-flow" aria-label="七个 Skill Domain 的业务顺序">
+    <span class="domain-step">ACCOUNT</span><span class="domain-arrow">→</span><span class="domain-step">OBSERVE</span><span class="domain-arrow">→</span><span class="domain-step">LEAD</span><span class="domain-arrow">→</span><span class="domain-step">INTENT</span><span class="domain-arrow">→</span><span class="domain-step">OUTREACH</span><span class="domain-arrow">→</span><span class="domain-step">CONVERSATION</span><span class="domain-arrow">→</span><span class="domain-step">CONVERSION</span>
+  </div>
+  <div class="domain-grid">
+    <div class="domain-card"><strong>ACCOUNT</strong><span>让账号处于可用状态：连接、检查 Session、恢复 Session。</span></div>
+    <div class="domain-card"><strong>OBSERVE</strong><span>从抖音持续采集评论、关注、私信和直播互动。</span></div>
+    <div class="domain-card"><strong>LEAD</strong><span>把外部用户识别成 Lead，并聚合其多种互动信号。</span></div>
+    <div class="domain-card"><strong>INTENT</strong><span>从文本和行为中提取购车信号，判断意向并计算评分。</span></div>
+    <div class="domain-card"><strong>OUTREACH</strong><span>检查是否允许主动触达，制定策略、生成消息并发送。</span></div>
+    <div class="domain-card"><strong>CONVERSATION</strong><span>理解客户回复、更新记忆、决定下一步并生成回复。</span></div>
+    <div class="domain-card"><strong>CONVERSION</strong><span>判断留资时机，提取手机号或微信，完成 Lead 并生成摘要。</span></div>
+  </div>
+  <div class="domain-example"><strong>完整例子：</strong>“325Li 杭州最近落地多少？”先由 <b>OBSERVE</b> 采集，再由 <b>LEAD</b> 建立身份，<b>INTENT</b> 识别车型、城市和价格咨询，<b>OUTREACH</b> 完成触达，后续由 <b>CONVERSATION</b> 持续沟通，最终由 <b>CONVERSION</b> 提取联系方式并完成留资。</div>
+</aside>
+<p class="label-line">V1.0 共分为七个 Skill Domain：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 011</span><button class="copy-btn" type="button" data-copy="ACCOUNT
+OBSERVE
+LEAD
+INTENT
+OUTREACH
+CONVERSATION
+CONVERSION">复制</button></div><pre><code>ACCOUNT
+OBSERVE
+LEAD
+INTENT
+OUTREACH
+CONVERSATION
+CONVERSION</code></pre></div><p>V1 Skill 清单</p><p>ACCOUNT</p><h3>01 connect_douyin_account
+02 check_account_session
+03 recover_account_session</h3><p>OBSERVE</p><h3>04 sync_video_comments
+05 sync_new_followers
+06 sync_inbound_messages
+07 sync_live_interactions</h3><p>LEAD</p><h3>08 resolve_lead
+09 fetch_lead_profile
+10 aggregate_lead_signals</h3><p>INTENT</p><h3>11 extract_intent_signals
+12 infer_purchase_intent
+13 score_lead
+14 explain_lead_score</h3><p>OUTREACH</p><h3>15 check_outreach_eligibility
+16 plan_first_contact
+17 generate_outreach_message
+18 validate_message
+19 send_dm</h3><p>CONVERSATION</p><h3>20 understand_reply
+21 update_lead_memory
+22 decide_next_action
+23 generate_reply</h3><p>CONVERSION</p><h3>24 detect_lead_capture_readiness
+25 request_contact
+26 extract_contact
+27 complete_lead
+28 generate_lead_summary</h3><h2 id="section-9-九-skill-executor-映射"><span class="section-no">09</span>九. Skill Executor 映射</h2><div class="data-table-wrap"><table class="data-table"><caption>Skill / Executor 映射</caption><thead><tr><th>Skill</th><th>Executor</th></tr></thead><tbody><tr><td>connect_douyin_account</td><td>Workflow</td></tr><tr><td>check_account_session</td><td>Workflow</td></tr><tr><td>recover_account_session</td><td>Workflow</td></tr><tr><td>sync_video_comments</td><td>Workflow</td></tr><tr><td>sync_new_followers</td><td>Workflow</td></tr><tr><td>sync_inbound_messages</td><td>Workflow</td></tr><tr><td>sync_live_interactions</td><td>Workflow</td></tr><tr><td>resolve_lead</td><td>Python</td></tr><tr><td>fetch_lead_profile</td><td>Workflow</td></tr><tr><td>aggregate_lead_signals</td><td>Python</td></tr><tr><td>extract_intent_signals</td><td>LLM</td></tr><tr><td>infer_purchase_intent</td><td>LLM</td></tr><tr><td>score_lead</td><td>Python</td></tr><tr><td>explain_lead_score</td><td>Python + LLM</td></tr><tr><td>check_outreach_eligibility</td><td>Policy</td></tr><tr><td>plan_first_contact</td><td>LLM</td></tr><tr><td>generate_outreach_message</td><td>LLM</td></tr><tr><td>validate_message</td><td>Rule + LLM</td></tr><tr><td>send_dm</td><td>Workflow</td></tr><tr><td>understand_reply</td><td>LLM</td></tr><tr><td>update_lead_memory</td><td>Python</td></tr><tr><td>decide_next_action</td><td>LLM</td></tr><tr><td>generate_reply</td><td>LLM</td></tr><tr><td>detect_lead_capture_readiness</td><td>Rule + LLM</td></tr><tr><td>request_contact</td><td>LLM</td></tr><tr><td>extract_contact</td><td>Python + LLM</td></tr><tr><td>complete_lead</td><td>Python</td></tr><tr><td>generate_lead_summary</td><td>LLM</td></tr></tbody></table></div><div class="chapter-break" id="chapter-03"><div class="chapter-kicker">Chapter 03 / 11</div><h3>数据采集与 Lead 建模</h3><p>从 RPA Workflow、Social Event 到 Lead 身份和基础数据模型。</p></div><h2 id="section-10-十-rpa-workflow-需求"><span class="section-no">10</span>十. RPA Workflow 需求</h2><p>现有 RPA Workflow 需要统一封装成标准接口。</p><p class="label-line">V1 至少需要以下 Workflow：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 012</span><button class="copy-btn" type="button" data-copy="douyin_check_session_v1
+
+douyin_sync_comments_v1
+
+douyin_sync_followers_v1
+
+douyin_sync_messages_v1
+
+douyin_sync_live_interactions_v1
+
+douyin_fetch_profile_v1
+
+douyin_send_dm_v1">复制</button></div><pre><code>douyin_check_session_v1
+
+douyin_sync_comments_v1
+
+douyin_sync_followers_v1
+
+douyin_sync_messages_v1
+
+douyin_sync_live_interactions_v1
+
+douyin_fetch_profile_v1
+
+douyin_send_dm_v1</code></pre></div>
+<section class="workflow-guide" id="workflow-guide" aria-labelledby="workflow-guide-title">
+  <h3 id="workflow-guide-title">V1 Workflow 说明：它们是 Runtime 调用的执行器</h3>
+  <p class="workflow-guide-intro">这 7 个 Workflow 不是 7 个 Agent，也不负责意向判断和销售策略。它们只负责在云电脑和抖音页面上完成稳定、可验证的真实操作，并把原始结果交还给 Skill Runtime。下方顺序是能力分组，不代表每次运行都按同一条链路调用。</p>
+  <div class="workflow-flow" aria-label="Workflow 能力分组"><span>账号前置</span><i>→</i><span>互动采集</span><i>→</i><span>事件规范化</span><i>→</i><span>Lead / 意向</span><i>→</i><span>策略检查</span><i>→</i><span>发送或回收</span></div>
+  <div class="workflow-contract"><strong>统一约束：</strong>所有 Workflow 使用同一请求协议和返回协议；Runtime 负责调度、账号锁、重试、幂等、Trace，Workflow 只返回成功结果或标准错误状态。</div>
+  <div class="workflow-grid">
+    <article class="workflow-card"><div class="workflow-card-top"><span class="workflow-number">01</span><code>douyin_check_session_v1</code><span class="workflow-role">ACCOUNT</span></div><p>确认抖音账号当前是否可用，是所有真实操作前的前置检查。</p><div class="workflow-meta"><span><b>触发</b>创建 Agent、定时任务或执行前</span><span><b>结果</b>READY / LOGIN_REQUIRED / 风控错误</span></div></article>
+    <article class="workflow-card"><div class="workflow-card-top"><span class="workflow-number">02</span><code>douyin_sync_comments_v1</code><span class="workflow-role">OBSERVE</span></div><p>进入作品列表和评论区，读取新增评论，支持翻页和滚动。</p><div class="workflow-meta"><span><b>触发</b>Scheduler 周期任务</span><span><b>结果</b>原始评论，后续转为 VIDEO_COMMENT</span></div></article>
+    <article class="workflow-card"><div class="workflow-card-top"><span class="workflow-number">03</span><code>douyin_sync_followers_v1</code><span class="workflow-role">OBSERVE</span></div><p>读取企业抖音账号新增关注，返回外部用户身份和发生时间。</p><div class="workflow-meta"><span><b>触发</b>Scheduler 周期任务</span><span><b>结果</b>原始关注数据，后续转为 NEW_FOLLOWER</span></div></article>
+    <article class="workflow-card"><div class="workflow-card-top"><span class="workflow-number">04</span><code>douyin_sync_messages_v1</code><span class="workflow-role">OBSERVE</span></div><p>打开私信页面，识别客户新回复并带回消息内容和外部用户身份。</p><div class="workflow-meta"><span><b>触发</b>Scheduler 或消息检查任务</span><span><b>结果</b>原始私信，后续转为 DM_RECEIVED / INBOUND Message</span></div></article>
+    <article class="workflow-card"><div class="workflow-card-top"><span class="workflow-number">05</span><code>douyin_sync_live_interactions_v1</code><span class="workflow-role">OBSERVE</span></div><p>采集直播间评论、关注、进入、点赞、礼物等互动，并统一转换。</p><div class="workflow-meta"><span><b>触发</b>直播监听任务</span><span><b>结果</b>LIVE_INTERACTION Social Event</span></div></article>
+    <article class="workflow-card"><div class="workflow-card-top"><span class="workflow-number">06</span><code>douyin_fetch_profile_v1</code><span class="workflow-role">LEAD</span></div><p>打开用户主页，补充昵称、主页链接等稳定可获得的用户画像字段。</p><div class="workflow-meta"><span><b>触发</b>Lead 信息不足或需要补充时</span><span><b>结果</b>Lead Identity / Profile 数据</span></div></article>
+    <article class="workflow-card"><div class="workflow-card-top"><span class="workflow-number">07</span><code>douyin_send_dm_v1</code><span class="workflow-role">OUTREACH</span></div><p>打开私信窗口、输入并发送消息，再校验发送结果；不负责生成内容。</p><div class="workflow-meta"><span><b>触发</b>Policy + Permission 检查通过后</span><span><b>结果</b>Message = SENT / UNKNOWN；失败返回 MESSAGE_SEND_FAILED</span></div></article>
+  </div>
+</section>
+<h2 id="section-11-十一-rpa-workflow-请求协议"><span class="section-no">11</span>十一. RPA Workflow 请求协议</h2><p class="label-line">所有 Workflow 使用统一请求结构：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 013</span><button class="copy-btn" type="button" data-copy="{
+  &quot;workflow_id&quot;: &quot;douyin_sync_comments_v1&quot;,
+  &quot;request_id&quot;: &quot;req_001&quot;,
+  &quot;workspace_id&quot;: &quot;ws_001&quot;,
+  &quot;account_id&quot;: &quot;dy_001&quot;,
+  &quot;session_id&quot;: &quot;session_001&quot;,
+  &quot;input&quot;: {}
+}">复制</button></div><pre><code>{
+  &quot;workflow_id&quot;: &quot;douyin_sync_comments_v1&quot;,
+  &quot;request_id&quot;: &quot;req_001&quot;,
+  &quot;workspace_id&quot;: &quot;ws_001&quot;,
+  &quot;account_id&quot;: &quot;dy_001&quot;,
+  &quot;session_id&quot;: &quot;session_001&quot;,
+  &quot;input&quot;: {}
+}</code></pre></div><h2 id="section-12-十二-rpa-workflow-返回协议"><span class="section-no">12</span>十二. RPA Workflow 返回协议</h2><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 014</span><button class="copy-btn" type="button" data-copy="{
+  &quot;request_id&quot;: &quot;req_001&quot;,
+  &quot;workflow_id&quot;: &quot;douyin_sync_comments_v1&quot;,
+  &quot;status&quot;: &quot;SUCCESS&quot;,
+  &quot;data&quot;: {},
+  &quot;error&quot;: null,
+  &quot;started_at&quot;: &quot;2026-08-10T10:00:00&quot;,
+  &quot;finished_at&quot;: &quot;2026-08-10T10:00:05&quot;
+}">复制</button></div><pre><code>{
+  &quot;request_id&quot;: &quot;req_001&quot;,
+  &quot;workflow_id&quot;: &quot;douyin_sync_comments_v1&quot;,
+  &quot;status&quot;: &quot;SUCCESS&quot;,
+  &quot;data&quot;: {},
+  &quot;error&quot;: null,
+  &quot;started_at&quot;: &quot;2026-08-10T10:00:00&quot;,
+  &quot;finished_at&quot;: &quot;2026-08-10T10:00:05&quot;
+}</code></pre></div><p class="label-line">状态统一：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 015</span><button class="copy-btn" type="button" data-copy="SUCCESS
+RETRYABLE_ERROR
+FINAL_ERROR
+HUMAN_REQUIRED">复制</button></div><pre><code>SUCCESS
+RETRYABLE_ERROR
+FINAL_ERROR
+HUMAN_REQUIRED</code></pre></div><h2 id="section-13-十三-评论采集需求"><span class="section-no">13</span>十三. 评论采集需求</h2><p>Skill</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 016</span><button class="copy-btn" type="button" data-copy="sync_video_comments">复制</button></div><pre><code>sync_video_comments</code></pre></div><p>Executor</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 017</span><button class="copy-btn" type="button" data-copy="WORKFLOW">复制</button></div><pre><code>WORKFLOW</code></pre></div><p>Workflow</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 018</span><button class="copy-btn" type="button" data-copy="douyin_sync_comments_v1">复制</button></div><pre><code>douyin_sync_comments_v1</code></pre></div><p>执行流程</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 019</span><button class="copy-btn" type="button" data-copy="获取账号 Session
+↓
+获取账号锁
+↓
+打开云电脑
+↓
+打开抖音
+↓
+进入作品列表
+↓
+打开需要同步的作品
+↓
+展开评论区
+↓
+读取新增评论
+↓
+翻页 / 滚动
+↓
+返回原始评论
+↓
+释放账号锁">复制</button></div><pre><code>获取账号 Session
+↓
+获取账号锁
+↓
+打开云电脑
+↓
+打开抖音
+↓
+进入作品列表
+↓
+打开需要同步的作品
+↓
+展开评论区
+↓
+读取新增评论
+↓
+翻页 / 滚动
+↓
+返回原始评论
+↓
+释放账号锁</code></pre></div><p>输出数据</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 020</span><button class="copy-btn" type="button" data-copy="{
+  &quot;external_comment_id&quot;: &quot;comment_001&quot;,
+  &quot;external_user_id&quot;: &quot;user_001&quot;,
+  &quot;nickname&quot;: &quot;用户昵称&quot;,
+  &quot;content&quot;: &quot;325现在优惠多少&quot;,
+  &quot;video_id&quot;: &quot;video_001&quot;,
+  &quot;created_at&quot;: &quot;2026-08-10T10:01:00&quot;
+}">复制</button></div><pre><code>{
+  &quot;external_comment_id&quot;: &quot;comment_001&quot;,
+  &quot;external_user_id&quot;: &quot;user_001&quot;,
+  &quot;nickname&quot;: &quot;用户昵称&quot;,
+  &quot;content&quot;: &quot;325现在优惠多少&quot;,
+  &quot;video_id&quot;: &quot;video_001&quot;,
+  &quot;created_at&quot;: &quot;2026-08-10T10:01:00&quot;
+}</code></pre></div><h2 id="section-14-十四-新增关注采集需求"><span class="section-no">14</span>十四. 新增关注采集需求</h2><p class="label-line">Skill：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 021</span><button class="copy-btn" type="button" data-copy="sync_new_followers">复制</button></div><pre><code>sync_new_followers</code></pre></div><p class="label-line">输出：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 022</span><button class="copy-btn" type="button" data-copy="{
+  &quot;external_user_id&quot;: &quot;user_001&quot;,
+  &quot;nickname&quot;: &quot;AAA&quot;,
+  &quot;event_type&quot;: &quot;NEW_FOLLOWER&quot;,
+  &quot;created_at&quot;: &quot;...&quot;
+}">复制</button></div><pre><code>{
+  &quot;external_user_id&quot;: &quot;user_001&quot;,
+  &quot;nickname&quot;: &quot;AAA&quot;,
+  &quot;event_type&quot;: &quot;NEW_FOLLOWER&quot;,
+  &quot;created_at&quot;: &quot;...&quot;
+}</code></pre></div><h2 id="section-15-十五-私信采集需求"><span class="section-no">15</span>十五. 私信采集需求</h2><p class="label-line">Skill：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 023</span><button class="copy-btn" type="button" data-copy="sync_inbound_messages">复制</button></div><pre><code>sync_inbound_messages</code></pre></div><p>RPA 负责识别新私信。</p><p class="label-line">输出：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 024</span><button class="copy-btn" type="button" data-copy="{
+  &quot;external_message_id&quot;: &quot;message_001&quot;,
+  &quot;external_user_id&quot;: &quot;user_001&quot;,
+  &quot;content&quot;: &quot;我杭州的，最近一个月准备买&quot;,
+  &quot;created_at&quot;: &quot;...&quot;
+}">复制</button></div><pre><code>{
+  &quot;external_message_id&quot;: &quot;message_001&quot;,
+  &quot;external_user_id&quot;: &quot;user_001&quot;,
+  &quot;content&quot;: &quot;我杭州的，最近一个月准备买&quot;,
+  &quot;created_at&quot;: &quot;...&quot;
+}</code></pre></div><h2 id="section-16-十六-直播互动采集需求"><span class="section-no">16</span>十六. 直播互动采集需求</h2><p class="label-line">Skill：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 025</span><button class="copy-btn" type="button" data-copy="sync_live_interactions">复制</button></div><pre><code>sync_live_interactions</code></pre></div><p class="label-line">统一转换为：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 026</span><button class="copy-btn" type="button" data-copy="{
+  &quot;event_type&quot;: &quot;LIVE_INTERACTION&quot;,
+  &quot;interaction_type&quot;: &quot;COMMENT&quot;,
+  &quot;external_user_id&quot;: &quot;user_001&quot;,
+  &quot;content&quot;: &quot;这辆车能试驾吗&quot;,
+  &quot;live_id&quot;: &quot;live_001&quot;,
+  &quot;created_at&quot;: &quot;...&quot;
+}">复制</button></div><pre><code>{
+  &quot;event_type&quot;: &quot;LIVE_INTERACTION&quot;,
+  &quot;interaction_type&quot;: &quot;COMMENT&quot;,
+  &quot;external_user_id&quot;: &quot;user_001&quot;,
+  &quot;content&quot;: &quot;这辆车能试驾吗&quot;,
+  &quot;live_id&quot;: &quot;live_001&quot;,
+  &quot;created_at&quot;: &quot;...&quot;
+}</code></pre></div><p>V1 根据现有 RPA 实际能力确认支持以下哪些 interaction_type：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 027</span><button class="copy-btn" type="button" data-copy="COMMENT
+FOLLOW
+ENTER_ROOM
+LIKE
+GIFT
+OTHER">复制</button></div><pre><code>COMMENT
+FOLLOW
+ENTER_ROOM
+LIKE
+GIFT
+OTHER</code></pre></div><h2 id="section-17-十七-social-event-统一模型"><span class="section-no">17</span>十七. Social Event 统一模型</h2><p>所有采集行为都转换成 Social Event。</p><p class="label-line">包括：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 028</span><button class="copy-btn" type="button" data-copy="VIDEO_COMMENT
+NEW_FOLLOWER
+DM_RECEIVED
+LIVE_INTERACTION">复制</button></div><pre><code>VIDEO_COMMENT
+NEW_FOLLOWER
+DM_RECEIVED
+LIVE_INTERACTION</code></pre></div><p class="label-line">数据库表：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 029</span><button class="copy-btn" type="button" data-copy="social_event">复制</button></div><pre><code>social_event</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 030</span><button class="copy-btn" type="button" data-copy="id
+workspace_id
+account_id
+lead_id
+platform
+event_type
+source_type
+source_id
+content
+raw_data
+external_event_id
+occurred_at
+created_at">复制</button></div><pre><code>id
+workspace_id
+account_id
+lead_id
+platform
+event_type
+source_type
+source_id
+content
+raw_data
+external_event_id
+occurred_at
+created_at</code></pre></div><h2 id="section-18-十八-lead-创建与身份绑定"><span class="section-no">18</span>十八. Lead 创建与身份绑定</h2><p class="label-line">收到 Social Event 后执行：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 031</span><button class="copy-btn" type="button" data-copy="resolve_lead">复制</button></div><pre><code>resolve_lead</code></pre></div><p class="label-line">逻辑：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 032</span><button class="copy-btn" type="button" data-copy="external_user_id
+↓
+查询 lead_identity
+↓
+已存在
+→ 返回 lead_id
+
+未存在
+→ 创建 Lead
+→ 创建 lead_identity
+→ 返回 lead_id">复制</button></div><pre><code>external_user_id
+↓
+查询 lead_identity
+↓
+已存在
+→ 返回 lead_id
+
+未存在
+→ 创建 Lead
+→ 创建 lead_identity
+→ 返回 lead_id</code></pre></div><h2 id="section-19-十九-lead-表"><span class="section-no">19</span>十九. Lead 表</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 033</span><button class="copy-btn" type="button" data-copy="lead">复制</button></div><pre><code>lead</code></pre></div><p class="label-line">字段建议：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 034</span><button class="copy-btn" type="button" data-copy="id
+workspace_id
+
+state
+
+intent_level
+intent_score
+purchase_stage
+
+city
+
+budget_min
+budget_max
+
+purchase_timeline
+
+current_brand
+current_model
+
+conversation_state
+
+last_active_at
+last_contacted_at
+
+contact_captured
+
+human_handoff
+
+created_at
+updated_at">复制</button></div><pre><code>id
+workspace_id
+
+state
+
+intent_level
+intent_score
+purchase_stage
+
+city
+
+budget_min
+budget_max
+
+purchase_timeline
+
+current_brand
+current_model
+
+conversation_state
+
+last_active_at
+last_contacted_at
+
+contact_captured
+
+human_handoff
+
+created_at
+updated_at</code></pre></div><h2 id="section-20-二十-lead-identity-表"><span class="section-no">20</span>二十. Lead Identity 表</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 035</span><button class="copy-btn" type="button" data-copy="lead_identity">复制</button></div><pre><code>lead_identity</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 036</span><button class="copy-btn" type="button" data-copy="id
+
+lead_id
+
+platform
+
+external_user_id
+
+nickname
+
+profile_url
+
+created_at
+updated_at">复制</button></div><pre><code>id
+
+lead_id
+
+platform
+
+external_user_id
+
+nickname
+
+profile_url
+
+created_at
+updated_at</code></pre></div><p class="label-line">以后可以扩展：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 037</span><button class="copy-btn" type="button" data-copy="DOUYIN
+WECHAT
+PHONE
+CRM">复制</button></div><pre><code>DOUYIN
+WECHAT
+PHONE
+CRM</code></pre></div><div class="chapter-break" id="chapter-04"><div class="chapter-kicker">Chapter 04 / 11</div><h3>意向分析与评分</h3><p>聚合行为信号，识别购车意向，形成可解释的 Lead Score。</p></div><h2 id="section-21-二十一-lead-signal-聚合"><span class="section-no">21</span>二十一. Lead Signal 聚合</h2><p class="label-line">Skill：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 038</span><button class="copy-btn" type="button" data-copy="aggregate_lead_signals">复制</button></div><pre><code>aggregate_lead_signals</code></pre></div><p>负责把同一 Lead 的不同互动聚合。</p><p class="label-line">例如：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 039</span><button class="copy-btn" type="button" data-copy="评论价格
++
+三次直播互动
++
+关注账号
++
+私信">复制</button></div><pre><code>评论价格
++
+三次直播互动
++
+关注账号
++
+私信</code></pre></div><p class="label-line">输出：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 040</span><button class="copy-btn" type="button" data-copy="{
+  &quot;lead_id&quot;: &quot;lead_001&quot;,
+
+  &quot;comment_count&quot;: 1,
+
+  &quot;live_interaction_count&quot;: 3,
+
+  &quot;followed&quot;: true,
+
+  &quot;dm_count&quot;: 1,
+
+  &quot;last_active_at&quot;: &quot;...&quot;,
+
+  &quot;activity_frequency&quot;: 5
+}">复制</button></div><pre><code>{
+  &quot;lead_id&quot;: &quot;lead_001&quot;,
+
+  &quot;comment_count&quot;: 1,
+
+  &quot;live_interaction_count&quot;: 3,
+
+  &quot;followed&quot;: true,
+
+  &quot;dm_count&quot;: 1,
+
+  &quot;last_active_at&quot;: &quot;...&quot;,
+
+  &quot;activity_frequency&quot;: 5
+}</code></pre></div><h2 id="section-22-二十二-意向分析-pipeline"><span class="section-no">22</span>二十二. 意向分析 Pipeline</h2><p class="label-line">Social Event 进入后，运行：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 041</span><button class="copy-btn" type="button" data-copy="resolve_lead
+↓
+aggregate_lead_signals
+↓
+读取相关互动
+↓
+extract_intent_signals
+↓
+infer_purchase_intent
+↓
+score_lead
+↓
+更新 Lead
+↓
+emit lead.intent.updated">复制</button></div><pre><code>resolve_lead
+↓
+aggregate_lead_signals
+↓
+读取相关互动
+↓
+extract_intent_signals
+↓
+infer_purchase_intent
+↓
+score_lead
+↓
+更新 Lead
+↓
+emit lead.intent.updated</code></pre></div><p>该 Pipeline 使用固定代码编排。</p><h2 id="section-23-二十三-extract_intent_signals"><span class="section-no">23</span>二十三. extract_intent_signals</h2><p class="label-line">Executor：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 042</span><button class="copy-btn" type="button" data-copy="LLM">复制</button></div><pre><code>LLM</code></pre></div><p>要求强制输出 JSON。</p><p class="label-line">示例：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 043</span><button class="copy-btn" type="button" data-copy="{
+  &quot;signals&quot;: [
+    {
+      &quot;type&quot;: &quot;PRICE_INQUIRY&quot;,
+      &quot;strength&quot;: 0.95,
+      &quot;confidence&quot;: 0.96,
+      &quot;evidence&quot;: &quot;325现在优惠多少&quot;
+    }
+  ],
+
+  &quot;entities&quot;: {
+    &quot;brand&quot;: &quot;BMW&quot;,
+    &quot;model&quot;: &quot;325Li&quot;,
+    &quot;city&quot;: null,
+    &quot;budget_min&quot;: null,
+    &quot;budget_max&quot;: null,
+    &quot;timeline&quot;: null
+  },
+
+  &quot;confidence&quot;: 0.94
+}">复制</button></div><pre><code>{
+  &quot;signals&quot;: [
+    {
+      &quot;type&quot;: &quot;PRICE_INQUIRY&quot;,
+      &quot;strength&quot;: 0.95,
+      &quot;confidence&quot;: 0.96,
+      &quot;evidence&quot;: &quot;325现在优惠多少&quot;
+    }
+  ],
+
+  &quot;entities&quot;: {
+    &quot;brand&quot;: &quot;BMW&quot;,
+    &quot;model&quot;: &quot;325Li&quot;,
+    &quot;city&quot;: null,
+    &quot;budget_min&quot;: null,
+    &quot;budget_max&quot;: null,
+    &quot;timeline&quot;: null
+  },
+
+  &quot;confidence&quot;: 0.94
+}</code></pre></div><h2 id="section-24-二十四-signal-类型"><span class="section-no">24</span>二十四. Signal 类型</h2><p class="label-line">V1 支持：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 044</span><button class="copy-btn" type="button" data-copy="GENERAL_INTEREST
+
+SPECIFIC_BRAND
+
+SPECIFIC_MODEL
+
+PRICE_INQUIRY
+
+DISCOUNT_INQUIRY
+
+FINANCE_INQUIRY
+
+TRADE_IN
+
+TEST_DRIVE
+
+STORE_INQUIRY
+
+DELIVERY_TIME
+
+PURCHASE_TIMELINE
+
+BUDGET
+
+LOCATION
+
+MODEL_COMPARISON
+
+OWNER_DISCUSSION
+
+NEGATIVE_INTENT
+
+NO_PURCHASE_INTENT">复制</button></div><pre><code>GENERAL_INTEREST
+
+SPECIFIC_BRAND
+
+SPECIFIC_MODEL
+
+PRICE_INQUIRY
+
+DISCOUNT_INQUIRY
+
+FINANCE_INQUIRY
+
+TRADE_IN
+
+TEST_DRIVE
+
+STORE_INQUIRY
+
+DELIVERY_TIME
+
+PURCHASE_TIMELINE
+
+BUDGET
+
+LOCATION
+
+MODEL_COMPARISON
+
+OWNER_DISCUSSION
+
+NEGATIVE_INTENT
+
+NO_PURCHASE_INTENT</code></pre></div><h2 id="section-25-二十五-lead-signal-表"><span class="section-no">25</span>二十五. Lead Signal 表</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 045</span><button class="copy-btn" type="button" data-copy="lead_signal">复制</button></div><pre><code>lead_signal</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 046</span><button class="copy-btn" type="button" data-copy="id
+lead_id
+signal_type
+signal_value
+strength
+confidence
+source_event_id
+model_version
+created_at">复制</button></div><pre><code>id
+lead_id
+signal_type
+signal_value
+strength
+confidence
+source_event_id
+model_version
+created_at</code></pre></div><h2 id="section-26-二十六-购买阶段"><span class="section-no">26</span>二十六. 购买阶段</h2><p class="label-line">统一枚举：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 047</span><button class="copy-btn" type="button" data-copy="AWARENESS
+
+INTEREST
+
+CONSIDERATION
+
+COMPARISON
+
+PURCHASE_INTENT
+
+TRANSACTION_READY">复制</button></div><pre><code>AWARENESS
+
+INTEREST
+
+CONSIDERATION
+
+COMPARISON
+
+PURCHASE_INTENT
+
+TRANSACTION_READY</code></pre></div><h2 id="section-27-二十七-意向评分"><span class="section-no">27</span>二十七. 意向评分</h2><p class="label-line">Skill：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 048</span><button class="copy-btn" type="button" data-copy="score_lead">复制</button></div><pre><code>score_lead</code></pre></div><p class="label-line">Executor：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 049</span><button class="copy-btn" type="button" data-copy="PYTHON">复制</button></div><pre><code>PYTHON</code></pre></div><p class="label-line">V1 示例权重：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 050</span><button class="copy-btn" type="button" data-copy="SPECIFIC_MODEL        15
+
+PRICE_INQUIRY         20
+
+DISCOUNT_INQUIRY      15
+
+FINANCE_INQUIRY       15
+
+TEST_DRIVE            30
+
+STORE_INQUIRY         15
+
+PURCHASE_TIMELINE     20
+
+LOCATION              10
+
+NEW_FOLLOWER          10
+
+MULTI_INTERACTION     10">复制</button></div><pre><code>SPECIFIC_MODEL        15
+
+PRICE_INQUIRY         20
+
+DISCOUNT_INQUIRY      15
+
+FINANCE_INQUIRY       15
+
+TEST_DRIVE            30
+
+STORE_INQUIRY         15
+
+PURCHASE_TIMELINE     20
+
+LOCATION              10
+
+NEW_FOLLOWER          10
+
+MULTI_INTERACTION     10</code></pre></div><p class="label-line">公式示例：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 051</span><button class="copy-btn" type="button" data-copy="Signal Score
+=
+Weight
+× Strength
+× Confidence">复制</button></div><pre><code>Signal Score
+=
+Weight
+× Strength
+× Confidence</code></pre></div><p class="label-line">最终叠加：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 052</span><button class="copy-btn" type="button" data-copy="Recency Bonus
+Frequency Bonus
+Location Match">复制</button></div><pre><code>Recency Bonus
+Frequency Bonus
+Location Match</code></pre></div><p class="label-line">Score 限制：</p><h3>0 到 100</h3><p class="label-line">V1 分级：</p><h3>0 到 39
+LOW
+
+40 到 69
+MEDIUM
+
+70 到 100
+HIGH</h3><p>阈值要求可配置。</p><div class="chapter-break" id="chapter-05"><div class="chapter-kicker">Chapter 05 / 11</div><h3>主动触达编排</h3><p>从触达资格判断到生成、校验和发送第一条私信。</p></div><h2 id="section-28-二十八-主动触达判断"><span class="section-no">28</span>二十八. 主动触达判断</h2><p class="label-line">监听事件：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 053</span><button class="copy-btn" type="button" data-copy="lead.intent.updated">复制</button></div><pre><code>lead.intent.updated</code></pre></div><p class="label-line">当：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 054</span><button class="copy-btn" type="button" data-copy="intent_score &gt;= min_intent_score">复制</button></div><pre><code>intent_score &gt;= min_intent_score</code></pre></div><p>进入 Outreach Pipeline。</p><h2 id="section-29-二十九-outreach-policy"><span class="section-no">29</span>二十九. Outreach Policy</h2><p class="label-line">表：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 055</span><button class="copy-btn" type="button" data-copy="outreach_policy">复制</button></div><pre><code>outreach_policy</code></pre></div><p class="label-line">字段建议：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 056</span><button class="copy-btn" type="button" data-copy="workspace_id
+
+auto_outreach
+
+min_intent_score
+
+max_daily_dm
+
+min_contact_interval_hours
+
+stop_after_rejection
+
+require_approval
+
+enabled">复制</button></div><pre><code>workspace_id
+
+auto_outreach
+
+min_intent_score
+
+max_daily_dm
+
+min_contact_interval_hours
+
+stop_after_rejection
+
+require_approval
+
+enabled</code></pre></div><p class="label-line">示例：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 057</span><button class="copy-btn" type="button" data-copy="auto_outreach = true
+
+min_intent_score = 70
+
+max_daily_dm = 100
+
+min_contact_interval_hours = 72
+
+stop_after_rejection = true
+
+require_approval = false">复制</button></div><pre><code>auto_outreach = true
+
+min_intent_score = 70
+
+max_daily_dm = 100
+
+min_contact_interval_hours = 72
+
+stop_after_rejection = true
+
+require_approval = false</code></pre></div><h2 id="section-30-三十-check_outreach_eligibility"><span class="section-no">30</span>三十. check_outreach_eligibility</h2><p class="label-line">检查：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 058</span><button class="copy-btn" type="button" data-copy="意向分是否达到阈值
+
+是否已经拒绝
+
+是否在黑名单
+
+是否近期已经联系
+
+是否超过每日私信额度
+
+账号状态是否 READY
+
+用户是否开启自动触达
+
+是否需要人工审批">复制</button></div><pre><code>意向分是否达到阈值
+
+是否已经拒绝
+
+是否在黑名单
+
+是否近期已经联系
+
+是否超过每日私信额度
+
+账号状态是否 READY
+
+用户是否开启自动触达
+
+是否需要人工审批</code></pre></div><p class="label-line">输出：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 059</span><button class="copy-btn" type="button" data-copy="ALLOW
+
+WAIT
+
+BLOCK
+
+APPROVAL_REQUIRED">复制</button></div><pre><code>ALLOW
+
+WAIT
+
+BLOCK
+
+APPROVAL_REQUIRED</code></pre></div><h2 id="section-31-三十一-outreach-pipeline"><span class="section-no">31</span>三十一. Outreach Pipeline</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 060</span><button class="copy-btn" type="button" data-copy="check_outreach_eligibility
+↓
+load_lead_context
+↓
+plan_first_contact
+↓
+generate_outreach_message
+↓
+validate_message
+↓
+create outbound message
+↓
+send_dm
+↓
+update conversation
+↓
+emit dm.sent">复制</button></div><pre><code>check_outreach_eligibility
+↓
+load_lead_context
+↓
+plan_first_contact
+↓
+generate_outreach_message
+↓
+validate_message
+↓
+create outbound message
+↓
+send_dm
+↓
+update conversation
+↓
+emit dm.sent</code></pre></div><h2 id="section-32-三十二-首次触达策略"><span class="section-no">32</span>三十二. 首次触达策略</h2><p class="label-line">Skill：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 061</span><button class="copy-btn" type="button" data-copy="plan_first_contact">复制</button></div><pre><code>plan_first_contact</code></pre></div><p class="label-line">LLM 输出结构化：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 062</span><button class="copy-btn" type="button" data-copy="{
+  &quot;trigger&quot;: &quot;客户询问 BMW 325Li 价格&quot;,
+
+  &quot;goal&quot;: &quot;开启有效销售沟通&quot;,
+
+  &quot;entry_point&quot;: &quot;价格问题&quot;,
+
+  &quot;next_information_goal&quot;: [
+    &quot;purchase_timeline&quot;
+  ],
+
+  &quot;avoid&quot;: [
+    &quot;首条消息直接索要手机号&quot;
+  ]
+}">复制</button></div><pre><code>{
+  &quot;trigger&quot;: &quot;客户询问 BMW 325Li 价格&quot;,
+
+  &quot;goal&quot;: &quot;开启有效销售沟通&quot;,
+
+  &quot;entry_point&quot;: &quot;价格问题&quot;,
+
+  &quot;next_information_goal&quot;: [
+    &quot;purchase_timeline&quot;
+  ],
+
+  &quot;avoid&quot;: [
+    &quot;首条消息直接索要手机号&quot;
+  ]
+}</code></pre></div><h2 id="section-33-三十三-generate_outreach_message"><span class="section-no">33</span>三十三. generate_outreach_message</h2><p class="label-line">输入：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 063</span><button class="copy-btn" type="button" data-copy="Soul
+Lead Profile
+Lead Signals
+Intent
+Lead Memory
+企业 Knowledge
+Outreach Strategy
+Policy">复制</button></div><pre><code>Soul
+Lead Profile
+Lead Signals
+Intent
+Lead Memory
+企业 Knowledge
+Outreach Strategy
+Policy</code></pre></div><p class="label-line">输出：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 064</span><button class="copy-btn" type="button" data-copy="{
+  &quot;message&quot;: &quot;...&quot;
+}">复制</button></div><pre><code>{
+  &quot;message&quot;: &quot;...&quot;
+}</code></pre></div><h2 id="section-34-三十四-validate_message"><span class="section-no">34</span>三十四. validate_message</h2><p class="label-line">检查：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 065</span><button class="copy-btn" type="button" data-copy="错误车型
+
+错误价格
+
+虚构优惠
+
+重复询问
+
+重复发送
+
+禁用词
+
+不符合企业规则
+
+明显冲突信息
+
+敏感承诺">复制</button></div><pre><code>错误车型
+
+错误价格
+
+虚构优惠
+
+重复询问
+
+重复发送
+
+禁用词
+
+不符合企业规则
+
+明显冲突信息
+
+敏感承诺</code></pre></div><p class="label-line">输出：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 066</span><button class="copy-btn" type="button" data-copy="PASS
+
+REWRITE
+
+BLOCK">复制</button></div><pre><code>PASS
+
+REWRITE
+
+BLOCK</code></pre></div><h2 id="section-35-三十五-send_dm"><span class="section-no">35</span>三十五. send_dm</h2><p class="label-line">Executor：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 067</span><button class="copy-btn" type="button" data-copy="WORKFLOW">复制</button></div><pre><code>WORKFLOW</code></pre></div><p class="label-line">Workflow：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 068</span><button class="copy-btn" type="button" data-copy="douyin_send_dm_v1">复制</button></div><pre><code>douyin_send_dm_v1</code></pre></div><p class="label-line">执行：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 069</span><button class="copy-btn" type="button" data-copy="检查 Permission
+↓
+检查 Policy
+↓
+获取账号锁
+↓
+调用 RPA
+↓
+打开私信
+↓
+打开目标客户
+↓
+输入消息
+↓
+发送
+↓
+验证发送结果
+↓
+更新 message 状态
+↓
+释放账号锁">复制</button></div><pre><code>检查 Permission
+↓
+检查 Policy
+↓
+获取账号锁
+↓
+调用 RPA
+↓
+打开私信
+↓
+打开目标客户
+↓
+输入消息
+↓
+发送
+↓
+验证发送结果
+↓
+更新 message 状态
+↓
+释放账号锁</code></pre></div><div class="chapter-break" id="chapter-06"><div class="chapter-kicker">Chapter 06 / 11</div><h3>对话与留资转化</h3><p>处理消息幂等、会话上下文、持续沟通和联系方式提取。</p></div><h2 id="section-36-三十六-message-幂等"><span class="section-no">36</span>三十六. Message 幂等</h2><p>发送私信必须支持 idempotency_key。</p><p class="label-line">建议组成：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 070</span><button class="copy-btn" type="button" data-copy="workspace_id
+
+account_id
+
+lead_id
+
+conversation_turn
+
+message_hash">复制</button></div><pre><code>workspace_id
+
+account_id
+
+lead_id
+
+conversation_turn
+
+message_hash</code></pre></div><p>同一个 idempotency_key 只能成功发送一次。</p><p class="label-line">如果 RPA 超时但无法确认是否成功：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 071</span><button class="copy-btn" type="button" data-copy="message.status = UNKNOWN">复制</button></div><pre><code>message.status = UNKNOWN</code></pre></div><p>此时先执行发送结果验证。</p><p>禁止直接再次发送。</p><h2 id="section-37-三十七-message-表"><span class="section-no">37</span>三十七. Message 表</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 072</span><button class="copy-btn" type="button" data-copy="message">复制</button></div><pre><code>message</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 073</span><button class="copy-btn" type="button" data-copy="id
+
+conversation_id
+lead_id
+
+direction
+
+sender_type
+
+content
+
+external_message_id
+
+status
+
+idempotency_key
+
+sent_at
+
+received_at
+
+created_at">复制</button></div><pre><code>id
+
+conversation_id
+lead_id
+
+direction
+
+sender_type
+
+content
+
+external_message_id
+
+status
+
+idempotency_key
+
+sent_at
+
+received_at
+
+created_at</code></pre></div><p class="label-line">direction：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 074</span><button class="copy-btn" type="button" data-copy="INBOUND
+OUTBOUND">复制</button></div><pre><code>INBOUND
+OUTBOUND</code></pre></div><p class="label-line">sender_type：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 075</span><button class="copy-btn" type="button" data-copy="CUSTOMER
+AGENT
+HUMAN">复制</button></div><pre><code>CUSTOMER
+AGENT
+HUMAN</code></pre></div><p class="label-line">status：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 076</span><button class="copy-btn" type="button" data-copy="PENDING
+
+SENT
+
+FAILED
+
+UNKNOWN
+
+RECEIVED">复制</button></div><pre><code>PENDING
+
+SENT
+
+FAILED
+
+UNKNOWN
+
+RECEIVED</code></pre></div><h2 id="section-38-三十八-conversation-表"><span class="section-no">38</span>三十八. Conversation 表</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 077</span><button class="copy-btn" type="button" data-copy="conversation">复制</button></div><pre><code>conversation</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 078</span><button class="copy-btn" type="button" data-copy="id
+
+workspace_id
+
+lead_id
+
+account_id
+
+state
+
+turn_count
+
+summary
+
+current_goal
+
+next_action
+
+last_message_at
+
+agent_mode
+
+created_at
+
+updated_at">复制</button></div><pre><code>id
+
+workspace_id
+
+lead_id
+
+account_id
+
+state
+
+turn_count
+
+summary
+
+current_goal
+
+next_action
+
+last_message_at
+
+agent_mode
+
+created_at
+
+updated_at</code></pre></div><p class="label-line">agent_mode：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 079</span><button class="copy-btn" type="button" data-copy="AUTO
+
+HUMAN">复制</button></div><pre><code>AUTO
+
+HUMAN</code></pre></div><h2 id="section-39-三十九-conversation-loop"><span class="section-no">39</span>三十九. Conversation Loop</h2><p class="label-line">当 RPA 发现客户新私信：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 080</span><button class="copy-btn" type="button" data-copy="DM_RECEIVED
+↓
+写入 Message
+↓
+emit conversation.message.received
+↓
+唤醒线索猎人
+↓
+load_context
+↓
+understand_reply
+↓
+update_lead_memory
+↓
+更新意向
+↓
+decide_next_action
+↓
+detect_lead_capture_readiness
+↓
+generate_reply
+↓
+validate_message
+↓
+send_dm
+↓
+WAITING_CUSTOMER">复制</button></div><pre><code>DM_RECEIVED
+↓
+写入 Message
+↓
+emit conversation.message.received
+↓
+唤醒线索猎人
+↓
+load_context
+↓
+understand_reply
+↓
+update_lead_memory
+↓
+更新意向
+↓
+decide_next_action
+↓
+detect_lead_capture_readiness
+↓
+generate_reply
+↓
+validate_message
+↓
+send_dm
+↓
+WAITING_CUSTOMER</code></pre></div><h2 id="section-40-四十-understand_reply"><span class="section-no">40</span>四十. understand_reply</h2><p class="label-line">LLM 输出：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 081</span><button class="copy-btn" type="button" data-copy="{
+  &quot;intent&quot;: &quot;MODEL_COMPARISON&quot;,
+
+  &quot;new_facts&quot;: {
+    &quot;city&quot;: &quot;杭州&quot;,
+    &quot;purchase_timeline&quot;: &quot;1_month&quot;
+  },
+
+  &quot;concerns&quot;: [
+    &quot;rear_space&quot;
+  ],
+
+  &quot;sentiment&quot;: &quot;neutral&quot;,
+
+  &quot;confidence&quot;: 0.92
+}">复制</button></div><pre><code>{
+  &quot;intent&quot;: &quot;MODEL_COMPARISON&quot;,
+
+  &quot;new_facts&quot;: {
+    &quot;city&quot;: &quot;杭州&quot;,
+    &quot;purchase_timeline&quot;: &quot;1_month&quot;
+  },
+
+  &quot;concerns&quot;: [
+    &quot;rear_space&quot;
+  ],
+
+  &quot;sentiment&quot;: &quot;neutral&quot;,
+
+  &quot;confidence&quot;: 0.92
+}</code></pre></div><h2 id="section-41-四十一-lead-memory"><span class="section-no">41</span>四十一. Lead Memory</h2><p>V1 使用结构化 Memory。</p><p class="label-line">建议结构：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 082</span><button class="copy-btn" type="button" data-copy="{
+  &quot;lead_id&quot;: &quot;lead_001&quot;,
+
+  &quot;facts&quot;: {
+    &quot;city&quot;: &quot;杭州&quot;,
+    &quot;brand&quot;: &quot;BMW&quot;,
+    &quot;model&quot;: &quot;325Li&quot;,
+    &quot;budget_min&quot;: null,
+    &quot;budget_max&quot;: null,
+    &quot;purchase_timeline&quot;: &quot;1_month&quot;
+  },
+
+  &quot;preferences&quot;: {
+    &quot;body_type&quot;: &quot;sedan&quot;
+  },
+
+  &quot;concerns&quot;: [
+    &quot;rear_space&quot;
+  ],
+
+  &quot;sales&quot;: {
+    &quot;intent_score&quot;: 91,
+    &quot;purchase_stage&quot;: &quot;PURCHASE_INTENT&quot;,
+    &quot;contact_readiness&quot;: 0.82
+  }
+}">复制</button></div><pre><code>{
+  &quot;lead_id&quot;: &quot;lead_001&quot;,
+
+  &quot;facts&quot;: {
+    &quot;city&quot;: &quot;杭州&quot;,
+    &quot;brand&quot;: &quot;BMW&quot;,
+    &quot;model&quot;: &quot;325Li&quot;,
+    &quot;budget_min&quot;: null,
+    &quot;budget_max&quot;: null,
+    &quot;purchase_timeline&quot;: &quot;1_month&quot;
+  },
+
+  &quot;preferences&quot;: {
+    &quot;body_type&quot;: &quot;sedan&quot;
+  },
+
+  &quot;concerns&quot;: [
+    &quot;rear_space&quot;
+  ],
+
+  &quot;sales&quot;: {
+    &quot;intent_score&quot;: 91,
+    &quot;purchase_stage&quot;: &quot;PURCHASE_INTENT&quot;,
+    &quot;contact_readiness&quot;: 0.82
+  }
+}</code></pre></div><h2 id="section-42-四十二-update_lead_memory"><span class="section-no">42</span>四十二. update_lead_memory</h2><p class="label-line">更新规则：</p><p>新事实写入</p><p>不确定信息不覆盖已有高可信数据</p><p>保留来源</p><p>重要信息保留更新时间</p><p>客户偏好变化时保留历史记录</p><h2 id="section-43-四十三-decide_next_action"><span class="section-no">43</span>四十三. decide_next_action</h2><p>必须结构化输出。</p><p class="label-line">Action 固定枚举：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 083</span><button class="copy-btn" type="button" data-copy="ANSWER
+
+ASK_CITY
+
+ASK_MODEL
+
+ASK_BUDGET
+
+ASK_TIMELINE
+
+HANDLE_OBJECTION
+
+PROVIDE_PRODUCT_INFO
+
+REQUEST_CONTACT
+
+PROPOSE_TEST_DRIVE
+
+FOLLOW_UP
+
+WAIT
+
+HANDOFF
+
+END">复制</button></div><pre><code>ANSWER
+
+ASK_CITY
+
+ASK_MODEL
+
+ASK_BUDGET
+
+ASK_TIMELINE
+
+HANDLE_OBJECTION
+
+PROVIDE_PRODUCT_INFO
+
+REQUEST_CONTACT
+
+PROPOSE_TEST_DRIVE
+
+FOLLOW_UP
+
+WAIT
+
+HANDOFF
+
+END</code></pre></div><p class="label-line">示例：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 084</span><button class="copy-btn" type="button" data-copy="{
+  &quot;action&quot;: &quot;ASK_TIMELINE&quot;,
+
+  &quot;reason&quot;: &quot;车型和城市已经明确，购买时间仍未知&quot;,
+
+  &quot;target_information&quot;: [
+    &quot;purchase_timeline&quot;
+  ],
+
+  &quot;confidence&quot;: 0.91
+}">复制</button></div><pre><code>{
+  &quot;action&quot;: &quot;ASK_TIMELINE&quot;,
+
+  &quot;reason&quot;: &quot;车型和城市已经明确，购买时间仍未知&quot;,
+
+  &quot;target_information&quot;: [
+    &quot;purchase_timeline&quot;
+  ],
+
+  &quot;confidence&quot;: 0.91
+}</code></pre></div><h2 id="section-44-四十四-context-builder"><span class="section-no">44</span>四十四. Context Builder</h2><p class="label-line">每一次 LLM 调用，由 Context Builder 统一拼接：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 085</span><button class="copy-btn" type="button" data-copy="Agent Soul
+
+Relevant Policy
+
+Lead Structured Memory
+
+Lead Signals
+
+Conversation Summary
+
+最近 N 条消息
+
+Relevant Knowledge
+
+Current Event
+
+Current Task
+
+Expected Output Schema">复制</button></div><pre><code>Agent Soul
+
+Relevant Policy
+
+Lead Structured Memory
+
+Lead Signals
+
+Conversation Summary
+
+最近 N 条消息
+
+Relevant Knowledge
+
+Current Event
+
+Current Task
+
+Expected Output Schema</code></pre></div><h2 id="section-45-四十五-conversation-summary"><span class="section-no">45</span>四十五. Conversation Summary</h2><p class="label-line">为了避免上下文不断增长：</p><p class="label-line">满足以下任一条件时重新生成 Summary：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 086</span><button class="copy-btn" type="button" data-copy="累计 10 轮消息
+
+或上下文 Token 超过配置阈值">复制</button></div><pre><code>累计 10 轮消息
+
+或上下文 Token 超过配置阈值</code></pre></div><p class="label-line">模型调用时只发送：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 087</span><button class="copy-btn" type="button" data-copy="Conversation Summary
++
+最近 10 条消息">复制</button></div><pre><code>Conversation Summary
++
+最近 10 条消息</code></pre></div><h2 id="section-46-四十六-留资判断"><span class="section-no">46</span>四十六. 留资判断</h2><p class="label-line">线索猎人的最终核心目标：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 088</span><button class="copy-btn" type="button" data-copy="CONTACT_CAPTURED">复制</button></div><pre><code>CONTACT_CAPTURED</code></pre></div><p class="label-line">V1 至少支持：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 089</span><button class="copy-btn" type="button" data-copy="PHONE
+WECHAT">复制</button></div><pre><code>PHONE
+WECHAT</code></pre></div><p>具体有效留资标准最终由业务确认。</p><h2 id="section-47-四十七-extract_contact"><span class="section-no">47</span>四十七. extract_contact</h2><p>手机号优先使用 Python 正则处理。</p><p class="label-line">示例：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 090</span><button class="copy-btn" type="button" data-copy="1[3-9]\d{9}">复制</button></div><pre><code>1[3-9]\d{9}</code></pre></div><p>无法通过规则确定的信息可交给 LLM 辅助判断。</p><p class="label-line">输出：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 091</span><button class="copy-btn" type="button" data-copy="{
+  &quot;contacts&quot;: [
+    {
+      &quot;type&quot;: &quot;PHONE&quot;,
+      &quot;value&quot;: &quot;138xxxxxxxx&quot;,
+      &quot;confidence&quot;: 0.99
+    }
+  ]
+}">复制</button></div><pre><code>{
+  &quot;contacts&quot;: [
+    {
+      &quot;type&quot;: &quot;PHONE&quot;,
+      &quot;value&quot;: &quot;138xxxxxxxx&quot;,
+      &quot;confidence&quot;: 0.99
+    }
+  ]
+}</code></pre></div><h2 id="section-48-四十八-lead-contact-表"><span class="section-no">48</span>四十八. Lead Contact 表</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 092</span><button class="copy-btn" type="button" data-copy="lead_contact">复制</button></div><pre><code>lead_contact</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 093</span><button class="copy-btn" type="button" data-copy="id
+
+lead_id
+
+type
+
+value
+
+source_message_id
+
+confidence
+
+verified
+
+captured_at">复制</button></div><pre><code>id
+
+lead_id
+
+type
+
+value
+
+source_message_id
+
+confidence
+
+verified
+
+captured_at</code></pre></div><h2 id="section-49-四十九-留资成功流程"><span class="section-no">49</span>四十九. 留资成功流程</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 094</span><button class="copy-btn" type="button" data-copy="contact.captured
+↓
+complete_lead
+↓
+lead.state = LEAD_CAPTURED
+↓
+conversation.state = CLOSED
+↓
+generate_lead_summary
+↓
+通知真人销售
+↓
+可选推送 CRM">复制</button></div><pre><code>contact.captured
+↓
+complete_lead
+↓
+lead.state = LEAD_CAPTURED
+↓
+conversation.state = CLOSED
+↓
+generate_lead_summary
+↓
+通知真人销售
+↓
+可选推送 CRM</code></pre></div><h2 id="section-50-五十-lead-summary"><span class="section-no">50</span>五十. Lead Summary</h2><p class="label-line">最终生成：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 095</span><button class="copy-btn" type="button" data-copy="客户昵称
+
+客户来源
+
+首次发现时间
+
+当前意向等级
+
+Intent Score
+
+意向车型
+
+城市
+
+预算
+
+购车时间
+
+金融需求
+
+置换需求
+
+客户核心顾虑
+
+竞争车型
+
+历史互动
+
+沟通摘要
+
+联系方式
+
+推荐真人销售下一步动作">复制</button></div><pre><code>客户昵称
+
+客户来源
+
+首次发现时间
+
+当前意向等级
+
+Intent Score
+
+意向车型
+
+城市
+
+预算
+
+购车时间
+
+金融需求
+
+置换需求
+
+客户核心顾虑
+
+竞争车型
+
+历史互动
+
+沟通摘要
+
+联系方式
+
+推荐真人销售下一步动作</code></pre></div><div class="chapter-break" id="chapter-07"><div class="chapter-kicker">Chapter 07 / 11</div><h3>Runtime 状态与事件</h3><p>定义 Lead、Conversation、Account、Scheduler 和 Event Bus 的运行边界。</p></div><h2 id="section-51-五十一-lead-状态机"><span class="section-no">51</span>五十一. Lead 状态机</h2><p class="label-line">主流程：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 096</span><button class="copy-btn" type="button" data-copy="DISCOVERED
+↓
+ANALYZED
+↓
+QUALIFIED
+↓
+CONTACT_READY
+↓
+CONTACTED
+↓
+ENGAGED
+↓
+SALES_QUALIFIED
+↓
+LEAD_CAPTURED
+↓
+HANDOFF">复制</button></div><pre><code>DISCOVERED
+↓
+ANALYZED
+↓
+QUALIFIED
+↓
+CONTACT_READY
+↓
+CONTACTED
+↓
+ENGAGED
+↓
+SALES_QUALIFIED
+↓
+LEAD_CAPTURED
+↓
+HANDOFF</code></pre></div><p class="label-line">特殊状态：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 097</span><button class="copy-btn" type="button" data-copy="LOW_INTENT
+
+DO_NOT_CONTACT
+
+INVALID
+
+LOST">复制</button></div><pre><code>LOW_INTENT
+
+DO_NOT_CONTACT
+
+INVALID
+
+LOST</code></pre></div><p>状态转换必须由 State Machine 控制。</p><p>LLM 不直接修改数据库状态。</p><h2 id="section-52-五十二-conversation-状态机"><span class="section-no">52</span>五十二. Conversation 状态机</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 098</span><button class="copy-btn" type="button" data-copy="NEW
+
+WAITING_AGENT
+
+WAITING_CUSTOMER
+
+ACTIVE
+
+FOLLOW_UP
+
+HUMAN_TAKEOVER
+
+CLOSED">复制</button></div><pre><code>NEW
+
+WAITING_AGENT
+
+WAITING_CUSTOMER
+
+ACTIVE
+
+FOLLOW_UP
+
+HUMAN_TAKEOVER
+
+CLOSED</code></pre></div><h2 id="section-53-五十三-account-状态机"><span class="section-no">53</span>五十三. Account 状态机</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 099</span><button class="copy-btn" type="button" data-copy="UNCONNECTED
+
+CONNECTING
+
+READY
+
+BUSY
+
+DEGRADED
+
+LOGIN_REQUIRED
+
+RISK_CONTROLLED
+
+OFFLINE">复制</button></div><pre><code>UNCONNECTED
+
+CONNECTING
+
+READY
+
+BUSY
+
+DEGRADED
+
+LOGIN_REQUIRED
+
+RISK_CONTROLLED
+
+OFFLINE</code></pre></div><p class="label-line">所有需要 RPA 的 Skill 前置条件：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 100</span><button class="copy-btn" type="button" data-copy="account.status = READY">复制</button></div><pre><code>account.status = READY</code></pre></div><h2 id="section-54-五十四-cloud-session"><span class="section-no">54</span>五十四. Cloud Session</h2><p class="label-line">表：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 101</span><button class="copy-btn" type="button" data-copy="cloud_session">复制</button></div><pre><code>cloud_session</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 102</span><button class="copy-btn" type="button" data-copy="id
+
+account_id
+
+cloud_pc_id
+
+status
+
+locked_by
+
+lock_expire_at
+
+created_at
+
+updated_at">复制</button></div><pre><code>id
+
+account_id
+
+cloud_pc_id
+
+status
+
+locked_by
+
+lock_expire_at
+
+created_at
+
+updated_at</code></pre></div><h2 id="section-55-五十五-account-lock"><span class="section-no">55</span>五十五. Account Lock</h2><p>同一抖音账号同一时刻只允许一个页面操作类 Workflow 获得操作权。</p><p class="label-line">建议 Redis：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 103</span><button class="copy-btn" type="button" data-copy="Key:
+account-lock:{account_id}
+
+Value:
+run_id">复制</button></div><pre><code>Key:
+account-lock:{account_id}
+
+Value:
+run_id</code></pre></div><p>配置 TTL。</p><p>RPA 完成后主动释放。</p><p class="label-line">例如：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 104</span><button class="copy-btn" type="button" data-copy="send_dm">复制</button></div><pre><code>send_dm</code></pre></div><p class="label-line">和：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 105</span><button class="copy-btn" type="button" data-copy="sync_comments">复制</button></div><pre><code>sync_comments</code></pre></div><p>不能同时操作一个抖音页面。</p><h2 id="section-56-五十六-scheduler"><span class="section-no">56</span>五十六. Scheduler</h2><p>负责确定性周期任务。</p><p class="label-line">例如：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 106</span><button class="copy-btn" type="button" data-copy="sync_comments
+
+sync_followers
+
+sync_messages
+
+sync_live_interactions">复制</button></div><pre><code>sync_comments
+
+sync_followers
+
+sync_messages
+
+sync_live_interactions</code></pre></div><p>这些任务不经过 LLM 决定是否运行。</p><p class="label-line">表：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 107</span><button class="copy-btn" type="button" data-copy="scheduled_job">复制</button></div><pre><code>scheduled_job</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 108</span><button class="copy-btn" type="button" data-copy="job_id
+
+workspace_id
+
+account_id
+
+skill_id
+
+cron
+
+status
+
+last_run_at
+
+next_run_at
+
+config_json">复制</button></div><pre><code>job_id
+
+workspace_id
+
+account_id
+
+skill_id
+
+cron
+
+status
+
+last_run_at
+
+next_run_at
+
+config_json</code></pre></div><h2 id="section-57-五十七-event-bus"><span class="section-no">57</span>五十七. Event Bus</h2><p>建议使用 Kafka。</p><p class="label-line">V1 Topic：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 109</span><button class="copy-btn" type="button" data-copy="social-events
+
+lead-events
+
+conversation-events
+
+agent-events
+
+workflow-events
+
+system-events">复制</button></div><pre><code>social-events
+
+lead-events
+
+conversation-events
+
+agent-events
+
+workflow-events
+
+system-events</code></pre></div><p class="label-line">Event 具体类型通过：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 110</span><button class="copy-btn" type="button" data-copy="event.type">复制</button></div><pre><code>event.type</code></pre></div><p>区分。</p><h2 id="section-58-五十八-关键-event"><span class="section-no">58</span>五十八. 关键 Event</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 111</span><button class="copy-btn" type="button" data-copy="account.connected
+
+account.login_required
+
+social.comment.created
+
+social.follower.created
+
+social.dm.received
+
+social.live_interaction.created
+
+lead.created
+
+lead.intent.updated
+
+lead.qualified
+
+lead.contact_ready
+
+dm.sent
+
+dm.send_failed
+
+conversation.message.received
+
+conversation.updated
+
+contact.captured
+
+lead.completed
+
+human.handoff.required">复制</button></div><pre><code>account.connected
+
+account.login_required
+
+social.comment.created
+
+social.follower.created
+
+social.dm.received
+
+social.live_interaction.created
+
+lead.created
+
+lead.intent.updated
+
+lead.qualified
+
+lead.contact_ready
+
+dm.sent
+
+dm.send_failed
+
+conversation.message.received
+
+conversation.updated
+
+contact.captured
+
+lead.completed
+
+human.handoff.required</code></pre></div><h2 id="section-59-五十九-event-结构"><span class="section-no">59</span>五十九. Event 结构</h2><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 112</span><button class="copy-btn" type="button" data-copy="{
+  &quot;event_id&quot;: &quot;evt_001&quot;,
+
+  &quot;type&quot;: &quot;social.comment.created&quot;,
+
+  &quot;workspace_id&quot;: &quot;ws_001&quot;,
+
+  &quot;account_id&quot;: &quot;dy_001&quot;,
+
+  &quot;lead_id&quot;: &quot;lead_001&quot;,
+
+  &quot;payload&quot;: {},
+
+  &quot;occurred_at&quot;: &quot;...&quot;
+}">复制</button></div><pre><code>{
+  &quot;event_id&quot;: &quot;evt_001&quot;,
+
+  &quot;type&quot;: &quot;social.comment.created&quot;,
+
+  &quot;workspace_id&quot;: &quot;ws_001&quot;,
+
+  &quot;account_id&quot;: &quot;dy_001&quot;,
+
+  &quot;lead_id&quot;: &quot;lead_001&quot;,
+
+  &quot;payload&quot;: {},
+
+  &quot;occurred_at&quot;: &quot;...&quot;
+}</code></pre></div><div class="chapter-break" id="chapter-08"><div class="chapter-kicker">Chapter 08 / 11</div><h3>治理、权限与可观测性</h3><p>覆盖 Skill Registry、Permission、Policy、Run、Trace、错误和重试。</p></div><h2 id="section-60-六十-skill-registry"><span class="section-no">60</span>六十. Skill Registry</h2><p class="label-line">表：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 113</span><button class="copy-btn" type="button" data-copy="skill">复制</button></div><pre><code>skill</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 114</span><button class="copy-btn" type="button" data-copy="skill_id
+
+name
+
+domain
+
+version
+
+executor_type
+
+executor_ref
+
+input_schema
+
+output_schema
+
+permissions
+
+risk_level
+
+timeout
+
+retry_policy
+
+approval_policy
+
+enabled">复制</button></div><pre><code>skill_id
+
+name
+
+domain
+
+version
+
+executor_type
+
+executor_ref
+
+input_schema
+
+output_schema
+
+permissions
+
+risk_level
+
+timeout
+
+retry_policy
+
+approval_policy
+
+enabled</code></pre></div><h2 id="section-61-六十一哦-skill-schema-示例"><span class="section-no">61</span>六十一哦. Skill Schema 示例</h2><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 115</span><button class="copy-btn" type="button" data-copy="{
+  &quot;skill_id&quot;: &quot;send_dm&quot;,
+
+  &quot;version&quot;: &quot;1.0.0&quot;,
+
+  &quot;domain&quot;: &quot;OUTREACH&quot;,
+
+  &quot;executor&quot;: {
+    &quot;type&quot;: &quot;WORKFLOW&quot;,
+    &quot;ref&quot;: &quot;douyin_send_dm_v1&quot;
+  },
+
+  &quot;permissions&quot;: [
+    &quot;douyin.dm.send&quot;
+  ],
+
+  &quot;side_effect&quot;: true,
+
+  &quot;timeout&quot;: 60,
+
+  &quot;retry&quot;: {
+    &quot;max_attempts&quot;: 2
+  }
+}">复制</button></div><pre><code>{
+  &quot;skill_id&quot;: &quot;send_dm&quot;,
+
+  &quot;version&quot;: &quot;1.0.0&quot;,
+
+  &quot;domain&quot;: &quot;OUTREACH&quot;,
+
+  &quot;executor&quot;: {
+    &quot;type&quot;: &quot;WORKFLOW&quot;,
+    &quot;ref&quot;: &quot;douyin_send_dm_v1&quot;
+  },
+
+  &quot;permissions&quot;: [
+    &quot;douyin.dm.send&quot;
+  ],
+
+  &quot;side_effect&quot;: true,
+
+  &quot;timeout&quot;: 60,
+
+  &quot;retry&quot;: {
+    &quot;max_attempts&quot;: 2
+  }
+}</code></pre></div><h2 id="section-62-六十二-permission"><span class="section-no">62</span>六十二. Permission</h2><p class="label-line">Permission 解决：</p><blockquote>线索猎人是否拥有这项能力。</blockquote><p class="label-line">例如：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 116</span><button class="copy-btn" type="button" data-copy="douyin.comments.read
+ALLOW
+
+douyin.dm.read
+ALLOW
+
+douyin.live.read
+ALLOW
+
+douyin.profile.read
+ALLOW
+
+douyin.dm.send
+ALLOW
+
+douyin.video.publish
+DENY
+
+douyin.video.delete
+DENY
+
+douyin.account.edit
+DENY">复制</button></div><pre><code>douyin.comments.read
+ALLOW
+
+douyin.dm.read
+ALLOW
+
+douyin.live.read
+ALLOW
+
+douyin.profile.read
+ALLOW
+
+douyin.dm.send
+ALLOW
+
+douyin.video.publish
+DENY
+
+douyin.video.delete
+DENY
+
+douyin.account.edit
+DENY</code></pre></div><h2 id="section-63-六十三-policy"><span class="section-no">63</span>六十三. Policy</h2><p class="label-line">Policy 解决：</p><blockquote>当前场景是否允许执行。</blockquote><p class="label-line">例如：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 117</span><button class="copy-btn" type="button" data-copy="Lead Score &gt;= 70
+
+最近 72 小时没有主动触达
+
+客户没有拒绝
+
+今日发送量 &lt; 100
+
+auto_outreach = true
+
+account.status = READY">复制</button></div><pre><code>Lead Score &gt;= 70
+
+最近 72 小时没有主动触达
+
+客户没有拒绝
+
+今日发送量 &lt; 100
+
+auto_outreach = true
+
+account.status = READY</code></pre></div><p>Permission 和 Policy 都通过后，才可以执行 send_dm。</p><h2 id="section-64-六十四-approval"><span class="section-no">64</span>六十四. Approval</h2><p class="label-line">V1 支持三种模式：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 118</span><button class="copy-btn" type="button" data-copy="AUTO
+
+HIGH_RISK_APPROVAL
+
+ALL_ACTION_APPROVAL">复制</button></div><pre><code>AUTO
+
+HIGH_RISK_APPROVAL
+
+ALL_ACTION_APPROVAL</code></pre></div><p>用户可配置主动触达是否需要审批。</p><h2 id="section-65-六十五-agent-run"><span class="section-no">65</span>六十五. Agent Run</h2><p class="label-line">每次 Agent 被 Event 唤醒时创建：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 119</span><button class="copy-btn" type="button" data-copy="agent_run">复制</button></div><pre><code>agent_run</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 120</span><button class="copy-btn" type="button" data-copy="id
+
+agent_id
+
+task_id
+
+trigger_type
+
+trigger_event_id
+
+lead_id
+
+conversation_id
+
+status
+
+context_snapshot
+
+result
+
+error
+
+started_at
+
+finished_at">复制</button></div><pre><code>id
+
+agent_id
+
+task_id
+
+trigger_type
+
+trigger_event_id
+
+lead_id
+
+conversation_id
+
+status
+
+context_snapshot
+
+result
+
+error
+
+started_at
+
+finished_at</code></pre></div><h2 id="section-66-六十六-skill-run"><span class="section-no">66</span>六十六. Skill Run</h2><p class="label-line">Agent Run 中每调用一个 Skill，记录：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 121</span><button class="copy-btn" type="button" data-copy="skill_run">复制</button></div><pre><code>skill_run</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 122</span><button class="copy-btn" type="button" data-copy="id
+
+agent_run_id
+
+skill_id
+
+skill_version
+
+executor_type
+
+input
+
+output
+
+status
+
+attempt
+
+latency_ms
+
+cost
+
+error_code
+
+started_at
+
+finished_at">复制</button></div><pre><code>id
+
+agent_run_id
+
+skill_id
+
+skill_version
+
+executor_type
+
+input
+
+output
+
+status
+
+attempt
+
+latency_ms
+
+cost
+
+error_code
+
+started_at
+
+finished_at</code></pre></div><h2 id="section-67-六十七-trace-要求"><span class="section-no">67</span>六十七. Trace 要求</h2><p class="label-line">开发后台必须能够查看：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 123</span><button class="copy-btn" type="button" data-copy="谁触发了 Agent
+
+Agent 当时处理哪个 Lead
+
+输入上下文是什么
+
+模型输出什么
+
+调用了哪个 Skill
+
+Skill 使用哪个 Executor
+
+RPA 是否成功
+
+状态发生什么变化
+
+Memory 更新了什么
+
+发送了什么消息
+
+最终结果是什么">复制</button></div><pre><code>谁触发了 Agent
+
+Agent 当时处理哪个 Lead
+
+输入上下文是什么
+
+模型输出什么
+
+调用了哪个 Skill
+
+Skill 使用哪个 Executor
+
+RPA 是否成功
+
+状态发生什么变化
+
+Memory 更新了什么
+
+发送了什么消息
+
+最终结果是什么</code></pre></div><h2 id="section-68-六十八-错误码"><span class="section-no">68</span>六十八. 错误码</h2><p class="label-line">统一错误码：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 124</span><button class="copy-btn" type="button" data-copy="ACCOUNT_LOGIN_REQUIRED
+
+ACCOUNT_RISK_CONTROL
+
+CLOUD_PC_OFFLINE
+
+ACCOUNT_LOCKED
+
+RPA_ELEMENT_NOT_FOUND
+
+RPA_TIMEOUT
+
+RPA_RESULT_UNCERTAIN
+
+LLM_TIMEOUT
+
+LLM_INVALID_OUTPUT
+
+POLICY_BLOCKED
+
+PERMISSION_DENIED
+
+RATE_LIMITED
+
+LEAD_NOT_FOUND
+
+CONVERSATION_NOT_FOUND
+
+MESSAGE_SEND_FAILED">复制</button></div><pre><code>ACCOUNT_LOGIN_REQUIRED
+
+ACCOUNT_RISK_CONTROL
+
+CLOUD_PC_OFFLINE
+
+ACCOUNT_LOCKED
+
+RPA_ELEMENT_NOT_FOUND
+
+RPA_TIMEOUT
+
+RPA_RESULT_UNCERTAIN
+
+LLM_TIMEOUT
+
+LLM_INVALID_OUTPUT
+
+POLICY_BLOCKED
+
+PERMISSION_DENIED
+
+RATE_LIMITED
+
+LEAD_NOT_FOUND
+
+CONVERSATION_NOT_FOUND
+
+MESSAGE_SEND_FAILED</code></pre></div><h2 id="section-69-六十九-retry-规则"><span class="section-no">69</span>六十九. Retry 规则</h2><h3>RPA ELEMENT NOT FOUND</h3><p>最多重试 2 次。</p><h3>RPA TIMEOUT</h3><p>最多重试 2 次。</p><h3>LLM INVALID OUTPUT</h3><p>最多重试 2 次。</p><h3>LOGIN REQUIRED</h3><p>不自动无限重试。</p><p class="label-line">进入：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 125</span><button class="copy-btn" type="button" data-copy="HUMAN_REQUIRED">复制</button></div><pre><code>HUMAN_REQUIRED</code></pre></div><h3>ACCOUNT RISK CONTROL</h3><p>停止所有会产生真实操作的 Skill。</p><div class="chapter-break" id="chapter-09"><div class="chapter-kicker">Chapter 09 / 11</div><h3>Goal、Task 与完整时序</h3><p>把用户目标转成长期任务，并串起一次完整运行过程。</p></div><h2 id="section-70-七十-goal"><span class="section-no">70</span>七十. Goal</h2><p>用户可以通过 Byering 创建长期目标。</p><p class="label-line">例如：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 126</span><button class="copy-btn" type="button" data-copy="帮我监控抖音上的互动，
+找到高意向买车客户，
+并自动持续跟进到客户留电话。">复制</button></div><pre><code>帮我监控抖音上的互动，
+找到高意向买车客户，
+并自动持续跟进到客户留电话。</code></pre></div><p class="label-line">系统转换：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 127</span><button class="copy-btn" type="button" data-copy="{
+  &quot;goal_id&quot;: &quot;goal_001&quot;,
+
+  &quot;type&quot;: &quot;LEAD_GENERATION&quot;,
+
+  &quot;target&quot;: {
+    &quot;platform&quot;: &quot;DOUYIN&quot;,
+
+    &quot;success&quot;: &quot;CONTACT_CAPTURED&quot;
+  },
+
+  &quot;constraints&quot;: {
+    &quot;auto_outreach&quot;: true
+  }
+}">复制</button></div><pre><code>{
+  &quot;goal_id&quot;: &quot;goal_001&quot;,
+
+  &quot;type&quot;: &quot;LEAD_GENERATION&quot;,
+
+  &quot;target&quot;: {
+    &quot;platform&quot;: &quot;DOUYIN&quot;,
+
+    &quot;success&quot;: &quot;CONTACT_CAPTURED&quot;
+  },
+
+  &quot;constraints&quot;: {
+    &quot;auto_outreach&quot;: true
+  }
+}</code></pre></div><h2 id="section-71-七十一-task"><span class="section-no">71</span>七十一. Task</h2><p class="label-line">创建长期任务：</p><div class="code-card"><div class="code-card-head"><span class="code-label">JSON</span><span class="code-index">CODE 128</span><button class="copy-btn" type="button" data-copy="{
+  &quot;task_id&quot;: &quot;task_001&quot;,
+
+  &quot;goal_id&quot;: &quot;goal_001&quot;,
+
+  &quot;agent_id&quot;: &quot;lead_hunter&quot;,
+
+  &quot;type&quot;: &quot;MONITOR_AND_CONVERT&quot;,
+
+  &quot;state&quot;: &quot;RUNNING&quot;
+}">复制</button></div><pre><code>{
+  &quot;task_id&quot;: &quot;task_001&quot;,
+
+  &quot;goal_id&quot;: &quot;goal_001&quot;,
+
+  &quot;agent_id&quot;: &quot;lead_hunter&quot;,
+
+  &quot;type&quot;: &quot;MONITOR_AND_CONVERT&quot;,
+
+  &quot;state&quot;: &quot;RUNNING&quot;
+}</code></pre></div><p>Task 允许长期运行。</p><h2 id="section-72-七十二-完整运行时序"><span class="section-no">72</span>七十二. 完整运行时序</h2><section class="runtime-sequence" id="runtime-sequence" aria-labelledby="runtime-sequence-title"><div class="runtime-sequence-head"><div><div class="runtime-sequence-kicker">END-TO-END / RUNTIME TRACE</div><h3 id="runtime-sequence-title">一条线索如何穿过系统</h3><p class="runtime-sequence-lead">73 个动作按业务阶段拆开，方便开发定位责任边界，也方便产品经理理解状态如何一步步变化。</p></div><div class="runtime-sequence-total">07 PHASES · 73 STEPS</div></div><section class="runtime-phase" style="--phase-color:#f26a4f;--phase-soft:#fff2ed" aria-labelledby="runtime-phase-01"><div class="runtime-phase-head"><span class="runtime-phase-index">01</span><div><div class="runtime-phase-title" id="runtime-phase-01">需求与任务启动</div><p class="runtime-phase-desc">从自然语言需求建立可执行的 Goal 与 Task。</p></div><span class="runtime-phase-range">STEPS 01–04</span></div><div class="runtime-steps" role="list"><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">01</span><span class="runtime-step-text">用户在 Chat 输入需求</span></div><div class="runtime-step"><span class="runtime-step-number">02</span><span class="runtime-step-text">Byering 理解需求</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">03</span><span class="runtime-step-text">创建 Goal</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">04</span><span class="runtime-step-text">创建 Task</span></div></div></section><section class="runtime-phase" style="--phase-color:#d08a2b;--phase-soft:#fff8e8" aria-labelledby="runtime-phase-02"><div class="runtime-phase-head"><span class="runtime-phase-index">02</span><div><div class="runtime-phase-title" id="runtime-phase-02">账号与调度准备</div><p class="runtime-phase-desc">确认抖音账号可用，再把采集动作交给 Scheduler。</p></div><span class="runtime-phase-range">STEPS 05–10</span></div><div class="runtime-steps" role="list"><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">05</span><span class="runtime-step-text">检查抖音账号</span></div><div class="runtime-step"><span class="runtime-step-number">06</span><span class="runtime-step-text">未登录时要求用户进入云电脑完成授权</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">07</span><span class="runtime-step-text">登录成功</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">08</span><span class="runtime-step-text">Account = READY</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">09</span><span class="runtime-step-text">创建 Scheduler Job</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">10</span><span class="runtime-step-text">定时执行 sync_comments</span></div></div></section><section class="runtime-phase" style="--phase-color:#277f7a;--phase-soft:#e8f6f1" aria-labelledby="runtime-phase-03"><div class="runtime-phase-head"><span class="runtime-phase-index">03</span><div><div class="runtime-phase-title" id="runtime-phase-03">互动采集与事件入流</div><p class="runtime-phase-desc">Skill Runtime 选择 Workflow，RPA 采集并将原始数据写入事件流。</p></div><span class="runtime-phase-range">STEPS 11–20</span></div><div class="runtime-steps" role="list"><div class="runtime-step"><span class="runtime-step-number">11</span><span class="runtime-step-text">Skill Runtime 查询 Skill</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">12</span><span class="runtime-step-text">确认 Executor = WORKFLOW</span></div><div class="runtime-step"><span class="runtime-step-number">13</span><span class="runtime-step-text">获取 Account Lock</span></div><div class="runtime-step"><span class="runtime-step-number">14</span><span class="runtime-step-text">调 RPA Adapter</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">15</span><span class="runtime-step-text">RPA 抓评论</span></div><div class="runtime-step"><span class="runtime-step-number">16</span><span class="runtime-step-text">返回 Raw Data</span></div><div class="runtime-step"><span class="runtime-step-number">17</span><span class="runtime-step-text">Python 清洗</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">18</span><span class="runtime-step-text">写 Social Event</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">19</span><span class="runtime-step-text">Kafka 发送 social.comment.created</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">20</span><span class="runtime-step-text">Event Consumer 收到事件</span></div></div></section><section class="runtime-phase" style="--phase-color:#4c6f9e;--phase-soft:#edf3fb" aria-labelledby="runtime-phase-04"><div class="runtime-phase-head"><span class="runtime-phase-index">04</span><div><div class="runtime-phase-title" id="runtime-phase-04">Lead 建模与意向评分</div><p class="runtime-phase-desc">把事件绑定到 Lead，聚合信号并计算可解释的意向分数。</p></div><span class="runtime-phase-range">STEPS 21–30</span></div><div class="runtime-steps" role="list"><div class="runtime-step"><span class="runtime-step-number">21</span><span class="runtime-step-text">resolve_lead</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">22</span><span class="runtime-step-text">创建或更新 Lead</span></div><div class="runtime-step"><span class="runtime-step-number">23</span><span class="runtime-step-text">aggregate_lead_signals</span></div><div class="runtime-step"><span class="runtime-step-number">24</span><span class="runtime-step-text">必要时 fetch_lead_profile</span></div><div class="runtime-step"><span class="runtime-step-number">25</span><span class="runtime-step-text">extract_intent_signals</span></div><div class="runtime-step"><span class="runtime-step-number">26</span><span class="runtime-step-text">infer_purchase_intent</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">27</span><span class="runtime-step-text">score_lead</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">28</span><span class="runtime-step-text">更新 Lead Score</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">29</span><span class="runtime-step-text">emit lead.intent.updated</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">30</span><span class="runtime-step-text">Outreach Pipeline 收到</span></div></div></section><section class="runtime-phase" style="--phase-color:#b15a6b;--phase-soft:#fff0f3" aria-labelledby="runtime-phase-05"><div class="runtime-phase-head"><span class="runtime-phase-index">05</span><div><div class="runtime-phase-title" id="runtime-phase-05">首次主动触达</div><p class="runtime-phase-desc">经过资格、权限和策略检查后，由 RPA 执行第一条私信。</p></div><span class="runtime-phase-range">STEPS 31–44</span></div><div class="runtime-steps" role="list"><div class="runtime-step"><span class="runtime-step-number">31</span><span class="runtime-step-text">check_outreach_eligibility</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">32</span><span class="runtime-step-text">满足条件</span></div><div class="runtime-step"><span class="runtime-step-number">33</span><span class="runtime-step-text">plan_first_contact</span></div><div class="runtime-step"><span class="runtime-step-number">34</span><span class="runtime-step-text">generate_outreach_message</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">35</span><span class="runtime-step-text">validate_message</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">36</span><span class="runtime-step-text">创建 OUTBOUND Message</span></div><div class="runtime-step"><span class="runtime-step-number">37</span><span class="runtime-step-text">Permission Check</span></div><div class="runtime-step"><span class="runtime-step-number">38</span><span class="runtime-step-text">Policy Check</span></div><div class="runtime-step"><span class="runtime-step-number">39</span><span class="runtime-step-text">获取 Account Lock</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">40</span><span class="runtime-step-text">RPA send_dm</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">41</span><span class="runtime-step-text">校验发送成功</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">42</span><span class="runtime-step-text">Message = SENT</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">43</span><span class="runtime-step-text">Lead = CONTACTED</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">44</span><span class="runtime-step-text">Conversation = WAITING_CUSTOMER</span></div></div></section><section class="runtime-phase" style="--phase-color:#6b628f;--phase-soft:#f3f0fb" aria-labelledby="runtime-phase-06"><div class="runtime-phase-head"><span class="runtime-phase-index">06</span><div><div class="runtime-phase-title" id="runtime-phase-06">持续对话循环</div><p class="runtime-phase-desc">监听客户回复，加载上下文，生成下一步动作并持续推进沟通。</p></div><span class="runtime-phase-range">STEPS 45–61</span></div><div class="runtime-steps" role="list"><div class="runtime-step"><span class="runtime-step-number">45</span><span class="runtime-step-text">Scheduler 持续检查私信</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">46</span><span class="runtime-step-text">RPA 发现客户回复</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">47</span><span class="runtime-step-text">写 INBOUND Message</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">48</span><span class="runtime-step-text">emit conversation.message.received</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">49</span><span class="runtime-step-text">唤醒 Agent</span></div><div class="runtime-step"><span class="runtime-step-number">50</span><span class="runtime-step-text">load Context</span></div><div class="runtime-step"><span class="runtime-step-number">51</span><span class="runtime-step-text">understand_reply</span></div><div class="runtime-step"><span class="runtime-step-number">52</span><span class="runtime-step-text">update Lead Memory</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">53</span><span class="runtime-step-text">更新 Lead Intent</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">54</span><span class="runtime-step-text">decide_next_action</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">55</span><span class="runtime-step-text">detect_lead_capture_readiness</span></div><div class="runtime-step"><span class="runtime-step-number">56</span><span class="runtime-step-text">generate_reply</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">57</span><span class="runtime-step-text">validate_message</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">58</span><span class="runtime-step-text">RPA send_dm</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">59</span><span class="runtime-step-text">WAITING_CUSTOMER</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">60</span><span class="runtime-step-text">客户继续回复</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">61</span><span class="runtime-step-text">重复 49 至 59</span></div></div></section><section class="runtime-phase" style="--phase-color:#2f7d58;--phase-soft:#eaf7ee" aria-labelledby="runtime-phase-07"><div class="runtime-phase-head"><span class="runtime-phase-index">07</span><div><div class="runtime-phase-title" id="runtime-phase-07">留资与转化闭环</div><p class="runtime-phase-desc">客户交付联系方式后完成 Lead，通知销售并记录评估结果。</p></div><span class="runtime-phase-range">STEPS 62–73</span></div><div class="runtime-steps" role="list"><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">62</span><span class="runtime-step-text">客户发送手机号或微信</span></div><div class="runtime-step"><span class="runtime-step-number">63</span><span class="runtime-step-text">extract_contact</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">64</span><span class="runtime-step-text">写 lead_contact</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">65</span><span class="runtime-step-text">emit contact.captured</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">66</span><span class="runtime-step-text">complete_lead</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">67</span><span class="runtime-step-text">Lead = LEAD_CAPTURED</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">68</span><span class="runtime-step-text">Conversation = CLOSED</span></div><div class="runtime-step"><span class="runtime-step-number">69</span><span class="runtime-step-text">generate_lead_summary</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">70</span><span class="runtime-step-text">通知真人销售</span></div><div class="runtime-step"><span class="runtime-step-number">71</span><span class="runtime-step-text">可选推送 CRM</span></div><div class="runtime-step"><span class="runtime-step-number">72</span><span class="runtime-step-text">写 Evaluation</span></div><div class="runtime-step runtime-step--milestone"><span class="runtime-step-number">73</span><span class="runtime-step-text">本次 Lead 转化流程结束</span></div></div></section><details class="runtime-source"><summary>查看原始 73 步顺序文本</summary><pre>01 用户在 Chat 输入需求
+
+02 Byering 理解需求
+
+03 创建 Goal
+
+04 创建 Task
+
+05 检查抖音账号
+
+06 未登录时要求用户进入云电脑完成授权
+
+07 登录成功
+
+08 Account = READY
+
+09 创建 Scheduler Job
+
+10 定时执行 sync_comments
+
+11 Skill Runtime 查询 Skill
+
+12 确认 Executor = WORKFLOW
+
+13 获取 Account Lock
+
+14 调 RPA Adapter
+
+15 RPA 抓评论
+
+16 返回 Raw Data
+
+17 Python 清洗
+
+18 写 Social Event
+
+19 Kafka 发送 social.comment.created
+
+20 Event Consumer 收到事件
+
+21 resolve_lead
+
+22 创建或更新 Lead
+
+23 aggregate_lead_signals
+
+24 必要时 fetch_lead_profile
+
+25 extract_intent_signals
+
+26 infer_purchase_intent
+
+27 score_lead
+
+28 更新 Lead Score
+
+29 emit lead.intent.updated
+
+30 Outreach Pipeline 收到
+
+31 check_outreach_eligibility
+
+32 满足条件
+
+33 plan_first_contact
+
+34 generate_outreach_message
+
+35 validate_message
+
+36 创建 OUTBOUND Message
+
+37 Permission Check
+
+38 Policy Check
+
+39 获取 Account Lock
+
+40 RPA send_dm
+
+41 校验发送成功
+
+42 Message = SENT
+
+43 Lead = CONTACTED
+
+44 Conversation = WAITING_CUSTOMER
+
+45 Scheduler 持续检查私信
+
+46 RPA 发现客户回复
+
+47 写 INBOUND Message
+
+48 emit conversation.message.received
+
+49 唤醒 Agent
+
+50 load Context
+
+51 understand_reply
+
+52 update Lead Memory
+
+53 更新 Lead Intent
+
+54 decide_next_action
+
+55 detect_lead_capture_readiness
+
+56 generate_reply
+
+57 validate_message
+
+58 RPA send_dm
+
+59 WAITING_CUSTOMER
+
+60 客户继续回复
+
+61 重复 49 至 59
+
+62 客户发送手机号或微信
+
+63 extract_contact
+
+64 写 lead_contact
+
+65 emit contact.captured
+
+66 complete_lead
+
+67 Lead = LEAD_CAPTURED
+
+68 Conversation = CLOSED
+
+69 generate_lead_summary
+
+70 通知真人销售
+
+71 可选推送 CRM
+
+72 写 Evaluation
+
+73 本次 Lead 转化流程结束</pre></details></section><div class="chapter-break" id="chapter-10"><div class="chapter-kicker">Chapter 10 / 11</div><h3>技术实现与边界</h3><p>说明 V1 的模块形态、Adapter、Prompt、明确不做项和团队职责。</p></div><h2 id="section-73-七十三-v1-技术实现形态"><span class="section-no">73</span>七十三. V1 技术实现形态</h2><p class="label-line">第一阶段推荐采用：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 129</span><button class="copy-btn" type="button" data-copy="模块化单体后端
+
++
+独立 RPA Platform
+
++
+Kafka
+
++
+Redis
+
++
+MySQL / PostgreSQL
+
++
+LLM Gateway">复制</button></div><pre><code>模块化单体后端
+
++
+独立 RPA Platform
+
++
+Kafka
+
++
+Redis
+
++
+MySQL / PostgreSQL
+
++
+LLM Gateway</code></pre></div><p>暂不强制拆分大量微服务。</p><h2 id="section-74-七十四-后端模块建议"><span class="section-no">74</span>七十四. 后端模块建议</h2><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 130</span><button class="copy-btn" type="button" data-copy="chat/
+
+goal/
+
+task/
+
+agent/
+
+skill/
+
+lead/
+
+conversation/
+
+account/
+
+rpa/
+
+event/
+
+scheduler/
+
+policy/
+
+permission/
+
+memory/
+
+knowledge/
+
+trace/
+
+evaluation/">复制</button></div><pre><code>chat/
+
+goal/
+
+task/
+
+agent/
+
+skill/
+
+lead/
+
+conversation/
+
+account/
+
+rpa/
+
+event/
+
+scheduler/
+
+policy/
+
+permission/
+
+memory/
+
+knowledge/
+
+trace/
+
+evaluation/</code></pre></div><h2 id="section-75-七十五-rpa-adapter"><span class="section-no">75</span>七十五. RPA Adapter</h2><p class="label-line">统一：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 131</span><button class="copy-btn" type="button" data-copy="RpaAdapter.execute()">复制</button></div><pre><code>RpaAdapter.execute()</code></pre></div><p class="label-line">输入：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 132</span><button class="copy-btn" type="button" data-copy="workflow_id
+
+account_id
+
+session_id
+
+input_data
+
+idempotency_key">复制</button></div><pre><code>workflow_id
+
+account_id
+
+session_id
+
+input_data
+
+idempotency_key</code></pre></div><p>上层 Skill Runtime 不直接依赖具体 RPA 技术实现。</p><h2 id="section-76-七十六-llm-executor"><span class="section-no">76</span>七十六. LLM Executor</h2><p class="label-line">统一：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 133</span><button class="copy-btn" type="button" data-copy="LlmExecutor.execute()">复制</button></div><pre><code>LlmExecutor.execute()</code></pre></div><p class="label-line">参数：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 134</span><button class="copy-btn" type="button" data-copy="prompt_id
+
+prompt_version
+
+context
+
+input
+
+output_schema">复制</button></div><pre><code>prompt_id
+
+prompt_version
+
+context
+
+input
+
+output_schema</code></pre></div><p>Prompt 需要独立版本管理。</p><h2 id="section-77-七十七-prompt-template"><span class="section-no">77</span>七十七. Prompt Template</h2><p class="label-line">表：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 135</span><button class="copy-btn" type="button" data-copy="prompt_template">复制</button></div><pre><code>prompt_template</code></pre></div><p class="label-line">字段：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 136</span><button class="copy-btn" type="button" data-copy="prompt_id
+
+version
+
+system_prompt
+
+user_template
+
+output_schema
+
+model
+
+temperature
+
+status">复制</button></div><pre><code>prompt_id
+
+version
+
+system_prompt
+
+user_template
+
+output_schema
+
+model
+
+temperature
+
+status</code></pre></div><h2 id="section-78-七十八-v1-明确不做"><span class="section-no">78</span>七十八. V1 明确不做</h2><p class="label-line">V1 暂不实现：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 137</span><button class="copy-btn" type="button" data-copy="Agent 直接操作鼠标
+
+Agent 自己写 RPA
+
+Agent 自动修改 Soul
+
+Agent 自动修改 Skill
+
+Agent 自动修改核心权限
+
+Agent 自由创建 Agent
+
+多个 Agent 自由对话
+
+完全开放式自动 Planning
+
+Agent 自动部署代码
+
+Agent 自动修改 Workflow">复制</button></div><pre><code>Agent 直接操作鼠标
+
+Agent 自己写 RPA
+
+Agent 自动修改 Soul
+
+Agent 自动修改 Skill
+
+Agent 自动修改核心权限
+
+Agent 自由创建 Agent
+
+多个 Agent 自由对话
+
+完全开放式自动 Planning
+
+Agent 自动部署代码
+
+Agent 自动修改 Workflow</code></pre></div><h2 id="section-79-七十九-开发团队职责"><span class="section-no">79</span>七十九. 开发团队职责</h2><h3>RPA 团队</h3><p class="label-line">负责：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 138</span><button class="copy-btn" type="button" data-copy="抖音登录检测
+
+评论采集
+
+新增关注采集
+
+私信采集
+
+直播互动采集
+
+用户主页采集
+
+私信发送
+
+RPA 状态返回
+
+页面异常恢复
+
+结果验证">复制</button></div><pre><code>抖音登录检测
+
+评论采集
+
+新增关注采集
+
+私信采集
+
+直播互动采集
+
+用户主页采集
+
+私信发送
+
+RPA 状态返回
+
+页面异常恢复
+
+结果验证</code></pre></div><h3>后端团队</h3><p class="label-line">负责：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 139</span><button class="copy-btn" type="button" data-copy="Goal
+
+Task
+
+Agent Runtime
+
+Skill Runtime
+
+RPA Adapter
+
+Scheduler
+
+Kafka Event
+
+Lead
+
+Conversation
+
+State Machine
+
+Policy
+
+Permission
+
+Account Lock
+
+Trace
+
+Evaluation">复制</button></div><pre><code>Goal
+
+Task
+
+Agent Runtime
+
+Skill Runtime
+
+RPA Adapter
+
+Scheduler
+
+Kafka Event
+
+Lead
+
+Conversation
+
+State Machine
+
+Policy
+
+Permission
+
+Account Lock
+
+Trace
+
+Evaluation</code></pre></div><h3>算法团队</h3><p class="label-line">负责：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 140</span><button class="copy-btn" type="button" data-copy="Intent Signal Extraction
+
+Purchase Intent
+
+Outreach Strategy
+
+Message Generation
+
+Reply Understanding
+
+Next Action
+
+Lead Capture Readiness
+
+Lead Summary">复制</button></div><pre><code>Intent Signal Extraction
+
+Purchase Intent
+
+Outreach Strategy
+
+Message Generation
+
+Reply Understanding
+
+Next Action
+
+Lead Capture Readiness
+
+Lead Summary</code></pre></div><h3>数据 / Python</h3><p class="label-line">负责：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 141</span><button class="copy-btn" type="button" data-copy="Normalize
+
+Deduplication
+
+Lead Resolution
+
+Signal Aggregation
+
+Intent Scoring
+
+Contact Regex
+
+Cursor
+
+统计">复制</button></div><pre><code>Normalize
+
+Deduplication
+
+Lead Resolution
+
+Signal Aggregation
+
+Intent Scoring
+
+Contact Regex
+
+Cursor
+
+统计</code></pre></div><div class="chapter-break" id="chapter-11"><div class="chapter-kicker">Chapter 11 / 11</div><h3>交付、验收与上线</h3><p>收束开发 Ticket、核心验收场景、上线标准和业务确认项。</p></div><h2 id="section-80-八十-第一阶段开发-ticket"><span class="section-no">80</span>八十. 第一阶段开发 Ticket</h2><p class="label-line">建议第一阶段优先：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 142</span><button class="copy-btn" type="button" data-copy="T01 Skill Registry
+
+T02 Skill Runtime
+
+T03 Workflow Executor
+
+T04 RPA Adapter
+
+T05 External Account
+
+T06 Cloud Session
+
+T07 Redis Account Lock
+
+T08 Scheduler
+
+T09 Event Schema
+
+T10 Kafka Producer / Consumer
+
+T11 Social Event
+
+T12 Lead
+
+T13 Lead Identity
+
+T14 Lead Signal
+
+T15 Conversation
+
+T16 Message
+
+T17 Lead Analysis Pipeline
+
+T18 Outreach Pipeline
+
+T19 Conversation Pipeline
+
+T20 LLM Executor
+
+T21 Prompt Manager
+
+T22 Policy Engine
+
+T23 Permission Engine
+
+T24 Agent Run
+
+T25 Skill Run
+
+T26 Goal / Task
+
+">复制</button></div><pre><code>T01 Skill Registry
+
+T02 Skill Runtime
+
+T03 Workflow Executor
+
+T04 RPA Adapter
+
+T05 External Account
+
+T06 Cloud Session
+
+T07 Redis Account Lock
+
+T08 Scheduler
+
+T09 Event Schema
+
+T10 Kafka Producer / Consumer
+
+T11 Social Event
+
+T12 Lead
+
+T13 Lead Identity
+
+T14 Lead Signal
+
+T15 Conversation
+
+T16 Message
+
+T17 Lead Analysis Pipeline
+
+T18 Outreach Pipeline
+
+T19 Conversation Pipeline
+
+T20 LLM Executor
+
+T21 Prompt Manager
+
+T22 Policy Engine
+
+T23 Permission Engine
+
+T24 Agent Run
+
+T25 Skill Run
+
+T26 Goal / Task
+
+</code></pre></div><h2 id="section-81-八十一-v1-核心验收场景"><span class="section-no">81</span>八十一. V1 核心验收场景</h2><p>开发完成后，需要完整跑通以下场景。</p><h3>Case 1：首次授权</h3><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 143</span><button class="copy-btn" type="button" data-copy="用户创建线索猎人
+→ 云电脑打开
+→ 用户登录抖音
+→ 系统确认 READY">复制</button></div><pre><code>用户创建线索猎人
+→ 云电脑打开
+→ 用户登录抖音
+→ 系统确认 READY</code></pre></div><p class="label-line">验收结果：</p><p>账号可被 RPA 正常调用。</p><h3>Case 2：评论发现高意向客户</h3><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 144</span><button class="copy-btn" type="button" data-copy="用户评论：
+325Li杭州最近落地多少？">复制</button></div><pre><code>用户评论：
+325Li杭州最近落地多少？</code></pre></div><p class="label-line">系统应：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 145</span><button class="copy-btn" type="button" data-copy="采集评论
+→ 创建 Lead
+→ 提取车型 BMW 325Li
+→ 提取城市 杭州
+→ 提取 PRICE_INQUIRY
+→ 判断高意向
+→ 生成 Score
+→ 展示评分原因">复制</button></div><pre><code>采集评论
+→ 创建 Lead
+→ 提取车型 BMW 325Li
+→ 提取城市 杭州
+→ 提取 PRICE_INQUIRY
+→ 判断高意向
+→ 生成 Score
+→ 展示评分原因</code></pre></div><h3>Case 3：自动触达</h3><p class="label-line">满足自动触达规则后：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 146</span><button class="copy-btn" type="button" data-copy="生成首条私信
+→ Policy Check
+→ Permission Check
+→ RPA 发送
+→ 验证成功">复制</button></div><pre><code>生成首条私信
+→ Policy Check
+→ Permission Check
+→ RPA 发送
+→ 验证成功</code></pre></div><p class="label-line">数据库 Message 状态应：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 147</span><button class="copy-btn" type="button" data-copy="SENT">复制</button></div><pre><code>SENT</code></pre></div><h3>Case 4：自动对话</h3><p class="label-line">客户回复：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 148</span><button class="copy-btn" type="button" data-copy="我最近一个月打算买，主要看看三系。">复制</button></div><pre><code>我最近一个月打算买，主要看看三系。</code></pre></div><p class="label-line">系统应识别：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 149</span><button class="copy-btn" type="button" data-copy="purchase_timeline = 1_month
+
+model = BMW 3 Series">复制</button></div><pre><code>purchase_timeline = 1_month
+
+model = BMW 3 Series</code></pre></div><p>并自动生成下一轮合理回复。</p><h3>Case 5：成功留资</h3><p class="label-line">客户：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 150</span><button class="copy-btn" type="button" data-copy="电话 138xxxxxxxx">复制</button></div><pre><code>电话 138xxxxxxxx</code></pre></div><p class="label-line">系统应：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 151</span><button class="copy-btn" type="button" data-copy="识别手机号
+→ 创建 Lead Contact
+→ Lead = LEAD_CAPTURED
+→ Conversation = CLOSED
+→ 生成 Lead Summary
+→ 通知真人销售">复制</button></div><pre><code>识别手机号
+→ 创建 Lead Contact
+→ Lead = LEAD_CAPTURED
+→ Conversation = CLOSED
+→ 生成 Lead Summary
+→ 通知真人销售</code></pre></div><h3>Case 6：重复发送保护</h3><p>RPA 发送私信后发生超时。</p><p class="label-line">系统必须：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 152</span><button class="copy-btn" type="button" data-copy="Message = UNKNOWN
+→ 校验历史消息
+→ 已发送则更新 SENT">复制</button></div><pre><code>Message = UNKNOWN
+→ 校验历史消息
+→ 已发送则更新 SENT</code></pre></div><p>不得直接重复发送。</p><h3>Case 7：登录失效</h3><p class="label-line">账号 Session 失效后：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 153</span><button class="copy-btn" type="button" data-copy="RPA 返回 ACCOUNT_LOGIN_REQUIRED
+→ Account = LOGIN_REQUIRED
+→ 暂停所有 Action Skill
+→ 通知用户重新授权">复制</button></div><pre><code>RPA 返回 ACCOUNT_LOGIN_REQUIRED
+→ Account = LOGIN_REQUIRED
+→ 暂停所有 Action Skill
+→ 通知用户重新授权</code></pre></div><h3>Case 8：人工接管</h3><p class="label-line">用户点击：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 154</span><button class="copy-btn" type="button" data-copy="我来接管">复制</button></div><pre><code>我来接管</code></pre></div><p class="label-line">系统：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 155</span><button class="copy-btn" type="button" data-copy="conversation.agent_mode = HUMAN
+
+conversation.state = HUMAN_TAKEOVER">复制</button></div><pre><code>conversation.agent_mode = HUMAN
+
+conversation.state = HUMAN_TAKEOVER</code></pre></div><p>Agent 停止自动回复。</p><h2 id="section-82-八十二-v1-上线标准"><span class="section-no">82</span>八十二. V1 上线标准</h2><p class="label-line">满足以下条件后才建议进入真实客户使用：</p><p>RPA 核心 Workflow 成功率达到内部约定标准</p><p>Send DM 幂等机制验证通过</p><p>登录失效可以正确停机</p><p>Account Lock 可防止同账号并发冲突</p><p>所有 LLM Skill 使用结构化输出</p><p>LLM Invalid Output 有完整 Retry</p><p>Lead State Machine 无非法状态转换</p><p>Conversation State Machine 正常</p><p>Policy 可以即时阻断发送</p><p>Permission 可以即时撤销</p><p>每次 Agent 行为可以完整 Trace</p><p>留资后自动停止对应销售流程</p><p>人工接管后 Agent 不继续回复</p><p>所有真实发送行为都有日志</p><p>可以从单个 Lead 完整还原整个执行过程</p><h2 id="section-83-八十三-待业务确认项"><span class="section-no">83</span>八十三. 待业务确认项</h2><p class="label-line">以下信息不会阻碍技术框架开发，但上线前必须确认：</p><p>评论采集范围具体包含哪些作品</p><p>新增关注是否仅监听企业自身账号</p><p>直播互动当前 RPA 可以稳定获取哪些类型</p><p>用户 Profile 当前可以稳定获取哪些字段</p><p>高意向评分最终业务权重</p><p>HIGH Intent 最低分</p><p>每日最大主动私信数量</p><p>私信最小触达间隔</p><p>是否默认开启自动触达</p><p>什么情况下需要人工审批</p><p>有效留资是否要求手机号</p><p>微信号是否单独视为有效留资</p><p>是否必须获得姓名</p><p>留资后推送到哪里</p><p>是否已有 CRM</p><p>真人销售通知渠道</p><p>账号风控后的恢复策略</p><p>私信检查频率</p><p>评论检查频率</p><p>直播监听运行方式</p><h2 id="section-84-八十四-最终技术边界"><span class="section-no">84</span>八十四. 最终技术边界</h2><p class="label-line">整套线索猎人 V1 的职责划分需要保持稳定：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 156</span><button class="copy-btn" type="button" data-copy="RPA
+负责真实页面执行
+
+Python
+负责确定性数据处理和规则计算
+
+LLM
+负责语义理解、销售判断和内容生成
+
+Skill
+负责统一能力抽象
+
+Agent Runtime
+负责调用和组织 Skill
+
+State Machine
+负责流程边界
+
+Policy
+负责业务规则
+
+Permission
+负责能力授权
+
+Scheduler
+负责固定周期任务
+
+Event Bus
+负责事件驱动
+
+Memory
+负责客户连续上下文
+
+Trace
+负责全链路审计
+
+WorkBuddy
+负责理解用户目标并管理数字员工">复制</button></div><pre><code>RPA
+负责真实页面执行
+
+Python
+负责确定性数据处理和规则计算
+
+LLM
+负责语义理解、销售判断和内容生成
+
+Skill
+负责统一能力抽象
+
+Agent Runtime
+负责调用和组织 Skill
+
+State Machine
+负责流程边界
+
+Policy
+负责业务规则
+
+Permission
+负责能力授权
+
+Scheduler
+负责固定周期任务
+
+Event Bus
+负责事件驱动
+
+Memory
+负责客户连续上下文
+
+Trace
+负责全链路审计
+
+WorkBuddy
+负责理解用户目标并管理数字员工</code></pre></div><p>这套架构是线索猎人 V1 的开发基线。</p><p class="label-line">后续新增任何数字员工，都应尽量继续复用：</p><div class="code-card"><div class="code-card-head"><span class="code-label">WORKFLOW / CONFIG</span><span class="code-index">CODE 157</span><button class="copy-btn" type="button" data-copy="Agent
++
+Skill
++
+Executor
++
+Memory
++
+Policy
++
+Permission
++
+State
++
+Event
++
+Evaluation">复制</button></div><pre><code>Agent
++
+Skill
++
+Executor
++
+Memory
++
+Policy
++
+Permission
++
+State
++
+Event
++
+Evaluation</code></pre></div><p>从而逐步形成Byering 的统一数字员工平台。</p></div>
+      <p class="search-empty" id="search-empty">没有匹配内容，请尝试其他关键词。</p>
+      <footer class="footer">Agent框架设计 · HTML 重编排版 · 信息完整保留，新增元素仅用于阅读、导航和可视化。</footer>
+    </div>
+  </main>
+</div>
+<script>
+function buildChapterGroups() {
+  const documentRoot = document.getElementById('document');
+  const chapterBreaks = [...documentRoot.children].filter(node => node.classList.contains('chapter-break'));
+  chapterBreaks.forEach((chapterBreak, index) => {
+    const group = document.createElement('section');
+    group.className = 'chapter-group';
+    group.id = `chapter-group-${String(index + 1).padStart(2, '0')}`;
+    documentRoot.insertBefore(group, chapterBreak);
+    const nextBreak = chapterBreaks[index + 1] || null;
+    let node = chapterBreak;
+    while (node && node !== nextBreak) {
+      const next = node.nextElementSibling;
+      group.appendChild(node);
+      node = next;
+    }
+  });
+}
+
+function buildSectionIndex() {
+  const toc = document.querySelector('.toc');
+  const links = [...toc.querySelectorAll(':scope > a')];
+  const chapterLinks = [...document.querySelectorAll('.chapter-link')];
+  const ranges = [[1, 6], [7, 9], [70, 72], [10, 20], [21, 27], [28, 35], [36, 50], [51, 59], [60, 69], [73, 79], [80, 83]];
+  toc.replaceChildren();
+  document.querySelector('.toc-original > summary').textContent = '83 个细分标题 · 按章节分组';
+  ranges.forEach(([start, end], index) => {
+    const parent = document.createElement('details');
+    parent.className = 'toc-parent';
+    parent.open = index === 0;
+    const summary = document.createElement('summary');
+    summary.textContent = `${String(index + 1).padStart(2, '0')} · ${chapterLinks[index].textContent.replace(/^\d+/, '').trim()}`;
+    const children = document.createElement('div');
+    children.className = 'toc-children';
+    links.filter(link => {
+      const number = Number(link.dataset.sectionLink.match(/^section-(\d+)/)?.[1]);
+      return number >= start && number <= end;
+    }).forEach(link => children.appendChild(link));
+    parent.append(summary, children);
+    toc.appendChild(parent);
+  });
+}
+
+function normalizeChildHeadings() {
+  document.querySelectorAll('.chapter-group').forEach(group => {
+    group.querySelectorAll(':scope > h2').forEach((heading, index) => {
+      heading.setAttribute('aria-label', heading.textContent.trim());
+      const number = heading.querySelector('.section-no');
+      if (number) number.textContent = String(index + 1).padStart(2, '0');
+      const titleNode = [...heading.childNodes].find(node => node.nodeType === Node.TEXT_NODE);
+      if (titleNode) titleNode.nodeValue = titleNode.nodeValue.replace(/^\s*[\u4e00-\u9fff\d]+[、.．]\s*/, '');
+    });
+  });
+}
+
+function addRuntimeSkillBoundaryExplainer() {
+  const sequence = document.getElementById('runtime-sequence');
+  const accountPhase = sequence?.querySelector(':scope > .runtime-phase:nth-of-type(2)');
+  if (!accountPhase || document.getElementById('runtime-skill-bridge')) return;
+  const note = document.createElement('aside');
+  note.id = 'runtime-skill-bridge';
+  note.className = 'runtime-skill-bridge';
+  note.innerHTML = `
+    <h4>步骤 01–10：哪些是控制流程，哪些已经进入 Skill？</h4>
+    <p>关键分界：<strong>步骤 01–04 是主 Agent / Runtime 创建任务；步骤 05–06 开始调用 ACCOUNT Skill；步骤 07–09 是状态与调度控制；步骤 10 进入 OBSERVE Skill。</strong></p>
+    <table>
+      <thead><tr><th>步骤</th><th>负责层</th><th>Skill / Executor</th><th>结果</th></tr></thead>
+      <tbody>
+        <tr><td>01–04</td><td>Byering 主 Agent + Runtime</td><td>不调用 Skill</td><td>创建 Goal、Task</td></tr>
+        <tr><td>05</td><td>ACCOUNT Domain</td><td><code>check_account_session</code> → <code>douyin_check_session_v1</code></td><td>READY / LOGIN_REQUIRED / 风控错误</td></tr>
+        <tr><td>06</td><td>ACCOUNT Domain</td><td><code>connect_douyin_account</code> 或 <code>recover_account_session</code> → Workflow</td><td>要求用户授权，不由 Agent 直接操作页面</td></tr>
+        <tr><td>07–08</td><td>State Machine / Runtime</td><td>不新增 Skill</td><td>登录结果回写，Account = READY</td></tr>
+        <tr><td>09</td><td>Scheduler / Runtime</td><td>不新增 Skill</td><td>创建周期 Job</td></tr>
+        <tr><td>10</td><td>OBSERVE Domain</td><td><code>sync_video_comments</code> → <code>douyin_sync_comments_v1</code></td><td>按计划采集评论</td></tr>
+      </tbody>
+    </table>
+    <p class="runtime-skill-note"><strong>命名统一：</strong>运行时序中的 <code>sync_comments</code>、Skill 清单中的 <code>sync_video_comments</code>、Workflow 中的 <code>douyin_sync_comments_v1</code> 是同一条能力链，后端应以 Skill ID + Workflow ID 的映射作为唯一关系。</p>
+  `;
+  accountPhase.insertAdjacentElement('afterend', note);
+}
+
+function addBehaviorOverlayExplainer() {
+  const skillHeading = document.getElementById('section-8-八-skill-domain');
+  if (!skillHeading || document.getElementById('behavior-overlay')) return;
+  const note = document.createElement('aside');
+  note.id = 'behavior-overlay';
+  note.className = 'behavior-overlay';
+  note.innerHTML = `
+    <div class="behavior-overlay-kicker">USER CONFIG / BOUNDED OVERLAY</div>
+    <h3>用户可以通过 Chat 调整线索猎人的“表现”，但不能改造它的“能力”</h3>
+    <p>用户在 Byering Chat 中提出的要求，先被主 Agent 识别为<strong>行为配置</strong>，再经过 Schema、Policy 和 Permission 校验，写入版本化的 Behavior Profile。它只是在基础 Soul、Skill 和 Runtime 之上增加一层可控偏好，不能直接修改底层实现。</p>
+    <div class="behavior-overlay-grid">
+      <div class="behavior-overlay-card"><strong>可以调整：沟通表现</strong><p>语气更专业 / 更亲切、回复长短、是否先复述需求、是否减少营销感、人工交接时的表达方式。</p></div>
+      <div class="behavior-overlay-card"><strong>可以调整：挖掘偏好</strong><p>优先识别哪些用户场景、先问预算还是使用场景、哪些信号需要重点记录、何时先澄清再触达。</p></div>
+      <div class="behavior-overlay-card"><strong>不能调整：基础能力</strong><p>不能新增 Skill、替换 Executor、自己写 RPA、直接操作鼠标键盘、修改 Workflow 或改变数据模型。</p></div>
+      <div class="behavior-overlay-card"><strong>不能调整：安全与授权</strong><p>不能放开 Permission、绕过 Policy、取消 Account Lock、突破发送频率、自动承诺价格优惠或覆盖人工接管。</p></div>
+    </div>
+    <table>
+      <thead><tr><th>用户指令</th><th>落在哪一层</th><th>生效方式</th></tr></thead>
+      <tbody>
+        <tr><td>“语气专业一点，回复短一些。”</td><td><code>tone_profile</code></td><td>影响后续消息生成，不改变 <code>generate_reply</code> Skill。</td></tr>
+        <tr><td>“优先识别家庭出行、后排空间需求。”</td><td><code>discovery_priorities</code></td><td>影响信号排序和追问顺序，不新增数据采集能力。</td></tr>
+        <tr><td>“不要一上来就问电话，先把需求聊清楚。”</td><td><code>conversation_policy</code></td><td>调整对话策略；仍受留资规则、Policy 和人工接管约束。</td></tr>
+        <tr><td>“开放一个新的抖音操作能力。”</td><td>底层能力变更</td><td>拒绝由 Chat 直接执行，必须走 Skill / Workflow 的开发和发布流程。</td></tr>
+      </tbody>
+    </table>
+    <div class="behavior-overlay-boundary"><strong>配置优先级：</strong>系统安全与合规 ＞ Permission / Policy ＞ Soul 与基础配置 ＞ 用户 Behavior Profile ＞ 当前任务中的表达偏好 ＞ 模型临时生成。用户偏好只能在更高层规则允许的范围内生效，并且只影响后续运行。</div>
+  `;
+  skillHeading.before(note);
+}
+
+function addMemoryArchitectureExplainer() {
+  const leadMemoryHeading = document.getElementById('section-41-四十一-lead-memory');
+  if (!leadMemoryHeading || document.getElementById('memory-architecture')) return;
+  const note = document.createElement('aside');
+  note.id = 'memory-architecture';
+  note.className = 'memory-architecture';
+  note.innerHTML = `
+    <div class="memory-architecture-kicker">MEMORY / OWNERSHIP / CONTEXT</div>
+    <h3>主 Agent Memory、子 Agent Memory 和 Runtime 状态不是一份记忆</h3>
+    <p>Memory 必须按<strong>作用域、所有者和生命周期</strong>拆开。主 Agent 记“用户和团队希望数字员工怎么工作”，线索猎人记“这个 Lead 发生了什么”，Runtime 只记“这次运行进行到哪里”。三者通过 Context Builder 组装成当前运行上下文，而不是互相直接覆盖。</p>
+    <div class="memory-architecture-grid">
+      <div class="memory-architecture-card"><strong>主 Agent Memory / WorkBuddy</strong><p>工作区级目标、长期 Task、用户对 Agent 的行为偏好、全局业务约束、跨 Agent 汇总和人工交接结论。所有者是主 Agent / Workspace。</p></div>
+      <div class="memory-architecture-card"><strong>线索猎人子 Agent Memory</strong><p>Lead 级事实、互动证据、购车意向、用户偏好、异议、对话状态、已问过的问题和下一步动作。所有者是 Lead Hunter，作用域是单个 Lead / Conversation。</p></div>
+      <div class="memory-architecture-card"><strong>Runtime 执行状态</strong><p>Agent Run、Skill Run、Goal / Task 状态、重试次数、锁、幂等键、Scheduler Job 和 Trace。它是可恢复的运行数据，不应当被当作长期用户记忆。</p></div>
+    </div>
+    <div class="memory-architecture-flow">用户在 Chat 提出长期要求
+        ↓
+主 Agent Memory：Behavior Profile / Goal / Task / 全局约束
+        ↓ 只通过 Context Builder 形成共享只读上下文
+子 Agent Memory：Lead Facts / Intent / Preference / Conversation Summary
+        ↓ 由 update_lead_memory 产生版本化写入
+Runtime State：Agent Run / Skill Run / State / Lock / Trace
+        ↓
+Skill Runtime 按当前上下文执行 Skill，结果回写对应作用域</div>
+    <table>
+      <thead><tr><th>对象</th><th>主 Agent 可以做什么</th><th>子 Agent 可以做什么</th><th>不能做什么</th></tr></thead>
+      <tbody>
+        <tr><td>主 Agent Memory</td><td>记录用户对数字员工的长期要求，创建和调整 Goal / Task。</td><td>读取与当前 Lead 相关的已批准行为配置。</td><td>不能把某个 Lead 的事实写成全局规则。</td></tr>
+        <tr><td>子 Agent Memory</td><td>读取汇总结果，进行人工交接和跨任务汇报。</td><td>通过 <code>update_lead_memory</code> 写入 Lead 事实、偏好、意向和对话摘要。</td><td>不能修改主 Agent 配置、Soul、Skill 或 Permission。</td></tr>
+        <tr><td>Runtime State</td><td>创建、暂停、恢复和查询运行状态。</td><td>读取当前 Run 的上下文和可用 Skill。</td><td>不能把临时状态当成长期事实，也不能绕过 State Machine。</td></tr>
+      </tbody>
+    </table>
+    <div class="memory-architecture-boundary"><strong>读取与冲突规则：</strong>当前用户明确表达 ＞ 已确认的 Lead Memory ＞ 历史摘要 ＞ 暂定记忆 ＞ 模型推断；但任何记忆都不能覆盖系统安全、Permission、Policy、人工接管和账号锁。所有写入都要带 source、scope、version、updated_by 和 Trace。</div>
+  `;
+  leadMemoryHeading.before(note);
+}
+
+function removeAgentMindmap() {
+  document.getElementById('mindmap')?.remove();
+  document.querySelectorAll('a[href="#mindmap"]').forEach(link => link.remove());
+}
+
+function reorderRuntimeChapter() {
+  const documentRoot = document.getElementById('document');
+  const runtimeBreak = documentRoot.querySelector('#chapter-09');
+  const firstBusinessBreak = documentRoot.querySelector('#chapter-03');
+  if (!runtimeBreak || !firstBusinessBreak) return;
+
+  const runtimeGoal = documentRoot.querySelector('#section-70-七十-goal');
+  const runtimeSequence = documentRoot.querySelector('#section-72-七十二-完整运行时序');
+  const runtimeSequenceVisual = runtimeSequence?.nextElementSibling;
+  if (runtimeGoal && runtimeSequence && runtimeSequenceVisual) {
+    runtimeBreak.parentNode.insertBefore(runtimeSequence, runtimeGoal);
+    runtimeBreak.parentNode.insertBefore(runtimeSequenceVisual, runtimeGoal);
+  }
+
+  let node = runtimeBreak;
+  const runtimeNodes = [];
+  while (node && node !== documentRoot.querySelector('#chapter-10')) {
+    const next = node.nextElementSibling;
+    runtimeNodes.push(node);
+    node = next;
+  }
+  runtimeNodes.forEach(item => documentRoot.insertBefore(item, firstBusinessBreak));
+
+  const orderedBreaks = [...documentRoot.children].filter(item => item.classList.contains('chapter-break'));
+  const chapterLinks = [...documentRoot.ownerDocument.querySelectorAll('.chapter-link')];
+  orderedBreaks.forEach((chapter, index) => {
+    const chapterNumber = String(index + 1).padStart(2, '0');
+    chapter.id = `chapter-${chapterNumber}`;
+    chapter.querySelector('.chapter-kicker').textContent = `Chapter ${chapterNumber} / ${orderedBreaks.length}`;
+    const link = chapterLinks[index];
+    if (link) {
+      link.href = `#${chapter.id}`;
+      link.innerHTML = `<span>${chapterNumber}</span>${chapter.querySelector('h3').textContent}`;
+    }
+  });
+
+  const runtimeChapter = orderedBreaks[2];
+  if (runtimeChapter) {
+    runtimeChapter.querySelector('h3').textContent = '完整运行时序';
+    runtimeChapter.querySelector('p').textContent = '先看一条线索如何穿过系统，再进入各业务阶段的 Skill 化实现。';
+    if (chapterLinks[2]) chapterLinks[2].innerHTML = `<span>03</span>完整运行时序`;
+  }
+  const chapterTargets = {
+    '采集与建模': '#chapter-04', '意向分析': '#chapter-05', '主动触达': '#chapter-06',
+    '对话与留资': '#chapter-07', '状态与事件': '#chapter-08', '权限与观测': '#chapter-09',
+    '实现与边界': '#chapter-10'
+  };
+  document.querySelectorAll('.mindmap-links a').forEach(link => {
+    const target = chapterTargets[link.textContent.trim()];
+    if (target) link.href = target;
+  });
+}
+
+function removeBusinessConfirmationSection() {
+  const heading = document.getElementById('section-83-八十三-待业务确认项');
+  if (heading) {
+    let node = heading;
+    while (node) {
+      const next = node.nextElementSibling;
+      node.remove();
+      if (next?.matches('h2')) break;
+      node = next;
+    }
+  }
+  document.querySelector('[data-section-link="section-83-八十三-待业务确认项"]')?.remove();
+  const chapterIntro = document.querySelector('#chapter-11 > p');
+  if (chapterIntro) chapterIntro.textContent = '收束开发 Ticket、核心验收场景和上线标准。';
+  const badge = document.querySelector('.brief-badge');
+  if (badge) badge.textContent = '11 chapters / 83 details';
+}
+
+addRuntimeSkillBoundaryExplainer();
+addBehaviorOverlayExplainer();
+addMemoryArchitectureExplainer();
+removeAgentMindmap();
+reorderRuntimeChapter();
+removeBusinessConfirmationSection();
+buildChapterGroups();
+buildSectionIndex();
+normalizeChildHeadings();
+const sectionIds = ["section-1-一-核心结构-主-agent-确定性运行时-专业子agent", "section-2-二-核心原则", "section-3-三-产品总体定义", "section-4-四-现有线索猎人项目背景", "section-5-五-线索猎人agent设计原则及详情", "section-6-六-线索猎人agent定义", "section-7-七-soul-文件", "section-8-八-skill-domain", "section-9-九-skill-executor-映射", "section-10-十-rpa-workflow-需求", "section-11-十一-rpa-workflow-请求协议", "section-12-十二-rpa-workflow-返回协议", "section-13-十三-评论采集需求", "section-14-十四-新增关注采集需求", "section-15-十五-私信采集需求", "section-16-十六-直播互动采集需求", "section-17-十七-social-event-统一模型", "section-18-十八-lead-创建与身份绑定", "section-19-十九-lead-表", "section-20-二十-lead-identity-表", "section-21-二十一-lead-signal-聚合", "section-22-二十二-意向分析-pipeline", "section-23-二十三-extract_intent_signals", "section-24-二十四-signal-类型", "section-25-二十五-lead-signal-表", "section-26-二十六-购买阶段", "section-27-二十七-意向评分", "section-28-二十八-主动触达判断", "section-29-二十九-outreach-policy", "section-30-三十-check_outreach_eligibility", "section-31-三十一-outreach-pipeline", "section-32-三十二-首次触达策略", "section-33-三十三-generate_outreach_message", "section-34-三十四-validate_message", "section-35-三十五-send_dm", "section-36-三十六-message-幂等", "section-37-三十七-message-表", "section-38-三十八-conversation-表", "section-39-三十九-conversation-loop", "section-40-四十-understand_reply", "section-41-四十一-lead-memory", "section-42-四十二-update_lead_memory", "section-43-四十三-decide_next_action", "section-44-四十四-context-builder", "section-45-四十五-conversation-summary", "section-46-四十六-留资判断", "section-47-四十七-extract_contact", "section-48-四十八-lead-contact-表", "section-49-四十九-留资成功流程", "section-50-五十-lead-summary", "section-51-五十一-lead-状态机", "section-52-五十二-conversation-状态机", "section-53-五十三-account-状态机", "section-54-五十四-cloud-session", "section-55-五十五-account-lock", "section-56-五十六-scheduler", "section-57-五十七-event-bus", "section-58-五十八-关键-event", "section-59-五十九-event-结构", "section-60-六十-skill-registry", "section-61-六十一哦-skill-schema-示例", "section-62-六十二-permission", "section-63-六十三-policy", "section-64-六十四-approval", "section-65-六十五-agent-run", "section-66-六十六-skill-run", "section-67-六十七-trace-要求", "section-68-六十八-错误码", "section-69-六十九-retry-规则", "section-70-七十-goal", "section-71-七十一-task", "section-72-七十二-完整运行时序", "section-73-七十三-v1-技术实现形态", "section-74-七十四-后端模块建议", "section-75-七十五-rpa-adapter", "section-76-七十六-llm-executor", "section-77-七十七-prompt-template", "section-78-七十八-v1-明确不做", "section-79-七十九-开发团队职责", "section-80-八十-第一阶段开发-ticket", "section-81-八十一-v1-核心验收场景", "section-82-八十二-v1-上线标准", "section-83-八十三-待业务确认项", "section-84-八十四-最终技术边界"];
+const search = document.getElementById('search');
+const empty = document.getElementById('search-empty');
+const sectionsEl = document.getElementById('document');
+const navLinks = [...document.querySelectorAll('[data-section-link]')];
+const chapterLinks = [...document.querySelectorAll('.chapter-link')];
+const chapterBreaks = [...document.querySelectorAll('.chapter-break')];
+const headings = [...document.querySelectorAll('.document h2')];
+
+function filterDocument() {
+  const query = search.value.trim().toLowerCase();
+  let visible = 0;
+  headings.forEach((heading, index) => {
+    const next = headings[index + 1];
+    const range = [];
+    let node = heading;
+    while (node && node !== next) { range.push(node); node = node.nextElementSibling; }
+    const matches = !query || range.some(item => item.textContent.toLowerCase().includes(query));
+    range.forEach(item => item.classList.toggle('hidden', !matches));
+    if (matches) visible += 1;
+  });
+  empty.style.display = query && visible === 0 ? 'block' : 'none';
+}
+search.addEventListener('input', filterDocument);
+document.getElementById('print').addEventListener('click', () => window.print());
+document.getElementById('theme').addEventListener('click', () => document.body.classList.toggle('night'));
+document.addEventListener('click', async (event) => {
+  const button = event.target.closest('.copy-btn');
+  if (!button) return;
+  try { await navigator.clipboard.writeText(button.dataset.copy); button.textContent = '已复制'; setTimeout(() => button.textContent = '复制', 1300); }
+  catch { button.textContent = '请手动复制'; setTimeout(() => button.textContent = '复制', 1300); }
+});
+const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) { navLinks.forEach(link => link.classList.toggle('active', link.dataset.sectionLink === entry.target.id)); } }); }, { rootMargin: '-20% 0px -65% 0px' });
+document.querySelectorAll('.document h2').forEach(heading => observer.observe(heading));
+function syncChapterNav() {
+  const marker = window.scrollY + Math.min(window.innerHeight * 0.28, 220);
+  let current = chapterBreaks[0];
+  chapterBreaks.forEach(chapter => { if (chapter.offsetTop <= marker) current = chapter; });
+  chapterLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === '#' + current.id));
+}
+window.addEventListener('scroll', syncChapterNav, { passive: true });
+window.addEventListener('resize', syncChapterNav);
+syncChapterNav();
+</script>
+</body>
+</html>

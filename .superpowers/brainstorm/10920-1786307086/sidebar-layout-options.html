@@ -1,0 +1,121 @@
+<style>
+  .nav-choices{display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:18px;margin-top:22px}
+  .nav-card{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:var(--card);cursor:pointer;transition:.18s ease;box-shadow:0 8px 30px rgba(15,15,15,.04)}
+  .nav-card:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(15,15,15,.08)}
+  .nav-card.selected{outline:3px solid #111;outline-offset:3px}
+  .preview{height:570px;padding:20px 18px;background:#f7f7f5;color:#191919;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+  .brand{font-size:25px;font-weight:720;letter-spacing:-.8px;margin:2px 8px 22px}
+  .new-task{height:44px;border-radius:11px;background:#171717;color:#fff;display:flex;align-items:center;padding:0 13px;gap:10px;font-size:14px;font-weight:600;margin-bottom:18px}
+  .new-task.light{background:#e9e9e7;color:#191919}
+  .plus{font-size:19px;line-height:1}
+  .group{margin:19px 0 5px;padding:0 10px;font-size:10px;font-weight:700;letter-spacing:1.15px;color:#999;text-transform:uppercase}
+  .row{height:39px;border-radius:9px;display:flex;align-items:center;gap:11px;padding:0 11px;font-size:13px;margin:2px 0}
+  .row.active{background:#e7e7e4;font-weight:650}
+  .row.sub{height:32px;margin-left:28px;padding-left:12px;color:#626262;font-size:12px;position:relative}
+  .row.sub:before{content:"";width:5px;height:5px;border-radius:50%;background:#c3c7cd;position:absolute;left:-3px}
+  .row.sub.live:before{background:#48ad68;box-shadow:0 0 0 3px rgba(72,173,104,.12)}
+  .ico{width:19px;text-align:center;font-size:15px;filter:grayscale(1)}
+  .count{margin-left:auto;font-size:10px;color:#aaa;font-weight:500}
+  .rule{height:1px;background:#e5e5e2;margin:14px 8px}
+  .bottom{margin-top:auto}
+  .stack{height:490px;display:flex;flex-direction:column}
+  .project-box{margin:3px 4px 12px;padding:7px;border-radius:12px;background:#eeeeeb}
+  .project-box .row{margin:0;background:transparent}
+  .project-box .sub{margin-left:25px}
+  .section-head{display:flex;align-items:center;justify-content:space-between;padding:0 9px 5px;font-size:10px;color:#9a9a9a;font-weight:700;letter-spacing:.8px}
+  .card-copy{padding:15px 17px 18px;border-top:1px solid var(--border)}
+  .card-copy h3{font-size:15px;margin:0 0 6px}
+  .card-copy p{font-size:12px;line-height:1.55;margin:0;color:var(--muted)}
+  .tag{display:inline-block;margin-left:7px;padding:2px 7px;border-radius:999px;background:#171717;color:#fff;font-size:9px;vertical-align:2px}
+  @media(max-width:980px){.nav-choices{grid-template-columns:1fr}.preview{height:auto;min-height:560px}}
+</style>
+
+<h2>哪一种导航组织方式更自然？</h2>
+<p class="subtitle">三版都保留现有功能，只调整层级、密度和项目组的收纳方式。点击你更喜欢的一版。</p>
+
+<div class="nav-choices">
+  <div class="nav-card option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="brand">SaleBuddy</div>
+      <div class="new-task"><span class="plus">＋</span> 新建任务</div>
+      <div class="stack">
+        <div class="group">工作</div>
+        <div class="project-box">
+          <div class="row active"><span class="ico">◉</span>办公室<span class="count">2 个项目</span></div>
+          <div class="row sub live">潜在客户拓展<span class="count">当前</span></div>
+          <div class="row sub">触达内容共创</div>
+        </div>
+        <div class="row"><span class="ico">◔</span>看板</div>
+        <div class="row"><span class="ico">▣</span>通讯录</div>
+        <div class="group">能力与资产</div>
+        <div class="row"><span class="ico">◆</span>技能广场</div>
+        <div class="row"><span class="ico">▰</span>Agent 广场</div>
+        <div class="row"><span class="ico">■</span>文件中心</div>
+        <div class="row"><span class="ico">●</span>资源中心</div>
+        <div class="bottom">
+          <div class="rule"></div>
+          <div class="row"><span class="ico">▤</span>知识库<span class="count">文档 · 记忆</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-copy">
+      <h3>A · 分组收纳 <span class="tag">推荐</span></h3>
+      <p>工作入口优先，项目组只在办公室下展开；低频知识入口收成一个，整体节奏最稳定。</p>
+    </div>
+  </div>
+
+  <div class="nav-card option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="brand">SaleBuddy</div>
+      <div class="new-task light"><span class="plus">＋</span> 新建任务</div>
+      <div class="stack">
+        <div class="row active"><span class="ico">◉</span>办公室<span class="count">展开</span></div>
+        <div class="row sub live">潜在客户拓展<span class="count">当前</span></div>
+        <div class="row sub">触达内容共创</div>
+        <div class="row"><span class="ico">◔</span>看板</div>
+        <div class="row"><span class="ico">◆</span>技能广场</div>
+        <div class="row"><span class="ico">▣</span>通讯录</div>
+        <div class="row"><span class="ico">▰</span>Agent 广场</div>
+        <div class="row"><span class="ico">■</span>文件中心</div>
+        <div class="row"><span class="ico">●</span>资源中心</div>
+        <div class="rule"></div>
+        <div class="row"><span class="ico">▤</span>文档</div>
+        <div class="row"><span class="ico">◍</span>记忆</div>
+      </div>
+    </div>
+    <div class="card-copy">
+      <h3>B · 极简单列</h3>
+      <p>不使用分组标题，所有功能保持同一层级。最直接，但业务入口较多时仍容易显得像功能清单。</p>
+    </div>
+  </div>
+
+  <div class="nav-card option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="preview">
+      <div class="brand">SaleBuddy</div>
+      <div class="new-task"><span class="plus">＋</span> 新建任务</div>
+      <div class="stack">
+        <div class="section-head"><span>当前项目</span><span>切换⌄</span></div>
+        <div class="project-box">
+          <div class="row active"><span class="ico">●</span>潜在客户拓展</div>
+          <div class="row sub live">4 位员工正在工作</div>
+        </div>
+        <div class="group">项目工作台</div>
+        <div class="row"><span class="ico">◉</span>办公室</div>
+        <div class="row"><span class="ico">◔</span>数据看板</div>
+        <div class="row"><span class="ico">▣</span>项目通讯录</div>
+        <div class="group">组织</div>
+        <div class="row"><span class="ico">◆</span>技能广场</div>
+        <div class="row"><span class="ico">▰</span>Agent 广场</div>
+        <div class="bottom">
+          <div class="rule"></div>
+          <div class="row"><span class="ico">■</span>全部资产<span class="count">文件 · 资源</span></div>
+          <div class="row"><span class="ico">▤</span>知识库</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-copy">
+      <h3>C · 项目上下文优先</h3>
+      <p>把当前项目提到最上方，其余入口跟随项目语境。更像管理系统，但会明显改变现有导航心智。</p>
+    </div>
+  </div>
+</div>

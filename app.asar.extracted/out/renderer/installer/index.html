@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marvis 安装</title>
+  <script type="module" crossorigin src="../assets/installer-BDyuncpd.js"></script>
+  <link rel="stylesheet" crossorigin href="../assets/installer-Du2n3xzM.css">
+</head>
+<body>
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- 主界面：渐变背景 + 居中图标 + 文字              -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="main-view" class="main-view">
+    <div class="icon-container">
+      <img id="app-icon" class="app-icon" src="" alt="Marvis">
+    </div>
+    <h1 class="app-title">Marvis</h1>
+    <p class="hint-text">双击图标 安装 Marvis</p>
+
+    <!-- 安装进度条（默认隐藏，安装阶段显示） -->
+    <div id="progress-container" class="progress-container hidden">
+      <div class="progress-bar">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+      <p id="progress-text" class="progress-text">正在安装...</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- 弹窗：版本不足                                   -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="version-alert" class="alert-dialog hidden">
+    <button class="alert-close">&times;</button>
+    <h2 class="alert-title">系统版本暂不支持</h2>
+    <p class="alert-message">当前暂不支持macOS13以下版本，请升级至macOS13或更高版本后继续使用</p>
+    <button id="btn-upgrade" class="alert-btn primary">立即升级</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- 弹窗：磁盘空间不足                               -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="space-alert" class="alert-dialog hidden">
+    <button class="alert-close">&times;</button>
+    <h2 class="alert-title">磁盘空间不足</h2>
+    <p class="alert-message">请清理不必要的文件后再试</p>
+    <div class="alert-actions">
+      <button id="btn-retry-space" class="alert-btn secondary">重新检测</button>
+      <button id="btn-open-storage" class="alert-btn primary">去清理</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- 弹窗：两项均不满足（CombinedFailureAlert）        -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div id="combined-alert" class="alert-dialog hidden">
+    <button class="alert-close">&times;</button>
+    <h2 class="alert-title">暂不满足安装条件</h2>
+    <ul id="combined-list" class="combined-list">
+      <!-- JS 动态填充列表项 -->
+    </ul>
+    <button id="btn-retry-combined" class="alert-btn primary">重新检测</button>
+  </div>
+
+</body>
+</html>

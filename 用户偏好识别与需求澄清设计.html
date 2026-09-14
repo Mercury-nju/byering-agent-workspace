@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>线索猎人 Agent｜用户偏好识别与需求澄清设计</title>
+<style>
+:root { --ink:#152735; --muted:#657782; --line:#d9e4e1; --paper:#fff; --soft:#f5f9f7; --mint:#50b5a5; --coral:#f56e55; --gold:#c89633; --shadow:0 14px 34px rgba(21,39,53,.08); }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:#f3f6f5; color:var(--ink); font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+a { color:#247d72; text-decoration:none; }
+a:hover { color:var(--coral); }
+.shell { display:grid; grid-template-columns:260px minmax(0,1fr); min-height:100vh; }
+.sidebar { position:sticky; top:0; height:100vh; overflow:auto; padding:28px 20px; background:#102b38; color:#d9ebe7; }
+.brand { display:flex; align-items:center; gap:10px; padding:0 8px 28px; border-bottom:1px solid rgba(217,235,231,.18); }
+.brand-mark { display:grid; width:30px; height:30px; place-items:center; border:1px solid #83cfc2; border-radius:8px; color:#83cfc2; font-weight:800; }
+.brand strong { display:block; letter-spacing:.14em; font-size:13px; }
+.brand small { display:block; color:#8bb0aa; font:10px "SFMono-Regular",Consolas,monospace; letter-spacing:.09em; }
+.nav-title { margin:26px 8px 9px; color:#82b8af; font:800 10px "SFMono-Regular",Consolas,monospace; letter-spacing:.16em; text-transform:uppercase; }
+.toc { display:grid; gap:3px; }
+.toc a { display:block; padding:8px 10px; border-left:2px solid transparent; border-radius:0 5px 5px 0; color:#c4d7d3; font-size:12px; line-height:1.45; }
+.toc a:hover { border-left-color:var(--coral); background:rgba(255,255,255,.08); color:#fff; }
+.side-note { margin:28px 8px 0; padding-top:14px; border-top:1px solid rgba(217,235,231,.18); color:#88a9a4; font-size:11px; }
+.main { min-width:0; }
+.content { width:min(1060px,calc(100% - 48px)); margin:0 auto; padding:44px 0 90px; }
+.hero { padding:42px 46px; border:1px solid var(--line); border-radius:18px; background:var(--paper); box-shadow:var(--shadow); }
+.eyebrow { margin:0 0 12px; color:#4b9f92; font:800 11px "SFMono-Regular",Consolas,monospace; letter-spacing:.16em; text-transform:uppercase; }
+h1,h2,h3 { margin:0; line-height:1.25; }
+h1 { max-width:800px; font:500 clamp(30px,4vw,52px)/1.12 Georgia,"Songti SC",serif; letter-spacing:-.035em; }
+.lead { max-width:780px; margin:18px 0 0; color:var(--muted); font-size:16px; }
+.tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+.tag { padding:5px 9px; border:1px solid #c9ddd8; border-radius:999px; color:#407d74; font-size:11px; }
+.section { margin-top:26px; padding:32px 36px; border:1px solid var(--line); border-radius:14px; background:var(--paper); box-shadow:0 8px 22px rgba(21,39,53,.04); }
+.section-kicker { margin-bottom:7px; color:var(--coral); font:800 10px "SFMono-Regular",Consolas,monospace; letter-spacing:.14em; }
+h2 { font:500 30px/1.2 Georgia,"Songti SC",serif; }
+h3 { margin-top:24px; font-size:18px; }
+p { margin:12px 0; }
+.muted { color:var(--muted); }
+.callout { margin:18px 0; padding:15px 17px; border-left:4px solid var(--mint); background:#f1f8f5; color:#385b58; }
+.warning { border-left-color:var(--coral); background:#fff5f1; color:#734d45; }
+.flow { overflow:auto; margin:18px 0; padding:18px; border:1px solid #d6e6e1; border-radius:10px; background:#f8fbfa; color:#245b55; font:13px/1.8 "SFMono-Regular",Consolas,monospace; white-space:pre; }
+.grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:15px; }
+.card { padding:16px; border:1px solid var(--line); border-top:3px solid var(--mint); background:#fbfdfc; }
+.card:nth-child(2n) { border-top-color:var(--gold); }
+.card strong { display:block; margin-bottom:5px; }
+.card p { margin:0; color:var(--muted); font-size:13px; }
+.table-wrap { overflow:auto; margin:16px 0; }
+table { width:100%; border-collapse:collapse; min-width:680px; font-size:13px; }
+th,td { padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+th { background:#f2f8f5; color:#2f7067; font-size:12px; }
+code,pre { font-family:"SFMono-Regular",Consolas,monospace; }
+pre { overflow:auto; margin:14px 0; padding:17px; border-radius:9px; background:#102b38; color:#dff0eb; font-size:12px; line-height:1.65; }
+.checklist { display:grid; gap:8px; padding:0; list-style:none; }
+.checklist li { position:relative; padding-left:23px; }
+.checklist li::before { content:""; position:absolute; left:2px; top:.7em; width:8px; height:8px; border:2px solid var(--mint); border-radius:50%; transform:translateY(-50%); }
+.footer { margin-top:28px; padding:20px 4px; color:#81918e; font-size:12px; text-align:center; }
+@media (max-width:820px) { .shell { display:block; } .sidebar { position:relative; height:auto; } .toc { grid-template-columns:repeat(2,minmax(0,1fr)); } .content { width:min(100% - 28px,1060px); padding-top:20px; } .hero,.section { padding:24px 20px; } .grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">B</div><div><strong>BYERING</strong><small>LEAD HUNTER DESIGN</small></div></div>
+    <div class="nav-title">Document map</div>
+    <nav class="toc" aria-label="文档导航">
+      <a href="#goal">01 目标与边界</a>
+      <a href="#model">02 偏好信号模型</a>
+      <a href="#timing">03 何时追问</a>
+      <a href="#question">04 轻量追问策略</a>
+      <a href="#memory">05 Preference Memory</a>
+      <a href="#runtime">06 Agent / Runtime 分工</a>
+      <a href="#examples">07 对话示例</a>
+      <a href="#acceptance">08 验收与指标</a>
+    </nav>
+    <p class="side-note">基于《Agent框架设计》中的 Lead Memory、Context Builder、Skill Runtime、Trace 和 Policy 约束。</p>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <header class="hero">
+        <p class="eyebrow">Agent Framework / Preference Discovery</p>
+        <h1>线索猎人 Agent 如何在对话中理解用户偏好</h1>
+        <p class="lead">这是一份面向后端落地的补充设计：用户主动表达信号，Agent 只做必要澄清，把自然对话沉淀为可验证、可修改、可追溯的 Lead Preference。</p>
+        <div class="tags"><span class="tag">显式信号优先</span><span class="tag">一次只问一个问题</span><span class="tag">用户可纠正</span><span class="tag">不做隐性操纵</span></div>
+      </header>
+
+      <section class="section" id="goal">
+        <p class="section-kicker">01 / PRINCIPLE</p><h2>目标与边界</h2>
+        <p>目标不是让 Agent 猜中用户的“真实心理”，而是把用户已经主动说出的需求逐步补全为后续动作可使用的结构化信息。</p>
+        <div class="flow">用户主动表达
+    ↓
+显式偏好识别 → 信息完整？ ── 是 ──→ 写入 Preference Memory
+    ↓ 否                                  ↓
+选择一个最小澄清问题 ← 用户回答/纠正 ← 继续自然对话
+                                           ↓
+                                  更新 Lead / Context / Trace</div>
+        <div class="grid">
+          <div class="card"><strong>允许做</strong><p>抽取原话、识别缺失维度、追问一个关键缺口、复述确认、记录变化。</p></div>
+          <div class="card"><strong>禁止做</strong><p>从停留、语气、沉默、点击等行为暗推偏好；用户未提及前主动植入品牌或车型。</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="model">
+        <p class="section-kicker">02 / SIGNAL MODEL</p><h2>偏好信号模型</h2>
+        <p>一个“用户喜欢 SUV”还不足以支撑行动。系统要区分用户说了什么、是否确认、为什么重要，以及它会影响哪个决策。</p>
+        <div class="table-wrap"><table><thead><tr><th>字段</th><th>说明</th><th>示例</th></tr></thead><tbody>
+          <tr><td><code>dimension</code></td><td>偏好维度</td><td>预算、空间、动力、品牌、使用场景、购买时间</td></tr>
+          <tr><td><code>value</code></td><td>标准化后的值</td><td>预算 20–25 万；后排空间优先</td></tr>
+          <tr><td><code>source_quote</code></td><td>用户原话</td><td>“我经常带父母出门，后排不能太挤”</td></tr>
+          <tr><td><code>status</code></td><td>确认状态</td><td><code>tentative</code> / <code>confirmed</code> / <code>rejected</code></td></tr>
+          <tr><td><code>importance</code></td><td>用户是否明确表示优先级</td><td>must / prefer / neutral</td></tr>
+          <tr><td><code>evidence</code></td><td>消息、时间、Trace 关联</td><td>message_id、conversation_id、agent_run_id</td></tr>
+        </tbody></table></div>
+        <pre><code>{
+  "dimension": "space",
+  "value": { "seat_row": "rear", "priority": "must" },
+  "source_quote": "我经常带父母出门，后排不能太挤",
+  "status": "confirmed",
+  "confidence": 0.96,
+  "evidence": { "message_id": "msg_019", "agent_run_id": "run_204" }
+}</code></pre>
+      </section>
+
+      <section class="section" id="timing">
+        <p class="section-kicker">03 / TIMING</p><h2>何时进入偏好识别</h2>
+        <p>偏好识别不是每条消息都触发。Runtime 先判断当前对话阶段，再决定是否值得打断对话做澄清。</p>
+        <div class="grid">
+          <div class="card"><strong>触发条件</strong><p>用户明确表达喜欢、在意、排斥、比较、预算、场景或购买限制。</p></div>
+          <div class="card"><strong>暂不追问</strong><p>用户正在表达情绪、提出事实问题、回复很短，或当前已有更紧急的登录、权限、人工接管事件。</p></div>
+          <div class="card"><strong>追问优先级</strong><p>先补会改变下一步动作的缺口，再补丰富画像但不影响当前动作的细节。</p></div>
+          <div class="card"><strong>节流规则</strong><p>同一轮最多一个问题；连续两轮未回答则停止追问，等待用户自然带出新信号。</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="question">
+        <p class="section-kicker">04 / CLARIFY</p><h2>轻量追问策略</h2>
+        <p>追问的目的不是扩大销售话术，而是消除一个具体歧义。每个问题都必须能回答“这个答案会改变什么”。</p>
+        <div class="callout"><strong>问题模板：</strong>复述用户原意 + 指出一个缺口 + 给出低负担选项 + 允许跳过。</div>
+        <pre><code>用户：我更在意空间。
+
+Agent：你说的“空间”主要是后排乘坐更宽敞，还是后备厢装载更大？
+      如果现在不方便细分，也可以先按“都重要”记录。</code></pre>
+        <div class="table-wrap"><table><thead><tr><th>用户主动信号</th><th>缺口</th><th>合适追问</th></tr></thead><tbody>
+          <tr><td>“预算大概 20 万左右。”</td><td>上限还是舒适区</td><td>“20 万是总预算上限，还是希望尽量控制在这个区间？”</td></tr>
+          <tr><td>“主要上下班开。”</td><td>是否存在周末/长途场景</td><td>“除了通勤，周末会经常跑高速或带家人出行吗？”</td></tr>
+          <tr><td>“不想要太费油的。”</td><td>油耗是硬约束还是偏好</td><td>“低油耗是必须满足，还是在动力相近时优先考虑？”</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="section" id="memory">
+        <p class="section-kicker">05 / MEMORY</p><h2>Preference Memory 与状态</h2>
+        <p>偏好写入 Lead Memory 前必须区分“暂定理解”和“用户确认”。用户的新表述可以覆盖旧值，但旧值不能被静默抹除。</p>
+        <div class="flow">TENTATIVE → CONFIRMED
+     ↘       ↙
+      REJECTED → ARCHIVED
+
+同一维度的新信号：
+旧值保留为历史 → 新值建立证据 → Context Builder 只读取当前有效值</div>
+        <ul class="checklist">
+          <li>用户直接表达且语义明确：可以直接写入 <code>confirmed</code>。</li>
+          <li>用户表达含糊或 Agent 做了标准化：先写 <code>tentative</code>，由下一轮确认。</li>
+          <li>用户说“不是这个意思”：当前值标记 <code>rejected</code>，保存纠正原话。</li>
+          <li>偏好发生变化：创建新版本，不覆盖历史 Trace。</li>
+          <li>推荐或触达前：Policy 检查是否存在冲突、过期或未确认的关键约束。</li>
+        </ul>
+      </section>
+
+      <section class="section" id="runtime">
+        <p class="section-kicker">06 / RESPONSIBILITY</p><h2>Agent、Skill、Runtime 怎么分工</h2>
+        <div class="table-wrap"><table><thead><tr><th>组件</th><th>职责</th><th>不负责什么</th></tr></thead><tbody>
+          <tr><td>线索猎人子 Agent</td><td>理解用户原话，决定是否需要澄清和如何自然表达。</td><td>不直接修改状态机，不绕过 Policy。</td></tr>
+          <tr><td>Preference Skill</td><td>抽取偏好、识别缺口、生成结构化候选和澄清问题。</td><td>不发送私信、不调用真实 RPA。</td></tr>
+          <tr><td>Skill Runtime</td><td>调度 Skill，管理超时、重试、预算、版本和 Trace。</td><td>不替 Agent 决定用户喜欢什么。</td></tr>
+          <tr><td>Context Builder</td><td>把当前有效偏好、Lead Memory 和最近对话组装给 Agent。</td><td>不把历史猜测当成事实。</td></tr>
+          <tr><td>Policy / Permission</td><td>决定是否可以推荐、触达、升级人工或写入敏感字段。</td><td>不生成对话内容。</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section class="section" id="examples">
+        <p class="section-kicker">07 / EXAMPLES</p><h2>完整对话示例</h2>
+        <h3>示例 A：自然补全空间需求</h3>
+        <pre><code>用户：我经常带父母出门，所以空间要舒服一点。
+Agent：明白，你更关注乘坐舒适度。主要是后排腿部空间，还是上下车方便？
+用户：后排腿部空间，老人坐着不能憋屈。
+系统：写入 space.rear_legroom = must，状态 confirmed。
+Agent：收到，我会优先按后排腿部空间筛选，后面再结合预算和动力看方案。</code></pre>
+        <h3>示例 B：用户拒绝补充</h3>
+        <pre><code>用户：我先看看，预算还没想好。
+Agent：没问题，我先不记录预算。你更想先了解空间、动力，还是日常使用成本？
+用户：先看空间吧。
+系统：不创建预算偏好；将 conversation_focus 设为 space。</code></pre>
+        <h3>示例 C：用户纠正 Agent</h3>
+        <pre><code>用户：我说省油，不代表我不要动力。
+系统：将“低油耗 = must”标记 rejected，保留原证据。
+Agent：明白，你是希望在动力够用的前提下尽量省油，我按这个条件理解。</code></pre>
+      </section>
+
+      <section class="section" id="acceptance">
+        <p class="section-kicker">08 / ACCEPTANCE</p><h2>验收标准与指标</h2>
+        <div class="callout warning"><strong>上线前底线：</strong>不能只验收“Agent 问得像不像人”，还要验收偏好是否有证据、能否纠正、是否被正确消费。</div>
+        <ul class="checklist">
+          <li>用户未主动表达时，不产生新的偏好事实。</li>
+          <li>每次追问最多一个问题，连续两轮未回应后自动停止。</li>
+          <li>每条 confirmed 偏好都能追溯到 source_quote 和 message_id。</li>
+          <li>用户否定或修改后，旧偏好不再被 Context Builder 当作当前值。</li>
+          <li>推荐、触达和人工交接前，能读取当前有效偏好并记录消费 Trace。</li>
+          <li>发生 LLM Invalid Output 时，按既有 Retry 规则重试，不能写入半结构化结果。</li>
+        </ul>
+        <div class="grid">
+          <div class="card"><strong>理解质量</strong><p>显式偏好抽取准确率、澄清后确认率、用户纠正率。</p></div>
+          <div class="card"><strong>对话负担</strong><p>平均澄清轮数、连续追问中断率、用户跳过率。</p></div>
+          <div class="card"><strong>业务可用性</strong><p>偏好被推荐/触达正确消费的比例、人工交接信息完整率。</p></div>
+          <div class="card"><strong>治理质量</strong><p>无证据偏好写入数、被 Policy 阻断数、Trace 完整率。</p></div>
+        </div>
+      </section>
+
+      <footer class="footer">线索猎人 Agent · 用户主动表达优先 · 轻量澄清 · 可验证记忆 · 可审计执行</footer>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>远控浮窗</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+      font-family: 'Noto Sans SC', 'Noto Sans CJK SC', 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    }
+
+    /* ===== 展开态容器 ===== */
+    .popup-expanded {
+      width: 400px;
+      height: 174px;
+      position: relative;
+      cursor: default;
+      -webkit-app-region: drag;
+    }
+
+    /* 展开态 SVG 背景贴图 */
+    .expanded-bg {
+      width: 400px;
+      height: 174px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    /*
+     * 设备名动态文本
+     *
+     * 新 SVG 中没有设备名示例文字，直接叠加即可。
+     * 手机图标 clipPath: (76, 70) 26x52，右边缘 102
+     * 确定按钮: (268, 78)
+     * 设备名区域: 从手机右侧偏移 ~108 到确定按钮左侧 ~260
+     * 垂直：手机图标中心 y=96，文字高24px，top=84
+     */
+    .device-name-overlay {
+      position: absolute;
+      left: 118px;
+      top: 84px;
+      width: 142px;
+      height: 24px;
+      font-family: 'Noto Sans CJK SC', 'Noto Sans SC', 'PingFang SC', sans-serif;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 24px;
+      text-align: left;
+      color: rgba(0, 0, 0, 0.85);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
+
+    /*
+     * 透明可点击区域 — 确定按钮
+     *
+     * 对应 SVG 中红色矩形: rect x=268 y=78 w=92 h=36 rx=18
+     */
+    .btn-end-control {
+      position: absolute;
+      left: 268px;
+      top: 78px;
+      width: 92px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 18px;
+      -webkit-app-region: no-drag;
+    }
+
+    .btn-end-control:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-end-control:active {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    /*
+     * 透明可点击区域 — 收起箭头
+     *
+     * 对应 SVG 中 path: M36 75 L40 79 L36 83，中心 (38, 79)
+     * 给 32x32 点击区，左上角 (22, 63)
+     */
+    .btn-collapse {
+      position: absolute;
+      left: 22px;
+      top: 63px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+      -webkit-app-region: no-drag;
+    }
+
+    .btn-collapse:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-collapse:active {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    /* ===== 折叠态容器 ===== */
+    .popup-collapsed {
+      width: 188px;
+      height: 92px;
+      position: relative;
+      cursor: grab;
+    }
+
+    /* 折叠态 SVG 背景贴图 */
+    .collapsed-bg {
+      width: 188px;
+      height: 92px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    /*
+     * 透明可点击区域 — 展开箭头
+     *
+     * 对应折叠态 SVG 中 path: M34 34 L30 38 L34 42，中心 (32, 38)
+     * 给 28x28 点击区，左上角 (18, 24)
+     */
+    .btn-expand {
+      position: absolute;
+      left: 18px;
+      top: 24px;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+      -webkit-app-region: no-drag;
+    }
+
+    .btn-expand:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .btn-expand:active {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    /* ===== 隐藏 ===== */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- 展开态（默认隐藏） -->
+  <div id="expandedView" class="popup-expanded hidden">
+    <!-- SVG 背景贴图（包含所有静态元素：卡片、文字、按钮、快捷键、吉祥物、手机图标） -->
+    <img class="expanded-bg" src="unfold.svg" alt="" draggable="false">
+
+    <!-- 设备名动态文本 -->
+    <div class="device-name-overlay" id="deviceNameText">--</div>
+
+    <!-- 透明点击区域：收起箭头 -->
+    <button class="btn-collapse" id="collapseBtn" title="收起"></button>
+
+    <!-- 透明点击区域：确定按钮（结束远控） -->
+    <button class="btn-end-control" id="closeBtn" title="确定"></button>
+  </div>
+
+  <!-- 折叠态（默认显示） -->
+  <div id="collapsedView" class="popup-collapsed">
+    <!-- SVG 背景贴图（包含所有静态元素：卡片、箭头、文字、吉祥物头像） -->
+    <img class="collapsed-bg" src="fold.svg" alt="" draggable="false">
+
+    <!-- 透明点击区域：展开箭头 -->
+    <button class="btn-expand" id="expandBtn" title="展开"></button>
+  </div>
+
+  <script>
+    // 等待 preload 注入的 API
+    const api = window.remoteControlPopup;
+
+    const expandedView = document.getElementById('expandedView');
+    const collapsedView = document.getElementById('collapsedView');
+    const deviceNameText = document.getElementById('deviceNameText');
+    const collapseBtn = document.getElementById('collapseBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const expandBtn = document.getElementById('expandBtn');
+
+    let currentMode = 'collapsed';
+
+    /**
+     * 更新 UI 显示状态
+     */
+    function updateUI() {
+      if (currentMode === 'expanded') {
+        expandedView.classList.remove('hidden');
+        collapsedView.classList.add('hidden');
+      } else {
+        expandedView.classList.add('hidden');
+        collapsedView.classList.remove('hidden');
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    //  折叠态自定义拖拽（仅 Y 轴移动，X 锁定右边缘）
+    // ─────────────────────────────────────────────────
+    let isDragging = false;
+
+    collapsedView.addEventListener('mousedown', (e) => {
+      // 忽略按钮区域
+      if (e.target.closest('button')) return;
+
+      isDragging = true;
+      // 通知主进程记录鼠标在窗口内的 Y 偏移
+      api.dragStart(e.clientY);
+
+      // 拖拽时改变光标
+      collapsedView.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      // 传递鼠标在屏幕上的 Y 坐标
+      api.dragMove(e.screenY);
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      collapsedView.style.cursor = '';
+    });
+
+    // 监听初始化数据
+    api.onInit((data) => {
+      currentMode = data.mode;
+      deviceNameText.textContent = data.deviceName || '--';
+      updateUI();
+    });
+
+    // 监听模式变更
+    api.onModeChanged((mode) => {
+      currentMode = mode;
+      updateUI();
+    });
+
+    // 折叠按钮
+    collapseBtn.addEventListener('click', () => {
+      api.toggleMode();
+    });
+
+    // 展开按钮
+    expandBtn.addEventListener('click', () => {
+      api.toggleMode();
+    });
+
+    // 关闭按钮（结束远控）
+    closeBtn.addEventListener('click', () => {
+      api.close();
+    });
+  </script>
+</body>
+</html>
