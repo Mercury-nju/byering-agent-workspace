@@ -3,6 +3,7 @@ import {
   createDouyinAgentDataClient,
   DouyinAgentDataError
 } from "../src/salebuddy/bridge/douyin-agent-data.js";
+import { publicFinderNeedsBusinessAccount, validatePublicFinderBusinessAccount } from "../src/salebuddy/agents/public-finder-contract.js";
 
 const DEFAULT_AGENT_ID = "mkt-douyin-finder";
 const MAX_BATCH_ACCOUNTS = 50;
@@ -648,6 +649,22 @@ export function createDouyinFinderService({
     );
     const seedReferences = extractReferences(input);
     const accountContext = normalizeAccountContext(input);
+    const requiresBusinessAccount = publicFinderNeedsBusinessAccount({
+      purposeIds: input.choices?.finderPublicPurpose?.selected,
+      query: first(input.publicFinderQuery, input.query),
+      goal
+    });
+    const businessAccountError = validatePublicFinderBusinessAccount({
+      required: requiresBusinessAccount,
+      businessAccountUrl: accountContext.businessAccountUrl
+    });
+    if (businessAccountError) {
+      throw new DouyinFinderError(businessAccountError, {
+        code: accountContext.businessAccountUrl ? "DOUYIN_FINDER_BUSINESS_ACCOUNT_INVALID" : "DOUYIN_FINDER_BUSINESS_ACCOUNT_REQUIRED",
+        statusCode: 400,
+        details: { required: true }
+      });
+    }
     let references = [...seedReferences];
     let discoveredReferences = [];
     let rawDiscoveredReferences = [];

@@ -12,6 +12,7 @@ import { validateLeadMinerSetup, normalizeRecentWorkCount, parseCommentSource, p
 import { validateUserResearchSetup } from "../src/salebuddy/ui/user-research.js";
 import { normalizeReception, receptionGoalObjective, receptionResponseStyle, RECEPTION_ROLES, RECEPTION_GOALS } from "../src/salebuddy/agents/account-reception.js";
 import { commentAcquisitionCapabilityState } from "../src/salebuddy/ui/comment-acquisition-results.js";
+import { isDouyinProfileUrl, publicFinderNeedsBusinessAccount, validatePublicFinderBusinessAccount } from "../src/salebuddy/agents/public-finder-contract.js";
 
 class Element {
   constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.dataset = {}; this.style = {}; this.attributes = {}; this.listeners = {}; this.value = ""; this.className = ""; }
@@ -39,7 +40,7 @@ class Element {
   focus() {}
 }
 const source = readFileSync(new URL("../src/salebuddy/ui/agent-square.js", import.meta.url), "utf8");
-const names = ["taskPersonAvatar", "acquisitionAccountControl", "appendLabeledField", "douyinFinderScopeError", "isCompositeFinderAgent", "isFinderListenerFlow", "finderOwnDataSelections", "finderListenerSourceScope", "finderListenerSourceLabel", "isInboxAgent", "isInboxIntakeFlow", "selectedChoiceLabels", "publicFinderTargetText", "hasPublicFinderTarget", "publicFinderReferenceUrls", "publicFinderAccountName", "resolvePublicFinderBusinessAccount", "renderPublicFinderBrief", "publicFinderFilterSummary", "renderPublicFinderFilters", "syncCompositeFinderFlow", "renderCompositeFinderSetup", "renderDouyinFinderSetup", "renderCommentLeadMinerSetup", "renderLiveLeadSetup", "renderCommentAcquisitionSetup", "renderCommentAcquisitionRunning", "renderUserResearchSetup", "renderAccountAnalysisSetup", "renderStandaloneUserAnalysisSetup", "leadRecipientId", "awaitingIntentAnalysis", "privateOutreachEntryFromProspect", "prefillPrivateOutreachFromProspects", "prefillInboxFromTouchedProspects", "intentCandidateFromRecord", "finderEntriesForAnalysis", "intentCandidateFromFinderEntry", "latestFinderRunForAnalysis", "intentCandidatesFromStore", "renderIntentAnalystModeChooser", "renderIntentAnalystSetup", "renderIntentAnalystRunning", "startIntentAnalyst", "isAccountScopedAcquisitionSetup", "restoreAccountScopedAcquisitionDraft", "persistAccountSetupDraft", "renderInboxSetup", "renderPrivateOutreachSetup", "renderPrivateOutreachReview", "validateInboxSetup"];
+const names = ["taskPersonAvatar", "acquisitionAccountControl", "appendLabeledField", "douyinFinderScopeError", "isCompositeFinderAgent", "isFinderListenerFlow", "finderOwnDataSelections", "finderListenerSourceScope", "finderListenerSourceLabel", "isInboxAgent", "isInboxIntakeFlow", "selectedChoiceLabels", "publicFinderTargetText", "hasPublicFinderTarget", "publicFinderNeedsBusinessAccount", "publicFinderBusinessAccountError", "publicFinderCanStart", "syncPublicFinderAccountPresentation", "publicFinderReferenceUrls", "publicFinderAccountName", "resolvePublicFinderBusinessAccount", "renderPublicFinderBrief", "publicFinderFilterSummary", "renderPublicFinderFilters", "syncCompositeFinderFlow", "renderCompositeFinderSetup", "renderDouyinFinderSetup", "renderCommentLeadMinerSetup", "renderLiveLeadSetup", "renderCommentAcquisitionSetup", "renderCommentAcquisitionRunning", "renderUserResearchSetup", "renderAccountAnalysisSetup", "renderStandaloneUserAnalysisSetup", "leadRecipientId", "awaitingIntentAnalysis", "privateOutreachRecords", "privateOutreachEntryFromProspect", "prefillPrivateOutreachFromProspects", "prefillInboxFromTouchedProspects", "intentCandidateFromRecord", "finderEntriesForAnalysis", "intentCandidateFromFinderEntry", "latestFinderRunForAnalysis", "intentCandidatesFromStore", "renderIntentAnalystModeChooser", "renderIntentAnalystSetup", "renderIntentAnalystRunning", "startIntentAnalyst", "isAccountScopedAcquisitionSetup", "restoreAccountScopedAcquisitionDraft", "persistAccountSetupDraft", "renderInboxSetup", "renderPrivateOutreachSetup", "renderPrivateOutreachReview", "validateInboxSetup"];
 names.push("receptionAccountId");
 function extract(name) {
   const start = Math.max(source.indexOf(`  function ${name}(`), source.indexOf(`  async function ${name}(`));
@@ -68,6 +69,7 @@ function harness(t, id, { prospectStore = null } = {}) {
   const panel = new Element("div");
   const context = {
     document, window: { setTimeout }, structuredClone, el, mountTaskChoices, makeTaskSettings, TASK_CHOICES, mountPersonAvatar, getMarketplaceAgent, RECEPTION_ROLES, RECEPTION_GOALS, receptionGoalObjective, receptionResponseStyle,
+    isDouyinProfileUrl, needsPublicFinderBusinessAccount: publicFinderNeedsBusinessAccount, validatePublicFinderBusinessAccount,
     loadAccountReception: async () => {},
     openAccountReceptionPage: ({ embeddedContainer }) => { embeddedContainer?.appendChild(new Element("div")); return { close() {} }; },
     normalizeAnalysisAccounts, buildAccountAnalysisResumeFlow, ACCOUNT_ANALYSIS_LIMIT,
@@ -268,6 +270,33 @@ test("composite finder exposes public search before account collection and start
   assert.equal(setup.calls[0].type, "start");
   assert.equal(setup.calls[0].flow.compositeFinderSource, "public");
   assert.equal(setup.calls[0].flow.analysisOnly, true);
+});
+
+test("composite finder opens and requires the business account for competitor discovery", t => {
+  const setup = harness(t, "mkt-find-people");
+  Object.assign(setup.flow, { compositeFinderSource: "public", compositeFinderStep: "criteria" });
+  setup.renderers.renderCompositeFinderSetup(setup.panel, setup.flow);
+
+  const competitor = setup.panel.all().find(node => node.tagName === "INPUT" && node.value === "industryAccounts");
+  const business = setup.panel.all().find(node => node.tagName === "INPUT" && node.attributes["aria-label"] === "我的抖音账号主页链接");
+  const context = setup.panel.all().find(node => node.className.split(" ").includes("sb-public-finder-context"));
+  const start = setup.panel.all().find(node => node.tagName === "BUTTON" && node.textContent === "开始找人");
+  assert.ok(competitor && business && context && start);
+  assert.equal(start.disabled, true);
+
+  competitor.checked = true;
+  competitor.trigger("change");
+  assert.equal(context.open, true);
+  assert.match(context.textContent, /必填/);
+  assert.equal(business.required, true);
+  assert.equal(start.disabled, true);
+
+  business.value = "https://www.douyin.com/user/my-brand";
+  business.trigger("input");
+  assert.equal(start.disabled, false);
+  start.trigger("click");
+  assert.equal(setup.calls[0].type, "start");
+  assert.equal(setup.calls[0].flow.finderAccountContext.businessAccountUrl, "https://www.douyin.com/user/my-brand");
 });
 
 test("composite finder resumes a legacy collection-note step at the interaction scope", t => {

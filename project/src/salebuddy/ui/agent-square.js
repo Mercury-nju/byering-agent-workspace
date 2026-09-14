@@ -30,8 +30,10 @@ import { COMMENT_ACQUISITION_DEFAULTS, buildCommentAcquisitionTaskPayload, build
 import { openAccountReceptionPage } from "./account-reception-page.js?v=20260914-grid-alignment-1";
 import { buildCommentAcquisitionResultRecord, commentAcquisitionCapabilityState } from "./comment-acquisition-results.js";
 import { mergePrivateOutreachUrls, readPrivateOutreachFile } from "./private-outreach.js";
+import { createPrivateOutreachMockData, createPrivateOutreachMockResult, isPrivateOutreachMockPreview } from "./private-outreach-mock.js";
 import { buildSurveyInvitation, buildSurveyOutreachTargets, validateUserResearchSetup } from "./user-research.js";
 import { normalizeAnalysisAccounts, buildAccountAnalysisBatch, ACCOUNT_ANALYSIS_LIMIT, buildAccountAnalysisResumeFlow } from "../agents/account-analysis-contract.js";
+import { isDouyinProfileUrl, publicFinderNeedsBusinessAccount as needsPublicFinderBusinessAccount, validatePublicFinderBusinessAccount } from "../agents/public-finder-contract.js";
 import { openAccountAnalysis, renderAccountAnalysisOverview, renderAccountAnalysisReports } from "./account-analysis.js";
 import { mountTaskChoices, makeTaskSettings, TASK_CHOICES, TASK_ENTRY_TITLES, TASK_FLOW_CSS } from "./task-choices.js?v=20260910-composite-finder-1";
 import { mountPersonAvatar } from "./person-avatar.js";
@@ -250,6 +252,7 @@ const CSS = `
 .sb-as-authorize-button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:46px;margin-top:13px;padding:0 15px;border:1px solid #b9cbe6;border-radius:10px;background:#f4f7fd;color:#34578f;font:inherit;font-size:12px;font-weight:650;cursor:pointer;transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,color .16s ease}.sb-as-authorize-button::after{content:"↗";font-size:17px;font-weight:500;line-height:1}.sb-as-authorize-button:hover{border-color:#4267A5;background:#eaf0fb;box-shadow:0 3px 10px rgba(66,103,165,.13);color:#294a7e}.sb-as-authorize-button:focus-visible{outline:3px solid rgba(66,103,165,.2);outline-offset:2px}.sb-as-authorize-button:disabled{cursor:wait;opacity:.6}
 .sb-as-private-setup{display:grid;gap:18px}.sb-as-private-source{padding:18px;border:1px solid #e1e7ef;border-radius:14px;background:#fbfcfe}.sb-as-private-stage{background:#fff}.sb-as-private-source>.sb-task-account{margin-top:15px}.sb-as-private-source-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.sb-as-private-source-title{color:#1F2329;font-size:16px;font-weight:700}.sb-as-private-source-copy{margin-top:5px;color:#7b8490;font-size:11px;line-height:1.55}.sb-as-private-source-tools{display:flex;gap:7px;flex:none}.sb-as-private-source-tool{height:32px;padding:0 11px;border:1px solid #dfe5ec;border-radius:8px;background:#fff;color:#59616b;font:inherit;font-size:11px;cursor:pointer}.sb-as-private-source-tool.is-active,.sb-as-private-source-tool:hover{border-color:#4267A5;background:#f3f7fe;color:#34578f}.sb-as-private-url-input{width:100%;min-height:132px;margin-top:15px;box-sizing:border-box;resize:vertical;border:1px solid #dfe5ec;border-radius:11px;padding:13px 14px;background:#fff;color:#1F2329;outline:none;font:inherit;font-size:12px;line-height:1.65}.sb-as-private-url-input:focus{border-color:#4267A5;box-shadow:0 0 0 3px rgba(66,103,165,.1)}.sb-as-private-file{position:relative;display:flex;align-items:center;gap:12px;min-height:74px;margin-top:12px;padding:12px 14px;border:1px dashed #cbd7e6;border-radius:11px;background:#f7faff;color:#59616b;cursor:pointer}.sb-as-private-file:hover{border-color:#4267A5;background:#f3f7fe}.sb-as-private-file-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#e7eef9;color:#4267A5;font-size:16px}.sb-as-private-file-copy{min-width:0;display:grid;gap:3px}.sb-as-private-file-copy strong{font-size:11px;font-weight:700;color:#34578f}.sb-as-private-file-copy span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8a929d;font-size:10px}.sb-as-private-file input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.sb-as-private-source-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;color:#8a929d;font-size:10px}.sb-as-private-source-count{color:#4267A5;font-weight:700}.sb-as-private-source-error{color:#a45f4b}.sb-as-private-empty{display:grid;gap:6px;place-items:start;border-style:dashed;background:#f7f9fc}.sb-as-private-empty strong{color:#303842;font-size:13px}.sb-as-private-empty p,.sb-as-private-empty-copy{margin:0;color:#7b8490;font-size:11px;line-height:1.65}.sb-as-private-targets{display:grid;gap:8px;margin-top:14px}.sb-as-private-targets-head{display:flex;align-items:center;justify-content:space-between;color:#59616b;font-size:11px;font-weight:650}.sb-as-private-target-list{display:grid;gap:7px;max-height:245px;overflow:auto;padding-right:2px}.sb-as-private-target{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 10px;border:1px solid #edf0f3;border-radius:9px;background:#fff}.sb-as-private-target-index{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#f0f3f7;color:#7b8490;font-size:10px;font-weight:700}.sb-as-private-target-copy{min-width:0;display:grid;gap:3px}.sb-as-private-target-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1F2329;font-size:11px}.sb-as-private-target-copy span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8a929d;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px}.sb-as-private-target-status{font-size:10px;color:#4267A5;white-space:nowrap}.sb-as-private-target.is-error{border-color:#f1d9d3;background:#fff9f7}.sb-as-private-target.is-error .sb-as-private-target-status{color:#a45f4b}.sb-as-private-target.is-sent{border-color:#d4eadd;background:#f7fcf9}.sb-as-private-target.is-sent .sb-as-private-target-status{color:#2d8b61}.sb-as-private-target.is-sending .sb-as-private-target-status{color:#9a6a35}.sb-as-private-message{display:grid;gap:7px}.sb-as-private-message label{color:#59616b;font-size:11px;font-weight:650}.sb-as-private-message textarea{width:100%;min-height:106px;box-sizing:border-box;resize:vertical;border:1px solid #dfe5ec;border-radius:11px;padding:12px 13px;background:#fff;color:#1F2329;outline:none;font:inherit;font-size:12px;line-height:1.6}.sb-as-private-message textarea:focus{border-color:#4267A5;box-shadow:0 0 0 3px rgba(66,103,165,.1)}.sb-as-private-tip{color:#8a929d;font-size:10px;line-height:1.5}.sb-as-private-review-batch{display:flex;align-items:center;gap:10px;margin:0 0 15px;padding:12px 14px;border:1px solid #dce6f5;border-radius:10px;background:#f5f8fd;color:#4267A5;font-size:12px}.sb-as-private-review-batch strong{font-size:19px}.sb-as-private-review-targets{display:grid;gap:6px;max-height:210px;overflow:auto;margin-top:10px}.sb-as-private-review-target{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:8px;background:#f8fafc;color:#59616b;font-size:11px}.sb-as-private-review-target span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-as-private-review-target i{font-style:normal;color:#4267A5;font-size:10px;white-space:nowrap}.sb-as-private-review-target.is-error{color:#a45f4b;background:#fff7f4}.sb-as-private-review-target.is-error i{color:#a45f4b}.sb-as-private-running-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:16px}.sb-as-private-running-stat{padding:12px;border:1px solid #e9edf2;border-radius:10px;background:#fbfcfd}.sb-as-private-running-stat strong{display:block;color:#1F2329;font-size:20px}.sb-as-private-running-stat span{display:block;margin-top:3px;color:#8a929d;font-size:10px}.sb-as-private-running-stat.is-success strong{color:#2d8b61}.sb-as-private-running-stat.is-error strong{color:#a45f4b}.sb-as-private-running-list{display:grid;gap:6px;max-height:270px;overflow:auto;margin-top:16px}.sb-as-private-running-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 10px;border-bottom:1px solid #edf0f3;color:#59616b;font-size:11px}.sb-as-private-running-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-as-private-running-row i{font-style:normal;color:#8a929d;font-size:10px}.sb-as-private-running-row.is-sent i{color:#2d8b61}.sb-as-private-running-row.is-error i{color:#a45f4b}
 .sb-as-private-target.is-ready{border-color:#d4eadd;background:#f7fcf9}.sb-as-private-target.is-ready .sb-as-private-target-status{color:#2d8b61}
+.sb-as-private-mock-notice{margin-top:0;border:1px solid #d9e7f7;background:#f5f9ff;color:#4267a5}.sb-as-private-mock-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.sb-as-private-mock-flow span{padding:9px 10px;border:1px solid #dce7f6;border-radius:9px;background:#fff;color:#4267a5;font-size:11px;text-align:center}
 /* Private outreach review: a focused send summary with explicit risk and content hierarchy. */
 .sb-as-use:not(:has(.sb-as-lead-setup)){max-width:1120px;padding:30px 34px 54px}
 .sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-head{align-items:center;margin-bottom:24px}
@@ -336,7 +339,7 @@ const CSS = `
 @media(max-width:640px){.sb-as-morgan-title{font-size:26px}.sb-as-morgan-section-head{align-items:flex-start;flex-direction:column;gap:4px}.sb-as-morgan-account-row>div{display:grid!important;grid-template-columns:1fr}.sb-as-morgan-account-row button{width:100%}.sb-as-morgan-prompt textarea{min-height:140px}.sb-as-morgan-start{align-items:stretch;flex-direction:column}.sb-as-morgan-start button{width:100%}}
 @media(max-width:900px){.sb-as-use:not(:has(.sb-as-lead-setup)){padding:24px 24px 44px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-intro{grid-template-columns:1fr}}
 @media(max-width:640px){.sb-as-use:not(:has(.sb-as-lead-setup)){padding:22px 16px 36px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-title{font-size:25px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-panel{padding:22px 18px 18px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-steps{grid-template-columns:1fr}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-step{padding:9px 11px}.sb-as-use:has(.sb-as-private-review) .sb-as-use-panel{padding:22px 18px 18px}.sb-as-private-review-top{align-items:flex-start;flex-direction:column;gap:10px}.sb-as-private-summary{grid-template-columns:1fr;grid-template-areas:"sender" "boundary" "target" "message"}.sb-as-private-actions{flex-direction:column-reverse;align-items:stretch}.sb-as-private-actions button{width:100%}.sb-as-use.is-task-compose.is-task-compose{padding:42px 17px 36px}.sb-as-use.is-task-compose.is-task-compose .sb-as-use-panel.sb-as-task-compose-panel{padding:0}.sb-as-task-compose-panel .sb-as-use-panel-title{font-size:25px}.sb-as-task-compose-panel .sb-as-finder-goal{min-height:160px;padding:16px;font-size:15px}.sb-as-task-compose-panel .sb-as-finder-actions{justify-content:stretch}.sb-as-task-compose-panel .sb-as-finder-actions button.primary{width:100%}.sb-as-task-options>summary{align-items:flex-start;flex-wrap:wrap;padding-right:45px}.sb-as-task-options>summary:after{position:absolute;top:11px;right:13px}.sb-as-task-options>summary span{flex-basis:100%}}
-@media(max-width:640px){.sb-as-private-source-head{flex-direction:column}.sb-as-private-source-tools{width:100%}.sb-as-private-source-tool{flex:1}.sb-as-private-running-summary{grid-template-columns:1fr}.sb-as-private-target{grid-template-columns:25px minmax(0,1fr);}.sb-as-private-target-status{grid-column:2}.sb-as-private-review-target{align-items:flex-start;flex-direction:column;gap:3px}}
+@media(max-width:640px){.sb-as-private-source-head{flex-direction:column}.sb-as-private-source-tools{width:100%}.sb-as-private-source-tool{flex:1}.sb-as-private-running-summary{grid-template-columns:1fr}.sb-as-private-target{grid-template-columns:25px minmax(0,1fr);}.sb-as-private-target-status{grid-column:2}.sb-as-private-review-target{align-items:flex-start;flex-direction:column;gap:3px}.sb-as-private-mock-flow{grid-template-columns:1fr}}
 .sb-as-finder-consumer{padding:14px 26px 34px}.sb-as-finder-promise{display:grid;gap:4px;margin:2px 0 18px;padding:13px 15px;border:1px solid #dce6f5;border-radius:11px;background:#f7faff}.sb-as-finder-promise strong{color:#294a7e;font-size:12px;line-height:1.45}.sb-as-finder-promise span{color:#718096;font-size:10.5px;line-height:1.55}.sb-as-finder-consumer .sb-task-choices legend{font-size:18px;line-height:1.35;margin-bottom:14px;color:#2d343b}.sb-as-finder-consumer .sb-task-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.sb-as-finder-consumer .sb-task-choice{min-height:102px;align-items:flex-start;padding:15px 15px 14px;border-radius:10px;transition:background .15s,border-color .15s,box-shadow .15s,transform .15s ease}.sb-as-finder-consumer .sb-task-choice:hover{background:#fbfdff}.sb-as-finder-consumer .sb-task-choice.is-selected{background:#f8fbff}.sb-as-finder-consumer .sb-task-choice.is-selected .sb-task-choice-copy strong{color:#245ea9}.sb-as-finder-consumer .sb-task-choice.is-selected:hover{transform:translateY(-1px)}.sb-as-finder-consumer .sb-task-choice-copy{gap:5px}.sb-as-finder-consumer .sb-task-choice-eyebrow{color:#7f9bc0;font-size:10px;font-weight:650;line-height:1.2}.sb-as-finder-consumer .sb-task-choice strong{font-size:14px;line-height:1.35}.sb-as-finder-consumer .sb-task-choice small{font-size:11px;line-height:1.5}.sb-task-selection-note{display:flex;align-items:baseline;gap:8px;min-height:24px;margin:12px 1px 0;color:#7d8791;font-size:10.5px;line-height:1.45}.sb-task-selection-note strong{color:#42566d;font-size:11px;font-weight:650}.sb-task-selection-note small{color:#929ca7}.sb-task-filter-section{margin-top:12px;padding-top:12px;border-top:1px solid #edf0f3}.sb-task-filter-header{display:flex;align-items:baseline;gap:8px}.sb-task-filter-header strong{color:#5b6773;font-size:11px;font-weight:650}.sb-task-filter-header span{color:#9aa3ad;font-size:10px}.sb-task-filter-section .sb-task-filter-row{margin-top:8px}.sb-task-choice{transition:background .15s,border-color .15s,box-shadow .15s,transform .15s ease}
  .sb-as-finder-consumer .sb-task-specific-goal{display:none;gap:7px;margin:13px 0 0;padding:13px 14px;border:1px solid #d9e3f1;border-radius:10px;background:#f8fbff}.sb-as-finder-consumer .sb-task-specific-goal.is-visible{display:grid}.sb-as-finder-consumer .sb-task-specific-goal label{color:#536b86;font-size:11px;font-weight:650}.sb-as-finder-consumer .sb-task-specific-goal textarea{width:100%;box-sizing:border-box;min-height:64px;padding:10px 11px;border:1px solid #d8e0ea;border-radius:8px;background:#fff;color:#30363c;font:inherit;font-size:12px;line-height:1.55;resize:vertical;outline:none}.sb-as-finder-consumer .sb-task-specific-goal textarea:focus{border-color:#8ca9d1;box-shadow:0 0 0 3px rgba(66,103,165,.1)}
 .sb-as-finder-consumer .sb-task-choice-guidance{margin:0 0 15px;color:#8793a1;font-size:11px}.sb-as-finder-consumer .sb-task-filter-section{margin-top:15px;padding:14px 15px 15px;border:1px solid #e0e7f0;border-radius:12px;background:#fbfcfe;box-shadow:none}.sb-as-finder-consumer .sb-task-filter-section[hidden]{display:none}.sb-as-finder-consumer .sb-task-filter-section:not([hidden]){animation:sb-as-finder-reveal .22s ease-out}.sb-as-finder-consumer .sb-task-filter-header{margin-bottom:10px}.sb-as-finder-consumer .sb-task-filter-header strong{color:#4c5d70;font-size:11px}.sb-as-finder-consumer .sb-task-filter-header span{color:#929eac;font-size:10px}.sb-composite-finder-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 22px}.sb-composite-finder-step{padding:9px 11px;border-bottom:2px solid #edf0f3;color:#9aa3ad;font-size:11px;font-weight:600}.sb-composite-finder-step.is-active{border-color:#4267a5;color:#1f2329}.sb-composite-finder-step.is-done{border-color:#9fc8b3;color:#2d9a68}.sb-composite-finder-source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}.sb-composite-finder-source-option{min-height:118px;padding:16px;border:1px solid #dfe5ec;border-radius:8px;background:#fff;color:#1f2329;text-align:left;font:inherit;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}.sb-composite-finder-source-option:hover{border-color:#a8bddb;background:#fbfdff}.sb-composite-finder-source-option.is-selected{border-color:#5f86bd;background:#f7faff;box-shadow:0 0 0 2px rgba(66,103,165,.1)}.sb-composite-finder-source-option strong,.sb-composite-finder-source-option span{display:block}.sb-composite-finder-source-option strong{font-size:14px;line-height:1.4}.sb-composite-finder-source-option span{margin-top:7px;color:#778494;font-size:11px;line-height:1.55}.sb-public-finder-brief{display:grid;gap:14px;margin:0 0 20px;padding:0 0 20px;border-bottom:1px solid #e8edf2}.sb-public-finder-brief-heading{display:grid;gap:4px}.sb-public-finder-brief-heading strong{color:#2d343b;font-size:18px;line-height:1.35}.sb-public-finder-brief-heading span{color:#8491a0;font-size:11px;line-height:1.55}.sb-public-finder-brief>textarea,.sb-public-finder-field textarea,.sb-public-finder-field input{width:100%;box-sizing:border-box;border:1px solid #d9e1ea;border-radius:8px;background:#fff;color:#30363c;font:inherit;font-size:12px;line-height:1.5;outline:0}.sb-public-finder-brief>textarea,.sb-public-finder-field textarea{min-height:72px;padding:10px 11px;resize:vertical}.sb-public-finder-field input{height:38px;padding:0 11px}.sb-public-finder-brief>textarea:focus,.sb-public-finder-field textarea:focus,.sb-public-finder-field input:focus{border-color:#7799ca;box-shadow:0 0 0 3px rgba(66,103,165,.1)}.sb-public-finder-context{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1.35fr) minmax(180px,.7fr);gap:12px;align-items:start}.sb-public-finder-field{display:grid;gap:7px;min-width:0}.sb-public-finder-label{color:#4b5b6d;font-size:11px;font-weight:650}.sb-public-finder-account-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.sb-public-finder-resolve{height:38px;padding:0 11px;border:1px solid #cfd9e5;border-radius:8px;background:#fff;color:#365f9d;font:inherit;font-size:11px;font-weight:650;white-space:nowrap;cursor:pointer}.sb-public-finder-resolve:hover:not(:disabled){border-color:#86a4ce;background:#f7faff}.sb-public-finder-resolve:disabled{opacity:.55;cursor:wait}.sb-public-finder-hint{min-height:28px;color:#8794a2;font-size:10px;line-height:1.45}.sb-public-finder-hint.is-error{color:#bd6353}.sb-public-finder-limit input{max-width:132px}.sb-as-composite-finder .sb-task-choices{margin-top:18px}.sb-as-composite-finder .sb-task-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-as-composite-finder .sb-task-choice{min-height:82px}.sb-as-composite-finder .sb-as-use-actions{margin-top:24px}
@@ -368,6 +371,11 @@ const CSS = `
 .sb-public-finder-context-copy{display:grid;gap:3px;min-width:0}
 .sb-public-finder-context-copy strong{color:#405162;font-size:12px;font-weight:680}
 .sb-public-finder-context-copy small{color:#8b97a4;font-size:10.5px;line-height:1.45}
+.sb-public-finder-context.is-required{border-top-color:#a9c4eb;border-bottom-color:#a9c4eb;background:#fbfdff}
+.sb-public-finder-context.is-required>summary{padding:0 10px;background:#f4f8ff}
+.sb-public-finder-context.is-required .sb-public-finder-context-copy strong{color:#2f5f9f}
+.sb-public-finder-context.is-required .sb-public-finder-label{color:#315f9a}
+.sb-public-finder-context.is-required input[required]{border-color:#9db9e3;background:#fff}
 .sb-public-finder-custom-goal-body{display:grid;gap:10px;padding:1px 0 15px}.sb-public-finder-custom-goal textarea{width:100%;box-sizing:border-box;min-height:88px;padding:12px 13px;border:1px solid #d9e1ea;border-radius:8px;background:#fff;color:#30363c;font:inherit;font-size:12px;line-height:1.6;resize:vertical;outline:0}.sb-public-finder-custom-goal textarea:focus{border-color:#7799ca;box-shadow:0 0 0 3px rgba(66,103,165,.1)}
 .sb-public-finder-context-body{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;padding:1px 0 15px}
 .sb-as-composite-finder .sb-public-finder-field{gap:6px}
@@ -628,6 +636,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   let remoteOfficeRefreshPending = null;
   let remoteOfficeTimer = null;
   const useTimers = [];
+  const privateOutreachMockData = isPrivateOutreachMockPreview() ? createPrivateOutreachMockData() : null;
 
   function remoteOfficeWorkForAgent(agentId) {
     const remoteActive = activeAgentSquareWorkForAgent(state.remoteOfficeWorks, agentId);
@@ -1002,7 +1011,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       render();
       return;
     }
-    const authorizedAccounts = [];
+    const mockPrivateOutreach = isPrivateOutreachAgent(agent) && Boolean(privateOutreachMockData);
+    const authorizedAccounts = mockPrivateOutreach ? [structuredClone(privateOutreachMockData.account)] : [];
     const saved = resumeFlow && resumeFlow.agentId === agent.id ? resumeFlow : null;
     const savedFinderListener = isFinderListenerFlow(agent, saved || {});
     const savedLongRunning = isLongRunningAcquisitionAgent(agent) || savedFinderListener;
@@ -1053,11 +1063,11 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       inboxConversationId: saved?.inboxConversationId || "",
       inboxTakeoverOwnerAgentId: "",
       accountMode: saved?.accountMode || "own",
-      accountId: saved?.accountId || (isPrivateOutreachAgent(agent) ? saved?.sourceAccountId || "" : ""),
+      accountId: saved?.accountId || (mockPrivateOutreach ? privateOutreachMockData.account.id : isPrivateOutreachAgent(agent) ? saved?.sourceAccountId || "" : ""),
       accountWorkKey: saved?.accountWorkKey || "",
-      account: saved?.account || (isPrivateOutreachAgent(agent) ? saved?.sourceAccountName || "" : ""),
+      account: saved?.account || (mockPrivateOutreach ? privateOutreachMockData.account.name : isPrivateOutreachAgent(agent) ? saved?.sourceAccountName || "" : ""),
       accountRef: saved?.accountRef || "",
-      accountIdentity: saved?.accountIdentity || null,
+      accountIdentity: saved?.accountIdentity || (mockPrivateOutreach ? structuredClone(privateOutreachMockData.account.identity) : null),
       accountUnavailable: false,
       accountResolveStatus: "idle",
       accountResolveError: null,
@@ -1165,6 +1175,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       sourceScope: saved?.sourceScope || "",
       sourceAccountId: saved?.sourceAccountId || "",
       sourceAccountName: saved?.sourceAccountName || "",
+      mockPreview: mockPrivateOutreach,
+      mockProspectRecords: mockPrivateOutreach ? structuredClone(privateOutreachMockData.records) : [],
       commentSourceOwner: saved?.commentSourceOwner || "own",
       commentSourceDimension: saved?.commentSourceDimension || (parseCommentSource(saved?.accountRef || "").kind === "video" ? "works" : "account"),
       commentWorkInput: saved?.commentWorkInput || (parseCommentSource(saved?.accountRef || "").kind === "video" ? saved?.accountRef || "" : ""),
@@ -1190,7 +1202,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       // Account discovery is advisory and must never block task setup. The
       // user can open the cloud authorization flow immediately while the MCP
       // status check runs in the background.
-      loadingAccounts: inboxIntake || isPrivateOutreachAgent(agent) || isLongRunningAcquisitionAgent(agent) || isUserResearchAgent(agent) || isCommentScreeningAgent(agent) || isCompositeFinderAgent(agent),
+      loadingAccounts: !mockPrivateOutreach && (inboxIntake || isPrivateOutreachAgent(agent) || isLongRunningAcquisitionAgent(agent) || isUserResearchAgent(agent) || isCommentScreeningAgent(agent) || isCompositeFinderAgent(agent)),
       authorizing: false,
       authPhase: "idle",
       authAttemptId: 0,
@@ -1273,9 +1285,11 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       render();
     };
     if (inboxIntake || isPrivateOutreachAgent(agent) || isLongRunningAcquisitionAgent(agent) || isUserResearchAgent(agent) || isCommentScreeningAgent(agent) || isCompositeFinderAgent(agent)) {
-      loadAuthorizedAccounts();
-      if (!isUserResearchAgent(agent)) restoreSavedAuthorization(state.useFlow);
-      if ((isLongRunningAcquisitionAgent(agent) || isFinderListenerFlow(agent, state.useFlow)) && state.useFlow.taskKey && state.useFlow.step === "running") pollCommentAcquisitionTask(agent, state.useFlow);
+      if (!mockPrivateOutreach) {
+        loadAuthorizedAccounts();
+        if (!isUserResearchAgent(agent)) restoreSavedAuthorization(state.useFlow);
+        if ((isLongRunningAcquisitionAgent(agent) || isFinderListenerFlow(agent, state.useFlow)) && state.useFlow.taskKey && state.useFlow.step === "running") pollCommentAcquisitionTask(agent, state.useFlow);
+      }
     }
   }
 
@@ -2538,8 +2552,14 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     return btn;
   }
 
-  function privateOutreachDependencyState() {
+  function privateOutreachRecords(flow = state.useFlow) {
+    const mockRecords = Array.isArray(flow?.mockProspectRecords) ? flow.mockProspectRecords : [];
     const records = typeof prospectStore?.list === "function" ? prospectStore.list() : [];
+    return mockRecords.length ? [...mockRecords, ...records] : records;
+  }
+
+  function privateOutreachDependencyState() {
+    const records = privateOutreachRecords();
     const pendingAnalysis = records.filter((record) => isContactableRecord(record) && awaitingIntentAnalysis(record));
     const readyForOutreach = records.filter((record) => isContactableRecord(record) && record.status === "待确认触达");
     return { pendingAnalysis, readyForOutreach };
@@ -2547,6 +2567,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
   function shouldGuidePrivateOutreachEntry(agent) {
     if (!isPrivateOutreachAgent(agent)) return false;
+    if (privateOutreachMockData?.records?.length) return false;
     return privateOutreachDependencyState().readyForOutreach.length === 0;
   }
 
@@ -2769,17 +2790,6 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   }
   function isAccountAnalysisFlow(agent, flow = {}) { return agent?.id === "mkt-research-expert" || flow?.analysisKind === "account_report"; }
   function isIntentAnalystAgent(agent) { return agent?.id === "mkt-intent-analyst"; }
-
-  function douyinProfileUrl(value) {
-    try {
-      const url = new URL(String(value || "").trim());
-      return ["http:", "https:"].includes(url.protocol)
-        && /(^|\.)douyin\.com$/.test(url.hostname)
-        && /^\/user\/[^/]+/.test(url.pathname);
-    } catch {
-      return false;
-    }
-  }
 
   function accountAnalysisPrefillUrl(account) {
     if (account?.profileUrl) return account.profileUrl;
@@ -3689,13 +3699,15 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     return flow?.agentId === "mkt-cold-writer";
   }
 
-  function privateOutreachEntryRecord(entry = {}) {
+  function privateOutreachEntryRecord(entry = {}, flow = state.useFlow) {
     const recordId = entry.recordId || entry.sourceRecordId || "";
-    return recordId ? prospectStore.get(recordId) : null;
+    if (!recordId) return null;
+    return prospectStore.get(recordId)
+      || (Array.isArray(flow?.mockProspectRecords) ? flow.mockProspectRecords.find((record) => record.id === recordId) : null);
   }
 
   function privateOutreachEntrySourceScope(flow, entry = {}) {
-    const record = privateOutreachEntryRecord(entry);
+    const record = privateOutreachEntryRecord(entry, flow);
     return entry.sourceScope
       || record?.contactability?.sourceScope
       || record?.sourceScope
@@ -3705,12 +3717,12 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   }
 
   function privateOutreachEntrySourceAccountId(flow, entry = {}) {
-    const record = privateOutreachEntryRecord(entry);
+    const record = privateOutreachEntryRecord(entry, flow);
     return entry.sourceAccountId || record?.source?.accountId || flow?.sourceAccountId || "";
   }
 
   function privateOutreachEntrySourceAccountName(flow, entry = {}) {
-    const record = privateOutreachEntryRecord(entry);
+    const record = privateOutreachEntryRecord(entry, flow);
     return entry.sourceAccountName || record?.source?.accountName || flow?.sourceAccountName || "";
   }
 
@@ -3726,7 +3738,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
   function privateOutreachEntryIsAllowed(flow, entry = {}) {
     if (!privateOutreachUsesProspectBoundary(flow)) return Boolean(entry?.secId || entry?.secUid);
-    const record = privateOutreachEntryRecord(entry);
+    const record = privateOutreachEntryRecord(entry, flow);
     if (!record?.id || !leadRecipientId(record)) return false;
     if (!isContactableRecord(record) || record.status !== "待确认触达") return false;
     const scope = privateOutreachEntrySourceScope(flow, entry);
@@ -3778,7 +3790,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       flow.targetInput = "";
     }
     if (flow.targetEntries?.length) return;
-    const records = typeof prospectStore?.list === "function" ? prospectStore.list() : [];
+    const records = privateOutreachRecords(flow);
     const targets = records
       .filter((record) => {
         if (!isContactableRecord(record) || record.status !== "待确认触达") return false;
@@ -3865,6 +3877,12 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     setup.appendChild(accountStage);
     if (flow.authorizing || ["starting", "opening", "waiting_login"].includes(flow.authPhase)) setup.appendChild(buildCloudAuthorizationStatus(flow));
     if (flow.authError) setup.appendChild(el("div", "sb-as-use-notice is-error", flow.authError));
+    if (flow.mockPreview) {
+      const mockNotice = el("div", "sb-as-use-notice sb-as-private-mock-notice", "MOCK 预览：下面会完整展示确认名单、发送私信和查看触达结果，发送动作不会调用抖音，也不会产生真实私信。");
+      const capabilitySteps = el("div", "sb-as-private-mock-flow");
+      ["1 确认触达名单", "2 发送私信", "3 查看触达结果"].forEach((label) => capabilitySteps.appendChild(el("span", null, label)));
+      setup.append(mockNotice, capabilitySteps);
+    }
 
     if (!flow.authorizedAccounts?.length) {
       const notice = el("div", "sb-as-private-source sb-as-private-empty");
@@ -3895,7 +3913,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
     if (!ready.length) {
       const hasUnsafeEntries = allEntries.some((entry) => entry?.status === "ready" && !privateOutreachEntryIsAllowed(flow, entry));
-      const records = typeof prospectStore?.list === "function" ? prospectStore.list() : [];
+      const records = privateOutreachRecords(flow);
       const belongsToCurrentAccount = (record) => {
         const sourceAccountId = String(record?.source?.accountId || "").trim();
         const sourceAccountName = String(record?.source?.accountName || "").trim();
@@ -4096,16 +4114,18 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           : "正在完成私信触达";
     const copy = failed
       ? flow.error.message
-      : pendingReceipt
-        ? "云电脑已经执行发送动作，但平台尚未返回全部结果。任务会保留并继续核对，不会自动重复发送。"
-        : `系统正在逐条通过云电脑发送，共 ${entries.length} 个目标；每一条都以真实平台回执为准。`;
+      : flow.mockPreview
+        ? "这是 mock 预览：系统正在展示逐条发送和平台回执，不会向抖音发送真实私信。"
+        : pendingReceipt
+          ? "云电脑已经执行发送动作，但平台尚未返回全部结果。任务会保留并继续核对，不会自动重复发送。"
+          : `系统正在逐条通过云电脑发送，共 ${entries.length} 个目标；每一条都以真实平台回执为准。`;
     panel.append(
       el("div", "sb-as-use-panel-title", title),
       el("div", "sb-as-use-panel-copy", copy)
     );
     const meta = el("div", "sb-as-use-progress-meta");
     meta.append(
-      el("span", null, pendingReceipt ? "等待平台回执" : completed ? "平台已返回真实结果" : failed ? "执行未完成" : flow.activeTargetIndex != null ? `正在处理第 ${flow.activeTargetIndex + 1} 个目标` : "准备发送"),
+      el("span", null, flow.mockPreview ? (completed ? "模拟平台已返回结果" : "模拟发送中") : pendingReceipt ? "等待平台回执" : completed ? "平台已返回真实结果" : failed ? "执行未完成" : flow.activeTargetIndex != null ? `正在处理第 ${flow.activeTargetIndex + 1} 个目标` : "准备发送"),
       el("span", null, `${sentCount}/${entries.length} 已完成`)
     );
     panel.appendChild(meta);
@@ -4127,7 +4147,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     if (pendingReceipt) {
       panel.appendChild(el("div", "sb-as-use-notice", `已提交 ${entries.length} 个目标：成功 ${sentCount} 个，失败 ${failedCount} 个，${unknownCount} 个等待平台回执。任务仍会保留，发送账号：${flow.account || flow.accountIdentity?.accountName || flow.accountIdentity?.nickname || "账号名称未返回"}。`));
     } else if (completed) {
-      panel.appendChild(el("div", `sb-as-use-notice${partial || failedCount ? " is-error" : ""}`, `已完成 ${entries.length} 个目标的处理：成功 ${sentCount} 个，失败 ${failedCount} 个。发送账号：${flow.account || flow.accountIdentity?.accountName || flow.accountIdentity?.nickname || "账号名称未返回"}。`));
+      const completedCopy = flow.mockPreview
+        ? `MOCK 预览已完成：已模拟处理 ${entries.length} 个目标，成功 ${sentCount} 个，失败 ${failedCount} 个。不会产生真实私信。`
+        : `已完成 ${entries.length} 个目标的处理：成功 ${sentCount} 个，失败 ${failedCount} 个。发送账号：${flow.account || flow.accountIdentity?.accountName || flow.accountIdentity?.nickname || "账号名称未返回"}。`;
+      panel.appendChild(el("div", `sb-as-use-notice${partial || failedCount ? " is-error" : ""}`, completedCopy));
     }
     if (failed) {
       const actions = el("div", "sb-as-use-actions");
@@ -5408,6 +5431,27 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     return Boolean(publicFinderTargetText(flow));
   }
 
+  function publicFinderNeedsBusinessAccount(flow = {}) {
+    return needsPublicFinderBusinessAccount({
+      purposeIds: flow.taskChoices?.finderPublicPurpose?.selected,
+      query: flow.publicFinderQuery,
+      goal: flow.finderGoal
+    });
+  }
+
+  function publicFinderBusinessAccountError(flow = {}) {
+    return validatePublicFinderBusinessAccount({
+      required: publicFinderNeedsBusinessAccount(flow),
+      businessAccountUrl: flow.publicFinderAccountUrl
+    });
+  }
+
+  function publicFinderCanStart(flow = {}) {
+    return hasPublicFinderTarget(flow)
+      && flow.publicFinderAccountStatus !== "loading"
+      && !publicFinderBusinessAccountError(flow);
+  }
+
   function publicFinderReferenceUrls(value) {
     const values = String(value || "")
       .split(/[\n\r,，;；]+/)
@@ -5429,11 +5473,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       return;
     }
     try {
-      const parsed = new URL(profileUrl);
-      if (!/^https?:$/.test(parsed.protocol)) throw new Error("invalid_protocol");
+      if (!isDouyinProfileUrl(profileUrl)) throw new Error("invalid_profile_url");
     } catch {
       flow.publicFinderAccountStatus = "error";
-      flow.publicFinderAccountError = "请输入完整的抖音账号主页链接";
+      flow.publicFinderAccountError = "请输入有效的抖音账号主页链接";
       render();
       return;
     }
@@ -5503,17 +5546,19 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
     const accountContext = document.createElement("details");
     accountContext.className = "sb-public-finder-context";
-    accountContext.open = Boolean(flow.publicFinderAccountUrl || flow.publicFinderReferenceUrls || flow.publicFinderAccountError);
     const contextSummary = document.createElement("summary");
     const summaryCopy = el("span", "sb-public-finder-context-copy");
+    const contextTitle = el("strong");
+    const contextSubtitle = el("small");
     summaryCopy.append(
-      el("strong", null, "使用账号辅助搜索（选填）"),
-      el("small", null, "粘贴自己的业务账号或参考账号，让结果更贴近实际业务")
+      contextTitle,
+      contextSubtitle
     );
     contextSummary.appendChild(summaryCopy);
     const contextBody = el("div", "sb-public-finder-context-body");
     const businessField = el("label", "sb-public-finder-field");
-    businessField.appendChild(el("span", "sb-public-finder-label", "我的业务账号（选填）"));
+    const businessLabel = el("span", "sb-public-finder-label");
+    businessField.appendChild(businessLabel);
     const businessRow = el("div", "sb-public-finder-account-row");
     const businessAccount = document.createElement("input");
     businessAccount.type = "url";
@@ -5564,6 +5609,33 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     accountContext.append(contextSummary, contextBody);
     brief.append(customGoal, limit, accountContext);
     panel.appendChild(brief);
+
+    const controls = { accountContext, contextTitle, contextSubtitle, businessField, businessLabel, businessAccount, businessHint, resolve };
+    syncPublicFinderAccountPresentation(controls, flow);
+    return controls;
+  }
+
+  function syncPublicFinderAccountPresentation(controls, flow = {}) {
+    if (!controls) return;
+    const required = publicFinderNeedsBusinessAccount(flow);
+    controls.accountContext.open = required || Boolean(flow.publicFinderAccountUrl || flow.publicFinderReferenceUrls || flow.publicFinderAccountError);
+    controls.accountContext.classList.toggle("is-required", required);
+    controls.contextTitle.textContent = required ? "提供你的账号作为对标基准（必填）" : "使用账号辅助搜索（选填）";
+    controls.contextSubtitle.textContent = required
+      ? "竞品或同行账号需要基于你的账号定位，自己的主页链接不会进入候选名单"
+      : "粘贴自己的业务账号或参考账号，让结果更贴近实际业务";
+    controls.businessLabel.textContent = required ? "我的抖音账号主页链接（必填）" : "我的业务账号（选填）";
+    controls.businessAccount.required = required;
+    controls.businessAccount.setAttribute("aria-required", String(required));
+    if (flow.publicFinderAccountStatus === "loading") controls.businessHint.textContent = "正在解析账号…";
+    else if (flow.publicFinderAccountStatus === "ready") controls.businessHint.textContent = required
+      ? `已识别：${publicFinderAccountName(flow.publicFinderAccountIdentity)}，将作为对标依据，不会进入候选名单。`
+      : `已识别：${publicFinderAccountName(flow.publicFinderAccountIdentity)}。仅作为业务与内容参照，不会进入候选名单。`;
+    else if (flow.publicFinderAccountError) controls.businessHint.textContent = flow.publicFinderAccountError;
+    else if (required) controls.businessHint.textContent = "先粘贴你的抖音账号主页链接，才能查找竞品或同行账号。";
+    else controls.businessHint.textContent = "用于理解你的业务与内容，不会作为候选账号。";
+    controls.businessHint.classList.toggle("is-error", flow.publicFinderAccountStatus === "error" || (required && !String(flow.publicFinderAccountUrl || "").trim()));
+    controls.resolve.disabled = flow.publicFinderAccountStatus === "loading";
   }
 
   function publicFinderFilterSummary(flow) {
@@ -5728,8 +5800,14 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     if (flow.compositeFinderSource === "public") {
       panel.append(
         el("div", "sb-as-use-panel-title", "设置找人条件"),
-        el("div", "sb-as-use-panel-copy", "先选一个找人目标；没有合适的再补充描述。账号链接和筛选条件只在需要时填写，不会进入候选名单。")
+        el("div", "sb-as-use-panel-copy", "先选一个找人目标；如果要找竞品或同行，必须提供自己的抖音账号主页链接。")
       );
+      let publicFinderBrief = null;
+      const syncPublicFinderStart = () => {
+        syncPublicFinderAccountPresentation(publicFinderBrief, flow);
+        const start = panel.querySelector("[data-choice-start]");
+        if (start) start.disabled = !publicFinderCanStart(flow);
+      };
       const purpose = mountTaskChoices(panel, {
         flow,
         group: "finderPublicPurpose",
@@ -5739,22 +5817,15 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         allowFreeText: false,
         onChange: () => {
           syncCompositeFinderFlow(flow);
-          const start = panel.querySelector("[data-choice-start]");
-          if (start) start.disabled = !hasPublicFinderTarget(flow);
+          syncPublicFinderStart();
         }
       });
       purpose.element.classList.add("sb-public-finder-targets");
-      renderPublicFinderBrief(panel, flow, {
-        onChange: () => {
-          const start = panel.querySelector("[data-choice-start]");
-          if (start) start.disabled = !hasPublicFinderTarget(flow);
-        }
+      publicFinderBrief = renderPublicFinderBrief(panel, flow, {
+        onChange: syncPublicFinderStart
       });
       renderPublicFinderFilters(panel, flow, {
-        onChange: () => {
-          const start = panel.querySelector("[data-choice-start]");
-          if (start) start.disabled = !hasPublicFinderTarget(flow);
-        }
+        onChange: syncPublicFinderStart
       });
       if (flow.setupError) panel.appendChild(el("div", "sb-as-use-notice is-error", flow.setupError));
       const actions = el("div", "sb-as-use-actions sb-as-finder-actions");
@@ -5764,9 +5835,20 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       const start = el("button", "primary", "开始找人");
       start.type = "button";
       start.dataset.choiceStart = "true";
-      start.disabled = !hasPublicFinderTarget(flow);
+      start.disabled = !publicFinderCanStart(flow);
       start.addEventListener("click", () => {
         syncCompositeFinderFlow(flow);
+        const accountError = publicFinderBusinessAccountError(flow);
+        if (accountError) {
+          flow.setupError = accountError;
+          render();
+          return;
+        }
+        if (flow.publicFinderAccountStatus === "loading") {
+          flow.setupError = "正在识别你的账号，请稍候。";
+          render();
+          return;
+        }
         const scopeError = douyinFinderScopeError(flow);
         if (scopeError) {
           flow.setupError = scopeError;
@@ -6880,6 +6962,15 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const compositePublicFinder = isCompositeFinderAgent(agent) && flow.compositeFinderSource === "public";
     const inputs = isDouyinFinderAgent(agent) || compositePublicFinder ? "" : finderCombinedInputs(flow);
     const accountContext = compositePublicFinder ? flow.finderAccountContext : null;
+    if (compositePublicFinder) {
+      const accountError = publicFinderBusinessAccountError(flow);
+      if (accountError) {
+        flow.setupError = accountError;
+        flow.step = "setup";
+        render();
+        return;
+      }
+    }
     flow.step = "running";
     flow.requesting = true;
     flow.status = "RUNNING";
@@ -6914,6 +7005,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           goal: flow.finderGoal,
           inputs,
           accountContext: accountContext || undefined,
+          publicFinderQuery: compositePublicFinder ? flow.publicFinderQuery || undefined : undefined,
+          choices: compositePublicFinder ? structuredClone(flow.taskChoices || {}) : undefined,
           industry: flow.finderIndustry || undefined,
           mode: flow.finderMode,
           resultLimit: flow.finderResultLimit,
@@ -7265,6 +7358,75 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     }
   }
 
+  async function startPrivateOutreachMock(agent, flow, targets) {
+    const agentId = flow.agentId || agent.id;
+    flow.taskId ||= newTaskId("mock-private-outreach");
+    flow.taskRunId ||= `${flow.taskId}:run`;
+    flow.accountWorkKey ||= douyinAccountWorkKey(flow.accountIdentity, flow.accountId);
+    flow.step = "running";
+    flow.requesting = true;
+    flow.error = null;
+    flow.receiptPending = false;
+    flow.receiptPendingAt = null;
+    flow.result = null;
+    flow.checks = [true, false, false, false];
+    flow.activeTargetIndex = null;
+    flow.targetEntries = flow.targetEntries.map((entry) => entry.status === "ready"
+      ? { ...entry, status: "pending", error: null }
+      : entry);
+    beginWork(agentId, {
+      task: `模拟给 ${targets.length} 位抖音用户发送私信`,
+      phase: "模拟确认触达名单",
+      projectId: null,
+      metadata: {
+        progressSource: "none",
+        taskId: flow.taskId,
+        taskRunId: flow.taskRunId,
+        accountId: flow.accountId || null,
+        accountKey: flow.accountWorkKey || null,
+        executionAgentId: agentId,
+        targetCount: targets.length,
+        mock: true
+      }
+    });
+    pushActivity(agentId, `Mock 预览已确认 ${targets.length} 位潜客，准备模拟首轮私信。`);
+    updateWork(agentId, {
+      phase: "模拟发送私信",
+      metadata: { progressSource: "none", cloudWatch: "action_in_flight", mock: true, targetCount: targets.length }
+    });
+    render();
+
+    await new Promise((resolve) => window.setTimeout(resolve, 240));
+    if (disposed || state.useFlow !== flow) return;
+    const result = createPrivateOutreachMockResult(targets, flow.message.trim());
+    const resultById = new Map(result.entries.map((entry) => [entry.recordId || entry.sourceRecordId, entry]));
+    flow.targetEntries = flow.targetEntries.map((entry) => {
+      const key = entry.recordId || entry.sourceRecordId;
+      return resultById.get(key) || entry;
+    });
+    flow.requesting = false;
+    flow.activeTargetIndex = null;
+    flow.checks = [true, true, true, true];
+    flow.result = result;
+    flow.mockResult = true;
+    flow.error = null;
+    updateWork(agentId, {
+      phase: "模拟私信发送完成",
+      metadata: {
+        progressSource: "none",
+        cloudWatch: "completed",
+        mock: true,
+        targetCount: result.total,
+        sentCount: result.sent,
+        failedCount: result.failed,
+        unknownCount: result.unknown
+      }
+    });
+    pushActivity(agentId, `Mock 预览已模拟完成 ${result.sent} 条私信，并返回逐条成功回执。`);
+    finishWork(agentId, "模拟私信发送结果");
+    render();
+  }
+
   async function startPrivateOutreach(agent, flow) {
     if (flow.requesting) return;
     const rawTargets = (Array.isArray(flow.targetEntries) ? flow.targetEntries : [])
@@ -7300,6 +7462,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         render();
         return;
       }
+    }
+    if (flow.mockPreview) {
+      await startPrivateOutreachMock(agent, flow, targets);
+      return;
     }
     flow.step = "running";
     flow.requesting = true;

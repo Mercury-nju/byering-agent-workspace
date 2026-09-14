@@ -190,6 +190,31 @@ test("public account context guides discovery without becoming candidate seeds",
   assert.equal(client.calls.includes("account.resolve:https://www.douyin.com/user/creator-a"), false);
 });
 
+test("competitor discovery requires the user's own Douyin profile URL", async () => {
+  const discoveryService = discoveredService();
+  await assert.rejects(
+    createDouyinFinderService({ client: makeClient(), discoveryService }).run({
+      goal: "找同行和竞品账号"
+    }),
+    (error) => error.code === "DOUYIN_FINDER_BUSINESS_ACCOUNT_REQUIRED" && error.statusCode === 400
+  );
+
+  await assert.rejects(
+    createDouyinFinderService({ client: makeClient(), discoveryService }).run({
+      goal: "找竞品账号",
+      accountContext: { businessAccountUrl: "https://www.douyin.com/video/not-a-profile" }
+    }),
+    (error) => error.code === "DOUYIN_FINDER_BUSINESS_ACCOUNT_INVALID" && error.statusCode === 400
+  );
+
+  const result = await createDouyinFinderService({ client: makeClient(), discoveryService }).run({
+    goal: "找竞品账号",
+    accountContext: { businessAccountUrl: "https://www.douyin.com/user/my-brand" }
+  });
+  assert.equal(result.status, "SUCCEEDED");
+  assert.equal(result.accountContext.businessAccountUrl, "https://www.douyin.com/user/my-brand");
+});
+
 test("empty discovery is a real result while failed discovery is an execution error", async () => {
   const empty = await createDouyinFinderService({ client: makeClient(), discoveryService: discoveredService([]) }).run({ goal: "找没有候选的人" });
   assert.equal(empty.status, "NO_CANDIDATES");

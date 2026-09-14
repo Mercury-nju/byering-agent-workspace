@@ -96,3 +96,39 @@ test("control plane stores finder progress before the final result", async () =>
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+test("control plane rejects competitor discovery before creating an async run without a business account", async () => {
+  const runs = new Map();
+  let serviceCalled = false;
+  const server = createControlPlaneHttpServer({
+    auth: false,
+    douyinFinderRuns: runs,
+    douyinFinderService: {
+      configured: true,
+      async run() {
+        serviceCalled = true;
+        return { status: "SUCCEEDED", accounts: [] };
+      }
+    }
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const base = `http://127.0.0.1:${server.address().port}`;
+    const response = await fetch(`${base}/v1/connectors/douyin-finder/run`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        taskId: "finder-competitor-preflight",
+        goal: "公域找人\n同行、品牌或商家"
+      })
+    });
+    assert.equal(response.status, 400);
+    const payload = await response.json();
+    assert.equal(payload.error.code, "DOUYIN_FINDER_BUSINESS_ACCOUNT_REQUIRED");
+    assert.match(payload.error.message, /账号主页链接/);
+    assert.equal(serviceCalled, false);
+    assert.equal(runs.has("finder-competitor-preflight"), false);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});

@@ -348,6 +348,27 @@ test("private outreach authorization is rendered as an actionable button", () =>
   assert.match(source, /startMcpAuthorization\(flow\)/);
 });
 
+test("private outreach mock exposes the full activation workflow without real provider calls", () => {
+  assert.match(source, /createPrivateOutreachMockData/);
+  assert.match(source, /const privateOutreachMockData = isPrivateOutreachMockPreview\(\) \? createPrivateOutreachMockData\(\) : null/);
+  assert.match(source, /mockPreview: mockPrivateOutreach/);
+  assert.match(source, /mockProspectRecords: mockPrivateOutreach \? structuredClone\(privateOutreachMockData\.records\)/);
+  assert.match(source, /MOCK 预览：下面会完整展示确认名单、发送私信和查看触达结果/);
+  assert.match(source, /\["1 确认触达名单", "2 发送私信", "3 查看触达结果"\]/);
+  const start = source.indexOf("async function startPrivateOutreach");
+  const end = source.indexOf("function inboxStartState", start);
+  assert.ok(start >= 0 && end > start);
+  const privateFlow = source.slice(start, end);
+  assert.match(privateFlow, /async function startPrivateOutreachMock/);
+  assert.match(privateFlow, /createPrivateOutreachMockResult/);
+  assert.match(privateFlow, /if \(flow\.mockPreview\) \{\s*await startPrivateOutreachMock/);
+  assert.match(source, /不会向抖音发送真实私信/);
+  assert.match(source, /function shouldGuidePrivateOutreachEntry\(agent\) \{[\s\S]*?if \(privateOutreachMockData\?\.records\?\.length\) return false;/);
+  const mockStart = privateFlow.indexOf("async function startPrivateOutreachMock");
+  const realStart = privateFlow.indexOf("async function startPrivateOutreach(agent");
+  assert.doesNotMatch(privateFlow.slice(mockStart, realStart), /waitForDouyinAuthorization|send-private-message/);
+});
+
 test("each acquisition product Agent keeps its own authorization identity", () => {
   const fetchStart = source.indexOf("async function fetchAuthorizedAccounts");
   const fetchEnd = source.indexOf("function openUseFlow", fetchStart);

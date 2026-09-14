@@ -43,6 +43,7 @@ import { createDouyinAccountActionCoordinator, douyinAccountCoordinationKey } fr
 import { createOfficeWorkReplayStore } from "./office-work-replay.js";
 import { createManagedDailyReportService } from "./managed-daily-report.js";
 import { createDouyinAgentDataClient, douyinAgentDataConfiguration } from "../src/salebuddy/bridge/douyin-agent-data.js";
+import { publicFinderNeedsBusinessAccount, validatePublicFinderBusinessAccount } from "../src/salebuddy/agents/public-finder-contract.js";
 import {
   buildDouyinAcquisitionAccountCapabilityMatrix,
   DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
@@ -1742,6 +1743,29 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       });
     }
     const body = withTenantScope(await readJson(request, bodyLimit), principal);
+    const finderGoal = optionalText(body.goal || body.query || body.requirements || body.userRequirements) || "";
+    const accountContext = body.accountContext && typeof body.accountContext === "object" ? body.accountContext : {};
+    const businessAccountUrl = optionalText(
+      accountContext.businessAccountUrl
+      || accountContext.businessAccount?.profileUrl
+      || body.businessAccountUrl
+    ) || "";
+    const requiresBusinessAccount = publicFinderNeedsBusinessAccount({
+      purposeIds: body.choices?.finderPublicPurpose?.selected,
+      query: body.publicFinderQuery || body.query,
+      goal: finderGoal
+    });
+    const businessAccountError = validatePublicFinderBusinessAccount({
+      required: requiresBusinessAccount,
+      businessAccountUrl
+    });
+    if (businessAccountError) {
+      throw new ControlPlaneError(businessAccountError, {
+        code: businessAccountUrl ? "DOUYIN_FINDER_BUSINESS_ACCOUNT_INVALID" : "DOUYIN_FINDER_BUSINESS_ACCOUNT_REQUIRED",
+        statusCode: 400,
+        details: { required: true }
+      });
+    }
     const taskId = optionalText(body.taskId || body.task_id) || `finder-${randomUUID()}`;
     const taskRunId = optionalText(body.taskRunId || body.task_run_id || body.runId || body.run_id) || `run-${randomUUID()}`;
     const startedAt = new Date().toISOString();
@@ -1752,7 +1776,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       stage: "queued",
       taskId,
       taskRunId,
-      goal: optionalText(body.goal || body.query || body.requirements || body.userRequirements) || "",
+      goal: finderGoal,
       counts: { input: 0, discovered: 0, screened: 0, resolved: 0, enriched: 0, qualified: 0, delivered: 0, matched: 0, failed: 0 },
       accounts: [],
       errors: [],
