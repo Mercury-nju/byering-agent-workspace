@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Byering Agent Avatar System</title>
+  <style>
+    :root {
+      --ink: #17211d;
+      --muted: #718077;
+      --line: #dfe8e2;
+      --surface: #ffffff;
+      --soft: #f4f8f5;
+      --mint: #32b884;
+      --mint-dark: #167454;
+      --coral: #ef715e;
+      --shadow: 0 18px 50px rgba(27, 55, 40, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: #edf3ef; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, #f6f9f5 0, #edf3ef 100%);
+      font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+    .shell { width: min(1440px, calc(100% - 48px)); margin: 0 auto; padding: 34px 0 56px; }
+    .topbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 27px; }
+    .eyebrow { margin: 0 0 8px; color: var(--mint-dark); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { max-width: 770px; font-size: clamp(30px, 4vw, 52px); line-height: 1.03; letter-spacing: -.045em; }
+    .intro { max-width: 720px; margin-top: 13px; color: #617067; font-size: 15px; }
+    .top-actions { display: flex; gap: 8px; align-items: center; }
+    .button, .select {
+      min-height: 38px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,.8); color: #33443a; padding: 0 13px;
+    }
+    .button:hover, .button.is-active, .select:focus { border-color: #92c8ad; background: #fff; outline: none; }
+    .button.is-active { color: var(--mint-dark); box-shadow: 0 0 0 3px rgba(50,184,132,.12); }
+
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 26px; }
+    .stat { padding: 17px 18px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.7); }
+    .stat strong { display: block; font-size: 27px; line-height: 1; letter-spacing: -.04em; }
+    .stat span { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
+
+    .section { margin-top: 34px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+    .section-head h2 { font-size: 20px; letter-spacing: -.025em; }
+    .section-head p { color: var(--muted); font-size: 12px; }
+    .overview { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(310px, .75fr); gap: 14px; }
+    .panel { border: 1px solid var(--line); border-radius: 16px; background: rgba(255,255,255,.82); box-shadow: var(--shadow); }
+    .roster { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; padding: 14px; }
+    .agent-card { position: relative; min-height: 176px; padding: 13px; overflow: hidden; border: 1px solid #e6eee8; border-radius: 12px; background: #fbfdfb; transition: border-color .2s, transform .2s, box-shadow .2s; }
+    .agent-card:hover, .agent-card.is-selected { border-color: var(--agent); transform: translateY(-2px); box-shadow: 0 12px 24px rgba(25, 58, 40, .09); }
+    .agent-card .avatar { width: 84px; height: 84px; margin: 2px auto 8px; }
+    .agent-card h3 { font-size: 13px; text-align: center; }
+    .agent-card p { margin-top: 2px; color: var(--muted); font-size: 11px; text-align: center; }
+    .role-dot { width: 7px; height: 7px; margin: 0 auto 6px; border-radius: 50%; background: var(--agent); }
+    .shape-label { position: absolute; top: 9px; right: 10px; color: #9aa99f; font-size: 10px; }
+    .rules { padding: 20px; }
+    .rules h3 { font-size: 15px; }
+    .rules dl { display: grid; grid-template-columns: 110px 1fr; gap: 12px 16px; margin: 18px 0 0; }
+    .rules dt { color: #607068; font-size: 12px; }
+    .rules dd { margin: 0; color: #27382f; font-size: 12px; }
+    .swatches { display: flex; gap: 5px; padding-top: 3px; }
+    .swatches i { display: block; width: 17px; height: 17px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.1); }
+
+    .demo-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, .55fr); gap: 14px; }
+    .stage { min-height: 620px; padding: 22px; background: #fff; }
+    .stage-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 17px; border-bottom: 1px solid #e8eee9; }
+    .stage-toolbar strong { font-size: 15px; }
+    .toolbar-group { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .state-button { min-height: 31px; padding: 0 10px; border-radius: 8px; border: 1px solid #e3ebe5; background: #f8fbf8; color: #607168; font-size: 11px; }
+    .state-button:hover, .state-button.is-active { border-color: var(--mint); color: var(--mint-dark); background: #effaf4; }
+    .demo-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin-top: 22px; }
+    .demo-card { min-height: 247px; padding: 15px 12px 12px; border: 1px solid #e7eee9; border-radius: 12px; background: #fbfdfb; }
+    .demo-card.is-focused { border-color: var(--mint); box-shadow: 0 0 0 3px rgba(50,184,132,.09); }
+    .demo-card .avatar { width: 130px; height: 130px; margin: 0 auto 10px; }
+    .demo-card h3 { font-size: 12px; text-align: center; }
+    .demo-card p { margin-top: 4px; color: var(--muted); font-size: 11px; text-align: center; }
+    .state-pill { display: inline-flex; align-items: center; gap: 5px; margin: 9px auto 0; padding: 4px 8px; border-radius: 99px; color: #547066; background: #edf5ef; font-size: 10px; }
+    .state-pill::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--agent); }
+    .motion-note { margin-top: 17px; padding: 13px 14px; border-left: 3px solid var(--mint); background: #f4faf6; color: #557066; font-size: 12px; }
+    .motion-note strong { color: #263c31; }
+    .inspector { padding: 20px; }
+    .inspector h3 { font-size: 15px; }
+    .inspector .big-avatar { width: 180px; height: 180px; margin: 14px auto 18px; }
+    .inspector-meta { display: grid; gap: 10px; }
+    .meta-row { display: flex; justify-content: space-between; gap: 15px; padding-bottom: 9px; border-bottom: 1px solid #ebf0ec; font-size: 12px; }
+    .meta-row span:first-child { color: var(--muted); }
+    .meta-row span:last-child { color: #26382e; font-weight: 700; text-align: right; }
+    .inspector-copy { margin-top: 17px; color: #64746b; font-size: 12px; }
+
+    .contract { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .contract-card { padding: 19px; }
+    .contract-card h3 { font-size: 14px; }
+    pre { margin: 13px 0 0; padding: 15px; overflow: auto; border-radius: 10px; background: #17211d; color: #d9f3e4; font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .footer { margin-top: 30px; color: #8a9990; font-size: 11px; }
+
+    .timeline { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin-top: 20px; }
+    .timeline-item { min-height: 86px; padding: 10px; border-top: 3px solid var(--state-color, var(--mint)); background: #f8fbf8; }
+    .timeline-item strong { display: block; font-size: 11px; }
+    .timeline-item span { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+    .cursor-hint { display: inline-flex; align-items: center; gap: 6px; color: #87958c; font-size: 11px; }
+    .cursor-hint::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 4px rgba(50,184,132,.12); }
+    .motion-paused *, .motion-paused *::before, .motion-paused *::after { animation-play-state: paused !important; }
+
+    .agent-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    .agent-svg .agent-body { fill: var(--agent); transform-box: fill-box; transform-origin: center; }
+    .agent-svg .agent-eye { fill: #fff; transform-box: fill-box; transform-origin: center; transition: d .18s ease; }
+    .agent-svg .agent-pupil { fill: var(--agent); transform-box: fill-box; transform-origin: center; transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+    .agent-svg .agent-spark { fill: #fff; opacity: .78; }
+    .agent-svg .agent-ring { fill: none; stroke: #fff; stroke-width: 1.2; opacity: .35; stroke-dasharray: 2 4; transform-origin: 50px 50px; }
+    .avatar[data-state="idle"] .agent-body { animation: idleFloat 4.2s cubic-bezier(.45,0,.55,1) infinite; }
+    .avatar[data-state="idle"] .agent-eye { animation: blink 6.2s ease-in-out infinite; }
+    .avatar[data-state="waiting"] .agent-body { animation: waitingBob 2.2s ease-in-out infinite; }
+    .avatar[data-state="waiting"] .agent-eye { animation: waitingEyes 3.4s ease-in-out infinite; }
+    .avatar[data-state="thinking"] .agent-body { animation: thinkingTilt 2.7s ease-in-out infinite; }
+    .avatar[data-state="thinking"] .agent-eye { animation: thinkEyes 2.7s ease-in-out infinite; }
+    .avatar[data-state="thinking"] .agent-ring { animation: orbit 4.4s linear infinite; }
+    .avatar[data-state="working"] .agent-body { animation: workPulse 1.4s ease-in-out infinite; }
+    .avatar[data-state="working"] .agent-eye { animation: workEyes 1.4s ease-in-out infinite; }
+    .avatar[data-state="working"] .agent-ring { animation: progressRing 1.8s linear infinite; }
+    .avatar[data-state="complete"] .agent-body { animation: completePop 1.75s cubic-bezier(.2,.8,.2,1) infinite; }
+    .avatar[data-state="complete"] .agent-eye { animation: happyEyes 1.75s ease-in-out infinite; }
+    .avatar[data-state="complete"] .agent-spark { animation: completeSpark 1.75s ease-in-out infinite; }
+    .avatar[data-state="crashed"] .agent-body { animation: crashWobble 1.35s ease-in-out infinite; }
+    .avatar[data-state="crashed"] .agent-eye { animation: dizzyEyes 1.35s linear infinite; }
+    .avatar[data-state="crashed"] .agent-spark { animation: errorSpark .85s steps(2,end) infinite; }
+    .avatar.is-entering[data-state="complete"] .agent-body { animation: completePop .95s cubic-bezier(.2,.8,.2,1) 1; }
+    .avatar.is-entering[data-state="crashed"] .agent-body { animation: crashWobble .9s ease-in-out 1; }
+    .avatar.is-entering[data-state="complete"] .agent-spark { animation: completeSpark .95s ease-out 1; }
+    .avatar.is-entering[data-state="crashed"] .agent-spark { animation: errorSpark .55s steps(2,end) 2; }
+    @keyframes idleFloat { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-5px) rotate(-1deg); } }
+    @keyframes blink { 0%, 42%, 47%, 100% { transform: scaleY(1); } 44%, 45% { transform: scaleY(.08); } }
+    @keyframes waitingBob { 0%,100% { transform: translateY(2px) rotate(-1deg); } 50% { transform: translateY(-5px) rotate(1deg); } }
+    @keyframes waitingEyes { 0%,100% { transform: translateX(0); } 25% { transform: translateX(3px); } 72% { transform: translateX(-3px); } }
+    @keyframes thinkingTilt { 0%,100% { transform: rotate(-2deg) translateY(1px); } 50% { transform: rotate(4deg) translateY(-4px); } }
+    @keyframes thinkEyes { 0%,100% { transform: translate(0, 2px); } 50% { transform: translate(4px, -3px); } }
+    @keyframes orbit { to { transform: rotate(360deg); } }
+    @keyframes workPulse { 0%,100% { transform: scale(1) translateY(0); } 50% { transform: scale(1.045) translateY(-3px); } }
+    @keyframes workEyes { 0%,100% { transform: translateX(-2px); } 50% { transform: translateX(3px); } }
+    @keyframes progressRing { to { stroke-dashoffset: -24; } }
+    @keyframes completePop { 0%,100% { transform: translateY(0) scale(1); } 22% { transform: translateY(-9px) scale(1.04); } 42% { transform: translateY(0) scale(.98); } 60% { transform: translateY(-4px) scale(1.01); } }
+    @keyframes happyEyes { 0%,100% { transform: scaleY(1); } 38% { transform: scaleY(.34) translateY(-2px); } }
+    @keyframes completeSpark { 0%,100% { opacity: .3; transform: scale(.75) rotate(0); } 35% { opacity: 1; transform: scale(1.2) rotate(30deg); } 70% { opacity: .5; transform: scale(.9) rotate(60deg); } }
+    @keyframes crashWobble { 0%,100% { transform: rotate(0) translate(0); } 15% { transform: rotate(-8deg) translate(-3px, 2px); } 30% { transform: rotate(8deg) translate(3px, 1px); } 45% { transform: rotate(-5deg); } 60% { transform: rotate(4deg); } }
+    @keyframes dizzyEyes { 0%,100% { transform: rotate(0) scale(.82); } 50% { transform: rotate(180deg) scale(.82); } }
+    @keyframes errorSpark { 0%,100% { opacity: .2; transform: scale(.7); } 50% { opacity: 1; transform: scale(1.1); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
+    @media (max-width: 1050px) { .overview, .demo-layout { grid-template-columns: 1fr; } .roster { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 760px) { .shell { width: min(100% - 26px, 650px); padding-top: 22px; } .topbar, .section-head { align-items: flex-start; flex-direction: column; } .top-actions { width: 100%; } .top-actions .button { flex: 1; } .summary { grid-template-columns: repeat(2, 1fr); } .roster, .demo-grid, .contract { grid-template-columns: repeat(2, 1fr); } .stage { padding: 14px; } .stage-toolbar { align-items: flex-start; flex-direction: column; } .toolbar-group { justify-content: flex-start; } }
+    @media (max-width: 760px) { .timeline { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 430px) { .roster, .demo-grid { gap: 7px; } .agent-card { min-height: 156px; padding: 8px; } .agent-card .avatar { width: 68px; height: 68px; } .demo-card { min-height: 222px; padding: 10px 7px; } .demo-card .avatar { width: 104px; height: 104px; } .timeline { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Byering / Presence System</p>
+        <h1>让 Agent 看起来像一直在那里。</h1>
+        <p class="hero-lede">复刻 Grok Bot 的核心设计方法：Bot 是持续存在的同事，头像既告诉你“是谁”，也告诉你“正在做什么”。</p>
+        <div class="hero-tags"><span>persistent identity</span><span>expressive eyes</span><span>presence as interface</span></div>
+      </div>
+      <div class="hero-bot" id="heroBot"></div>
+    </header>
+
+    <section class="principles">
+      <article><span class="principle-num">01</span><strong>先认出是谁</strong><p>固定身体结构、颜色和配件，支持用户在侧边栏快速扫读。</p></article>
+      <article><span class="principle-num">02</span><strong>再看正在做什么</strong><p>用眼睛、身体节奏和短暂动作承载状态，而不是堆叠额外提示。</p></article>
+      <article><span class="principle-num">03</span><strong>只在需要时展开</strong><p>默认只给足够的存在感，悬停或点击才显示当前动作详情。</p></article>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><p class="section-kicker">Bot roster</p><h2>一眼认出每一个 Bot</h2><p>基础结构一致，差异来自受控的轮廓、颜色和配件组合。</p></div><span class="section-meta">10 BOTS / 8 FORMS</span></div>
+      <div class="roster panel" id="roster"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div><p class="section-kicker">Avatar motion system</p><h2>头像就是状态栏</h2><p>六种状态共用一套运动语法：安静、连续、可扫读，异常也不失去角色感。</p></div><div class="stage-actions"><button class="button" id="autoplay" type="button">自动播放</button><button class="button" id="pause" type="button">暂停动效</button></div></div>
+      <div class="motion-layout">
+        <div class="motion-stage panel">
+          <div class="stage-header"><div><strong id="stateTitle">Idle</strong><span id="stateCopy">Calm, curious, slightly alive.</span></div><span class="live-dot">LIVE PREVIEW</span></div>
+          <div class="motion-grid" id="motionGrid"></div>
+          <div class="state-tabs" id="stateTabs"></div>
+        </div>
+        <aside class="inspector panel" id="inspector"></aside>
+      </div>
+    </section>
+
+    <section class="section compact-section">
+      <div class="section-head"><div><p class="section-kicker">Interaction contract</p><h2>行为和形象保持同一个人格</h2><p>不做状态图标的拼贴，而是让 Bot 自己把工作状态说清楚。</p></div></div>
+      <div class="contract panel"><div><span class="code-label">BOT IDENTITY</span><pre>avatar: {
+  form: "cloud",
+  color: "violet",
+  accessory: "spark",
+  seed: 42
+}</pre></div><div><span class="code-label">PRESENCE STATE</span><pre>setPresence("working", {
+  action: "searching web",
+  detailOnHover: true
+})</pre></div></div>
+    </section>
+
+    <footer>参考文章：Designing Grok Bot for a world of persistent agents · 交互原则复刻页</footer>
+  </main>
+
+  <script>
+    const FORMS = [
+      { id: "round", label: "Round", color: "#55B8A6", d: "M50 7 C76 7 92 24 92 50 C92 76 76 93 50 93 C24 93 8 76 8 50 C8 24 24 7 50 7Z" },
+      { id: "oval", label: "Oval", color: "#F0A13B", d: "M50 5 C72 5 86 22 86 50 C86 78 72 95 50 95 C28 95 14 78 14 50 C14 22 28 5 50 5Z" },
+      { id: "square", label: "Soft square", color: "#6B68E8", d: "M27 8H73C85 8 92 16 92 29V68C92 84 83 92 67 92H33C17 92 8 83 8 67V30C8 16 15 8 27 8Z" },
+      { id: "pill", label: "Pill", color: "#E77999", d: "M31 8H69C83 8 90 19 90 34V65C90 82 81 92 66 92H34C19 92 10 82 10 65V34C10 19 17 8 31 8Z" },
+      { id: "peak", label: "Peak", color: "#4387EE", d: "M50 7C62 7 70 15 76 28L91 65C98 82 85 93 69 91H31C15 93 2 82 9 65L24 28C30 15 38 7 50 7Z" },
+      { id: "block", label: "Block", color: "#E97855", d: "M29 8H71C85 8 92 17 92 31V69C92 83 84 92 70 92H30C16 92 8 83 8 69V31C8 17 15 8 29 8Z" },
+      { id: "cloud", label: "Cloud", color: "#956BE1", d: "M22 22C28 8 44 7 51 18C60 5 78 12 78 27C93 27 96 43 87 51C98 65 87 89 69 88H28C10 88 3 66 16 55C5 43 10 28 22 22Z" },
+      { id: "drop", label: "Drop", color: "#2BA8A0", d: "M50 6C61 19 83 37 83 59C83 80 69 93 50 93C31 93 17 80 17 59C17 37 39 19 50 6Z" }
+    ];
+
+    const BOTS = [
+      ["main", "Kenny", "Chief of Staff", "cloud", "spark"], ["strategy", "Justin", "Strategy", "peak", "spark"], ["browser", "Chang", "Browser", "drop", "none"], ["search", "Jenny", "Search", "square", "spark"], ["research", "Keith", "Research", "oval", "none"], ["app", "Tyler", "App", "pill", "spark"], ["risk", "John", "Risk", "block", "none"], ["outreach", "Luke", "Outreach", "round", "spark"], ["ops", "Manuel", "Operations", "cloud", "none"], ["file", "Peng", "Files", "square", "spark"]
+    ];
+
+    const STATES = {
+      idle: { label: "Idle", copy: "Calm, curious, slightly alive.", action: "Maintaining presence", cue: "slow float + blink", color: "#55B8A6" },
+      working: { label: "Working", copy: "Focused and visibly in motion.", action: "Working on the current task", cue: "breathing + focused gaze", color: "#4387EE" },
+      waiting: { label: "Waiting", copy: "Paused, but still paying attention.", action: "Waiting for your input", cue: "small nod + scan", color: "#F0A13B" },
+      blocked: { label: "Blocked", copy: "Needs a decision, never silently stuck.", action: "Needs your help", cue: "soft wobble + alert eyes", color: "#E97855" },
+      thinking: { label: "Thinking", copy: "A quiet change of direction.", action: "Thinking through the next step", cue: "tilt + upward gaze", color: "#6B68E8" },
+      done: { label: "Done", copy: "A small, clear moment of completion.", action: "Task completed", cue: "pop + happy eyes", color: "#2BA8A0" }
+    };
+
+    const EYES = {
+      idle: { rx: 7, ry: 10, y: 48 }, working: { rx: 6, ry: 10, y: 49 }, waiting: { rx: 6, ry: 9, y: 49 }, blocked: { rx: 6, ry: 7, y: 47 }, thinking: { rx: 7, ry: 8, y: 45 }, done: { rx: 8, ry: 5, y: 48 }
+    };
+
+    let activeState = "idle";
+    let selectedBot = BOTS[0];
+    let paused = false;
+    let autoplayTimer = null;
+    let autoplay = false;
+    let pointer = { x: 0, y: 0, active: false };
+
+    function formFor(id) { return FORMS.find((form) => form.id === id) || FORMS[0]; }
+    function avatarMarkup(bot, state = activeState, size = "") {
+      const form = formFor(bot[3]); const eye = EYES[state] || EYES.idle; const spark = bot[4] === "spark" ? '<path class="spark" d="M80 20l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>' : '';
+      return `<div class="avatar ${size}" data-state="${state}" style="--agent:${form.color}"><svg class="bot-svg" viewBox="0 0 100 100" role="img" aria-label="${bot[1]} avatar"><path class="body" d="${form.d}"/><circle class="signal-ring" cx="50" cy="50" r="40"/><g class="eyes"><ellipse class="eye" cx="37" cy="${eye.y}" rx="${eye.rx}" ry="${eye.ry}"/><ellipse class="eye" cx="63" cy="${eye.y}" rx="${eye.rx}" ry="${eye.ry}"/></g><g class="pupils"><circle class="pupil" cx="37" cy="${eye.y}" r="2.4"/><circle class="pupil" cx="63" cy="${eye.y}" r="2.4"/></g>${spark}</svg></div>`;
+    }
+
+    function renderHero() { document.querySelector("#heroBot").innerHTML = avatarMarkup(selectedBot, activeState, "hero-avatar"); }
+    function renderRoster() { document.querySelector("#roster").innerHTML = BOTS.map((bot) => { const form = formFor(bot[3]); return `<button class="bot-card${selectedBot[0] === bot[0] ? " is-selected" : ""}" data-bot="${bot[0]}" style="--agent:${form.color}" type="button"><span class="bot-index">${String(BOTS.indexOf(bot) + 1).padStart(2, "0")}</span>${avatarMarkup(bot, "idle")}<strong>${bot[1]}</strong><span>${bot[2]}</span><em>${form.label}</em></button>`; }).join(""); document.querySelectorAll("[data-bot]").forEach((button) => button.addEventListener("click", () => { selectedBot = BOTS.find((bot) => bot[0] === button.dataset.bot) || BOTS[0]; renderAll(); })); }
+    function renderTabs() { document.querySelector("#stateTabs").innerHTML = Object.entries(STATES).map(([key, state]) => `<button class="state-tab${key === activeState ? " is-active" : ""}" data-state="${key}" type="button"><i style="background:${state.color}"></i>${state.label}</button>`).join(""); document.querySelectorAll(".state-tab").forEach((button) => button.addEventListener("click", () => setState(button.dataset.state))); }
+    function renderMotion() { const info = STATES[activeState]; document.querySelector("#stateTitle").textContent = info.label; document.querySelector("#stateCopy").textContent = info.copy; document.querySelector("#motionGrid").innerHTML = BOTS.slice(0, 6).map((bot) => `<button class="motion-card${selectedBot[0] === bot[0] ? " is-selected" : ""}" data-bot="${bot[0]}" type="button">${avatarMarkup(bot, activeState)}<strong>${bot[1]}</strong><span>${info.action}</span></button>`).join(""); document.querySelectorAll(".motion-card").forEach((button) => button.addEventListener("click", () => { selectedBot = BOTS.find((bot) => bot[0] === button.dataset.bot) || BOTS[0]; renderAll(); })); }
+    function renderInspector() { const form = formFor(selectedBot[3]); const info = STATES[activeState]; document.querySelector("#inspector").innerHTML = `<span class="inspector-kicker">PRESENCE INSPECTOR</span><h3>${selectedBot[1]} <small>${selectedBot[2]}</small></h3>${avatarMarkup(selectedBot, activeState, "inspect-avatar")}<dl><div><dt>Bot identity</dt><dd>${form.label} / ${form.color}</dd></div><div><dt>Current state</dt><dd>${info.label}</dd></div><div><dt>Current action</dt><dd>${info.action}</dd></div><div><dt>Motion cue</dt><dd>${info.cue}</dd></div></dl><p class="hover-note">Hover a Bot in the product to reveal its current action. The avatar gives reassurance first; detail stays one gesture away.</p>`; }
+    function setState(state) { activeState = state; renderAll(); document.querySelectorAll(`.avatar[data-state="${state}"]`).forEach((avatar) => { avatar.classList.remove("entering"); void avatar.offsetWidth; avatar.classList.add("entering"); setTimeout(() => avatar.classList.remove("entering"), 1400); }); }
+    function renderAll() { renderHero(); renderRoster(); renderTabs(); renderMotion(); renderInspector(); updateGaze(); }
+    function updateGaze() { document.querySelectorAll(".pupils").forEach((pupils) => { const rect = pupils.closest(".avatar")?.getBoundingClientRect(); if (!rect) return; const dx = pointer.active ? Math.max(-3, Math.min(3, (pointer.x - rect.left - rect.width / 2) / Math.max(rect.width, 1) * 7)) : 0; const dy = pointer.active ? Math.max(-2.5, Math.min(2.5, (pointer.y - rect.top - rect.height / 2) / Math.max(rect.height, 1) * 6)) : 0; pupils.querySelectorAll(".pupil").forEach((pupil, index) => { pupil.style.transform = `translate(${dx * (index ? -1 : 1)}px,${dy}px)`; }); }); }
+    function toggleAutoplay() { if (autoplay) { clearInterval(autoplayTimer); autoplay = false; document.querySelector("#autoplay").classList.remove("is-active"); return; } autoplay = true; document.querySelector("#autoplay").classList.add("is-active"); const keys = Object.keys(STATES); let index = keys.indexOf(activeState); autoplayTimer = setInterval(() => { index = (index + 1) % keys.length; setState(keys[index]); }, 2300); }
+    document.querySelector("#autoplay").addEventListener("click", toggleAutoplay); document.querySelector("#pause").addEventListener("click", () => { paused = !paused; document.body.classList.toggle("motion-paused", paused); document.querySelector("#pause").textContent = paused ? "恢复动效" : "暂停动效"; });
+    window.addEventListener("pointermove", (event) => { pointer = { x: event.clientX, y: event.clientY, active: true }; updateGaze(); }, { passive: true }); window.addEventListener("pointerleave", () => { pointer = { x: 0, y: 0, active: false }; updateGaze(); }, { passive: true }); setInterval(updateGaze, 1000 / 30); renderAll();
+  </script>
+</body>
+</html>

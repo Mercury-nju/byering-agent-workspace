@@ -1,0 +1,15 @@
+{
+  "name": "marvis-recovered",
+  "version": "1.0.0-recovered",
+  "private": true,
+  "type": "module",
+  "description": "Recovered Marvis renderer and Electron reconstruction scaffold",
+  "scripts": {
+    "serve": "node scripts/static-server.mjs",
+    "electron": "electron electron/main-reconstructed.mjs",
+    "electron:inspect": "electron --inspect=9229 electron/main-reconstructed.mjs"
+  },
+  "devDependencies": {
+    "electron": "41.2.1"
+  }
+}

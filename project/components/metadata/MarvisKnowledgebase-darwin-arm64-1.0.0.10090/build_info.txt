@@ -1,0 +1,4 @@
+ai-assistant-knowledgebase 0.1.1 (darwin-arm64)
+Build ID:   20260730100428
+Build Time: 2026-07-30 10:04:28
+Git Commit: 541250f4

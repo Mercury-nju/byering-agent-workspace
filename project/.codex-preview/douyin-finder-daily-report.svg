@@ -1,0 +1,123 @@
+<svg width="1800" height="1120" viewBox="0 0 1800 1120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="20" flood-color="#172033" flood-opacity="0.08"/>
+    </filter>
+    <style>
+      .ui { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+      .title { fill:#171B24; font-size:28px; font-weight:700; }
+      .h1 { fill:#171B24; font-size:38px; font-weight:700; }
+      .h2 { fill:#252B36; font-size:20px; font-weight:700; }
+      .body { fill:#3D4653; font-size:17px; font-weight:400; }
+      .meta { fill:#7B8594; font-size:15px; font-weight:400; }
+      .small { fill:#8C96A5; font-size:14px; font-weight:400; }
+      .blue { fill:#2F86F6; font-size:16px; font-weight:600; }
+      .metricNum { fill:#202735; font-size:28px; font-weight:700; }
+      .metricLabel { fill:#747F8F; font-size:14px; font-weight:500; }
+    </style>
+  </defs>
+
+  <rect width="1800" height="1120" fill="#F6F7F9"/>
+  <rect x="0" y="0" width="290" height="1120" fill="#FFFFFF"/>
+  <line x1="289.5" y1="0" x2="289.5" y2="1120" stroke="#E8EBEF"/>
+
+  <g class="ui">
+    <path d="M55 76C55 52 75 38 97 44C106 47 115 54 120 62C112 62 106 65 101 71C95 77 90 86 87 96C81 90 75 86 67 84C61 82 57 80 55 76Z" fill="#111722"/>
+    <text x="139" y="80" class="title" font-size="31">Byering</text>
+    <text x="43" y="155" class="small">成果中心</text>
+    <rect x="28" y="180" width="234" height="52" rx="10" fill="#EEF2F7"/>
+    <rect x="48" y="198" width="14" height="14" rx="3" fill="#2F86F6"/>
+    <text x="78" y="214" class="body" font-weight="600">所有文件</text>
+    <text x="226" y="214" class="small">12</text>
+    <text x="43" y="278" class="small">今日</text>
+    <rect x="28" y="302" width="234" height="92" rx="10" fill="#FFFFFF" stroke="#D8E6FA" stroke-width="2"/>
+    <rect x="47" y="322" width="32" height="38" rx="7" fill="#EAF3FF"/>
+    <path d="M57 333H69M57 340H69M57 347H65" stroke="#2F86F6" stroke-width="2" stroke-linecap="round"/>
+    <text x="93" y="333" class="body" font-size="15" font-weight="600">抖音找人管家日报</text>
+    <text x="93" y="357" class="small">2026-09-12 · 已归档</text>
+    <text x="43" y="448" class="small">最近文件</text>
+    <text x="48" y="489" class="body" font-size="15">候选用户名单 · 18 人</text>
+    <text x="48" y="518" class="small">今天 16:30</text>
+    <line x1="43" y1="546" x2="247" y2="546" stroke="#EEF0F3"/>
+    <text x="48" y="583" class="body" font-size="15">高意向用户证据包</text>
+    <text x="48" y="612" class="small">今天 16:18</text>
+    <rect x="43" y="1022" width="204" height="1" fill="#E9ECF0"/>
+    <circle cx="61" cy="1061" r="19" fill="#C91D61"/>
+    <text x="55" y="1067" fill="#FFF" font-size="16" font-weight="700">H</text>
+    <text x="93" y="1057" class="body" font-size="15" font-weight="600">HongYang Li</text>
+    <text x="93" y="1080" class="small">文件中心</text>
+
+    <text x="350" y="77" class="title" font-size="23">日报文件</text>
+    <text x="350" y="105" class="meta">来自托管 Agent 的阶段性工作回顾</text>
+    <rect x="1480" y="43" width="258" height="54" rx="11" fill="#FFFFFF" stroke="#E4E8ED"/>
+    <path d="M1510 66H1527M1510 74H1527M1534 63V78" stroke="#5E6A7A" stroke-width="2" stroke-linecap="round"/>
+    <text x="1556" y="77" class="body" font-size="15" font-weight="600">已同步至成果中心</text>
+
+    <rect x="350" y="142" width="1388" height="904" rx="14" fill="#FFFFFF" filter="url(#shadow)"/>
+    <rect x="350" y="142" width="1388" height="904" rx="14" stroke="#E6E9EE"/>
+    <rect x="350" y="142" width="1388" height="70" rx="14" fill="#FBFCFD"/>
+    <line x1="350" y1="211.5" x2="1738" y2="211.5" stroke="#E9ECF0"/>
+    <rect x="381" y="165" width="98" height="28" rx="14" fill="#EAF3FF"/>
+    <text x="401" y="184" class="blue" font-size="14">日报文件</text>
+    <text x="1592" y="184" class="small">由抖音找人管家生成</text>
+
+    <text x="425" y="278" class="h1">抖音找人管家日报</text>
+    <text x="425" y="315" class="meta">2026 年 9 月 12 日 · 今日托管工作回顾</text>
+    <rect x="1264" y="250" width="390" height="78" rx="10" fill="#F7FAFE" stroke="#E2ECF9"/>
+    <circle cx="1296" cy="280" r="11" fill="#2F86F6"/>
+    <text x="1320" y="278" class="body" font-size="15" font-weight="600">臻选新能源 · 上海</text>
+    <text x="1320" y="303" class="small">已授权抖音账号 · 托管中</text>
+
+    <rect x="425" y="357" width="474" height="76" rx="10" fill="#F8F9FB"/>
+    <text x="448" y="386" class="small">托管任务</text>
+    <text x="448" y="413" class="body" font-size="15" font-weight="600">寻找明确咨询购车和到店试驾的潜在客户</text>
+    <rect x="920" y="357" width="284" height="76" rx="10" fill="#F8F9FB"/>
+    <text x="944" y="386" class="small">工作状态</text>
+    <circle cx="949" cy="411" r="5" fill="#2F86F6"/>
+    <text x="963" y="417" class="body" font-size="15" font-weight="600">任务仍在托管执行</text>
+
+    <line x1="425" y1="473" x2="1654" y2="473" stroke="#EAEDF1"/>
+    <text x="425" y="520" class="h2">今日完成</text>
+    <circle cx="437" cy="555" r="5" fill="#2F86F6"/>
+    <text x="456" y="561" class="body">完成新能源车型直播间、作品评论和试驾预约互动的线索扫描</text>
+    <circle cx="437" cy="594" r="5" fill="#2F86F6"/>
+    <text x="456" y="600" class="body">发现 18 位近期主动询问价格、现车或试驾安排的候选用户</text>
+    <circle cx="437" cy="633" r="5" fill="#2F86F6"/>
+    <text x="456" y="639" class="body">筛出 7 位高意向用户，原始评论、直播弹幕和互动证据已归档</text>
+    <circle cx="437" cy="672" r="5" fill="#2F86F6"/>
+    <text x="456" y="678" class="body">候选名单已同步至成果中心，供后续分析或触达继续使用</text>
+
+    <text x="425" y="752" class="h2">结果汇总</text>
+    <rect x="425" y="778" width="119" height="112" rx="10" fill="#F8FAFD"/>
+    <text x="449" y="823" class="metricNum">3</text>
+    <text x="449" y="855" class="metricLabel">线索来源</text>
+    <rect x="558" y="778" width="119" height="112" rx="10" fill="#F8FAFD"/>
+    <text x="582" y="823" class="metricNum">18</text>
+    <text x="582" y="855" class="metricLabel">候选用户</text>
+    <rect x="691" y="778" width="119" height="112" rx="10" fill="#EAF3FF"/>
+    <text x="715" y="823" class="metricNum" fill="#1F78E5">7</text>
+    <text x="715" y="855" class="metricLabel">高意向用户</text>
+    <rect x="824" y="778" width="119" height="112" rx="10" fill="#F8FAFD"/>
+    <text x="848" y="823" class="metricNum">0</text>
+    <text x="848" y="855" class="metricLabel">已确认触达</text>
+    <rect x="957" y="778" width="119" height="112" rx="10" fill="#F8FAFD"/>
+    <text x="981" y="823" class="metricNum">0</text>
+    <text x="981" y="855" class="metricLabel">收到回复</text>
+
+    <rect x="1122" y="520" width="532" height="370" rx="12" fill="#FAFBFC" stroke="#E8ECF1"/>
+    <text x="1152" y="565" class="h2">明日安排</text>
+    <rect x="1152" y="590" width="470" height="1" fill="#E8ECF1"/>
+    <text x="1152" y="632" class="body" font-size="16">继续按当前筛选规则观察直播和评论区，</text>
+    <text x="1152" y="660" class="body" font-size="16">把新出现的明确咨询用户补入候选名单。</text>
+    <rect x="1152" y="710" width="442" height="1" fill="#E8ECF1"/>
+    <text x="1152" y="748" class="small">事实边界</text>
+    <text x="1152" y="778" class="body" font-size="15">日报只写已确认的工作结果，</text>
+    <text x="1152" y="804" class="body" font-size="15">等待和轮询会留在实时工作现场。</text>
+
+    <rect x="425" y="937" width="1229" height="72" rx="10" fill="#F7FAFE"/>
+    <circle cx="454" cy="973" r="10" fill="#DCEBFD"/>
+    <path d="M450 973L453 976L459 969" stroke="#2F86F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="482" y="969" class="body" font-size="15" font-weight="600">这份日报已关联到同一份成果文件</text>
+    <text x="482" y="992" class="small">私聊附件、任务成果、成果中心与文件中心打开的内容完全一致。</text>
+  </g>
+</svg>

@@ -1,0 +1,61 @@
+# action_search 精排权重 + softmax 参数 + 意图兼容表 (方案 §3.6)
+#
+# 维护规则:
+# 1. 任何阈值/权重变更必须同时跑 ground_truth + (M8 起的) eval_action_search,
+#    回归报告作为 PR 必须材料。
+# 2. 权重变更建议小步:相对当前值 ±10% 内,大改动需要 A/B 评测。
+# 3. 文件读取失败时,代码端必须 fallback 到 rank.py::DEFAULT_WEIGHTS,
+#    不阻塞启动 (防 OPS 误删)。
+
+version: 1
+
+# 12 个特征的线性加权 (统一在 features.py 中归一化到 [0, 1] 后参与加权)
+weights:
+  # alias 完全/强包含匹配权重,通常是最强的词面命中信号。
+  alias_exact:        1.00
+  # alias 部分匹配权重,弱于 alias_exact 的别名命中。
+  alias_partial:      0.55
+  # 能力短语匹配权重,信号密度介于 alias 与 BM25F 之间。
+  search_hint_match:  0.50
+  # BM25F 主词面相关度;在 keyword/description/intent_desc 上计算,
+  # 不消费 alias / search_hint (字段范围强约束)。
+  bm25f:              0.50
+  # 多字段 BM25 的归一化最大值,突出某个非 alias 字段的强相关命中。
+  field_max:          0.20
+  # query 覆盖率,用于衡量 query 中有效 token 被候选文档覆盖的比例。
+  coverage:           0.15
+  # 实体匹配,同实体多动作场景中确认 domain/object 是否对齐。
+  entity_match:       0.40
+  # 意图匹配,区分 open_settings/read_state/modify_setting/toggle 等动作类型。
+  intent_match:       0.35
+  # 外部 domain hint 加权,caller 传入 entity_domain 时提供软加分。
+  domain_boost:       0.20
+  # 高风险动作惩罚 (负值): 意图不明确时降低 destructive/modify_sensitive 候选分。
+  risk_penalty:      -0.60
+  # 不可用候选惩罚 (负值): 降低 unsupported/unavailable action 的排序。
+  unsupported_pen:   -0.30
+
+# softmax 置信度配置;**仅作用于精排后的 Top-K 候选** (方案 §3.3.4)。
+softmax:
+  # 常规 query 的 softmax 温度;值越小,Top 候选置信度分布越尖锐。
+  temperature: 0.15
+  # 短 query 的 softmax 温度;alias 短词命中时减少零分候选稀释。
+  short_query_temperature: 0.05
+
+# 意图兼容表;有向非对称矩阵 ("query 意图 → action 意图")。
+# 不在此表中的 (q, a) 对默认兼容值 = 0。query 意图与 action.intent_type
+# 完全相等时直接 1.0,无需在此表中列出。
+intent_compat:
+  # "修改/调整某设置" 优先兼容打开设置页;没有明确开/关动词时 toggle 只给弱兼容。
+  modify_setting:
+    open_settings: 0.75
+    toggle_on:     0.30
+    toggle_off:    0.30
+  # "开启/关闭开关" 意图可弱兼容通用修改设置动作。
+  toggle_on:
+    modify_setting: 0.40
+  toggle_off:
+    modify_setting: 0.40
+  # "打开设置页" 意图可兼容通用导航类动作。
+  open_settings:
+    navigate: 0.50

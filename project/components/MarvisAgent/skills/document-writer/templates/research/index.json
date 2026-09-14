@@ -1,0 +1,62 @@
+{
+  "category": "research",
+  "display_name": "分析研究",
+  "description": "涵盖各类分析研究类文档，适用于对行业、市场、竞品、财务、舆情、人才、合规等进行系统化研究和分析，输出数据驱动的结论与建议。",
+  "templates": [
+    {
+      "name": "财务分析报告",
+      "file": "financial-analysis.md",
+      "description": "适用于企业/项目/部门的财务数据分析，涵盖营收利润分析、成本结构、资产负债、现金流、财务指标对比等"
+    },
+    {
+      "name": "费用分析报告",
+      "file": "expense-analysis.md",
+      "description": "适用于费用支出的数据对比与趋势分析，涵盖费用结构、预算执行率、异常分析、节约建议等"
+    },
+    {
+      "name": "人才盘点报告",
+      "file": "talent-assessment.md",
+      "description": "适用于组织/团队的人才盘点与评估，涵盖多维能力评估、绩效-潜力矩阵、人才梯队分析、发展建议等"
+    },
+    {
+      "name": "舆情分析报告",
+      "file": "public-opinion-analysis.md",
+      "description": "适用于品牌/事件/产品的舆情监测与分析，涵盖情感分析、传播链路、热点话题、风险预警、应对策略等"
+    },
+    {
+      "name": "行业调研报告",
+      "file": "industry-analysis.md",
+      "description": "适用于对某一行业/赛道进行全面调研，涵盖市场规模、竞争格局、产业链、政策环境、发展趋势等"
+    },
+    {
+      "name": "竞品分析报告",
+      "file": "competitive-analysis.md",
+      "description": "适用于多家公司、多个产品或多个技术方案的系统化对比分析，输出优劣势与选择建议"
+    },
+    {
+      "name": "满意度分析报告",
+      "file": "satisfaction-analysis.md",
+      "description": "适用于客户/员工/用户满意度调查数据的统计分析，涵盖满意度评分、维度分析、趋势对比、改进建议等"
+    },
+    {
+      "name": "行业日报",
+      "file": "industry-daily.md",
+      "description": "适用于行业/领域的每日信息聚合与简报，涵盖热点事件、政策动态、市场数据、企业动向等"
+    },
+    {
+      "name": "合规分析报告",
+      "file": "compliance-analysis.md",
+      "description": "适用于法规合规性的评估与分析，涵盖法规引用、合规差距识别、风险评估、整改建议等"
+    },
+    {
+      "name": "测试分析报告",
+      "file": "testing-analysis.md",
+      "description": "适用于软件/产品测试结果的统计分析，涵盖用例覆盖率、缺陷统计、质量评估、风险分析等"
+    },
+    {
+      "name": "技术调研报告",
+      "file": "tech-research.md",
+      "description": "适用于对特定技术领域、技术框架、工具链进行深度调研，输出技术评估与选型建议"
+    }
+  ]
+}

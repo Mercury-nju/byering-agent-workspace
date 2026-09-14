@@ -1,0 +1,11 @@
+jsb:content-changed
+jsb:invoke
+marvis:bugly:crash-test:trigger
+marvis:drag-files:cache
+marvis:first-paint-ready
+marvis:gateway:wait-ready
+marvis:menu:action
+marvis:process:event
+marvis:renderer:ready
+marvis:service-ports:changed
+marvis:service-ports:get

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "dm-mu0qo2cb-1urk",
+    "agentType": "mkt-find-people",
+    "from": "user",
+    "fromName": "我",
+    "text": "开始找人，先看直播、评论和互动",
+    "createdAt": "2026-09-14T04:24:32.987Z"
+  },
+  {
+    "id": "dm-mu0qo3a5-cg87",
+    "agentType": "mkt-find-people",
+    "from": "mkt-find-people",
+    "fromName": "找客专员",
+    "text": "收到。我先从已授权账号的评论、直播和互动里汇总用户，过滤重复和明显无关账号，同时保留原话、来源和时间。完成后我会把可分析名单交给客户分析员，不会直接发送私信。",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu0qo2cb-1urk"
+    },
+    "createdAt": "2026-09-14T04:24:34.205Z"
+  },
+  {
+    "id": "dm-mu0sbu06-dtio",
+    "agentType": "mkt-find-people",
+    "from": "user",
+    "fromName": "我",
+    "text": "请从直播和评论互动里找出高意向用户",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "canCreateTeamTask": false,
+      "requiresChiefForNewTask": true,
+      "taskId": "douyin-finder-64c765ab-b93c-45c4-b42b-004b39bbf469",
+      "taskRunId": "run-abb17979-41b7-45f4-9461-1cddc7d6eed0"
+    },
+    "createdAt": "2026-09-14T05:11:01.542Z"
+  },
+  {
+    "id": "dm-mu0sbuz4-54gs",
+    "agentType": "mkt-find-people",
+    "from": "mkt-find-people",
+    "fromName": "找客专员",
+    "text": "收到。我先从已授权账号的评论、直播和互动里汇总用户，过滤重复和明显无关账号，同时保留原话、来源和时间。完成后我会把可分析名单交给客户分析员，不会直接发送私信。",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu0sbu06-dtio"
+    },
+    "createdAt": "2026-09-14T05:11:02.800Z"
+  }
+]

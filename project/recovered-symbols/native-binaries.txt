@@ -1,0 +1,848 @@
+# Native Binary Inventory
+
+Generated from Mach-O files bundled in the original application.
+
+## bin/BorderlessSpace
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/BorderlessSpace: Mach-O 64-bit executable arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/BorderlessSpace:
+	@rpath/libeasy_control_net_sdk.dylib (compatibility version 0.0.0, current version 0.0.0)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 3502.1.255)
+	/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration (compatibility version 1.0.0, current version 1351.120.3)
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61439.120.27)
+	/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices (compatibility version 1.0.0, current version 65.0.0)
+	/usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.12)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1351.0.0)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 1900.180.0)
+	/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics (compatibility version 64.0.0, current version 1889.5.3)
+
+Selected strings:
+OnNetStatus: STATUS_ID_OPEN_TOKEN_RESULT
+pin_token
+test pin_token = 
+HandleStreaming stop pin_token, ret:
+HandleClose dev test test_pin_token=
+success to fetch pin_token: 
+!token_string.empty()
+endptr == token_buffer.data() + token_buffer.size()
+unknown token
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/src/easy_control_client/src/ipc/ipc_service.cc
+OnRequestGame skip malformed token: 
+ tcp_port=
+ proxy_tcp_port=
+ ws_port=
+ udp_port=
+bind port 
+Last instance is still in running state!!But pin_token is invalid
+no find device! pin_token=
+CGI-Service
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/src/easy_control_client/src/network/cgi_service.cc
+Ual-Access-Access-Token
+No CA bundle / capath found; HTTPS verification will fail (CURLE_PEER_FAILED_VERIFICATION).
+https://yybadaccesstest.3g.qq.com/v3
+https://yybadaccess.3g.qq.com/v3
+generate_relay_token
+access_token
+send http request: 
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/src/easy_control_client/src/netagent/net_agent.cc
+Succ to OpenPinToken, pin_token:
+server_port
+Service
+Starting dialer for socket<%u> on %s
+socket for dialer
+Failed connecting socket<%u> to %s: %s
+socket:fd
+Failed binding socket<%u> to %s: %s
+Starting listener for socket<%u> on %s
+socket id
+Failed accepting for socket<%u> on %s: %s
+Report this at https://github.com/nanomsg/nng/issues
+socket for pipe
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/3rdparty/nng/src/src/core/socket.c
+Pipe on socket<%u> from %s rejected by callback
+Connected pipe<%u> on socket<%u> to %s
+Accepted pipe<%u> on socket<%u> from %s
+socket statistics
+socket identifier
+socket name
+socket protocol
+socket-name
+tcp-bound-port
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/3rdparty/nng/src/src/sp/transport/socket/sockfd.c
+Oversize message of %lu bytes (> %lu) on socket<%u> pipe<%u> from IPC%s
+Oversize message of %lu bytes (> %lu) on socket<%u> pipe<%u> from TCP %s
+Oversize message of %lu bytes (> %lu) on socket<%u> pipe<%u> from TLS %s
+ws:msgmode
+ws:protocol
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/3rdparty/nng/src/src/sp/transport/ws/websocket.c
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/3rdparty/nng/src/src/supplemental/http/http_client.c
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/3rdparty/nng/src/src/supplemental/http/http_chunk.c
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/3rdparty/nng/src/src/supplemental/http/http_conn.c
+HTTP/1.1
+Unknown HTTP Status
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/3rdparty/nng/src/src/supplemental/http/http_msg.c
+Bad Gateway
+Service Unavailable
+Gateway Timeout
+HTTP Version Not Supported
+HTTP/1.
+http://
+https://
+/Users/yyb_mac/Desktop/data/landun/workspace/p-8787db246c64432bb15197126cc0087f/src/3rdparty/nng/src/src/supplemental/http/http_server.c
+ws:request-header:
+ws:response-header:
+ws:request-headers
+ws:response-headers
+ws:request-uri
+ws:recv-text
+ws:send-text
+ws:rxframe-max
+
+## bin/MarvisService
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/MarvisService: Mach-O 64-bit executable arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/MarvisService:
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5026.5.4)
+	/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices (compatibility version 1.0.0, current version 1226.0.0)
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.120.67)
+	/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+
+Selected strings:
+ socket 
+ socket 
+ socket 
+IPC socket 
+ socket 
+event crates/marvis-daemond/src/beacon/beaconApi.rs:342statusevent crates/marvis-daemond/src/beacon/beaconApi.rs:352event crates/marvis-daemond/src/beacon/beaconApi.rs:3480https://otheve.beacon.qq.com/analytics/v2_uploadContent-Typeapplication/json;charset=UTF-8beaconApi 
+wss://yybadaccessuse.3g.qq.com/marvis/subscribeenabledConfigapplogipcdirlevelconsoledaemon.pidMARVIS_DAEMON_SOCKET_PATHdaemon.sockMARVIS_DAEMON_DATA_DIRLibrarycom.tencent.mac.marvisMARVIS_DAEMON_CONFIGconfig.dev.tomldaemon.tomlevent crates/marvis-daemond/src/config/loader.rs:213MarvisService::config::loaderlimitcrates/marvis-daemond/src/config/loader.rs/tmp/marvis-daemon-UDS socket path too long, fallback to /tmpevent crates/marvis-daemond/src/config/loader.rs:95event crates/marvis-daemond/src/config/loader.rs:91
+https://galileotelemetry.tencent.comfailed to initialize GalileoReporter with default configkey
+Errorinternal_codedescriptionunknown_codegetrandom: this target is not supportederrno: did not return a positive valueunexpected situationSecRandomCopyBytes: iOS Security framework failureRtlGenRandom: Windows system function failureRDRAND: failed multiple times: CPU issue likelyRDRAND: instruction not supportedWeb Crypto API is unavailableCalling Web API crypto.getRandomValues failedrandSecure: VxWorks RNG module is not initializedNode.js crypto CommonJS module is unavailableCalling Node.js API crypto.randomFillSync failedNode.js ES modules are not directly supported, see https://docs.rs/getrandom#nodejs-es-module-support
+ContinueSwitching ProtocolsProcessingEarly HintsOKCreatedAcceptedNon Authoritative InformationNo ContentReset ContentPartial ContentMulti-StatusAlready ReportedIM UsedMultiple ChoicesMoved PermanentlyFoundSee OtherNot ModifiedUse ProxyTemporary RedirectPermanent RedirectBad RequestUnauthorizedPayment RequiredForbiddenNot FoundMethod Not AllowedNot AcceptableProxy Authentication RequiredRequest TimeoutConflictGoneLength RequiredPrecondition FailedPayload Too LargeURI Too LongUnsupported Media TypeRange Not SatisfiableExpectation FailedI'm a teapotMisdirected RequestUnprocessable EntityLockedFailed DependencyToo EarlyUpgrade RequiredPrecondition RequiredToo Many RequestsRequest Header Fields Too LargeUnavailable For Legal ReasonsInternal Server ErrorNot ImplementedBad GatewayService UnavailableGateway TimeoutHTTP Version Not SupportedVariant Also NegotiatesInsufficient StorageLoop DetectedNot ExtendedNetwork Authentication Requiredhttp::ErrorInvalidUriCharInvalidSchemeInvalidPortInvalidFormatSchemeMissingPathAndQueryMissingTooLongEmptySchemeTooLongInvalidUriinvalid uri characterinvalid schemeinvalid authorityinvalid portinvalid formatscheme missingauthority missingpath missinguri too longempty stringscheme too longhttphttps<unknown status code>InvalidUriPartsInvalidMethodinvalid HTTP methodInvalidStatusCodeMaxSizeReachedinvalid status codeInvalidHeaderNameinvalid HTTP header nameInvalidHeaderValuefailed to parse header value
+if-matchif-rangelocationHTTP/0.9HTTP/1.0HTTP/1.1HTTP/2.0HTTP/3.0
+Headernamevalueinvalid header nameinvalid header valueinvalid new lineinvalid response statusinvalid tokentoo many headersinvalid HTTP version
+hyper::ext::HeaderCaseMaphyper::ext::h1_reason_phrase::ReasonPhrasedescription() is deprecated; use Displaycalled `Result::unwrap()` on an `Err` valueacceptaccept-charsetaccept-encodingaccept-languageaccept-rangesaccess-control-allow-credentialsaccess-control-allow-headersaccess-control-allow-methodsaccess-control-allow-originaccess-control-expose-headersaccess-control-max-ageaccess-control-request-headersaccess-control-request-methodageallowalt-svcauthorizationcache-controlcache-statuscdn-cache-controlconnectioncontent-dispositioncontent-lengthcontent-rangecontent-security-policycontent-security-policy-report-onlycontent-typecookiedntexpectexpiresforwardedif-modified-sinceif-none-matchif-unmodified-sincelast-modifiedmax-forwardsoriginpragmaproxy-authenticateproxy-authorizationpublic-key-pinspublic-key-pins-report-onlyrangerefererreferrer-policyrefreshretry-aftersec-websocket-acceptsec-websocket-extensionssec-websocket-keysec-websocket-protocolsec-websocket-versionserverset-cookiestrict-transport-securitytetrailertransfer-encodinguser-agentupgradeupgrade-insecure-requestsviawarningx-content-type-optionsx-dns-prefetch-controlx-frame-optionsHeaderNameHeaderValueNewLineStatusTokenTooManyHeadersVersioninvalid header nameinvalid header valueinvalid response statusinvalid tokeninvalid HTTP versionParseIncompleteMessageUnexpectedMessageChannelClosedIoBodyWriteServiceNoUpgradeManualUpgradeDispatchGonehyper::ErrorMethodVersionH2UriHeaderContentLengthInvalidTransferEncodingUnexpectedjust sent Okinvalid HTTP method parsedinvalid HTTP version parsedinvalid HTTP version parsed (found HTTP2 preface)invalid URIinvalid HTTP header parsedinvalid content-length parsedunexpected transfer-encoding parsedmessage head is too largeinvalid HTTP status-code parsedinternal error inside Hyper and/or its dependencies, please reporterror from user's Body streamuser body write abortederror from user's Serviceno upgrade availableupgrade expected but low level API in usedispatch task is goneconnection closed before message completedreceived unexpected message from connectionoperation was canceledchannel closederror reading a body from connectionerror writing a body to connectionerror shutting down connection
+https required but URI was not https
++pool is disabledoverflow in Duration::newtunnel error: failed to create underlying connectionio error establishing tunnelmissing destination hostproxy authorization requiredproxy response headers too longunexpected end of fileunsuccessful[internal exception] blocking task ran twice.https
+event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:526event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:620event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:609event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:644event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:626event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:599event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:574event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:634event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:588event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:590event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:263event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:381event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:292event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:438event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/client.rs:222event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rs:481hyper_util::client::legacy::connect::http/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rsinvalid URL, scheme is not httpevent /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rs:774event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rs:770event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rs:767invalid URL, host is missingevent /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rs:561invalid URL, scheme is missingevent /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rs:844event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rs:927event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rs:921event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rs:933tcp bind interface errortcp bind local errortcp set_nonblocking errortcp open errorerror converting interface name to indexassertion failed: (*tail).value.is_none()assertion failed: (*next).value.is_some()a formatting trait implementation returned an error when the underlying stream did notfailed to write whole buffer
+hyper_util::client::legacy::connect::http::HttpInfodescription() is deprecated; use Displaycalled `Result::unwrap()` on an `Err` valueInvalidUriCharInvalidSchemeInvalidPortInvalidFormatSchemeMissingPathAndQueryMissingTooLongEmptySchemeTooLongInvalidUriJoinHandle polled after completioninternal error: entered unreachable code: unexpected stageInvalidUriPartsWriter must be presentPoisonErrorhyper_util::client::legacy::Errorrequest was canceledchecked out connection was closedChannelClosedConnectUserUnsupportedRequestMethodUserUnsupportedVersionUserAbsoluteUriRequiredSendRequestCannot write more after calling finish()Ready polled after completionConnectErrorevent /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/pool.rs:574event /Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/pool.rs:728
+advancing io slices beyond their lengthadvancing IoSlice beyond its lengthArc counter overflowfailed to fill whole bufferError()ConnectFailedIoMissingHostProxyAuthRequiredProxyHeadersTooLongTunnelUnexpectedEofTunnelUnsuccessfulnot droppedalready calledpolled after completeinternal error: entered unreachable codeMap must not be polled after it returned `Poll::Ready`future polled after completionunexpected polling after handshakehttpsretrying requires cloned requestassertion failed: Pin::new(&mut rx).poll(cx).is_pending()pool closed, canceling idle intervalidle interval checking for expiredinterval assumes timeoutvalue already sentALPN upgraded to HTTP/2ALPN negotiated h2, updating poolhttp2 feature is not enabledhttp1 handshake complete, spawning background dispatcher taskwaiting for connection to be readyconnection is readyconnection channel closed, checking for connection errorerror channel closed, returning the vague ChannelClosed errorsending connection error to error channel
+Connection is HTTP/1, but request requires HTTP/2authority implies hosturi host is valid header valueCONNECT is not allowed for HTTP/1.0dns errorNetwork unreachabletcp connect errorinterface name should not have nulls in it
+ HTTP/1.1
+tower_http::follow_redirect::RequestUrireqwest::tls::TlsInfohyper::upgrade::OnUpgradea Display implementation returned an error unexpectedlydescription() is deprecated; use Displaycalled `Result::unwrap()` on an `Err` valueacceptaccept-charsetaccept-encodingaccept-languageaccept-rangesaccess-control-allow-credentialsaccess-control-allow-headersaccess-control-allow-methodsaccess-control-allow-originaccess-control-expose-headersaccess-control-max-ageaccess-control-request-headersaccess-control-request-methodageallowalt-svcauthorizationcache-controlcache-statuscdn-cache-controlconnectioncontent-dispositioncontent-lengthcontent-rangecontent-security-policycontent-security-policy-report-onlycontent-typecookiedntexpectexpiresforwardedif-modified-sinceif-none-matchif-unmodified-sincelast-modifiedmax-forwardsoriginpragmaproxy-authenticateproxy-authorizationpublic-key-pinspublic-key-pins-report-onlyrangerefererreferrer-policyrefreshretry-aftersec-websocket-acceptsec-websocket-extensionssec-websocket-keysec-websocket-protocolsec-websocket-versionserverset-cookiestrict-transport-securitytetrailertransfer-encodinguser-agentupgradeupgrade-insecure-requestsviawarningx-content-type-optionsx-dns-prefetch-controlx-frame-optionsBuilderRequestStatusDecodeUpgradeInappropriateMessageexpect_typesInappropriateHandshakeMessageInvalidEncryptedClientHelloInvalidMessageNoCertificatesPresentedUnsupportedNameTypeDecryptErrorEncryptErrorPeerMisbehavedAlertReceivedInvalidCertificateInvalidCertRevocationListGeneralFailedToGetCurrentTimeFailedToGetRandomBytesHandshakeNotCompletePeerSentOversizedRecordNoApplicationProtocolBadMaxFragmentSizeOtherreqwest::ErrorkindurlsourceOut of bounds accessassertion failed: i < self.len()assertion failed: j < self.len()
+base64 is always valid HeaderValueParsed Url is not a valid Urishould be valid Url:reqwest::retry::scopeunix_socket() set, proxies are ignoredtunneling HTTPS over proxyno host in urlInvalid Server Nameconnect local must have socket pathreqwest::connect::verbose
+BorrowedCertRevocationList`Ready` polled after completion
+assertion failed: self.next_pre_encrypt_action() != PreEncryptAction::Refusepeer closed connection without sending TLS close_notify: https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eofTLS 1.2 session tickets may not be sent once the handshake has completed
+invalid port valueinvalid socket addressfailed to generate random datathe number of hardware threads is not known for the target platform
+original document was utf8[][[]],{}always at least one keygrammar ensures at least 1assertion failed: i < path.len()assertion failed: root.is_empty()leading digitinternal error: entered unreachable code: one_of should prevent thisdigit
+/Sec-WebSocket-KeySec-WebSocket-Versionsec-websocket-protocoloriginOriginBug: no HTTP versionBug: no HTTP status code,13GETa formatting trait implementation returned an error when the underlying stream did notcalled `Result::unwrap()` on an `Err` valueacceptaccept-charsetaccept-encodingaccept-languageaccept-rangesaccess-control-allow-credentialsaccess-control-allow-headersaccess-control-allow-methodsaccess-control-allow-originaccess-control-expose-headersaccess-control-max-ageaccess-control-request-headersaccess-control-request-methodageallowalt-svcauthorizationcache-controlcache-statuscdn-cache-controlconnectioncontent-dispositioncontent-lengthcontent-rangecontent-security-policycontent-security-policy-report-onlycontent-typecookiedntexpectexpiresforwardedif-modified-sinceif-none-matchif-unmodified-sincelast-modifiedmax-forwardspragmaproxy-authenticateproxy-authorizationpublic-key-pinspublic-key-pins-report-onlyrangerefererreferrer-policyrefreshretry-aftersec-websocket-acceptsec-websocket-extensionssec-websocket-keysec-websocket-versionserverset-cookiestrict-transport-securitytetrailertransfer-encodinguser-agentupgradeupgrade-insecure-requestsviawarningx-content-type-optionsx-dns-prefetch-controlx-frame-options
+Connection closed normallyTrying to work with closed connectionWrite buffer is fullUTF-8 encoding errorAttack attempt detectedTLS support not compiled inNo host name in the URLURL scheme not supportedURL contains empty host nameNo path/query in URLUnsupported HTTP method used - only GET is allowedHTTP version must be 1.1 or higherNo "Connection: upgrade" headerNo "Upgrade: websocket" headerNo "Sec-WebSocket-Version: 13" headerNo "Sec-WebSocket-Key" headerKey mismatch in "Sec-WebSocket-Accept" headerJunk after client requestCustom response must not be successfulHandshake not finishedSending after closing is not allowedRemote sent after having closedReserved bits are non-zeroReceived an unmasked frame from clientReceived a masked frame from serverFragmented control frameControl frame too big (payload must be 125 bytes or less)Continue frame but nothing to continueConnection reset without closing handshakeInvalid close sequenceServer sent a subprotocol but none was requestedServer sent an invalid subprotocolServer sent no subprotocolBinaryFrameheaderpayloadBINARYControlCloseNormalUnsupportedStatusInvalidPolicyExtensionRestartAgainTlsLibraryBadCLOSECloseFramereasonopcodeFrameHeaderBug: OpCode out of range
+assertion failed: !self.serialization[scheme_end_as_usize..].starts_with("://")Programming error. parse_query_and_fragment() called without ? or #called `Result::unwrap()` on an `Err` valuestart of range should be a character boundaryassertion failed: self.is_char_boundary(start)assertion failed: self.is_char_boundary(end)EmptyHostIdnaErrorInvalidPortInvalidIpv4AddressInvalidIpv6AddressInvalidDomainCharacterRelativeUrlWithoutBaseRelativeUrlWithCannotBeABaseBaseSetHostOnCannotBeABaseUrlempty hostinvalid international domain nameinvalid port numberinvalid IPv4 addressinvalid IPv6 addressinvalid domain characterrelative URL without a baserelative URL with a cannot-be-a-base basea cannot-be-a-base URL doesn
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-body-util-0.1.3/src/combinators/collect.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-1.4.0/src/header/map.rs
+IPC socket 
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-body-util-0.1.3/src/util.rs
+HTTP request failed: 
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/toml_edit-0.22.27/src/parser/document.rs
+/rustc/31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd/library/core/src/net/socket_addr.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-1.4.0/src/uri/mod.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-1.4.0/src/uri/path.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-1.4.0/src/uri/scheme.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-1.4.0/src/uri/authority.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-1.4.0/src/method.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-1.4.0/src/version.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/http-1.4.0/src/header/value.rs
+)HTTP/1.1 CONNECT request stripping path: 
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/client/legacy/connect/http.rs
+Http::connect; scheme=
+, port=
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/futures-util-0.3.32/src/future/ready.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-util-0.1.20/src/service/oneshot.rs
+*HTTP/2 connecting already in progress for 
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-1.10.1/src/client/conn/http1.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-1.52.1/src/net/tcp/socket.rs
+/rustc/31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd/library/core/src/future/ready.rs
+/rustc/31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd/library/std/src/sys/net/connection/socket/mod.rs
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tokio-util-0.7.18/src/sync/cancellation_token/tree_node.rs
+` in document root
+/Users/devops/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/toml_edit-0.22.27/src/document.rs
+HTTP error: 
+HTTP format error: 
+
+## bin/aria2c
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/aria2c: Mach-O 64-bit executable arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/aria2c:
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.101.4)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 4424.1.255)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)
+	/usr/lib/libresolv.9.dylib (compatibility version 1.0.0, current version 1.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+
+Selected strings:
+CUID#%lld - Use faster Request hostname=%s, port=%u
+CUID#%lld - socket: read:%d, write:%d, hup:%d, err:%d
+Pool socket for %s
+Found socket for %s
+Getting peer info failed. Pooling socket canceled.
+PORT %d,%d,%d,%d,%d,%d
+HTTP/1.1
+Bad Request-Line: missing HTTP-version
+Bad Request-Line: LWS after HTTP-version
+Bad Status-Line: missing HTTP-version
+Bad HTTP header: missing LF
+Bad HTTP header: field name starts with LWS
+Bad HTTP header: field name starts with ':'
+Bad HTTP header: missing ':'
+Bad HTTP header: missing LF at the end of the header
+Too large HTTP header
+CUID#%lld - Using port %d for accepting new connections
+IPv%d RPC: listening on TCP port %u
+IPv%d RPC: failed to bind TCP port %u
+ HTTP/1.1
+User-Agent:
+ HTTP/1.1
+User-Agent: 
+HTTP Server received request
+HTTP/1.1 %s
+HTTP Server sends response:
+HTTP/1.1 101 Switching Protocols
+HTTP Server sends upgrade response:
+502 Bad Gateway
+503 Service Unavailable
+504 Gateway Timeout
+505 HTTP Version Not Supported
+HTTP request body timeout.
+CUID#%lld - Error occurred while reading HTTP request body
+WWW-Authenticate: Basic realm="aria2"
+HTTP request timeout.
+CUID#%lld - Error occurred while reading HTTP request
+aria2 will resume download if the transfer is restarted.
+You may encounter the certificate verification error with HTTPS server. See --ca-certificate and --check-certificate option.
+Netrc:parse error. EOF reached where a token expected.
+ --allow-piece-length-change[=true|false] If false is given, aria2 aborts
+ --always-resume[=true|false] Always resume download. If true is given, aria2
+                              aria2 encounters N URIs which does not support
+                              --max-resume-failure-tries option), aria2
+                              exists. This option works only in http(s)/ftp
+ --auto-save-interval=SEC     Save a control file(*.aria2) every SEC seconds.
+                              download. aria2 saves a control file when it stops
+                              with checksums or HTTP(S)/FTP downloads with
+                              applicable to http(s)/ftp downloads.
+                              bytes. The cache storage is created for aria2
+ --deferred-input[=true|false] If true is given, aria2 does not read all URIs
+                              If false is given, aria2 reads all URIs and
+                              authorization token using --rpc-secret option.
+                              See also --rpc-listen-port option.
+                              blocks aria2 entirely until allocation finishes.
+ --gid=GID                    Set GID manually. aria2 identifies each
+                              by aria2.
+                              every static (HTTP/FTP) URL, torrent and metalink.
+ --max-resume-failure-tries=N When used with --always-resume=false, aria2
+                              downloads file from scratch when aria2 detects N
+                              is 0, aria2 downloads file from scratch when all
+ -k, --min-split-size=SIZE    aria2 does not split less than 2*SIZE byte range.
+                              file. If SIZE is 10M, aria2 can split file into 2
+                              If SIZE is 15M, since 2*15M > 20MiB, aria2 does
+ --no-conf[=true|false]       Disable loading aria2.conf file.
+                              got started. aria2 passes 3 arguments to COMMAND:
+                              available. aria2 uses the download speed observed
+                              http://{sv1,sv2,sv3}/foo.iso
+                              http://host/image[000-100:2].img
+                              downloads in aria2: (1) downloading .torrent
+ -q, --quiet[=true|false]     Make aria2 quiet(no console output).
+                              added by aria2.addTorrent and aria2.addMetalink
+                              using aria2.remove and aria2.forceRemove will not
+                              when aria2 exits.
+ --socket-recv-buffer-size=SIZE
+                              Set the maximum socket receive buffer in bytes.
+                              will be set to socket file descriptor using
+                              SO_RCVBUF socket option with setsockopt() call.
+                              This is useful if aria2 process is forked from a
+                              parent process. The parent process can fork aria2
+
+## bin/icon-extractor
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/icon-extractor: Mach-O universal binary with 2 architectures: [x86_64:Mach-O 64-bit executable x86_64] [arm64:Mach-O 64-bit executable arm64]
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/icon-extractor (for architecture x86_64):	Mach-O 64-bit executable x86_64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/icon-extractor (for architecture arm64):	Mach-O 64-bit executable arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/icon-extractor (architecture x86_64):
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+	/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2685.60.104)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)
+	/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+	/usr/lib/swift/libswiftCore.dylib (compatibility version 0.0.0, current version 0.0.0)
+	/usr/lib/swift/libswiftCoreFoundation.dylib (compatibility version 1.0.0, current version 120.100.0, weak)
+	/usr/lib/swift/libswiftCoreImage.dylib (compatibility version 1.0.0, current version 2.2.0, weak)
+	/usr/lib/swift/libswiftDarwin.dylib (compatibility version 1.0.0, current version 377.120.8)
+	/usr/lib/swift/libswiftDispatch.dylib (compatibility version 1.0.0, current version 1542.100.32, weak)
+	/usr/lib/swift/libswiftIOKit.dylib (compatibility version 1.0.0, current version 1.0.0, weak)
+	/usr/lib/swift/libswiftMetal.dylib (compatibility version 1.0.0, current version 373.2.0, weak)
+	/usr/lib/swift/libswiftOSLog.dylib (compatibility version 1.0.0, current version 10.0.0, weak)
+	/usr/lib/swift/libswiftObjectiveC.dylib (compatibility version 1.0.0, current version 951.7.0, weak)
+	/usr/lib/swift/libswiftQuartzCore.dylib (compatibility version 1.0.0, current version 5.0.0, weak)
+	/usr/lib/swift/libswiftSpatial.dylib (compatibility version 1.0.0, current version 1.0.0, weak)
+	/usr/lib/swift/libswiftUniformTypeIdentifiers.dylib (compatibility version 1.0.0, current version 877.5.1, weak)
+	/usr/lib/swift/libswiftXPC.dylib (compatibility version 1.0.0, current version 128.120.2, weak)
+
+Selected strings:
+
+## bin/libbeacon_wrapper.dylib
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libbeacon_wrapper.dylib: Mach-O universal binary with 2 architectures: [x86_64:Mach-O 64-bit dynamically linked shared library x86_64] [arm64]
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libbeacon_wrapper.dylib (for architecture x86_64):	Mach-O 64-bit dynamically linked shared library x86_64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libbeacon_wrapper.dylib (for architecture arm64):	Mach-O 64-bit dynamically linked shared library arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libbeacon_wrapper.dylib (architecture x86_64):
+	@rpath/libbeacon_wrapper.dylib (compatibility version 0.0.0, current version 0.0.0)
+	@rpath/BeaconAPI_Base.framework/Versions/A/BeaconAPI_Base (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5026.5.4)
+	/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2685.60.104)
+	/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit (compatibility version 1.0.0, current version 275.0.0)
+	/System/Library/Frameworks/Metal.framework/Versions/A/Metal (compatibility version 1.0.0, current version 373.2.0)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5026.5.4)
+	/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration (compatibility version 1.0.0, current version 1405.120.5)
+	/System/Library/Frameworks/CoreWLAN.framework/Versions/A/CoreWLAN (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/WebKit.framework/Versions/A/WebKit (compatibility version 1.0.0, current version 624.2.5)
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.120.67)
+	/System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork (compatibility version 1.0.0, current version 3860.255.21)
+	/System/Library/Frameworks/AVFoundation.framework/Versions/A/AVFoundation (compatibility version 1.0.0, current version 2.0.0)
+	/System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio (compatibility version 1.0.0, current version 1.0.0)
+	/usr/lib/libresolv.9.dylib (compatibility version 1.0.0, current version 1.0.0)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+
+Selected strings:
+unknown token
+beacon_init: QimeiService Q36 not ready, using device-info.cache fallback
+check_is_ioa_network: iOA installed, probing http://ioa.woa.com:80 ...
+check_is_ioa_network: socket() failed, errno=%d
+HEAD / HTTP/1.1
+check_is_ioa_network: HTTP response timeout (%dms) from %s:%d
+check_is_ioa_network: HTTP read failed from %s:%d, n=%zd errno=%d
+check_is_ioa_network: HTTP probe OK, %s:%d -> status %d
+check_is_ioa_network: HTTP probe failed, %s:%d -> not HTTP response (got %d bytes)
+marvis_gateway_version
+marvis_agent_version
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApLEpcsiHA/PE4MKl7WS7r11RijhytmEQH8jaY3nKhvq/KC29yEpJVAu+/asRp9mpoxCAiaTxJynVZMw5amwe24ff0Eau/MLCcfG9jFq8fp0LJwXmKtJuwha2hVr6zhW1+Q1h8f3T9hu+QMZTRxqQnIY1mjqDY1/ARAK2hMzS+uoB+COosppWgFxOcQhzkjcM7Oa0RO+rSaatWsgBrKspVEXFMYfHS+awD8qGXZyyOVaiDNvXgLfPecJerKCOFdujwR3isgtEEe8yyRryUm1FZgdIi8e+t23Lp0XDDB6LCox7DWLKmRjQ5K/5R7+HmSwNLANkw6yTUuLtYcoMY2nOUwIDAQAB
+set channelId invalid after service start
+set log invalid after service start
+set appVersion invalid after service start
+set debug invalid after service start
+set sdkName invalid after service start
+judgeStarTrailContentWithStarTrailContent:service:
+beacon_init: QimeiService Q36 not ready, using device-info.cache fallback
+check_is_ioa_network: iOA installed, probing http://ioa.woa.com:80 ...
+check_is_ioa_network: socket() failed, errno=%d
+HEAD / HTTP/1.1
+check_is_ioa_network: HTTP response timeout (%dms) from %s:%d
+check_is_ioa_network: HTTP read failed from %s:%d, n=%zd errno=%d
+check_is_ioa_network: HTTP probe OK, %s:%d -> status %d
+check_is_ioa_network: HTTP probe failed, %s:%d -> not HTTP response (got %d bytes)
+unknown token
+marvis_gateway_version
+marvis_agent_version
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApLEpcsiHA/PE4MKl7WS7r11RijhytmEQH8jaY3nKhvq/KC29yEpJVAu+/asRp9mpoxCAiaTxJynVZMw5amwe24ff0Eau/MLCcfG9jFq8fp0LJwXmKtJuwha2hVr6zhW1+Q1h8f3T9hu+QMZTRxqQnIY1mjqDY1/ARAK2hMzS+uoB+COosppWgFxOcQhzkjcM7Oa0RO+rSaatWsgBrKspVEXFMYfHS+awD8qGXZyyOVaiDNvXgLfPecJerKCOFdujwR3isgtEEe8yyRryUm1FZgdIi8e+t23Lp0XDDB6LCox7DWLKmRjQ5K/5R7+HmSwNLANkw6yTUuLtYcoMY2nOUwIDAQAB
+set channelId invalid after service start
+set log invalid after service start
+set appVersion invalid after service start
+set debug invalid after service start
+set sdkName invalid after service start
+judgeStarTrailContentWithStarTrailContent:service:
+
+## bin/libeasy_control_net_sdk.dylib
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libeasy_control_net_sdk.dylib: Mach-O 64-bit dynamically linked shared library arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libeasy_control_net_sdk.dylib:
+	@rpath/libeasy_control_net_sdk.dylib (compatibility version 0.0.0, current version 0.0.0)
+	/usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.12)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 4201.0.0)
+	/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration (compatibility version 1.0.0, current version 1385.60.3)
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.60.40)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2000.67.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+
+Selected strings:
+demo_ctrl_port
+demo_data_port
+openPublicStreaming sessionId:%s proxyIp:%s port:%d %lld
+Recv from clientIp:%s port:%d serverIp:%s recvLen:%u
+[SID.%d]Ignore handle listen port:%d.%d ret:%d
+ctrl_port
+data_port
+Create cgsIp[%s] ctrl port[%d] and data port[%d]:
+gateway_ip
+pin_token
+server_port
+PushClient start param guid:%s server_port:%d
+Ignore to sendCommand as service is stoped. cmdId:%d
+decode pin_token param fail:response:%s %s
+decode pin_token param fail:pintoken is empty!
+push_busi_lan_port
+push_busi_access_token
+access_token
+[PushClient]Get PushBusi Server proxyInfo:sessionid:%s, ip:%s port:%d notify_cnt:%d
+not support handle new udp port:%d while current port:%d!!
+handleUdpMsg buflen:%d port:%d!! ret:%d
+handleAuthMsg rsp ret:%d code:%d token:%s
+Fail to create icmp socket, errno=%d
+https://yybadaccesstest.3g.qq.com/v3/validate_relay_token
+https://yybadaccess.3g.qq.com/v3/validate_relay_token
+[Auth]env(%d) auth ret:%d token:%s
+http://
+lan_port
+https://yybadaccesstest.3g.qq.com/v3/host_relay_heartbeat
+https://yybadaccess.3g.qq.com/v3/host_relay_heartbeat
+|Http post fail, just check network!!
+Fail to connect tcp socket!!%d
+Fail to connect socket:%u errno:%d ret:%d
+Fail to accept socket:%d errno:%d
+Accept socket acceptfd:%d clientIp:%s clientPort:%d
+Fail to create listen socket!!%d
+Fail to bind socket:%d errno:%d ret:%d
+Fail to listen socket:%d errno:%d ret:%d
+[SID.%d]addSessionInfo:port:%d.%d isTcp:%d recvHandle:%d sendHandle:%d
+[SID.%d]Remove idle session port:%d.%d reason:%d
+set socket option of TCP_NODELAY failed
+GetSocketPortByV4 client_port:%d
+[BORUI_SERVER]Fail to openListenChannel ret:%d port:%d
+[BORUI_SERVER][SID.%d]handle idle session port:%u
+OnInfoSet request_port:%d
+[Auth]requestGame via IAuthCallback:code:%d port:%d:%d cost:%d cgsIp:%s
+[Auth]requestGame:code:%d result.code:%d result.errorCode:%d msg:%s port:%d:%d cost:%d
+127.0.0.1
+[Auth]RSA decrypt PsInfo success, decrypted token:%s
+[Auth]Fail to auth token,code:%d
+Fail to heartbeat while token(%s) or lan_port(%s) is empty!
+|Fail to heartbeat, as token or lan_port is empty!!!
+set socket option of SO_REUSEADDR failed
+set socket option of IP_RECVDSTADDR failed errno=%d
+[ipc]create socket failed, errno=%d
+[ipc]socket path too long: %s
+[ipc]create listen socket failed errno=%d
+Ual-Access-Access-Token
+No CA bundle found, https verification will likely fail with CURL 60
+[%d][%s:%d(%s)] ProxyInfo user %s %s ip:%s port:%d id:%s zone:%s mc:%d carrier:%s ver:%s
+[%s]ProxyInfo user %s %s ip:%s port:%d id:%s zone:%s mc:%d carrier:%s ver:%s
+ProxyInfo user %s %s ip:%s port:%d id:%s zone:%s mc:%d carrier:%s ver:%s
+/Users/tongxing/temp/easycontrol/RepidaSDK_Mac/repida-sdk/socket/tcp_socket.cc
+[%d][%s:%d(%s)] Fail to make socket nonblocking
+[%s]Fail to make socket nonblocking
+Fail to make socket nonblocking
+[%d][%s:%d(%s)] socket connect fail! While errCode:%d
+[%s]socket connect fail! While errCode:%d
+socket connect fail! While errCode:%d
+[%d][%s:%d(%s)] Socket errno:%d buf_size:%d
+[%s]Socket errno:%d buf_size:%d
+Socket errno:%d buf_size:%d
+[%d][%s:%d(%s)] Fail to watch Write Socket
+[%s]Fail to watch Write Socket
+Fail to watch Write Socket
+[%d][%s:%d(%s)] get socket option of recvbuff failed
+/Users/tongxing/temp/easycontrol/RepidaSDK_Mac/repida-sdk/socket/socket_utils.h
+[%s]get socket option of recvbuff failed
+get socket option of recvbuff failed
+[%d][%s:%d(%s)] set socket option of SO_RCVBUF failed
+
+## bin/libmarvis_seckv.dylib
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libmarvis_seckv.dylib: Mach-O universal binary with 2 architectures: [x86_64:Mach-O 64-bit dynamically linked shared library x86_64] [arm64:Mach-O 64-bit dynamically linked shared library arm64]
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libmarvis_seckv.dylib (for architecture x86_64):	Mach-O 64-bit dynamically linked shared library x86_64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libmarvis_seckv.dylib (for architecture arm64):	Mach-O 64-bit dynamically linked shared library arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libmarvis_seckv.dylib (architecture x86_64):
+	@rpath/libmarvis_seckv.dylib (compatibility version 0.0.0, current version 0.0.0)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5026.5.4)
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.120.67)
+	/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit (compatibility version 1.0.0, current version 275.0.0)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libmarvis_seckv.dylib (architecture arm64):
+	@rpath/libmarvis_seckv.dylib (compatibility version 0.0.0, current version 0.0.0)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5026.5.4)
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.120.67)
+	/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit (compatibility version 1.0.0, current version 275.0.0)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+
+Selected strings:
+unknown token
+unknown token
+unknown token
+
+## bin/libstreamingserver.dylib
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libstreamingserver.dylib: Mach-O 64-bit dynamically linked shared library arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/libstreamingserver.dylib:
+	@rpath/libstreamingserver.dylib (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 4201.0.0)
+	/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2685.30.107)
+	/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon (compatibility version 2.0.0, current version 170.0.0)
+	/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics (compatibility version 64.0.0, current version 1965.2.3)
+	/System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia (compatibility version 1.0.0, current version 3290.6.5)
+	/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo (compatibility version 1.2.0, current version 726.2.0)
+	/System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox (compatibility version 1.0.0, current version 1000.0.0)
+	/System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox (compatibility version 1.0.0, current version 3290.6.5)
+	/System/Library/Frameworks/ScreenCaptureKit.framework/Versions/A/ScreenCaptureKit (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/IOSurface.framework/Versions/A/IOSurface (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.60.40)
+	/System/Library/Frameworks/AVFoundation.framework/Versions/A/AVFoundation (compatibility version 1.0.0, current version 2.0.0)
+	/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit (compatibility version 1.0.0, current version 275.0.0)
+	/System/Library/Frameworks/Metal.framework/Versions/A/Metal (compatibility version 1.0.0, current version 370.64.2)
+	/usr/lib/libiconv.2.dylib (compatibility version 7.0.0, current version 7.0.0)
+
+Selected strings:
+127.0.0.1
+ExitInstance: invalid token %p (expected %p) 
+SendDataToInstance: unknown session_token=%p
+pin_token
+SetExtraData: pin_token set (%lu chars)
+StrategyCenter: host/port not configured 
+ set <GenericStrategyCenter><IP>/<Port> in CGConfig.xml or use --sc-host/--sc-port
+WaitForDisplayReady: 0x%x online + %ld modes ready (%d ms)
+ForceDisplayMode: modes ready for 0x%x after %d ms (%ld modes)
+ keyboard/mouse injection ready
+Failed to start TCP client server on port %u
+TCP client server listening on port %u
+ProxyServer listening on port %u
+Primary virtual display ready: CGDisplayID=0x%x
+start_token
+ProxyClient: %s EC response: code=%u port=%u
+socket() failed: %s
+Failed to bind any port in range %u-%u
+Listening on port %u (range %u-%u)
+socket() failed: %d
+bind() failed on port %d: %d
+TCP server listening on port %d
+StatusReporter: POST FAIL HTTP=%ld url=%s resp=%s
+Proxy session ready: session=%s
+Session ready: %s main=%d
+Pre-ready message type %u ignored
+Session ready: %s main=%d total=%zu
+Proxy fd=%d bound to ready session %s
+proxy_port
+PostReport: HTTP %d
+
+## bin/llm_service
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/llm_service: Mach-O universal binary with 2 architectures: [x86_64:Mach-O 64-bit executable x86_64] [arm64]
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/llm_service (for architecture x86_64):	Mach-O 64-bit executable x86_64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/llm_service (for architecture arm64):	Mach-O 64-bit executable arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/llm_service (architecture x86_64):
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1345.100.2)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 1700.255.0)
+/Volumes/Marvis/Marvis.app/Contents/Resources/bin/llm_service (architecture arm64):
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1345.100.2)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 1700.255.0)
+
+Selected strings:
+llm_servH
+NSt3__110__function6__funcIZN11llm_service12ModelService10InitializeERKNS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEESB_RKNS2_9ModelInfoEE3$_1NS7_ISF_EEFS9_SB_EEE
+ZN11llm_service12ModelService10InitializeERKNSt3__112basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEES9_RKNS_9ModelInfoEE3$_1
+NSt3__110__function6__funcIZN11llm_service12ModelService10InitializeERKNS_12basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEESB_RKNS2_9ModelInfoEE3$_2NS7_ISF_EEFvRKNS2_17ServiceStatusInfoEEEE
+NSt3__110__function6__baseIFvRKN11llm_service17ServiceStatusInfoEEEE
+ZN11llm_service12ModelService10InitializeERKNSt3__112basic_stringIcNS1_11char_traitsIcEENS1_9allocatorIcEEEES9_RKNS_9ModelInfoEE3$_2
+NSt3__110__function6__funcIZN11llm_service17LocalModelManagerC1ENS_8functionIFvRKNS2_17ServiceStatusInfoEEEEE3$_1NS_9allocatorISA_EEFviEEE
+ZN11llm_service17LocalModelManagerC1ENSt3__18functionIFvRKNS_17ServiceStatusInfoEEEEE3$_1
+NSt3__110__function6__funcIZN11llm_service17LocalModelManager17DoStartEngineCoreERKNS2_9ModelInfoEE3$_3NS_9allocatorIS7_EEFbvEEE
+ZN11llm_service17LocalModelManager17DoStartEngineCoreERKNS_9ModelInfoEE3$_3
+N11llm_service19LlamaEngineStrategyE
+N11llm_service23InferenceEngineStrategyE
+N11llm_service17MlxEngineStrategyE
+llm_service
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/main.cc
+: llm_service --model-info <JSON> --parent-pid <PID>
+llm_service 
+llm_service 
+unknown token
+ipc:///tmp/marvis_llm_cmd_
+ipc:///tmp/marvis_llm_status_
+llm_service 
+service_guard: 
+service_guard: ModelService 
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/model_service.cc
+service shutdown
+127.0.0.1
+server_port
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/local_model_manager.cc
+, backend_port: 
+, backend_port: 
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/engine_process_manager.cc
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/health_checker.cc
+ http://127.0.0.1:
+/health (
+/health
+: HTTP 
+ HTTP/1.0
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/llama_args_builder.cc
+ --port
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/inference_engine_strategy.cc
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/llama_engine_strategy.cc
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/mlx_engine_strategy.cc
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/engine_log_analyzer.cc
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/parent_process_monitor.cc
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/service_utils.cc
+ socket 
+bind socket 
+/yyb/marvis/androws/platform/mac/llm_sdk/src/service/model_info.cc
+port alloc failed
+service exe missing
+service process exited
+Starting dialer for socket<%u> on %s
+socket for dialer
+Failed connecting socket<%u> to %s: %s
+socket:fd
+Failed binding socket<%u> to %s: %s
+Starting listener for socket<%u> on %s
+socket id
+Failed accepting for socket<%u> on %s: %s
+Report this at https://github.com/nanomsg/nng/issues
+socket for pipe
+Pipe on socket<%u> from %s rejected by callback
+Connected pipe<%u> on socket<%u> to %s
+Accepted pipe<%u> on socket<%u> from %s
+socket statistics
+socket identifier
+socket name
+socket protocol
+socket-name
+tcp-bound-port
+Oversize message of %lu bytes (> %lu) on socket<%u> pipe<%u> from IPC%s
+Oversize message of %lu bytes (> %lu) on socket<%u> pipe<%u> from TCP %s
+Oversize message of %lu bytes (> %lu) on socket<%u> pipe<%u> from TLS %s
+ws:msgmode
+ws:protocol
+HTTP/1.1
+Unknown HTTP Status
+Bad Gateway
+Service Unavailable
+
+## native/beacon/beacon_napi.node
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/native/beacon/beacon_napi.node: Mach-O 64-bit bundle arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/native/beacon/beacon_napi.node:
+	@rpath/BeaconAPI_Base.framework/Versions/A/BeaconAPI_Base (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5026.5.4)
+	/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit (compatibility version 45.0.0, current version 2685.60.104)
+	/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit (compatibility version 1.0.0, current version 275.0.0)
+	/System/Library/Frameworks/Metal.framework/Versions/A/Metal (compatibility version 1.0.0, current version 373.2.0)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5026.5.4)
+	/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration (compatibility version 1.0.0, current version 1405.120.5)
+	/System/Library/Frameworks/CoreWLAN.framework/Versions/A/CoreWLAN (compatibility version 1.0.0, current version 1.0.0)
+	/System/Library/Frameworks/WebKit.framework/Versions/A/WebKit (compatibility version 1.0.0, current version 624.2.5)
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.120.67)
+	/System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork (compatibility version 1.0.0, current version 3860.255.21)
+	/System/Library/Frameworks/AVFoundation.framework/Versions/A/AVFoundation (compatibility version 1.0.0, current version 2.0.0)
+	/System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio (compatibility version 1.0.0, current version 1.0.0)
+	/usr/lib/libresolv.9.dylib (compatibility version 1.0.0, current version 1.0.0)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+	/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+
+Selected strings:
+beacon_init: QimeiService Q36 not ready, using device-info.cache fallback
+check_is_ioa_network: iOA installed, probing http://ioa.woa.com:80 ...
+check_is_ioa_network: socket() failed, errno=%d
+HEAD / HTTP/1.1
+check_is_ioa_network: HTTP response timeout (%dms) from %s:%d
+check_is_ioa_network: HTTP read failed from %s:%d, n=%zd errno=%d
+check_is_ioa_network: HTTP probe OK, %s:%d -> status %d
+check_is_ioa_network: HTTP probe failed, %s:%d -> not HTTP response (got %d bytes)
+unknown token
+marvis_gateway_version
+marvis_agent_version
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApLEpcsiHA/PE4MKl7WS7r11RijhytmEQH8jaY3nKhvq/KC29yEpJVAu+/asRp9mpoxCAiaTxJynVZMw5amwe24ff0Eau/MLCcfG9jFq8fp0LJwXmKtJuwha2hVr6zhW1+Q1h8f3T9hu+QMZTRxqQnIY1mjqDY1/ARAK2hMzS+uoB+COosppWgFxOcQhzkjcM7Oa0RO+rSaatWsgBrKspVEXFMYfHS+awD8qGXZyyOVaiDNvXgLfPecJerKCOFdujwR3isgtEEe8yyRryUm1FZgdIi8e+t23Lp0XDDB6LCox7DWLKmRjQ5K/5R7+HmSwNLANkw6yTUuLtYcoMY2nOUwIDAQAB
+set channelId invalid after service start
+set log invalid after service start
+set appVersion invalid after service start
+set debug invalid after service start
+set sdkName invalid after service start
+judgeStarTrailContentWithStarTrailContent:service:
+
+## native/easycontrol-sdk/easycontrol.node
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/native/easycontrol-sdk/easycontrol.node: Mach-O 64-bit bundle arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/native/easycontrol-sdk/easycontrol.node:
+	/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5026.5.4)
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.120.67)
+	/usr/lib/libcurl.4.dylib (compatibility version 7.0.0, current version 9.0.0)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5026.5.4)
+	/usr/lib/libobjc.A.dylib (compatibility version 1.0.0, current version 228.0.0)
+
+Selected strings:
+ (userId, token, realm)
+access_token
+FetchAndCacheDeviceInfo: HTTP request failed or empty response
+!token_string.empty()
+endptr == token_buffer.data() + token_buffer.size()
+unknown token
+sdk_login_access_token
+ws_message_dispatcher_mac.cc
+sdk_http_service_mac.mm
+https://yybadaccess.sparta.html5.qq.com/v3
+https://yybadaccess.3g.qq.com/v3
+Ual-Access-Access-Token
+sdk_http_service.cc
+CreateDeviceId: HTTP 
+GetAccountDeviceInfo: HTTP 
+SignalingForwardForPC: HTTP 
+SecurityPolicyManage: HTTP 
+GetAssociatedDeviceList: HTTP 
+VerifyRemoteControlCode: HTTP 
+GetSensitiveAppList: HTTP 
+AckCallbackForPC: HTTP 
+AddDeviceAssociation: HTTP 
+GetDeviceNameById: HTTP 
+DeviceManage: HTTP 
+SendInitControlInfo: timeout waiting for BorderlessSpace ready, reporting failure
+IPC timeout: BorderlessSpace not ready
+Service
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/core/aio.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/core/device.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/core/dialer.c
+Starting dialer for socket<%u> on %s
+socket for dialer
+Failed connecting socket<%u> to %s: %s
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/core/sockfd.c
+socket:fd
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/core/idhash.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/core/listener.c
+Failed binding socket<%u> to %s: %s
+Starting listener for socket<%u> on %s
+socket id
+Failed accepting for socket<%u> on %s: %s
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/core/message.c
+Report this at https://github.com/nanomsg/nng/issues
+socket for pipe
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/core/sockaddr.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/core/socket.c
+Pipe on socket<%u> from %s rejected by callback
+Connected pipe<%u> on socket<%u> to %s
+Accepted pipe<%u> on socket<%u> from %s
+socket statistics
+socket identifier
+socket name
+socket protocol
+socket-name
+tcp-bound-port
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/platform/posix/posix_ipclisten.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/platform/posix/posix_tcplisten.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/platform/posix/posix_pollq_kqueue.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/sp/protocol/pair1/pair.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/sp/transport/socket/sockfd.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/sp/transport/inproc/inproc.c
+Oversize message of %lu bytes (> %lu) on socket<%u> pipe<%u> from IPC%s
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/sp/transport/ipc/ipc.c
+Oversize message of %lu bytes (> %lu) on socket<%u> pipe<%u> from TCP %s
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/sp/transport/tcp/tcp.c
+Oversize message of %lu bytes (> %lu) on socket<%u> pipe<%u> from TLS %s
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/sp/transport/tls/tls.c
+ws:msgmode
+ws:protocol
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/sp/transport/ws/websocket.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/supplemental/http/http_client.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/supplemental/http/http_chunk.c
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/supplemental/http/http_conn.c
+HTTP/1.1
+Unknown HTTP Status
+/Users/llm-test/Desktop/EasyControlClient/3rdparty/nng/src/src/supplemental/http/http_msg.c
+Bad Gateway
+Service Unavailable
+Gateway Timeout
+HTTP Version Not Supported
+
+## native/llm-sdk/llm_sdk.node
+
+/Volumes/Marvis/Marvis.app/Contents/Resources/native/llm-sdk/llm_sdk.node: Mach-O 64-bit bundle arm64
+/Volumes/Marvis/Marvis.app/Contents/Resources/native/llm-sdk/llm_sdk.node:
+	/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation (compatibility version 300.0.0, current version 5026.5.4)
+	/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation (compatibility version 150.0.0, current version 5026.5.4)
+	/System/Library/Frameworks/Security.framework/Versions/A/Security (compatibility version 1.0.0, current version 61901.120.67)
+	/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration (compatibility version 1.0.0, current version 1405.120.5)
+	/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit (compatibility version 1.0.0, current version 275.0.0)
+	/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 2100.43.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1356.0.0)
+
+Selected strings:
+removeListener: (handle, token) required
+[llm_sdk_addon] llm_start_download rc=%d
+[llm_sdk_addon] llm_start_silent_download rc=%d
+[llm_sdk_addon] llm_activate_and_launch rc=%d
+[llm_sdk_addon] llm_start_service rc=%d
+[llm_sdk_addon] llm_stop_service rc=%d
+Initializing llm_sdk...
+, service_bin_path=
+llm_sdk initialized successfully
+Shutting down llm_sdk...
+llm_sdk shut down
+Clearing stale llm_state.new: old_tag=
+Service client not available
+Starting service with engine: 
+Failed to launch service process
+Service process launched, pid=
+Stopping service...
+127.0.0.1
+server_port
+Service status: 
+unknown token
+service_bin_path
+llm_destroy
+llm_initialize
+llm_shutdown
+llm_start_service
+llm_stop_service
+llm_is_service_ready
+llm_get_service_state
+service_ip
+service_port
+llm_get_current_version
+llm_get_new_version
+llm_set_new_version
+llm_activate_new_version
+llm_add_listener: 
+service_state
+llm_remove_listener: token=
+llm_start_download
+llm_pause_download
+llm_resume_download
+llm_cancel_download
+llm_get_install_state
+llm_report_download_progress: id=
+llm_notify_install_completed: path=
+llm_notify_install_failed: code=
+llm_get_device_info
+llm_refresh_device_info
+llm_load_device_info_from_cache
+llm_start_auto_detection
+llm_report_http_response
+http_code
+llm_start_silent_download
+llm_activate_and_launch
+llm_cleanup_old_versions: keep=
+LaunchAndConnect: failed to launch service process, bin_path=
+LaunchAndConnect: service process launched, pid=
+DisconnectAndKill: service exited, pid=
+DisconnectAndKill: service process already dead, pid=
+OnServiceExit: service process exited unexpectedly, pid=
+service process exited unexpectedly:exit_code:
+ipc:///tmp/marvis_llm_cmd_
+ipc:///tmp/marvis_llm_status_
+/llm_state.json
+port alloc failed
+service exe missing
+service process exited
+https://yybadaccess.sparta.html5.qq.com/v3/llm_device_match
+https://yybadaccess.3g.qq.com/v3/llm_device_match
+RefreshDeviceInfo: HTTP callback not set
+HTTP request dispatched, request_id=
+, llamacpp_ready=
+, mlx_ready=
+HTTP request failed: success=
+, http_code=
+openvino_ready
+llamacpp_ready
+mlx_ready
+local_llm_device_match
+local_llm_download_start
+

@@ -1,0 +1,196 @@
+[
+  {
+    "id": "dm-mu0sj3ja-7voe",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "查看所有 Agent 和任务状态",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "suppressAutoReply": true
+    },
+    "createdAt": "2026-09-14T05:16:40.486Z"
+  },
+  {
+    "id": "dm-mu0sk1cz-o12t",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "查看所有 Agent 和任务状态",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "suppressAutoReply": true
+    },
+    "createdAt": "2026-09-14T05:17:24.323Z"
+  },
+  {
+    "id": "dm-mu0sks35-dj8p",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "查看所有 Agent 和任务状态",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "suppressAutoReply": true
+    },
+    "createdAt": "2026-09-14T05:17:58.961Z"
+  },
+  {
+    "id": "dm-mu0sks3c-8p0t",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "当前任务总览：执行中 1 项，等待处理 1 项，阻塞 0 项，已结束 3 项。正在关注：潜客拓展项目（执行中）。",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "chiefDecision": {
+        "intent": "status_query",
+        "responseMode": "status_card",
+        "riskLevel": "low",
+        "confirmationPolicy": "none",
+        "requiredCapabilities": [],
+        "requestedAgentId": null,
+        "incompatibleCapabilities": [],
+        "blockingMissing": [],
+        "optionalMissing": [],
+        "defaultsApplied": [],
+        "taskAction": "",
+        "userMessage": "",
+        "confidence": 1,
+        "shouldCreateTask": false
+      }
+    },
+    "createdAt": "2026-09-14T05:17:58.968Z"
+  },
+  {
+    "id": "dm-mu0slbxz-6vxy",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "查看所有 Agent 和任务状态",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "suppressAutoReply": true
+    },
+    "createdAt": "2026-09-14T05:18:24.695Z"
+  },
+  {
+    "id": "dm-mu0slby5-1mj1",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "当前任务总览：执行中 1 项，等待处理 1 项，阻塞 0 项，已结束 3 项。正在关注：潜客拓展项目（执行中）。",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "chiefDecision": {
+        "intent": "status_query",
+        "responseMode": "status_card",
+        "riskLevel": "low",
+        "confirmationPolicy": "none",
+        "requiredCapabilities": [],
+        "requestedAgentId": null,
+        "incompatibleCapabilities": [],
+        "blockingMissing": [],
+        "optionalMissing": [],
+        "defaultsApplied": [],
+        "taskAction": "",
+        "userMessage": "",
+        "confidence": 1,
+        "shouldCreateTask": false
+      }
+    },
+    "createdAt": "2026-09-14T05:18:24.701Z"
+  },
+  {
+    "id": "dm-mu0t5kko-ny6u",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "查看所有 Agent 和任务状态",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "suppressAutoReply": true
+    },
+    "createdAt": "2026-09-14T05:34:09.000Z"
+  },
+  {
+    "id": "dm-mu0t5kky-by6j",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "当前任务总览：执行中 1 项，等待处理 1 项，阻塞 0 项，已结束 3 项。正在关注：潜客拓展项目（执行中）。",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "chiefDecision": {
+        "intent": "status_query",
+        "responseMode": "status_card",
+        "riskLevel": "low",
+        "confirmationPolicy": "none",
+        "requiredCapabilities": [],
+        "requestedAgentId": null,
+        "incompatibleCapabilities": [],
+        "blockingMissing": [],
+        "optionalMissing": [],
+        "defaultsApplied": [],
+        "taskAction": "",
+        "userMessage": "",
+        "confidence": 1,
+        "shouldCreateTask": false
+      }
+    },
+    "createdAt": "2026-09-14T05:34:09.010Z"
+  },
+  {
+    "id": "dm-mu0u0iub-kash",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "昨天有多少个用户留资",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "entry": "members",
+      "suppressAutoReply": true,
+      "clientMessageId": "d5867ec4-151e-4475-85fe-619312095b4a"
+    },
+    "createdAt": "2026-09-14T05:58:13.091Z"
+  },
+  {
+    "id": "dm-mu0u0iwq-c7cv",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "幕僚长不创建、派发、启动或控制任务。我可以查看全局 Agent 状态、汇总已有数据，并引导你前往对应专业 Agent 发起具体业务。",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "chiefDecision": {
+        "intent": "conversation",
+        "responseMode": "text",
+        "riskLevel": "low",
+        "confirmationPolicy": "none",
+        "requiredCapabilities": [],
+        "requestedAgentId": null,
+        "incompatibleCapabilities": [],
+        "blockingMissing": [],
+        "optionalMissing": [],
+        "defaultsApplied": [],
+        "taskAction": "",
+        "userMessage": "",
+        "confidence": null,
+        "shouldCreateTask": false,
+        "taskTitle": null,
+        "statusText": null
+      }
+    },
+    "createdAt": "2026-09-14T05:58:13.178Z"
+  }
+]

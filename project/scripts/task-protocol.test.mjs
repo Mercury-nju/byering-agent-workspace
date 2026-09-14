@@ -1,0 +1,336 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import {
+  APPROVAL_DECISIONS,
+  COMMAND_TYPES,
+  TASK_STATES,
+  TaskProtocolError,
+  TaskTransitionError,
+  createCommandEnvelope,
+  createEventEnvelope,
+  normalizeCommand,
+  transitionTaskState
+} from "../src/salebuddy/runtime/task-protocol.js";
+
+const ids = {
+  commandId: "cmd-1",
+  idempotencyKey: "idem-1",
+  taskId: "task-1",
+  taskRunId: "run-1",
+  conversationId: "conversation-1",
+  agentId: "chief_of_staff"
+};
+
+test("command envelope is canonical and migrates legacy approval ok", () => {
+  const command = createCommandEnvelope({
+    ...ids,
+    type: "approval.resolved",
+    payload: { ok: true, approvalId: "approval-1" },
+    createdAt: "2026-08-19T00:00:00.000Z"
+  });
+
+  assert.equal(command.type, COMMAND_TYPES.APPROVAL_DECISION);
+  assert.equal(command.payload.decision, APPROVAL_DECISIONS.APPROVED);
+  assert.equal("ok" in command.payload, false);
+  assert.equal(command.taskRunId, "run-1");
+  assert.equal(command.expectedVersion, null);
+  assert.equal(command.createdAt, "2026-08-19T00:00:00.000Z");
+});
+
+test("command envelope rejects null input and exposes creation/message/access commands", () => {
+  assert.throws(() => createCommandEnvelope(null), (error) => error.code === "INVALID_COMMAND");
+  assert.equal(normalizeCommand({ ...ids, taskId: undefined, type: "task.created", payload: { goal: "找客户" } }).type, COMMAND_TYPES.TASK_CREATE);
+  assert.equal(normalizeCommand({ ...ids, type: "message.created", conversationId: "conversation-1", payload: { text: "开始" } }).type, COMMAND_TYPES.MESSAGE_SEND);
+  assert.equal(normalizeCommand({ ...ids, type: "access.authorization_cancelled" }).type, COMMAND_TYPES.ACCESS_CANCEL);
+  assert.equal(normalizeCommand({ ...ids, runId: "legacy-run", taskRunId: undefined, type: COMMAND_TYPES.TASK_START, payload: { planVersion: 1 } }).taskRunId, "legacy-run");
+});
+
+test("command normalization rejects missing identity and hidden reasoning", () => {
+  assert.throws(() => normalizeCommand({ type: COMMAND_TYPES.TASK_START, taskId: "task-1" }), (error) => {
+    assert.ok(error instanceof TaskProtocolError);
+    assert.equal(error.code, "REQUIRED_FIELD");
+    return true;
+  });
+
+  assert.throws(() => normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_START,
+    payload: { reasoning: "internal chain" }
+  }), (error) => error.code === "HIDDEN_REASONING_FIELD");
+  assert.throws(() => normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_START,
+    payload: { planVersion: 1 },
+    metadata: { reasoning: "internal" }
+  }), (error) => error.code === "HIDDEN_REASONING_FIELD");
+});
+
+test("task configuration updates accept grouped strategy-layer edits and normalize them", () => {
+  const command = normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_CONFIG_UPDATE,
+    expectedVersion: 1,
+    payload: {
+      baseConfigVersion: 1,
+      configVersion: 2,
+      effectiveScope: "future_only",
+      changes: {
+        strategy: { sourceScope: "self_comments", audienceGoal: "明确咨询用户" },
+        touchContent: { channel: "private_message", message: "你好" },
+        runtimeRules: { frequency: "hourly", maxTouchesPerDay: 20 }
+      },
+      confirmation: { confirmed: true }
+    }
+  });
+
+  assert.deepEqual(command.payload.changes, {
+    findingStrategy: { sourceScope: "self_comments", audienceGoal: "明确咨询用户" },
+    touchContent: { channel: "private_message", message: "你好" },
+    frequency: { mode: "hourly", maxTouchesPerDay: 20 }
+  });
+});
+
+test("task configuration updates reject forbidden identity and history fields across naming styles", () => {
+  for (const forbidden of ["account_id", "cloud_computer_id", "historical_results", "sent_records", "already_processed"]) {
+    assert.throws(() => normalizeCommand({
+      ...ids,
+      type: COMMAND_TYPES.TASK_CONFIG_UPDATE,
+      expectedVersion: 1,
+      payload: {
+        baseConfigVersion: 1,
+        configVersion: 2,
+        effectiveScope: "future_only",
+        changes: { touchContent: { message: "你好", [forbidden]: "blocked" } }
+      }
+    }), (error) => error.code === "CONFIG_UPDATE_FIELD_FORBIDDEN");
+  }
+});
+
+test("finding scope changes are delegated to the stateful safety check", () => {
+  const command = normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_CONFIG_UPDATE,
+    expectedVersion: 1,
+    payload: {
+      baseConfigVersion: 1,
+      configVersion: 2,
+      effectiveScope: "future_only",
+      changes: { strategy: { sourceScope: "other_comments" } }
+    }
+  });
+  assert.equal(command.payload.changes.findingStrategy.sourceScope, "other_comments");
+  assert.throws(() => normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_CONFIG_UPDATE,
+    expectedVersion: 1,
+    payload: {
+      baseConfigVersion: 1,
+      configVersion: 2,
+      effectiveScope: "future_only",
+      changes: { strategy: { scopeExpansion: true } }
+    }
+  }), (error) => error.code === "CONFIG_UPDATE_CONFIRMATION_REQUIRED");
+});
+
+test("configuration updates require an optimistic task version", () => {
+  assert.throws(() => normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_CONFIG_UPDATE,
+    payload: {
+      baseConfigVersion: 1,
+      configVersion: 2,
+      effectiveScope: "future_only",
+      changes: { touchContent: { message: "你好" } }
+    }
+  }), (error) => error.code === "CONFIGURATION_TASK_VERSION_REQUIRED");
+});
+
+test("event envelope keeps operational payload isolated and requires skill fields", () => {
+  const sourcePayload = { leadIds: ["lead-1"], summary: { value: "qualified" } };
+  const event = createEventEnvelope({
+    eventId: "event-1",
+    seq: 1,
+    taskId: "task-1",
+    taskRunId: "run-1",
+    conversationId: "conversation-1",
+    agentId: "lead_analyst",
+    skillId: "score_leads",
+    skillRunId: "skill-run-1",
+    type: "lead.qualified",
+    payload: sourcePayload,
+    occurredAt: "2026-08-19T00:00:00.000Z"
+  });
+
+  sourcePayload.summary.value = "mutated";
+  assert.equal(event.payload.summary.value, "qualified");
+  assert.equal(event.runId, "run-1");
+  assert.equal(event.skillRunId, "skill-run-1");
+  assert.equal("payload" in event, true);
+  assert.equal("leadIds" in event, false);
+  assert.equal(Object.isFrozen(event), true);
+
+  assert.throws(() => createEventEnvelope({
+    eventId: "event-2",
+    seq: 2,
+    taskId: "task-1",
+    taskRunId: "run-1",
+    conversationId: "conversation-1",
+    agentId: "lead_analyst",
+    type: "lead.qualified",
+    payload: {}
+  }), (error) => error.code === "EVENT_SKILL_FIELDS_REQUIRED");
+});
+
+test("event envelope rejects invalid sequence and hidden reasoning keys", () => {
+  const base = {
+    eventId: "event-1",
+    seq: 1,
+    taskId: "task-1",
+    taskRunId: "run-1",
+    conversationId: "conversation-1",
+    agentId: "chief_of_staff",
+    skillId: null,
+    skillRunId: null,
+    type: "task.progress"
+  };
+  assert.throws(() => createEventEnvelope({ ...base, seq: 0, payload: {} }), (error) => error.code === "INVALID_SEQUENCE");
+  assert.throws(() => createEventEnvelope({ ...base, payload: { nested: { chainOfThought: "hidden" } } }), (error) => error.code === "HIDDEN_REASONING_FIELD");
+  const legacySequence = createEventEnvelope({ ...base, seq: undefined, sequence: 3, agentRunId: "agent-run-1", payload: {} });
+  assert.equal(legacySequence.seq, 3);
+  assert.equal(legacySequence.agentRunId, "agent-run-1");
+  const flat = createEventEnvelope({ ...base, seq: 4, payload: undefined, pct: 55, text: "进度" });
+  assert.equal(flat.payload.pct, 55);
+  assert.equal(flat.payload.text, "进度");
+  assert.throws(() => createEventEnvelope({ ...base, seq: 5, sequence: 6, payload: {} }), (error) => error.code === "CONFLICTING_SEQUENCE");
+  assert.throws(() => createEventEnvelope({ ...base, seq: 5, runId: "other-run", payload: {} }), (error) => error.code === "CONFLICTING_IDENTITY");
+  assert.throws(() => createEventEnvelope({ ...base, seq: 5, schemaVersion: 2, payload: {} }), (error) => error.code === "UNSUPPORTED_SCHEMA_VERSION");
+  const correlated = createEventEnvelope({ ...base, seq: 7, causationId: "cmd-1", correlationId: "task-1", payload: {} });
+  assert.equal(correlated.causationId, "cmd-1");
+  assert.equal(correlated.correlationId, "task-1");
+  assert.throws(() => normalizeCommand({ ...ids, expectedVersion: -1, type: COMMAND_TYPES.TASK_START, payload: { planVersion: 1 } }), (error) => error.code === "INVALID_EXPECTED_VERSION");
+});
+
+test("task state transitions cover requirement, access, approval, pause, retry, reply and handoff", () => {
+  assert.equal(transitionTaskState(TASK_STATES.CREATED, { type: COMMAND_TYPES.TASK_START, payload: {} }), TASK_STATES.WAITING_REQUIREMENT);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_REQUIREMENT, { type: COMMAND_TYPES.REQUIREMENT_CONFIRM, payload: { requiresAccess: true } }), TASK_STATES.WAITING_ACCESS);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_ACCESS, COMMAND_TYPES.BLOCK), TASK_STATES.BLOCKED);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_ACCESS, COMMAND_TYPES.ACCESS_GRANT), TASK_STATES.RUNNING);
+  assert.equal(transitionTaskState(TASK_STATES.RUNNING, COMMAND_TYPES.APPROVAL_REQUEST), TASK_STATES.WAITING_APPROVAL);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_APPROVAL, { type: COMMAND_TYPES.APPROVAL_DECISION, payload: { decision: "approved" } }), TASK_STATES.RUNNING);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_APPROVAL, { type: COMMAND_TYPES.APPROVAL_DECISION, ok: false }), TASK_STATES.WAITING_APPROVAL);
+  assert.equal(transitionTaskState(TASK_STATES.RUNNING, COMMAND_TYPES.PAUSE), TASK_STATES.PAUSED);
+  assert.equal(transitionTaskState(TASK_STATES.PAUSED, COMMAND_TYPES.RETRY), TASK_STATES.RETRYING);
+  assert.equal(transitionTaskState(TASK_STATES.RETRYING, COMMAND_TYPES.TASK_START), TASK_STATES.RUNNING);
+  assert.equal(transitionTaskState(TASK_STATES.RUNNING, COMMAND_TYPES.REQUEST_REPLY), TASK_STATES.WAITING_REPLY);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_REPLY, COMMAND_TYPES.REPLY), TASK_STATES.RUNNING);
+  assert.equal(transitionTaskState(TASK_STATES.RUNNING, COMMAND_TYPES.HANDOFF), TASK_STATES.HANDOFF_REQUIRED);
+  assert.equal(transitionTaskState(TASK_STATES.HANDOFF_REQUIRED, COMMAND_TYPES.HANDOFF_RESOLVE), TASK_STATES.RUNNING);
+  assert.equal(transitionTaskState(TASK_STATES.RUNNING, COMMAND_TYPES.COMPLETE), TASK_STATES.SUCCEEDED);
+});
+
+test("live task configuration updates are versioned, future-only, and state-preserving", () => {
+  const payload = {
+    baseConfigVersion: 1,
+    configVersion: 2,
+    effectiveScope: "future_only",
+    changes: {
+      findingStrategy: { intentSignals: ["价格"] },
+      touchChannel: "private_message",
+      touchContent: "你好",
+      replyStyle: "专业、简短、自然",
+      handoffBoundary: { topics: ["退款"] },
+      frequency: { maxPerDay: 20 }
+    }
+  };
+
+  const command = normalizeCommand({
+    ...ids,
+    type: "task.strategy.update",
+    expectedVersion: 1,
+    payload
+  });
+
+  assert.equal(command.type, COMMAND_TYPES.TASK_CONFIG_UPDATE);
+  assert.equal(command.payload.effectiveScope, "future_only");
+  assert.equal(transitionTaskState(TASK_STATES.RUNNING, command, { currentVersion: 1 }), TASK_STATES.RUNNING);
+  assert.equal(transitionTaskState(TASK_STATES.PAUSED, command, { currentVersion: 1 }), TASK_STATES.PAUSED);
+
+  assert.throws(() => normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_CONFIG_UPDATE,
+    expectedVersion: 1,
+    payload: { ...payload, effectiveScope: "all_history" }
+  }), (error) => error.code === "INVALID_EFFECTIVE_SCOPE");
+
+  assert.throws(() => normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_CONFIG_UPDATE,
+    expectedVersion: 1,
+    payload: { ...payload, changes: { accountId: "must-not-change" } }
+  }), (error) => error.code === "CONFIG_UPDATE_FIELD_FORBIDDEN");
+
+  assert.throws(() => normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_CONFIG_UPDATE,
+    expectedVersion: 1,
+    payload: {
+      ...payload,
+      changes: { approvalMode: "auto" },
+      confirmation: { confirmed: false }
+    }
+  }), (error) => error.code === "CONFIG_UPDATE_CONFIRMATION_REQUIRED");
+
+  assert.doesNotThrow(() => normalizeCommand({
+    ...ids,
+    type: COMMAND_TYPES.TASK_CONFIG_UPDATE,
+    expectedVersion: 1,
+    payload: {
+      ...payload,
+      changes: { approvalMode: "auto" },
+      confirmation: { confirmed: true }
+    }
+  }));
+});
+
+test("invalid and terminal transitions are explicit errors", () => {
+  assert.throws(() => transitionTaskState(TASK_STATES.CREATED, COMMAND_TYPES.COMPLETE), (error) => {
+    assert.ok(error instanceof TaskTransitionError);
+    assert.equal(error.fromState, TASK_STATES.CREATED);
+    assert.equal(error.commandType, COMMAND_TYPES.COMPLETE);
+    assert.ok(Array.isArray(error.allowed));
+    return true;
+  });
+  assert.throws(() => transitionTaskState(TASK_STATES.SUCCEEDED, COMMAND_TYPES.PAUSE), TaskTransitionError);
+  assert.equal(transitionTaskState(TASK_STATES.RUNNING, COMMAND_TYPES.CANCEL), TASK_STATES.CANCELLED);
+  assert.throws(() => transitionTaskState(TASK_STATES.CREATED, COMMAND_TYPES.PAUSE), TaskTransitionError);
+  assert.throws(() => transitionTaskState(TASK_STATES.WAITING_REQUIREMENT, COMMAND_TYPES.ACCESS_REQUEST), TaskTransitionError);
+  assert.throws(() => transitionTaskState(TASK_STATES.WAITING_APPROVAL, COMMAND_TYPES.REQUEST_REPLY), TaskTransitionError);
+  assert.throws(() => transitionTaskState(TASK_STATES.WAITING_REPLY, COMMAND_TYPES.RESUME), TaskTransitionError);
+  assert.throws(() => transitionTaskState(TASK_STATES.HANDOFF_REQUIRED, COMMAND_TYPES.TASK_START), TaskTransitionError);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_ACCESS, COMMAND_TYPES.ACCESS_CANCEL), TASK_STATES.WAITING_ACCESS);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_REQUIREMENT, COMMAND_TYPES.REQUIREMENT_EDIT), TASK_STATES.WAITING_REQUIREMENT);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_REQUIREMENT, COMMAND_TYPES.REQUIREMENT_REQUEST), TASK_STATES.WAITING_REQUIREMENT);
+  assert.equal(transitionTaskState(TASK_STATES.CREATED, { type: COMMAND_TYPES.TASK_START, payload: { requirementsConfirmed: "false", requiresAccess: true } }), TASK_STATES.WAITING_REQUIREMENT);
+  assert.equal(transitionTaskState(TASK_STATES.WAITING_APPROVAL, { type: COMMAND_TYPES.APPROVAL_DECISION, payload: { decision: "rejected" } }), TASK_STATES.WAITING_APPROVAL);
+  assert.throws(() => transitionTaskState(TASK_STATES.WAITING_APPROVAL, COMMAND_TYPES.RESUME), TaskTransitionError);
+  assert.throws(() => transitionTaskState(TASK_STATES.WAITING_ACCESS, COMMAND_TYPES.RETRY), TaskTransitionError);
+  assert.throws(() => transitionTaskState(TASK_STATES.HANDOFF_REQUIRED, COMMAND_TYPES.RETRY), TaskTransitionError);
+  assert.throws(() => transitionTaskState(TASK_STATES.BLOCKED, COMMAND_TYPES.RETRY), TaskTransitionError);
+  assert.equal(transitionTaskState(TASK_STATES.BLOCKED, { type: COMMAND_TYPES.RETRY, payload: { retryable: true } }), TASK_STATES.RETRYING);
+  assert.throws(
+    () => transitionTaskState(TASK_STATES.RUNNING, { type: COMMAND_TYPES.PAUSE, expectedVersion: 2 }, { currentVersion: 1 }),
+    (error) => error.code === "STALE_TASK_VERSION"
+  );
+  assert.equal(
+    transitionTaskState(TASK_STATES.RUNNING, { type: COMMAND_TYPES.PAUSE, expectedVersion: 2 }, { currentVersion: 2 }),
+    TASK_STATES.PAUSED
+  );
+});
+
+test("command payloads require the identifiers and content needed for side effects", () => {
+  assert.throws(() => normalizeCommand({ ...ids, type: COMMAND_TYPES.TASK_CREATE, taskId: undefined }), (error) => error.code === "TASK_GOAL_REQUIRED");
+  assert.throws(() => normalizeCommand({ ...ids, type: COMMAND_TYPES.APPROVAL_DECISION, payload: { decision: "approved" } }), (error) => error.code === "APPROVAL_ID_REQUIRED");
+  assert.throws(() => normalizeCommand({ ...ids, type: COMMAND_TYPES.REPLY, payload: { text: "继续" } }), (error) => error.code === "FOLLOWUP_ID_REQUIRED");
+  assert.throws(() => normalizeCommand({ ...ids, type: COMMAND_TYPES.MESSAGE_SEND, conversationId: "conversation-1", payload: {} }), (error) => error.code === "MESSAGE_TEXT_REQUIRED");
+});

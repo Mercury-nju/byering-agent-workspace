@@ -1,0 +1,132 @@
+{
+  "source": "https://x.ai/bot",
+  "extractedAt": "2026-09-02",
+  "items": [
+    {
+      "file": "chief-54b9a6-idle.svg",
+      "name": "Chief",
+      "color": "#54B9A6",
+      "state": "idle",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "sales-outbound-f19d38-idle.svg",
+      "name": "Sales Outbound",
+      "color": "#F19D38",
+      "state": "idle",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "inbox-manager-6464ef-notifying.svg",
+      "name": "Inbox Manager",
+      "color": "#6464EF",
+      "state": "notifying",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "account-manager-885cf5.svg",
+      "name": "Account Manager",
+      "color": "#885CF5",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "talent-scout-3c82f6.svg",
+      "name": "Talent Scout",
+      "color": "#3C82F6",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "expense-manager-ed712e.svg",
+      "name": "Expense Manager",
+      "color": "#ED712E",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "offsite-crew-54b9a6.svg",
+      "name": "Offsite crew",
+      "color": "#54B9A6",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "offsite-crew-6464ef.svg",
+      "name": "Offsite crew",
+      "color": "#6464EF",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "offsite-crew-885cf5.svg",
+      "name": "Offsite crew",
+      "color": "#885CF5",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "chief-54b9a6.svg",
+      "name": "Chief",
+      "color": "#54B9A6",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "sales-outbound-54b9a6.svg",
+      "name": "Sales Outbound",
+      "color": "#54B9A6",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "talent-scout-885cf5.svg",
+      "name": "Talent Scout",
+      "color": "#885CF5",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "paid-media-eb4699.svg",
+      "name": "Paid Media",
+      "color": "#EB4699",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "expense-manager-5bc67a.svg",
+      "name": "Expense Manager",
+      "color": "#5BC67A",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "product-performance-ea4045.svg",
+      "name": "Product Performance",
+      "color": "#EA4045",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "bug-reproduction-ea4045.svg",
+      "name": "Bug Reproduction",
+      "color": "#EA4045",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "account-health-3c82f6.svg",
+      "name": "Account Health",
+      "color": "#3C82F6",
+      "state": "",
+      "source": "https://x.ai/bot"
+    },
+    {
+      "file": "chief-of-staff-ed712e.svg",
+      "name": "Chief of Staff",
+      "color": "#ED712E",
+      "state": "",
+      "source": "https://x.ai/bot"
+    }
+  ]
+}

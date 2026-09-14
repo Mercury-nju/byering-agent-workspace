@@ -1,0 +1,166 @@
+Metadata-Version: 2.1
+Name: dooti
+Version: 0.2.2
+Summary: Manage default file and URI scheme handlers on macOS 12.0+
+Author-email: jeanluc <lkubb@protonmail.com>
+License: Apache Software License
+Project-URL: Homepage, https://github.com/lkubb/dooti
+Project-URL: Documentation, https://lkubb.github.io/dooti/
+Project-URL: Source, https://github.com/lkubb/dooti
+Project-URL: Tracker, https://github.com/lkubb/dooti/issues
+Keywords: salt-extension
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Cython
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Development Status :: 4 - Beta
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: MacOS
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Topic :: System :: Systems Administration
+Classifier: Topic :: Utilities
+Requires-Python: >=3.10
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: pyobjc-core>=7.2
+Requires-Dist: pyobjc-framework-UniformTypeIdentifiers>=7.2
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: xdg>=5.1.1
+Provides-Extra: changelog
+Requires-Dist: towncrier==22.12.0; extra == "changelog"
+Provides-Extra: dev
+Requires-Dist: nox[uv]>=2024.3; extra == "dev"
+Requires-Dist: pre-commit>=2.21.0; extra == "dev"
+Requires-Dist: pylint==3.3.1; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx; extra == "docs"
+Requires-Dist: sphinx-rtd-theme; extra == "docs"
+Provides-Extra: docsauto
+Requires-Dist: sphinx-autobuild; extra == "docsauto"
+Provides-Extra: lint
+Requires-Dist: pylint==3.3.1; extra == "lint"
+Provides-Extra: tests
+Requires-Dist: pytest>=7.2.0; extra == "tests"
+Requires-Dist: coverage; extra == "tests"
+Requires-Dist: pytest-skip-markers; extra == "tests"
+
+==============
+Dooti overview
+==============
+
+Manage default handlers for files and URI schemes on MacOS 12.0+.
+
+
+Features
+--------
+* Manage handlers by specifying file extension, UTI or URI scheme.
+* Specify handlers by name, bundle ID or absolute path.
+* Check your associations into a dotfiles repository and ensure an idempotent state by simply running ``dooti apply``.
+
+
+Installation
+------------
+I recommend installing with `pipx <https://pipx.pypa.io/stable/>`_, although pip will work fine as well:
+
+.. code-block:: bash
+
+        pipx install dooti
+
+
+Quickstart
+----------
+``dooti`` currently supports three specific subcommands (``ext``, ``scheme``, ``uti``) and a broad one (``apply``).
+
+Lookup handlers
+~~~~~~~~~~~~~~~
+Simply pass a list of one specific type to the appropriate command. Example:
+
+.. code-block:: console
+
+    $ dooti ext html xml
+    html: /Applications/Firefox.app
+    xml: /Applications/Sublime Text.app
+
+    $ dooti --format json scheme http https ftp | jq
+    {
+      "http": "/Applications/Firefox.app",
+      "https": "/Applications/Firefox.app",
+      "ftp": "/System/Library/CoreServices/Finder.app"
+    }
+
+    $ dooti uti public.html
+    public.html: /Applications/Firefox.app
+
+Set handlers
+~~~~~~~~~~~~
+Changing the default handler can be requested by adding ``-x <handler_ref>`` to the lookup command. The handler reference can be a name, bundle ID or absolute filesystem path. Example:
+
+.. code-block:: console
+
+    $ dooti ext csv xml -x "Sublime Text"
+    The following extensions are set to be changed:
+    csv: /Applications/Numbers.app -> /Applications/Sublime Text.app
+    xml: /Applications/Firefox.app -> /Applications/Sublime Text.app
+
+    $ dooti scheme ftp -x /Applications/Firefox.app
+    The following scheme is set to be changed:
+    ftp: /System/Library/CoreServices/Finder.app -> /Applications/Firefox.app
+
+    $ dooti -tf json uti public.c-source -x com.sublimetext.4
+    {"changes": {"utis": {"public.c-source": {"from": "/Applications/Notes.app", "to": "/Applications/Sublime Text.app"}}}, "errors": []}
+
+
+Ensure state
+~~~~~~~~~~~~
+``dooti`` can ingest and apply a YAML configuration like this:
+
+.. code-block:: yaml
+
+    ext:
+      jpeg: Preview
+
+    scheme:
+      http: Firefox
+      mailto: Mail
+
+    uti:
+      public.c‑source: Sublime Text
+
+    app:
+      Sublime Text:
+        ext:
+          - py
+          - rst
+          - yml
+          - yaml
+        uti:
+          - public.fortran‑source
+
+      Brave Browser:
+        scheme:
+          - ipfs
+
+By default, it looks at ``$XDG_CONFIG_HOME/dooti/config.yaml`` (and others, see ``docs/usage.rst``).
+
+Limitations
+-----------
+* The designated handler has to be installed before running the command.
+* Setting some URI scheme handlers (especially for http) might cause a prompt.
+* Setting some file extension handlers might be restricted (especially html seems to fail silently).
+
+
+Why?
+----
+Most existing tools use `LSSetDefaultRoleHandlerForContentType <https://developer.apple.com/documentation/coreservices/1444955-lssetdefaultrolehandlerforconten>`_ and `LSSetDefaultHandlerForURLScheme <https://developer.apple.com/documentation/coreservices/1447760-lssetdefaulthandlerforurlscheme?language=objc>`_, which are deprecated in macOS 12.0. ``dooti`` uses a more recent API and should work on Monterey (12.0) and above.
+
+
+Similar tools
+-------------
+* `duti <https://github.com/moretension/duti>`_
+* `openwith <https://github.com/jdek/openwith>`_
+* `defaultbrowser <https://gist.github.com/miketaylr/5969656>`_
+* `SwiftDefaultApps <https://github.com/Lord-Kamina/SwiftDefaultApps>`_

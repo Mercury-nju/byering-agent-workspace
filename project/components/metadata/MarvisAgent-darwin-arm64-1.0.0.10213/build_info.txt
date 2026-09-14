@@ -1,0 +1,5 @@
+marvis-agent 1.0.0.10213 (darwin-arm64)
+Build ID: b-86017e4072fb49c8bac2c8d8d9aa0085
+Build Time: 2026-07-30T20:36:24+0800
+Source: /Users/devops/landun/workspace/p-004beee98dbb41aab81dd67d3d3e4021/src/marvis-agent/marvis_agent.dist
+Git Commit: feb74f95

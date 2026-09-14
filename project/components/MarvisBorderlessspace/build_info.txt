@@ -1,0 +1,4 @@
+marvis-borderless 1.0.0.10016 (darwin-arm64)
+Build ID: b-78b3c2f8873c4d25a2ec389b6ce7bcb6
+Build Time: 2026-06-11T21:20:10+0800
+Git Commit: edf1a04

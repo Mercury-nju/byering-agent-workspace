@@ -1,0 +1,30 @@
+{
+  "revision": 1,
+  "settings": {
+    "tone": "direct",
+    "detail": "balanced",
+    "ranking": "relevance",
+    "remember": true
+  },
+  "memories": [
+    {
+      "id": "af03e44a-ff0a-4bc1-8dac-a130d89806d3",
+      "key": "tone",
+      "text": "用户希望说话直接一点，优先直接说重点",
+      "sourceMessageId": "dm-mtsha7zy-e2md",
+      "topic": "沟通语气",
+      "source": "conversation",
+      "explicit": false,
+      "evidence": "我希望你说话直接一点",
+      "createdAt": 1788860388357,
+      "updatedAt": 1788860388357,
+      "expiresAt": null,
+      "temporal": "stable",
+      "pinned": false
+    }
+  ],
+  "schemaVersion": 2,
+  "settingSources": {
+    "tone": "af03e44a-ff0a-4bc1-8dac-a130d89806d3"
+  }
+}

@@ -1,0 +1,6 @@
+marvis-gateway 1.0.0.10095 (darwin-arm64)
+Build ID: b-fcca00991e94436eb0335f6abb6419d0
+Build Time: 2026-07-29T20:50:02+0800
+Git Commit: 0da0777
+Rust Version: rustc 1.98.0-nightly (4c9d2bfe4 2026-07-01)
+Cargo Version: cargo 1.98.0-nightly (a335d47ff 2026-06-26)

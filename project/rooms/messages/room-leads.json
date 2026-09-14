@@ -1,0 +1,5338 @@
+[
+  {
+    "id": "msg-leads-1",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "项目组已成立。目标：200 个符合条件的潜在客户 + 可执行的触达方案。线索猎人先启动检索。",
+    "createdAt": "2026-08-05T09:31:00.000Z"
+  },
+  {
+    "id": "msg-leads-2",
+    "roomId": "room-leads",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "收到，已开始按画像条件检索，第一批候选 2 小时后汇总。",
+    "createdAt": "2026-08-05T09:32:00.000Z"
+  },
+  {
+    "id": "msg-leads-3",
+    "roomId": "room-leads",
+    "from": "Search Agent",
+    "fromName": "数据分析师",
+    "text": "我同步准备清洗与评分规则，等第一批数据到位即开始。",
+    "createdAt": "2026-08-05T09:33:00.000Z"
+  },
+  {
+    "id": "msg-msgzxopk-tbic",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T04:08:52.568Z"
+  },
+  {
+    "id": "msg-msgzxpn0-ba72",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T04:08:53.772Z"
+  },
+  {
+    "id": "msg-msh29lt6-oknm",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T05:14:07.914Z"
+  },
+  {
+    "id": "msg-msh29mqk-n6bi",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T05:14:09.116Z"
+  },
+  {
+    "id": "msg-msh2eiz1-tooo",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T05:17:57.517Z"
+  },
+  {
+    "id": "msg-msh2ejwf-csps",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T05:17:58.719Z"
+  },
+  {
+    "id": "msg-msh2o7vc-3l92",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T05:25:29.688Z"
+  },
+  {
+    "id": "msg-msh2o8sr-uzxr",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T05:25:30.891Z"
+  },
+  {
+    "id": "msg-msh30v4a-phky",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T05:35:19.690Z"
+  },
+  {
+    "id": "msg-msh30w1n-8k5e",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T05:35:20.891Z"
+  },
+  {
+    "id": "msg-msh37mc5-ilrf",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T05:40:34.901Z"
+  },
+  {
+    "id": "msg-msh37n9j-gyuu",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T05:40:36.103Z"
+  },
+  {
+    "id": "msg-msh41yvd-kntd",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T06:04:10.825Z"
+  },
+  {
+    "id": "msg-msh41zss-7oxe",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T06:04:12.028Z"
+  },
+  {
+    "id": "msg-msh4yv7z-jk6z",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T06:29:45.743Z"
+  },
+  {
+    "id": "msg-msh4yw5d-akzk",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T06:29:46.945Z"
+  },
+  {
+    "id": "msg-msh51w9v-i9c8",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T06:32:07.075Z"
+  },
+  {
+    "id": "msg-msh51x79-1yq1",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T06:32:08.277Z"
+  },
+  {
+    "id": "msg-msh90gwa-o6q9",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T08:22:58.954Z"
+  },
+  {
+    "id": "msg-msh90hto-0ppk",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T08:23:00.156Z"
+  },
+  {
+    "id": "msg-msh91llr-icmi",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T08:23:51.711Z"
+  },
+  {
+    "id": "msg-msh91mj6-44ve",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T08:23:52.914Z"
+  },
+  {
+    "id": "msg-msh9ghro-z8f5",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T08:35:26.580Z"
+  },
+  {
+    "id": "msg-msh9gip2-87wi",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T08:35:27.782Z"
+  },
+  {
+    "id": "msg-mshaajmm-if35",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T08:58:48.670Z"
+  },
+  {
+    "id": "msg-mshaakk0-ji8z",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T08:58:49.872Z"
+  },
+  {
+    "id": "msg-mshao3ar-ffc0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T09:09:20.691Z"
+  },
+  {
+    "id": "msg-mshao485-k7mk",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T09:09:21.893Z"
+  },
+  {
+    "id": "msg-mshb5v10-bexd",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T09:23:09.780Z"
+  },
+  {
+    "id": "msg-mshb5vye-fm4z",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T09:23:10.982Z"
+  },
+  {
+    "id": "msg-mshb6gqh-d132",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T09:23:37.913Z"
+  },
+  {
+    "id": "msg-mshb6hnu-02ex",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T09:23:39.114Z"
+  },
+  {
+    "id": "msg-mshbfaki-k42q",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T09:30:29.826Z"
+  },
+  {
+    "id": "msg-mshbfbhx-fusf",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T09:30:31.029Z"
+  },
+  {
+    "id": "msg-mshc1x2l-56uz",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-06T09:48:05.421Z"
+  },
+  {
+    "id": "msg-mshc1y01-km5w",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-06T09:48:06.625Z"
+  },
+  {
+    "id": "msg-msioioq0-vw81",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T08:24:49.320Z"
+  },
+  {
+    "id": "msg-msioipne-vcwt",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T08:24:50.522Z"
+  },
+  {
+    "id": "msg-msiokjml-vz43",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T08:26:16.029Z"
+  },
+  {
+    "id": "msg-msiokkjz-9xge",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T08:26:17.231Z"
+  },
+  {
+    "id": "msg-msiolyyn-j0tu",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T08:27:22.559Z"
+  },
+  {
+    "id": "msg-msiolzw2-ma9g",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T08:27:23.762Z"
+  },
+  {
+    "id": "msg-msipa84a-ohnn",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T08:46:14.170Z"
+  },
+  {
+    "id": "msg-msipa91o-xmn0",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T08:46:15.372Z"
+  },
+  {
+    "id": "msg-msips2zg-eh9w",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T09:00:07.324Z"
+  },
+  {
+    "id": "msg-msips3wt-opwb",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T09:00:08.525Z"
+  },
+  {
+    "id": "msg-msiqi3bd-g8y7",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T09:20:20.809Z"
+  },
+  {
+    "id": "msg-msiqi48r-d7es",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T09:20:22.011Z"
+  },
+  {
+    "id": "msg-msiqucw4-jic6",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T09:29:53.092Z"
+  },
+  {
+    "id": "msg-msiqudti-23x2",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T09:29:54.294Z"
+  },
+  {
+    "id": "msg-msir51i7-7513",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T09:38:11.551Z"
+  },
+  {
+    "id": "msg-msir52fm-gulk",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T09:38:12.754Z"
+  },
+  {
+    "id": "msg-msis6k1r-ancy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T10:07:21.855Z"
+  },
+  {
+    "id": "msg-msis6kz7-z865",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T10:07:23.059Z"
+  },
+  {
+    "id": "msg-msisauow-1jym",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T10:10:42.272Z"
+  },
+  {
+    "id": "msg-msisavma-acy1",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T10:10:43.474Z"
+  },
+  {
+    "id": "msg-msisyjq4-sa23",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T10:29:07.804Z"
+  },
+  {
+    "id": "msg-msisyknl-dq2s",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T10:29:09.009Z"
+  },
+  {
+    "id": "msg-msisz9pr-3oml",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T10:29:41.487Z"
+  },
+  {
+    "id": "msg-msiszan9-2oq3",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T10:29:42.693Z"
+  },
+  {
+    "id": "msg-msiszs3l-slgz",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T10:30:05.313Z"
+  },
+  {
+    "id": "msg-msiszt12-h9xl",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T10:30:06.518Z"
+  },
+  {
+    "id": "msg-msit0jfx-8zg2",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T10:30:40.749Z"
+  },
+  {
+    "id": "msg-msit0kda-ddit",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T10:30:41.950Z"
+  },
+  {
+    "id": "msg-msitu48t-m3g4",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T10:53:40.733Z"
+  },
+  {
+    "id": "msg-msitu569-vohc",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T10:53:41.937Z"
+  },
+  {
+    "id": "msg-msityshq-8kwn",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T10:57:18.782Z"
+  },
+  {
+    "id": "msg-msitytf6-13iq",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T10:57:19.986Z"
+  },
+  {
+    "id": "msg-msiu426k-sd27",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T11:01:24.620Z"
+  },
+  {
+    "id": "msg-msiu4342-fohg",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T11:01:25.826Z"
+  },
+  {
+    "id": "msg-msiu9gtm-qgrx",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-07T11:05:36.874Z"
+  },
+  {
+    "id": "msg-msiu9hr3-psj4",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-07T11:05:38.079Z"
+  },
+  {
+    "id": "msg-msko923v-qtlw",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-08T17:52:52.459Z"
+  },
+  {
+    "id": "msg-msko931b-com9",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-08T17:52:53.663Z"
+  },
+  {
+    "id": "msg-mskogrw8-weux",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-08T17:58:52.472Z"
+  },
+  {
+    "id": "msg-mskogstp-t5ho",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-08T17:58:53.677Z"
+  },
+  {
+    "id": "msg-mskpsggx-i754",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-08T18:35:57.153Z"
+  },
+  {
+    "id": "msg-mskpshec-sply",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-08T18:35:58.356Z"
+  },
+  {
+    "id": "msg-mskpzwdu-uqxo",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-08T18:41:44.370Z"
+  },
+  {
+    "id": "msg-mskpzxb8-2jf6",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-08T18:41:45.572Z"
+  },
+  {
+    "id": "msg-mskqev9n-q9io",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-08T18:53:22.763Z"
+  },
+  {
+    "id": "msg-mskqew72-z0ml",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-08T18:53:23.966Z"
+  },
+  {
+    "id": "msg-mskquh6f-g2ut",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-08T19:05:30.999Z"
+  },
+  {
+    "id": "msg-mskqui3w-wrm5",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-08T19:05:32.204Z"
+  },
+  {
+    "id": "msg-mskrr5jb-nfld",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-08T19:30:55.559Z"
+  },
+  {
+    "id": "msg-mskrr6gp-vrhr",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-08T19:30:56.761Z"
+  },
+  {
+    "id": "msg-mskrru4z-gagg",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-08T19:31:27.443Z"
+  },
+  {
+    "id": "msg-mskrrv2e-my8x",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-08T19:31:28.646Z"
+  },
+  {
+    "id": "msg-mskwtru5-tpye",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-08T21:52:55.853Z"
+  },
+  {
+    "id": "msg-mskwtsrl-4yfv",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-08T21:52:57.057Z"
+  },
+  {
+    "id": "msg-mslj73wr-j0pj",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T08:19:09.579Z"
+  },
+  {
+    "id": "msg-mslj74u7-lo44",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T08:19:10.783Z"
+  },
+  {
+    "id": "msg-msljqclz-elta",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T08:34:07.319Z"
+  },
+  {
+    "id": "msg-msljqdje-mnpq",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T08:34:08.522Z"
+  },
+  {
+    "id": "msg-mslkla89-rqbx",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T08:58:10.569Z"
+  },
+  {
+    "id": "msg-mslklb5o-mzgo",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T08:58:11.772Z"
+  },
+  {
+    "id": "msg-msllrmsa-4t35",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T09:31:06.394Z"
+  },
+  {
+    "id": "msg-msllrnpp-wmoj",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T09:31:07.597Z"
+  },
+  {
+    "id": "msg-mslnf97v-ha8s",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T10:17:28.171Z"
+  },
+  {
+    "id": "msg-mslnfa59-exs8",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T10:17:29.373Z"
+  },
+  {
+    "id": "msg-mslnhoav-6tkx",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T10:19:21.031Z"
+  },
+  {
+    "id": "msg-mslnhp89-mjcl",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T10:19:22.233Z"
+  },
+  {
+    "id": "msg-mslpepa2-g03w",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T11:13:01.562Z"
+  },
+  {
+    "id": "msg-mslpeq7g-dy0x",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T11:13:02.764Z"
+  },
+  {
+    "id": "msg-mslr5k5r-0tcw",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T12:01:54.255Z"
+  },
+  {
+    "id": "msg-mslr5l37-hrd2",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T12:01:55.459Z"
+  },
+  {
+    "id": "msg-msls6xzr-k5g3",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T12:30:58.455Z"
+  },
+  {
+    "id": "msg-msls6yx7-sc54",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T12:30:59.659Z"
+  },
+  {
+    "id": "msg-mslsr5vx-qt4r",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T12:46:41.805Z"
+  },
+  {
+    "id": "msg-mslsr6th-qg9t",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T12:46:43.013Z"
+  },
+  {
+    "id": "msg-mslud9kn-jlji",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T13:31:52.631Z"
+  },
+  {
+    "id": "msg-msludai4-syys",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T13:31:53.836Z"
+  },
+  {
+    "id": "msg-mslvuu8g-exvk",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T14:13:32.176Z"
+  },
+  {
+    "id": "msg-mslvuv62-oe2a",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T14:13:33.386Z"
+  },
+  {
+    "id": "msg-mslvvtb0-6l6z",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T14:14:17.628Z"
+  },
+  {
+    "id": "msg-mslvvu8n-fjz2",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T14:14:18.839Z"
+  },
+  {
+    "id": "msg-mslvwh0v-m6uc",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T14:14:48.367Z"
+  },
+  {
+    "id": "msg-mslvwhyo-jz6b",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T14:14:49.584Z"
+  },
+  {
+    "id": "msg-msm0pdp6-wqh1",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T16:29:15.546Z"
+  },
+  {
+    "id": "msg-msm0pemk-b2hk",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T16:29:16.748Z"
+  },
+  {
+    "id": "msg-msm14ioq-qbtp",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T16:41:01.850Z"
+  },
+  {
+    "id": "msg-msm14jm8-74ii",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T16:41:03.056Z"
+  },
+  {
+    "id": "msg-msm1rty8-tdqo",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T16:59:09.536Z"
+  },
+  {
+    "id": "msg-msm1ruvo-trqe",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T16:59:10.740Z"
+  },
+  {
+    "id": "msg-msm1zieg-akf5",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T17:05:07.816Z"
+  },
+  {
+    "id": "msg-msm1zjby-h5j1",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T17:05:09.023Z"
+  },
+  {
+    "id": "msg-msm24uiq-jdxi",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T17:09:16.802Z"
+  },
+  {
+    "id": "msg-msm24vg4-nhdx",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T17:09:18.004Z"
+  },
+  {
+    "id": "msg-msm2w9uw-ufht",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T17:30:36.392Z"
+  },
+  {
+    "id": "msg-msm2wasc-kgn7",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T17:30:37.596Z"
+  },
+  {
+    "id": "msg-msm31w8b-dspn",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T17:34:58.667Z"
+  },
+  {
+    "id": "msg-msm31x5x-th89",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T17:34:59.922Z"
+  },
+  {
+    "id": "msg-msm335ph-snl2",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T17:35:57.605Z"
+  },
+  {
+    "id": "msg-msm336mz-kx99",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T17:35:58.811Z"
+  },
+  {
+    "id": "msg-msm3eauc-2rt5",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T17:44:37.476Z"
+  },
+  {
+    "id": "msg-msm3ebs3-46ek",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T17:44:38.691Z"
+  },
+  {
+    "id": "msg-msm3jq4d-ou15",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T17:48:50.557Z"
+  },
+  {
+    "id": "msg-msm3jr21-o7ep",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T17:48:51.769Z"
+  },
+  {
+    "id": "msg-msm3mzxa-cs6s",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T17:51:23.230Z"
+  },
+  {
+    "id": "msg-msm3n0vf-kwei",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T17:51:24.459Z"
+  },
+  {
+    "id": "msg-msm3pcnj-xf8b",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T17:53:13.039Z"
+  },
+  {
+    "id": "msg-msm3pdl3-3tym",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T17:53:14.247Z"
+  },
+  {
+    "id": "msg-msm5ky3w-4z7t",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T18:45:46.796Z"
+  },
+  {
+    "id": "msg-msm5kz1i-25ry",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T18:45:48.006Z"
+  },
+  {
+    "id": "msg-msm5qpe3-0m7e",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T18:50:15.435Z"
+  },
+  {
+    "id": "msg-msm5qqbi-vynh",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T18:50:16.638Z"
+  },
+  {
+    "id": "msg-msm5rw67-1sg1",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T18:51:10.879Z"
+  },
+  {
+    "id": "msg-msm5rx3l-dgs7",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T18:51:12.081Z"
+  },
+  {
+    "id": "msg-msm5wlhu-l4b1",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T18:54:50.322Z"
+  },
+  {
+    "id": "msg-msm5wmfa-2hjg",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T18:54:51.526Z"
+  },
+  {
+    "id": "msg-msm5y4dz-86l0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T18:56:01.463Z"
+  },
+  {
+    "id": "msg-msm5y5be-44mn",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T18:56:02.666Z"
+  },
+  {
+    "id": "msg-msm8lljy-rhxk",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T20:10:16.030Z"
+  },
+  {
+    "id": "msg-msm8lmhc-9ure",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T20:10:17.232Z"
+  },
+  {
+    "id": "msg-msm8x65a-9nqm",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T20:19:15.934Z"
+  },
+  {
+    "id": "msg-msm8x72p-1q63",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T20:19:17.137Z"
+  },
+  {
+    "id": "msg-msm90yht-2hmc",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T20:22:12.641Z"
+  },
+  {
+    "id": "msg-msm90zf9-uao8",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T20:22:13.845Z"
+  },
+  {
+    "id": "msg-msm9yuir-a0ia",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T20:48:33.795Z"
+  },
+  {
+    "id": "msg-msm9yvg6-diye",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T20:48:34.998Z"
+  },
+  {
+    "id": "msg-msma1nk9-mrvl",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T20:50:44.745Z"
+  },
+  {
+    "id": "msg-msma1oho-d9n8",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T20:50:45.948Z"
+  },
+  {
+    "id": "msg-msma44pm-e2a7",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T20:52:40.282Z"
+  },
+  {
+    "id": "msg-msma45n0-k897",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T20:52:41.484Z"
+  },
+  {
+    "id": "msg-msmak3aa-3219",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:05:04.930Z"
+  },
+  {
+    "id": "msg-msmak47p-vha1",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:05:06.133Z"
+  },
+  {
+    "id": "msg-msmaokgy-u32r",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:08:33.826Z"
+  },
+  {
+    "id": "msg-msmaoled-da61",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:08:35.029Z"
+  },
+  {
+    "id": "msg-msmb2nxr-any1",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:19:31.503Z"
+  },
+  {
+    "id": "msg-msmb2ov5-4hpv",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:19:32.705Z"
+  },
+  {
+    "id": "msg-msmb3r9u-eeij",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:20:22.482Z"
+  },
+  {
+    "id": "msg-msmb3s79-o72s",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:20:23.685Z"
+  },
+  {
+    "id": "msg-msmbon5o-5lsj",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:36:36.924Z"
+  },
+  {
+    "id": "msg-msmboo34-425m",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:36:38.128Z"
+  },
+  {
+    "id": "msg-msmbr027-3udv",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:38:26.960Z"
+  },
+  {
+    "id": "msg-msmbr0zl-oeyy",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:38:28.161Z"
+  },
+  {
+    "id": "msg-msmc3pzt-q9ol",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:48:20.441Z"
+  },
+  {
+    "id": "msg-msmc3qx7-x9j4",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:48:21.643Z"
+  },
+  {
+    "id": "msg-msmc469a-jafg",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:48:41.518Z"
+  },
+  {
+    "id": "msg-msmc476o-niuj",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:48:42.720Z"
+  },
+  {
+    "id": "msg-msmc6i3q-7ap9",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:50:30.182Z"
+  },
+  {
+    "id": "msg-msmc6j14-cdai",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:50:31.384Z"
+  },
+  {
+    "id": "msg-msmc6ybx-alg5",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:50:51.213Z"
+  },
+  {
+    "id": "msg-msmc6z9d-zsmc",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:50:52.417Z"
+  },
+  {
+    "id": "msg-msmc8uc2-rr1p",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:52:19.346Z"
+  },
+  {
+    "id": "msg-msmc8v9g-9h6d",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:52:20.548Z"
+  },
+  {
+    "id": "msg-msmchj64-9nim",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:59:04.780Z"
+  },
+  {
+    "id": "msg-msmchk3j-1w0z",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:59:05.983Z"
+  },
+  {
+    "id": "msg-msmchzew-6o1h",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T21:59:25.832Z"
+  },
+  {
+    "id": "msg-msmci0cc-9jjl",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T21:59:27.036Z"
+  },
+  {
+    "id": "msg-msmcljvd-mmrf",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T22:02:12.313Z"
+  },
+  {
+    "id": "msg-msmclkss-22m3",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T22:02:13.516Z"
+  },
+  {
+    "id": "msg-msmconnn-vvxu",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T22:04:37.187Z"
+  },
+  {
+    "id": "msg-msmcool0-hzlx",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T22:04:38.388Z"
+  },
+  {
+    "id": "msg-msmctj74-fdyf",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T22:08:24.688Z"
+  },
+  {
+    "id": "msg-msmctk4k-o5c3",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T22:08:25.892Z"
+  },
+  {
+    "id": "msg-msmd30mi-sazb",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T22:15:47.178Z"
+  },
+  {
+    "id": "msg-msmd31jx-3h4s",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T22:15:48.381Z"
+  },
+  {
+    "id": "msg-msmd3gve-o7ol",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-09T22:16:08.234Z"
+  },
+  {
+    "id": "msg-msmd3hsu-zv1h",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-09T22:16:09.438Z"
+  },
+  {
+    "id": "msg-msmlm9dv-aajr",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T02:14:41.923Z"
+  },
+  {
+    "id": "msg-msmlmab9-13q2",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T02:14:43.125Z"
+  },
+  {
+    "id": "msg-msmlmpl7-c0md",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T02:15:02.923Z"
+  },
+  {
+    "id": "msg-msmlmqil-kvb0",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T02:15:04.125Z"
+  },
+  {
+    "id": "msg-msmltslf-8bdh",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T02:20:33.411Z"
+  },
+  {
+    "id": "msg-msmlttit-b2xo",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T02:20:34.613Z"
+  },
+  {
+    "id": "msg-msmm5eys-6adn",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T02:29:35.620Z"
+  },
+  {
+    "id": "msg-msmm5fw7-m6c3",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T02:29:36.823Z"
+  },
+  {
+    "id": "msg-msmmdty8-3xa2",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T02:36:08.288Z"
+  },
+  {
+    "id": "msg-msmmduvn-t9ia",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T02:36:09.491Z"
+  },
+  {
+    "id": "msg-msmmupp7-phu5",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T02:49:15.931Z"
+  },
+  {
+    "id": "msg-msmmuqml-2s3g",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T02:49:17.133Z"
+  },
+  {
+    "id": "msg-msmnafz9-i7qg",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T03:01:29.829Z"
+  },
+  {
+    "id": "msg-msmnagwn-unn1",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T03:01:31.031Z"
+  },
+  {
+    "id": "msg-msmneyfh-o8m0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T03:05:00.365Z"
+  },
+  {
+    "id": "msg-msmnezcw-wefe",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T03:05:01.568Z"
+  },
+  {
+    "id": "msg-msmnl092-exj8",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T03:09:42.662Z"
+  },
+  {
+    "id": "msg-msmnl16h-jhut",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T03:09:43.865Z"
+  },
+  {
+    "id": "msg-msmnu3u3-cw77",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T03:16:47.211Z"
+  },
+  {
+    "id": "msg-msmnu4rq-pljh",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T03:16:48.422Z"
+  },
+  {
+    "id": "msg-msmnupky-dczo",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T03:17:15.394Z"
+  },
+  {
+    "id": "msg-msmnuqic-1q9e",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T03:17:16.596Z"
+  },
+  {
+    "id": "msg-msmnwoeh-1z9g",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T03:18:47.177Z"
+  },
+  {
+    "id": "msg-msmnwpbv-1adr",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T03:18:48.379Z"
+  },
+  {
+    "id": "msg-msmny2p9-6z5a",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T03:19:52.365Z"
+  },
+  {
+    "id": "msg-msmny3mn-re83",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "SaleBuddy",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T03:19:53.567Z"
+  },
+  {
+    "id": "msg-msms1hi1-7emh",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T05:14:29.977Z"
+  },
+  {
+    "id": "msg-msms1ifg-5ccp",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T05:14:31.180Z"
+  },
+  {
+    "id": "msg-msmu2e1s-hecm",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T06:11:11.392Z"
+  },
+  {
+    "id": "msg-msmu2ez6-riux",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T06:11:12.594Z"
+  },
+  {
+    "id": "msg-msmul2z0-5xe6",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T06:25:43.500Z"
+  },
+  {
+    "id": "msg-msmul3wf-40o4",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T06:25:44.703Z"
+  },
+  {
+    "id": "msg-msmv0icn-8tze",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T06:37:43.271Z"
+  },
+  {
+    "id": "msg-msmv0ja2-07ba",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T06:37:44.474Z"
+  },
+  {
+    "id": "msg-msncya77-ttz0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T14:59:52.483Z"
+  },
+  {
+    "id": "msg-msncyb4n-a506",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T14:59:53.687Z"
+  },
+  {
+    "id": "msg-msnd3far-clut",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T15:03:52.371Z"
+  },
+  {
+    "id": "msg-msnd3g87-4w7c",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T15:03:53.575Z"
+  },
+  {
+    "id": "msg-msnd4h7z-k6bt",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-10T15:04:41.519Z"
+  },
+  {
+    "id": "msg-msnd4i5e-6556",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-10T15:04:42.722Z"
+  },
+  {
+    "id": "msg-mso3aom4-6gzy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T03:17:21.052Z"
+  },
+  {
+    "id": "msg-mso3apjn-dund",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T03:17:22.259Z"
+  },
+  {
+    "id": "msg-mso3g8kc-kryr",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T03:21:40.188Z"
+  },
+  {
+    "id": "msg-mso3g9i4-1ken",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T03:21:41.404Z"
+  },
+  {
+    "id": "msg-mso3umod-a45u",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T03:32:51.661Z"
+  },
+  {
+    "id": "msg-mso3unm2-hg19",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T03:32:52.874Z"
+  },
+  {
+    "id": "msg-mso3xu3j-wvbc",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T03:35:21.247Z"
+  },
+  {
+    "id": "msg-mso3xv1c-ag5p",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T03:35:22.464Z"
+  },
+  {
+    "id": "msg-mso5cmg4-40ee",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T04:14:50.788Z"
+  },
+  {
+    "id": "msg-mso5cndo-eubz",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T04:14:51.996Z"
+  },
+  {
+    "id": "msg-mso5io79-5wr0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T04:19:32.997Z"
+  },
+  {
+    "id": "msg-mso5ip4u-asbl",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T04:19:34.206Z"
+  },
+  {
+    "id": "msg-msob890j-ecil",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T06:59:24.451Z"
+  },
+  {
+    "id": "msg-msob89y2-zk7c",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T06:59:25.658Z"
+  },
+  {
+    "id": "msg-msobbqdr-yu7u",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T07:02:06.927Z"
+  },
+  {
+    "id": "msg-msobbrbb-01v5",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T07:02:08.135Z"
+  },
+  {
+    "id": "msg-msocxdx8-ozrc",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T07:46:56.828Z"
+  },
+  {
+    "id": "msg-msocxeuo-9guy",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T07:46:58.032Z"
+  },
+  {
+    "id": "msg-msodcklh-d95i",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T07:58:45.317Z"
+  },
+  {
+    "id": "msg-msodcliz-4aa7",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T07:58:46.523Z"
+  },
+  {
+    "id": "msg-msodezo6-ctu0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T08:00:38.166Z"
+  },
+  {
+    "id": "msg-msodf0lr-2uyj",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T08:00:39.375Z"
+  },
+  {
+    "id": "msg-msodfsx2-3s54",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T08:01:16.070Z"
+  },
+  {
+    "id": "msg-msodftul-9kvp",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T08:01:17.277Z"
+  },
+  {
+    "id": "msg-msodq5rt-x2lb",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T08:09:19.289Z"
+  },
+  {
+    "id": "msg-msodq6pc-nnjd",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T08:09:20.496Z"
+  },
+  {
+    "id": "msg-msodsgn4-p0wz",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T08:11:06.688Z"
+  },
+  {
+    "id": "msg-msodshkn-hkir",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T08:11:07.895Z"
+  },
+  {
+    "id": "msg-msodwktu-83fy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T08:14:18.738Z"
+  },
+  {
+    "id": "msg-msodwlrd-sghz",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解并安排对应成员跟进，进展会同步到项目组。",
+    "createdAt": "2026-08-11T08:14:19.945Z"
+  },
+  {
+    "id": "msg-msoecmau-f23w",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T08:26:47.142Z"
+  },
+  {
+    "id": "msg-msoecn8b-a186",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我按销售线索转化先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T08:26:48.347Z"
+  },
+  {
+    "id": "msg-msoedi9p-8wiu",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T08:27:28.573Z"
+  },
+  {
+    "id": "msg-msoedj7b-cfuz",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我按销售线索转化先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T08:27:29.783Z"
+  },
+  {
+    "id": "msg-msoeems9-cgfu",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T08:28:21.081Z"
+  },
+  {
+    "id": "msg-msoeenps-p63h",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T08:28:22.288Z"
+  },
+  {
+    "id": "msg-msof0ojb-dae6",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T08:45:29.783Z"
+  },
+  {
+    "id": "msg-msof0pgv-hyd9",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T08:45:30.991Z"
+  },
+  {
+    "id": "msg-msoff7cx-ovjr",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T08:56:47.361Z"
+  },
+  {
+    "id": "msg-msoff8al-zozd",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T08:56:48.573Z"
+  },
+  {
+    "id": "msg-msogjvcp-t76s",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T09:28:24.697Z"
+  },
+  {
+    "id": "msg-msogjwai-6b41",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T09:28:25.914Z"
+  },
+  {
+    "id": "msg-msoh2uyl-h8p9",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T09:43:10.653Z"
+  },
+  {
+    "id": "msg-msoh2vw6-ck1p",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T09:43:11.862Z"
+  },
+  {
+    "id": "msg-msoh5xen-gl01",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T09:45:33.791Z"
+  },
+  {
+    "id": "msg-msoh5yc7-35ei",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T09:45:34.999Z"
+  },
+  {
+    "id": "msg-msohyin1-koh4",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T10:07:47.677Z"
+  },
+  {
+    "id": "msg-msohyjl0-cvj3",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T10:07:48.900Z"
+  },
+  {
+    "id": "msg-msoi5f9m-h2xr",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T10:13:09.898Z"
+  },
+  {
+    "id": "msg-msoi5g7a-yuiq",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T10:13:11.110Z"
+  },
+  {
+    "id": "msg-msoia6vy-l88h",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T10:16:52.318Z"
+  },
+  {
+    "id": "msg-msoia7ty-z5d3",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T10:16:53.542Z"
+  },
+  {
+    "id": "msg-msoiwofg-sk0n",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T10:34:21.484Z"
+  },
+  {
+    "id": "msg-msoiwpd2-gj24",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T10:34:22.694Z"
+  },
+  {
+    "id": "msg-msojmozw-pvaa",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T10:54:35.276Z"
+  },
+  {
+    "id": "msg-msojmpya-x895",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T10:54:36.514Z"
+  },
+  {
+    "id": "msg-msomp2e3-r4c2",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-11T12:20:24.795Z"
+  },
+  {
+    "id": "msg-msomp3bp-3ii0",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-11T12:20:26.005Z"
+  },
+  {
+    "id": "msg-mspphppx-i3dy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-12T06:26:26.805Z"
+  },
+  {
+    "id": "msg-mspphqng-4uar",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-12T06:26:28.012Z"
+  },
+  {
+    "id": "msg-msqzorra-zyfr",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T03:59:38.374Z"
+  },
+  {
+    "id": "msg-msqzosp1-jwwr",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T03:59:39.589Z"
+  },
+  {
+    "id": "msg-msqzpujh-2375",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T04:00:28.641Z"
+  },
+  {
+    "id": "msg-msqzpvho-2seh",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T04:00:29.868Z"
+  },
+  {
+    "id": "msg-msqzt4e6-bua0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T04:03:01.374Z"
+  },
+  {
+    "id": "msg-msqzt5bq-e901",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T04:03:02.582Z"
+  },
+  {
+    "id": "msg-msqzvum8-be2e",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T04:05:08.672Z"
+  },
+  {
+    "id": "msg-msqzvvjx-jpq0",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T04:05:09.885Z"
+  },
+  {
+    "id": "msg-msr05n8k-0jxl",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T04:12:45.668Z"
+  },
+  {
+    "id": "msg-msr05o64-odq9",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T04:12:46.876Z"
+  },
+  {
+    "id": "msg-msr2j8o5-pnoc",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T05:19:19.205Z"
+  },
+  {
+    "id": "msg-msr2j9ls-jdv1",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T05:19:20.416Z"
+  },
+  {
+    "id": "msg-msr2k2xa-3ha4",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T05:19:58.414Z"
+  },
+  {
+    "id": "msg-msr2k3uu-zo7i",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T05:19:59.622Z"
+  },
+  {
+    "id": "msg-msr2l9jn-u82k",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T05:20:53.651Z"
+  },
+  {
+    "id": "msg-msr2lalc-4j3m",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T05:20:55.009Z"
+  },
+  {
+    "id": "msg-msr2plxp-9tav",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T05:24:16.333Z"
+  },
+  {
+    "id": "msg-msr2pmvi-2phx",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T05:24:17.550Z"
+  },
+  {
+    "id": "msg-msr2qm71-5dhg",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T05:25:03.325Z"
+  },
+  {
+    "id": "msg-msr2qn4l-ht7d",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T05:25:04.533Z"
+  },
+  {
+    "id": "msg-msr2ujap-7e9h",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T05:28:06.193Z"
+  },
+  {
+    "id": "msg-msr2uk8e-jxzx",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T05:28:07.407Z"
+  },
+  {
+    "id": "msg-msr3bfjs-0djl",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T05:41:14.488Z"
+  },
+  {
+    "id": "msg-msr3bghc-26jc",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T05:41:15.696Z"
+  },
+  {
+    "id": "msg-msrbeyim-xjm5",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T09:27:55.966Z"
+  },
+  {
+    "id": "msg-msrbezg8-b6gz",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T09:27:57.176Z"
+  },
+  {
+    "id": "msg-msrbhzhp-p7is",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T09:30:17.197Z"
+  },
+  {
+    "id": "msg-msrbi0fa-rqep",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T09:30:18.406Z"
+  },
+  {
+    "id": "msg-msrcn4ms-mr6n",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T10:02:16.757Z"
+  },
+  {
+    "id": "msg-msrcn5kd-n61w",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T10:02:17.965Z"
+  },
+  {
+    "id": "msg-msrcpfl6-5x4q",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T10:04:04.266Z"
+  },
+  {
+    "id": "msg-msrcpgir-5xcg",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T10:04:05.475Z"
+  },
+  {
+    "id": "msg-msrd0nme-lozh",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T10:12:47.894Z"
+  },
+  {
+    "id": "msg-msrd0ooh-7vpt",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T10:12:49.265Z"
+  },
+  {
+    "id": "msg-msrd2f5k-1pd8",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T10:14:10.232Z"
+  },
+  {
+    "id": "msg-msrd2g35-xrie",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T10:14:11.441Z"
+  },
+  {
+    "id": "msg-msrd9og6-6501",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-13T10:19:48.870Z"
+  },
+  {
+    "id": "msg-msrd9pdv-neu9",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-13T10:19:50.083Z"
+  },
+  {
+    "id": "msg-msylppv7-00om",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-18T11:50:37.363Z"
+  },
+  {
+    "id": "msg-msylpqss-4s0b",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-18T11:50:38.572Z"
+  },
+  {
+    "id": "msg-msyltkqw-vu38",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-18T11:53:37.352Z"
+  },
+  {
+    "id": "msg-msyltlok-yfre",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-18T11:53:38.564Z"
+  },
+  {
+    "id": "msg-msyoqk6y-vjow",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-18T13:15:15.514Z"
+  },
+  {
+    "id": "msg-msyoql4k-w9cy",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-18T13:15:16.724Z"
+  },
+  {
+    "id": "msg-msyoxivd-usgo",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-18T13:20:40.393Z"
+  },
+  {
+    "id": "msg-msyoxjsz-3fbn",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-18T13:20:41.603Z"
+  },
+  {
+    "id": "msg-msyp6edn-7kjn",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-18T13:27:34.475Z"
+  },
+  {
+    "id": "msg-msyp6fb7-ss0v",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-18T13:27:35.683Z"
+  },
+  {
+    "id": "msg-msz0bvav-mr3b",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-18T18:39:45.463Z"
+  },
+  {
+    "id": "msg-msz0bw8h-caa2",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-18T18:39:46.673Z"
+  },
+  {
+    "id": "msg-msz16uwq-zlzp",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-18T19:03:51.290Z"
+  },
+  {
+    "id": "msg-msz16vua-esar",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-18T19:03:52.498Z"
+  },
+  {
+    "id": "msg-msz2hrek-0bes",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-18T19:40:19.580Z"
+  },
+  {
+    "id": "msg-msz2hsc5-umbk",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-18T19:40:20.789Z"
+  },
+  {
+    "id": "msg-msz2le78-6ha9",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-18T19:43:09.092Z"
+  },
+  {
+    "id": "msg-msz2lf4u-3qvt",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-18T19:43:10.302Z"
+  },
+  {
+    "id": "msg-mszgnt14-ex8c",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T02:16:56.248Z"
+  },
+  {
+    "id": "msg-mszgntyo-hfwj",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T02:16:57.456Z"
+  },
+  {
+    "id": "msg-mszgwe91-unqj",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T02:23:36.997Z"
+  },
+  {
+    "id": "msg-mszgwf6m-edhm",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T02:23:38.206Z"
+  },
+  {
+    "id": "msg-mszir9r1-8mau",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T03:15:37.117Z"
+  },
+  {
+    "id": "msg-msziraom-0kxv",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T03:15:38.326Z"
+  },
+  {
+    "id": "msg-mszkc43g-u6tr",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T03:59:49.180Z"
+  },
+  {
+    "id": "msg-mszkc510-w14j",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T03:59:50.389Z"
+  },
+  {
+    "id": "msg-mszkfuis-bfs7",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T04:02:43.396Z"
+  },
+  {
+    "id": "msg-mszkfvgg-hhep",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T04:02:44.608Z"
+  },
+  {
+    "id": "msg-mszr9ia6-9qro",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T07:13:44.910Z"
+  },
+  {
+    "id": "msg-mszr9j7q-55i6",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T07:13:46.118Z"
+  },
+  {
+    "id": "msg-mszra92g-3hnj",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T07:14:19.624Z"
+  },
+  {
+    "id": "msg-mszraa01-4vcl",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T07:14:20.833Z"
+  },
+  {
+    "id": "msg-mszscvuf-25xv",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T07:44:22.071Z"
+  },
+  {
+    "id": "msg-mszscws0-ct7n",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T07:44:23.280Z"
+  },
+  {
+    "id": "msg-mszt5hsu-5hl4",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T08:06:36.894Z"
+  },
+  {
+    "id": "msg-mszt5iqf-xrbq",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T08:06:38.103Z"
+  },
+  {
+    "id": "msg-mszt8c2n-pzkg",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T08:08:49.439Z"
+  },
+  {
+    "id": "msg-mszt8d06-myes",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T08:08:50.646Z"
+  },
+  {
+    "id": "msg-msztakmw-436t",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T08:10:33.848Z"
+  },
+  {
+    "id": "msg-msztalki-l55n",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T08:10:35.058Z"
+  },
+  {
+    "id": "msg-msztify1-l0fe",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T08:16:41.017Z"
+  },
+  {
+    "id": "msg-msztigvl-4iu4",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T08:16:42.225Z"
+  },
+  {
+    "id": "msg-msztt5a2-m2qt",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T08:25:00.410Z"
+  },
+  {
+    "id": "msg-msztt67m-i373",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T08:25:01.618Z"
+  },
+  {
+    "id": "msg-mszu8ign-xk8x",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T08:36:57.335Z"
+  },
+  {
+    "id": "msg-mszu8je5-huj2",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T08:36:58.541Z"
+  },
+  {
+    "id": "msg-mszwwd32-7ypu",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T09:51:29.342Z"
+  },
+  {
+    "id": "msg-mszwwe0k-z1v4",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T09:51:30.548Z"
+  },
+  {
+    "id": "msg-mszx1bcc-ccqo",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T09:55:20.364Z"
+  },
+  {
+    "id": "msg-mszx1c9u-x7pr",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T09:55:21.570Z"
+  },
+  {
+    "id": "msg-mszx8ajs-kur4",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T10:00:45.928Z"
+  },
+  {
+    "id": "msg-mszx8bhs-j9uu",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T10:00:47.152Z"
+  },
+  {
+    "id": "msg-mszz4p0d-78wm",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T10:53:57.277Z"
+  },
+  {
+    "id": "msg-mszz4pxx-1pqu",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T10:53:58.485Z"
+  },
+  {
+    "id": "msg-mszzdutv-t0lk",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T11:01:04.723Z"
+  },
+  {
+    "id": "msg-mszzdvre-88wu",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T11:01:05.930Z"
+  },
+  {
+    "id": "msg-mt006p68-dmbw",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T11:23:30.416Z"
+  },
+  {
+    "id": "msg-mt006q3q-9e13",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T11:23:31.622Z"
+  },
+  {
+    "id": "msg-mt00gszn-fihs",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T11:31:21.923Z"
+  },
+  {
+    "id": "msg-mt00gtx6-bisi",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T11:31:23.130Z"
+  },
+  {
+    "id": "msg-mt01gelr-7kdh",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T11:59:02.895Z"
+  },
+  {
+    "id": "msg-mt01gfjc-yk1b",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T11:59:04.104Z"
+  },
+  {
+    "id": "msg-mt01ht2m-kzm9",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T12:00:08.302Z"
+  },
+  {
+    "id": "msg-mt01hu05-ll8f",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T12:00:09.509Z"
+  },
+  {
+    "id": "msg-mt022lx2-9fp4",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T12:16:18.806Z"
+  },
+  {
+    "id": "msg-mt022mul-uzli",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T12:16:20.013Z"
+  },
+  {
+    "id": "msg-mt02ixtf-omzv",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T12:29:00.723Z"
+  },
+  {
+    "id": "msg-mt02iyqx-u9rb",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T12:29:01.929Z"
+  },
+  {
+    "id": "msg-mt036h65-igsv",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T12:47:18.893Z"
+  },
+  {
+    "id": "msg-mt036i3q-ub6a",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T12:47:20.102Z"
+  },
+  {
+    "id": "msg-mt0386ij-g5a4",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T12:48:38.395Z"
+  },
+  {
+    "id": "msg-mt0387g1-rixg",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T12:48:39.601Z"
+  },
+  {
+    "id": "msg-mt0a8tql-5pfc",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T16:05:05.805Z"
+  },
+  {
+    "id": "msg-mt0a8uo4-imv0",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T16:05:07.012Z"
+  },
+  {
+    "id": "msg-mt0a9ukr-pefu",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T16:05:53.547Z"
+  },
+  {
+    "id": "msg-mt0a9via-pxk7",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T16:05:54.754Z"
+  },
+  {
+    "id": "msg-mt0ayg1u-3bzo",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T16:25:01.122Z"
+  },
+  {
+    "id": "msg-mt0aygzc-3snx",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T16:25:02.328Z"
+  },
+  {
+    "id": "msg-mt0bmw4s-wbgk",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T16:44:01.708Z"
+  },
+  {
+    "id": "msg-mt0bmx2d-0i5o",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T16:44:02.917Z"
+  },
+  {
+    "id": "msg-mt0celaf-fpdz",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T17:05:34.023Z"
+  },
+  {
+    "id": "msg-mt0cem7z-vogu",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T17:05:35.231Z"
+  },
+  {
+    "id": "msg-mt0eqv3k-1ef1",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T18:11:05.840Z"
+  },
+  {
+    "id": "msg-mt0eqw18-3q41",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T18:11:07.052Z"
+  },
+  {
+    "id": "msg-mt0euhcx-20uy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T18:13:54.657Z"
+  },
+  {
+    "id": "msg-mt0euial-5138",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T18:13:55.869Z"
+  },
+  {
+    "id": "msg-mt0eyy5m-mool",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T18:17:23.050Z"
+  },
+  {
+    "id": "msg-mt0eyz36-b9tt",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T18:17:24.258Z"
+  },
+  {
+    "id": "msg-mt0fbk9i-n8fr",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T18:27:11.574Z"
+  },
+  {
+    "id": "msg-mt0fbl76-0ii5",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T18:27:12.786Z"
+  },
+  {
+    "id": "msg-mt0fjeio-jhpt",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T18:33:17.376Z"
+  },
+  {
+    "id": "msg-mt0fjfg5-xlvz",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T18:33:18.581Z"
+  },
+  {
+    "id": "msg-mt0fwj0g-23na",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T18:43:29.728Z"
+  },
+  {
+    "id": "msg-mt0fwjy2-j183",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T18:43:30.938Z"
+  },
+  {
+    "id": "msg-mt0g1eji-9sza",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-19T18:47:17.214Z"
+  },
+  {
+    "id": "msg-mt0g1fh5-l11l",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-19T18:47:18.425Z"
+  },
+  {
+    "id": "msg-mt0xkham-e6l8",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T02:58:00.718Z"
+  },
+  {
+    "id": "msg-mt0xki86-0cej",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T02:58:01.926Z"
+  },
+  {
+    "id": "msg-mt10qj77-8dy0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T04:26:41.971Z"
+  },
+  {
+    "id": "msg-mt10qk4t-xh2m",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T04:26:43.181Z"
+  },
+  {
+    "id": "msg-mt10tm5o-u4jy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T04:29:05.772Z"
+  },
+  {
+    "id": "msg-mt10tn39-uxya",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T04:29:06.981Z"
+  },
+  {
+    "id": "msg-mt10ummf-oh2g",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T04:29:53.031Z"
+  },
+  {
+    "id": "msg-mt10unk1-p205",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T04:29:54.241Z"
+  },
+  {
+    "id": "msg-mt115d7l-7wzq",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T04:38:14.049Z"
+  },
+  {
+    "id": "msg-mt115e57-pmkr",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T04:38:15.259Z"
+  },
+  {
+    "id": "msg-mt11byp3-97r0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T04:43:21.831Z"
+  },
+  {
+    "id": "msg-mt11bzmo-k93v",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T04:43:23.040Z"
+  },
+  {
+    "id": "msg-mt1273vx-u1xh",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T05:07:34.893Z"
+  },
+  {
+    "id": "msg-mt1274tk-xc9z",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T05:07:36.104Z"
+  },
+  {
+    "id": "msg-mt12ly27-b4x3",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T05:19:07.183Z"
+  },
+  {
+    "id": "msg-mt12lyzs-8e1v",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T05:19:08.392Z"
+  },
+  {
+    "id": "msg-mt12n059-l1d1",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T05:19:56.541Z"
+  },
+  {
+    "id": "msg-mt12n12v-079r",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T05:19:57.751Z"
+  },
+  {
+    "id": "msg-mt137im4-fygm",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T05:35:53.596Z"
+  },
+  {
+    "id": "msg-mt137jjs-ncjx",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T05:35:54.808Z"
+  },
+  {
+    "id": "msg-mt16thoj-sqbp",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T07:16:57.667Z"
+  },
+  {
+    "id": "msg-mt16tim5-7pru",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T07:16:58.877Z"
+  },
+  {
+    "id": "msg-mt16vono-us19",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T07:18:40.020Z"
+  },
+  {
+    "id": "msg-mt16vpla-zshz",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T07:18:41.230Z"
+  },
+  {
+    "id": "msg-mt19i84f-7u0n",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T08:32:10.911Z"
+  },
+  {
+    "id": "msg-mt19i922-9czo",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T08:32:12.122Z"
+  },
+  {
+    "id": "msg-mt19l7kx-82q0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T08:34:30.177Z"
+  },
+  {
+    "id": "msg-mt19l8ii-iv2u",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T08:34:31.386Z"
+  },
+  {
+    "id": "msg-mt19p6nh-wcne",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T08:37:35.597Z"
+  },
+  {
+    "id": "msg-mt19p7l5-d2jm",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T08:37:36.809Z"
+  },
+  {
+    "id": "msg-mt1a51e5-bve0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T08:49:55.277Z"
+  },
+  {
+    "id": "msg-mt1a52bs-lejt",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T08:49:56.488Z"
+  },
+  {
+    "id": "msg-mt1bdlfc-2rvm",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T09:24:34.104Z"
+  },
+  {
+    "id": "msg-mt1bdmd1-1qcp",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T09:24:35.317Z"
+  },
+  {
+    "id": "msg-mt1ga8ly-qnj0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T11:41:55.606Z"
+  },
+  {
+    "id": "msg-mt1ga9jj-vy4g",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T11:41:56.815Z"
+  },
+  {
+    "id": "msg-mt1he0kp-8zh8",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T12:12:51.433Z"
+  },
+  {
+    "id": "msg-mt1he1ia-ptmm",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T12:12:52.642Z"
+  },
+  {
+    "id": "msg-mt1hlxew-gn1q",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T12:19:00.584Z"
+  },
+  {
+    "id": "msg-mt1hlycj-40fu",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T12:19:01.795Z"
+  },
+  {
+    "id": "msg-mt1hw6ph-4euq",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T12:26:59.189Z"
+  },
+  {
+    "id": "msg-mt1hw7n0-ifa6",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T12:27:00.396Z"
+  },
+  {
+    "id": "msg-mt1ik5px-ma0y",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T12:45:37.653Z"
+  },
+  {
+    "id": "msg-mt1ik6ng-n8sx",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T12:45:38.860Z"
+  },
+  {
+    "id": "msg-mt1kjdo6-gjj9",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T13:41:00.534Z"
+  },
+  {
+    "id": "msg-mt1kjelt-7w0w",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T13:41:01.745Z"
+  },
+  {
+    "id": "msg-mt1lzm77-sjel",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T14:21:37.699Z"
+  },
+  {
+    "id": "msg-mt1lzn4r-48ap",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T14:21:38.907Z"
+  },
+  {
+    "id": "msg-mt1t4lch-4zvg",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T17:41:27.185Z"
+  },
+  {
+    "id": "msg-mt1t4ma2-kl61",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T17:41:28.394Z"
+  },
+  {
+    "id": "msg-mt1wc2ox-nj65",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T19:11:15.105Z"
+  },
+  {
+    "id": "msg-mt1wc3mh-4iow",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T19:11:16.313Z"
+  },
+  {
+    "id": "msg-mt1x8bgg-lboi",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T19:36:19.456Z"
+  },
+  {
+    "id": "msg-mt1x8ce0-wugo",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T19:36:20.664Z"
+  },
+  {
+    "id": "msg-mt1xw02p-gsfy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T19:54:44.449Z"
+  },
+  {
+    "id": "msg-mt1xw10b-cteu",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T19:54:45.659Z"
+  },
+  {
+    "id": "msg-mt1zc8an-19lh",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T20:35:21.215Z"
+  },
+  {
+    "id": "msg-mt1zc98a-ujzu",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T20:35:22.426Z"
+  },
+  {
+    "id": "msg-mt1ze0jv-jrg2",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T20:36:44.491Z"
+  },
+  {
+    "id": "msg-mt1ze1hg-j8xl",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T20:36:45.700Z"
+  },
+  {
+    "id": "msg-mt1zfgxw-hbb7",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-20T20:37:52.388Z"
+  },
+  {
+    "id": "msg-mt1zfhve-vks4",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-20T20:37:53.594Z"
+  },
+  {
+    "id": "msg-mt2bvzi7-hvea",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-21T02:26:38.335Z"
+  },
+  {
+    "id": "msg-mt2bw0fr-anlr",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-21T02:26:39.543Z"
+  },
+  {
+    "id": "msg-mt2c8oe6-u3f5",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-21T02:36:30.462Z"
+  },
+  {
+    "id": "msg-mt2c8pbs-yr2u",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-21T02:36:31.672Z"
+  },
+  {
+    "id": "msg-mt2cb7yb-q112",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-21T02:38:29.123Z"
+  },
+  {
+    "id": "msg-mt2cb8vs-1pc8",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-21T02:38:30.328Z"
+  },
+  {
+    "id": "msg-mt873wvc-fccy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-25T04:59:27.144Z"
+  },
+  {
+    "id": "msg-mt873xsz-nbcx",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-25T04:59:28.355Z"
+  },
+  {
+    "id": "msg-mt893v8l-ef6o",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-25T05:55:24.261Z"
+  },
+  {
+    "id": "msg-mt893w66-4o5u",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-25T05:55:25.470Z"
+  },
+  {
+    "id": "msg-mt8jemwf-517c",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-25T10:43:42.831Z"
+  },
+  {
+    "id": "msg-mt8jenu3-kqx6",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-25T10:43:44.043Z"
+  },
+  {
+    "id": "msg-mt9ms76e-9jln",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-26T05:06:00.662Z"
+  },
+  {
+    "id": "msg-mt9ms83x-80re",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-26T05:06:01.869Z"
+  },
+  {
+    "id": "msg-mt9mu6vc-849f",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-26T05:07:33.576Z"
+  },
+  {
+    "id": "msg-mt9mu7sx-aj0c",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-26T05:07:34.785Z"
+  },
+  {
+    "id": "msg-mtgnrucg-grqc",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-31T03:08:06.880Z"
+  },
+  {
+    "id": "msg-mtgnrv9y-6coq",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-31T03:08:08.086Z"
+  },
+  {
+    "id": "msg-mtgnsqcw-y089",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-31T03:08:48.368Z"
+  },
+  {
+    "id": "msg-mtgnsrag-ys98",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-31T03:08:49.576Z"
+  },
+  {
+    "id": "msg-mtgsxalq-yggk",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-31T05:32:19.310Z"
+  },
+  {
+    "id": "msg-mtgsxbjd-u93j",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-31T05:32:20.521Z"
+  },
+  {
+    "id": "msg-mtgv1jsw-eu7z",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-08-31T06:31:37.088Z"
+  },
+  {
+    "id": "msg-mtgv1kqh-3y0c",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-08-31T06:31:38.297Z"
+  },
+  {
+    "id": "msg-mti5exjt-0k2i",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-01T04:09:43.769Z"
+  },
+  {
+    "id": "msg-mti5eyhf-3d43",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-01T04:09:44.979Z"
+  },
+  {
+    "id": "msg-mti6hztn-jat6",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-01T04:40:06.299Z"
+  },
+  {
+    "id": "msg-mti6i0r7-b73e",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-01T04:40:07.507Z"
+  },
+  {
+    "id": "msg-mti6jmly-psbk",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-01T04:41:22.486Z"
+  },
+  {
+    "id": "msg-mti6jnjk-29gg",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-01T04:41:23.696Z"
+  },
+  {
+    "id": "msg-mtidf0j3-a2no",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-01T07:53:44.559Z"
+  },
+  {
+    "id": "msg-mtidf1go-2cuj",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-01T07:53:45.768Z"
+  },
+  {
+    "id": "msg-mtjj3nu9-5jsl",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-02T03:20:38.769Z"
+  },
+  {
+    "id": "msg-mtjj3orx-fzf6",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-02T03:20:39.981Z"
+  },
+  {
+    "id": "msg-mtk4ce59-g2q8",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-02T13:15:18.045Z"
+  },
+  {
+    "id": "msg-mtk4cf2v-vkq2",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-02T13:15:19.255Z"
+  },
+  {
+    "id": "msg-mtk4hjl9-6zd0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-02T13:19:18.381Z"
+  },
+  {
+    "id": "msg-mtk4hkiv-j17j",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-02T13:19:19.591Z"
+  },
+  {
+    "id": "msg-mtkzwo8m-ne8v",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T03:58:52.342Z"
+  },
+  {
+    "id": "msg-mtkzwp67-z8p7",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T03:58:53.551Z"
+  },
+  {
+    "id": "msg-mtl2glf5-hgms",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T05:10:21.041Z"
+  },
+  {
+    "id": "msg-mtl2gmcp-qz65",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T05:10:22.249Z"
+  },
+  {
+    "id": "msg-mtl3pp1n-2su9",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T05:45:25.259Z"
+  },
+  {
+    "id": "msg-mtl3ppz9-olez",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T05:45:26.469Z"
+  },
+  {
+    "id": "msg-mtl3u5ew-3sol",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T05:48:53.096Z"
+  },
+  {
+    "id": "msg-mtl3u6ci-7gk5",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T05:48:54.306Z"
+  },
+  {
+    "id": "msg-mtla6tu5-3dqy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T08:46:42.317Z"
+  },
+  {
+    "id": "msg-mtla6urs-csvh",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T08:46:43.528Z"
+  },
+  {
+    "id": "msg-mtla7t22-i8w1",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T08:47:27.962Z"
+  },
+  {
+    "id": "msg-mtla7tzr-umx2",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T08:47:29.175Z"
+  },
+  {
+    "id": "msg-mtldmxyu-mn48",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T10:23:13.014Z"
+  },
+  {
+    "id": "msg-mtldmywg-2mff",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T10:23:14.224Z"
+  },
+  {
+    "id": "msg-mtldxr4p-tvxp",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T10:31:37.369Z"
+  },
+  {
+    "id": "msg-mtldxs2c-ljil",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T10:31:38.580Z"
+  },
+  {
+    "id": "msg-mtleyh57-evgt",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T11:00:10.699Z"
+  },
+  {
+    "id": "msg-mtleyi2s-v2ri",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T11:00:11.908Z"
+  },
+  {
+    "id": "msg-mtlez9ri-gp2q",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T11:00:47.790Z"
+  },
+  {
+    "id": "msg-mtlezap5-udjv",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T11:00:49.001Z"
+  },
+  {
+    "id": "msg-mtlqtk76-7g4x",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-03T16:32:16.770Z"
+  },
+  {
+    "id": "msg-mtlqtl4x-vrsw",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-03T16:32:17.985Z"
+  },
+  {
+    "id": "msg-mtmtg00d-rz90",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-04T10:33:29.101Z"
+  },
+  {
+    "id": "msg-mtmtg0xx-q6pa",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-04T10:33:30.309Z"
+  },
+  {
+    "id": "msg-mto5j68p-wyie",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-05T08:59:38.713Z"
+  },
+  {
+    "id": "msg-mto5j76a-1sce",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-05T08:59:39.922Z"
+  },
+  {
+    "id": "msg-mtq1cso4-5hpp",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-06T16:38:15.076Z"
+  },
+  {
+    "id": "msg-mtq1ctlu-evc1",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-06T16:38:16.290Z"
+  },
+  {
+    "id": "msg-mtq1eh2t-d0x4",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-06T16:39:33.365Z"
+  },
+  {
+    "id": "msg-mtq1ei0e-rng4",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-06T16:39:34.574Z"
+  },
+  {
+    "id": "msg-mtq1fwa6-4516",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-06T16:40:39.726Z"
+  },
+  {
+    "id": "msg-mtq1fx7q-robv",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-06T16:40:40.934Z"
+  },
+  {
+    "id": "msg-mtq1ic5g-ogtr",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-06T16:42:33.604Z"
+  },
+  {
+    "id": "msg-mtq1id33-ih44",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-06T16:42:34.815Z"
+  },
+  {
+    "id": "msg-mtqboqip-s3e8",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-06T21:27:28.321Z"
+  },
+  {
+    "id": "msg-mtqborg9-v7ac",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-06T21:27:29.529Z"
+  },
+  {
+    "id": "msg-mtsbf0qw-rn5a",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T06:55:27.368Z"
+  },
+  {
+    "id": "msg-mtsbf1pb-jvzn",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T06:55:28.607Z"
+  },
+  {
+    "id": "msg-mtsbpkbu-3xyf",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T07:03:39.306Z"
+  },
+  {
+    "id": "msg-mtsbplad-2ygk",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T07:03:40.549Z"
+  },
+  {
+    "id": "msg-mtsbss9y-hn0g",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T07:06:09.574Z"
+  },
+  {
+    "id": "msg-mtsbst8h-co2a",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T07:06:10.817Z"
+  },
+  {
+    "id": "msg-mtsc3a0f-no0j",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T07:14:19.119Z"
+  },
+  {
+    "id": "msg-mtsc3aye-wgmv",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T07:14:20.342Z"
+  },
+  {
+    "id": "msg-mtsdirua-1bj7",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T07:54:21.682Z"
+  },
+  {
+    "id": "msg-mtsdiss9-mjmz",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T07:54:22.905Z"
+  },
+  {
+    "id": "msg-mtse6wfe-uwhm",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T08:13:07.370Z"
+  },
+  {
+    "id": "msg-mtse6xm0-l1yp",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T08:13:08.905Z"
+  },
+  {
+    "id": "msg-mtse97c4-rojy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T08:14:54.821Z"
+  },
+  {
+    "id": "msg-mtse9aqf-siud",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T08:14:59.223Z"
+  },
+  {
+    "id": "msg-mtseapy4-7jf8",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T08:16:05.596Z"
+  },
+  {
+    "id": "msg-mtsearuo-90dq",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T08:16:08.064Z"
+  },
+  {
+    "id": "msg-mtsedr51-q13n",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T08:18:27.109Z"
+  },
+  {
+    "id": "msg-mtsedscb-5g9s",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T08:18:28.667Z"
+  },
+  {
+    "id": "msg-mtseqlj0-5u86",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T08:28:26.364Z"
+  },
+  {
+    "id": "msg-mtseqmgw-sk1v",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T08:28:27.584Z"
+  },
+  {
+    "id": "msg-mtsv0a3r-4plc",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T16:03:51.975Z"
+  },
+  {
+    "id": "msg-mtsv0b1a-doek",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T16:03:53.182Z"
+  },
+  {
+    "id": "msg-mtsv2g7h-r829",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T16:05:33.197Z"
+  },
+  {
+    "id": "msg-mtsv2h53-c98m",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T16:05:34.407Z"
+  },
+  {
+    "id": "msg-mtt58y5v-nauo",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-08T20:50:32.563Z"
+  },
+  {
+    "id": "msg-mtt58z3g-runx",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-08T20:50:33.772Z"
+  },
+  {
+    "id": "msg-mttsbfco-9k0k",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-09T07:36:19.320Z"
+  },
+  {
+    "id": "msg-mttsbga9-kag7",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-09T07:36:20.529Z"
+  },
+  {
+    "id": "msg-mttt7ts4-xgi9",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-09T08:01:31.012Z"
+  },
+  {
+    "id": "msg-mttt7upo-lqmf",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-09T08:01:32.220Z"
+  },
+  {
+    "id": "msg-mtttgx56-im3d",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-09T08:08:35.274Z"
+  },
+  {
+    "id": "msg-mtttgy2p-fz9u",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-09T08:08:36.481Z"
+  },
+  {
+    "id": "msg-mtukea7x-b2mv",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-09T20:42:21.885Z"
+  },
+  {
+    "id": "msg-mtukeb5k-znq6",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-09T20:42:23.096Z"
+  },
+  {
+    "id": "msg-mtumuwv6-zgym",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-09T21:51:16.962Z"
+  },
+  {
+    "id": "msg-mtumuxt1-iede",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-09T21:51:18.181Z"
+  },
+  {
+    "id": "msg-mtumxq19-s6km",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-09T21:53:28.077Z"
+  },
+  {
+    "id": "msg-mtumxqyx-myk0",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-09T21:53:29.289Z"
+  },
+  {
+    "id": "msg-mtv53n61-8fyy",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T06:21:57.385Z"
+  },
+  {
+    "id": "msg-mtv53o3n-6rzg",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T06:21:58.595Z"
+  },
+  {
+    "id": "msg-mtv56fvj-ch75",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T06:24:07.903Z"
+  },
+  {
+    "id": "msg-mtv56gtf-gbzr",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T06:24:09.124Z"
+  },
+  {
+    "id": "msg-mtv59jcv-m3ri",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T06:26:32.383Z"
+  },
+  {
+    "id": "msg-mtv59kag-p7um",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T06:26:33.592Z"
+  },
+  {
+    "id": "msg-mtv5mybu-cmjz",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T06:36:58.314Z"
+  },
+  {
+    "id": "msg-mtv5mz9e-hfjp",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T06:36:59.522Z"
+  },
+  {
+    "id": "msg-mtv5owgx-z1cb",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T06:38:29.217Z"
+  },
+  {
+    "id": "msg-mtv5oxeh-nblo",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T06:38:30.425Z"
+  },
+  {
+    "id": "msg-mtv639ok-r6v1",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T06:49:39.525Z"
+  },
+  {
+    "id": "msg-mtv63am9-4oby",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T06:49:40.737Z"
+  },
+  {
+    "id": "msg-mtv6dq2i-ordg",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T06:57:47.322Z"
+  },
+  {
+    "id": "msg-mtv6dr02-ospy",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T06:57:48.530Z"
+  },
+  {
+    "id": "msg-mtvec4t6-eh3l",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T10:40:30.042Z"
+  },
+  {
+    "id": "msg-mtvec5qq-y3hm",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T10:40:31.250Z"
+  },
+  {
+    "id": "msg-mtvehati-z7qe",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T10:44:31.110Z"
+  },
+  {
+    "id": "msg-mtvehbr6-rvop",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T10:44:32.322Z"
+  },
+  {
+    "id": "msg-mtveopz6-hte7",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T10:50:17.346Z"
+  },
+  {
+    "id": "msg-mtveoqwr-40n5",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T10:50:18.555Z"
+  },
+  {
+    "id": "msg-mtvewzzl-44cd",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T10:56:43.569Z"
+  },
+  {
+    "id": "msg-mtvex0x7-pcxe",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T10:56:44.779Z"
+  },
+  {
+    "id": "msg-mtvfc3pz-jreh",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T11:08:28.247Z"
+  },
+  {
+    "id": "msg-mtvfc4nj-xv0r",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T11:08:29.455Z"
+  },
+  {
+    "id": "msg-mtvfr9u7-m1x8",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T11:20:16.015Z"
+  },
+  {
+    "id": "msg-mtvfraru-q8f1",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T11:20:17.226Z"
+  },
+  {
+    "id": "msg-mtvvtiue-iu17",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-10T18:49:54.854Z"
+  },
+  {
+    "id": "msg-mtvvtjry-9pow",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-10T18:49:56.062Z"
+  },
+  {
+    "id": "msg-mtwzg40p-7h8t",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-11T13:19:13.753Z"
+  },
+  {
+    "id": "msg-mtwzg4y9-waca",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-11T13:19:14.961Z"
+  },
+  {
+    "id": "msg-mtx4buvj-q5fw",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-11T15:35:53.360Z"
+  },
+  {
+    "id": "msg-mtx4bvt7-alm2",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-11T15:35:54.571Z"
+  },
+  {
+    "id": "msg-mtye7yel-0j96",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-12T13:00:33.645Z"
+  },
+  {
+    "id": "msg-mtye7zc8-4uhj",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-12T13:00:34.856Z"
+  },
+  {
+    "id": "msg-mtz22b0s-62ef",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T00:08:00.844Z"
+  },
+  {
+    "id": "msg-mtz22byk-pqao",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T00:08:02.060Z"
+  },
+  {
+    "id": "msg-mtz7yll9-bx6b",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T02:53:05.613Z"
+  },
+  {
+    "id": "msg-mtz7ymix-0quu",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T02:53:06.825Z"
+  },
+  {
+    "id": "msg-mtz81oxp-0b2k",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T02:55:29.917Z"
+  },
+  {
+    "id": "msg-mtz81pva-jppm",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T02:55:31.126Z"
+  },
+  {
+    "id": "msg-mtz859q3-zcia",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T02:58:16.827Z"
+  },
+  {
+    "id": "msg-mtz85ano-kyl8",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T02:58:18.036Z"
+  },
+  {
+    "id": "msg-mtz883jp-cqp0",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T03:00:28.789Z"
+  },
+  {
+    "id": "msg-mtz884hc-lksk",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T03:00:30.000Z"
+  },
+  {
+    "id": "msg-mtzoxxfz-kk0x",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T10:48:27.791Z"
+  },
+  {
+    "id": "msg-mtzoxydm-eb53",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T10:48:29.002Z"
+  },
+  {
+    "id": "msg-mtzoywbb-yaks",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T10:49:12.983Z"
+  },
+  {
+    "id": "msg-mtzoyx8z-ywte",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T10:49:14.195Z"
+  },
+  {
+    "id": "msg-mtzp4uwg-hl3b",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T10:53:51.088Z"
+  },
+  {
+    "id": "msg-mtzp4vu5-mshy",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T10:53:52.301Z"
+  },
+  {
+    "id": "msg-mu07hfjg-dogl",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T19:27:30.796Z"
+  },
+  {
+    "id": "msg-mu07hgha-m1m7",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T19:27:32.014Z"
+  },
+  {
+    "id": "msg-mu07l4zk-rrr3",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T19:30:23.744Z"
+  },
+  {
+    "id": "msg-mu07l5x9-wuqn",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T19:30:24.957Z"
+  },
+  {
+    "id": "msg-mu07mpsj-g8la",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-13T19:31:37.363Z"
+  },
+  {
+    "id": "msg-mu07mqq6-njsw",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-13T19:31:38.574Z"
+  }
+]

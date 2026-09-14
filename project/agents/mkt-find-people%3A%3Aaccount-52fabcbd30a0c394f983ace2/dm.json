@@ -1,0 +1,57 @@
+[
+  {
+    "id": "dm-mu0q8nq5-gf5e",
+    "agentType": "mkt-find-people::account-52fabcbd30a0c394f983ace2",
+    "from": "user",
+    "fromName": "我",
+    "text": "开始找人，先看直播和评论",
+    "conversationId": "conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "requiresChiefForNewTask": true,
+      "canCreateTeamTask": false,
+      "taskId": "task-1",
+      "taskRunId": "run-1",
+      "accountId": "account-1",
+      "conversationId": "conversation-1",
+      "companionReply": {
+        "phase": "ready"
+      }
+    },
+    "createdAt": "2026-09-14T04:12:34.205Z"
+  },
+  {
+    "id": "dm-mu0q8tts-uvgg",
+    "agentType": "mkt-find-people::account-52fabcbd30a0c394f983ace2",
+    "from": "mkt-find-people",
+    "fromName": "找客专员",
+    "text": "好的，我这边先聚焦直播和评论里的互动线索来整理人选，会保留来源并去重。当前还没有真实回执能证明已经抓到新的人，等有明确线索后我会把名单整理清楚再交下去。",
+    "conversationId": "conversation-1",
+    "metadata": {
+      "companion": {
+        "inReplyTo": "dm-mu0q8nq5-gf5e",
+        "cards": [
+          {
+            "id": "b1145db6-6b73-42b6-9a3f-bf80e64bafa7",
+            "kind": "navigate",
+            "title": "下一步",
+            "detail": "先选好这次要做的事，再开始。",
+            "options": [
+              {
+                "id": "configure",
+                "label": "选择任务"
+              },
+              {
+                "id": "progress",
+                "label": "看看工作进展"
+              }
+            ]
+          }
+        ],
+        "preferenceRevision": 0
+      }
+    },
+    "createdAt": "2026-09-14T04:12:42.112Z"
+  }
+]

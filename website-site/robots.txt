@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /blog/not-found/
+
+Sitemap: https://byering-official-homepage.vercel.app/sitemap.xml

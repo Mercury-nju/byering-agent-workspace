@@ -1,0 +1,4 @@
+# Store Registration Candidates
+
+Generated from readable JavaScript assets under project/.
+

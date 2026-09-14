@@ -1,0 +1,1539 @@
+[
+  {
+    "id": "dm-mtqmjlay-lgmy",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "我开始处理「长期监听授权账号作品评论并筛选潜客」，现在先创建长期获客任务。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a:seq:1",
+      "taskId": "comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "taskRunId": "run-d0ce0dd8-eaab-4823-8688-844317e30a97",
+      "sequence": 1
+    },
+    "createdAt": "2026-09-07T02:31:24.058Z"
+  },
+  {
+    "id": "dm-mtqmjldz-gftn",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "有个进展：我正在创建长期评论监听任务；后续新增评论会先经过 AI 判断，符合筛选与安全规则后自动发送私信。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a:seq:2",
+      "taskId": "comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "taskRunId": "run-d0ce0dd8-eaab-4823-8688-844317e30a97",
+      "sequence": 2
+    },
+    "createdAt": "2026-09-07T02:31:24.167Z"
+  },
+  {
+    "id": "dm-mtqmjt5l-kwh1",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "我正在长期监听中，远端状态会持续更新。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a:seq:3",
+      "taskId": "comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "taskRunId": "run-d0ce0dd8-eaab-4823-8688-844317e30a97",
+      "sequence": 3
+    },
+    "createdAt": "2026-09-07T02:31:34.233Z"
+  },
+  {
+    "id": "dm-mtqmjt5s-1m0v",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "有个进展：长期评论监听已启动，离开页面后任务仍会继续；新增评论会按规则进入 AI 筛选和触达流程。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a:seq:4",
+      "taskId": "comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "taskRunId": "run-d0ce0dd8-eaab-4823-8688-844317e30a97",
+      "sequence": 4
+    },
+    "createdAt": "2026-09-07T02:31:34.240Z"
+  },
+  {
+    "id": "dm-mtqmju47-khbt",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "我正在长期监听中，远端状态会持续更新。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a:seq:5",
+      "taskId": "comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "taskRunId": "run-d0ce0dd8-eaab-4823-8688-844317e30a97",
+      "sequence": 5
+    },
+    "createdAt": "2026-09-07T02:31:35.479Z"
+  },
+  {
+    "id": "dm-mtqnnc2c-t1kv",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "我开始处理「长期监听授权账号作品评论并筛选潜客」，现在先创建长期获客任务。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7:seq:1",
+      "taskId": "comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "taskRunId": "run-35a8b2a2-784d-4103-8577-6f0fbf6c5561",
+      "sequence": 1
+    },
+    "createdAt": "2026-09-07T03:02:18.324Z"
+  },
+  {
+    "id": "dm-mtqnnc2t-fvi0",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "有个进展：我正在创建长期评论监听任务；后续新增评论会先经过 AI 判断，符合筛选与安全规则后自动发送私信。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7:seq:2",
+      "taskId": "comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "taskRunId": "run-35a8b2a2-784d-4103-8577-6f0fbf6c5561",
+      "sequence": 2
+    },
+    "createdAt": "2026-09-07T03:02:18.341Z"
+  },
+  {
+    "id": "dm-mtqnnihq-to28",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "我正在长期监听中，远端状态会持续更新。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7:seq:3",
+      "taskId": "comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "taskRunId": "run-35a8b2a2-784d-4103-8577-6f0fbf6c5561",
+      "sequence": 3
+    },
+    "createdAt": "2026-09-07T03:02:26.654Z"
+  },
+  {
+    "id": "dm-mtqnnihv-ljb1",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "有个进展：长期评论监听已启动，离开页面后任务仍会继续；新增评论会按规则进入 AI 筛选和触达流程。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7:seq:4",
+      "taskId": "comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "taskRunId": "run-35a8b2a2-784d-4103-8577-6f0fbf6c5561",
+      "sequence": 4
+    },
+    "createdAt": "2026-09-07T03:02:26.659Z"
+  },
+  {
+    "id": "dm-mtqnnjgc-3b3y",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "我正在长期监听中，远端状态会持续更新。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7:seq:5",
+      "taskId": "comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "taskRunId": "run-35a8b2a2-784d-4103-8577-6f0fbf6c5561",
+      "sequence": 5
+    },
+    "createdAt": "2026-09-07T03:02:27.900Z"
+  },
+  {
+    "id": "dm-mtqpr1yp-4e57",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "我开始处理「长期监听授权账号作品评论并筛选潜客」，现在先创建长期获客任务。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b:seq:1",
+      "taskId": "comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "taskRunId": "run-325770fd-0fea-41ba-a140-704d5afbb042",
+      "sequence": 1
+    },
+    "createdAt": "2026-09-07T04:01:11.089Z"
+  },
+  {
+    "id": "dm-mtqpr1z8-qwjm",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "有个进展：我正在创建长期评论监听任务；后续新增评论会先经过 AI 判断，符合筛选与安全规则后自动发送私信。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b:seq:2",
+      "taskId": "comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "taskRunId": "run-325770fd-0fea-41ba-a140-704d5afbb042",
+      "sequence": 2
+    },
+    "createdAt": "2026-09-07T04:01:11.108Z"
+  },
+  {
+    "id": "dm-mtqpr8zn-bsur",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "我正在长期监听中，远端状态会持续更新。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b:seq:3",
+      "taskId": "comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "taskRunId": "run-325770fd-0fea-41ba-a140-704d5afbb042",
+      "sequence": 3
+    },
+    "createdAt": "2026-09-07T04:01:20.195Z"
+  },
+  {
+    "id": "dm-mtqpr8zs-cndj",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "有个进展：长期评论监听已启动，离开页面后任务仍会继续；新增评论会按规则进入 AI 筛选和触达流程。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b:seq:4",
+      "taskId": "comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "taskRunId": "run-325770fd-0fea-41ba-a140-704d5afbb042",
+      "sequence": 4
+    },
+    "createdAt": "2026-09-07T04:01:20.200Z"
+  },
+  {
+    "id": "dm-mtqpraie-01qe",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "我正在长期监听中，远端状态会持续更新。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b:seq:5",
+      "taskId": "comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "taskRunId": "run-325770fd-0fea-41ba-a140-704d5afbb042",
+      "sequence": 5
+    },
+    "createdAt": "2026-09-07T04:01:22.166Z"
+  },
+  {
+    "id": "dm-mtqrvr7z-8kmx",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "评论区获客管家",
+    "text": "我开始处理「持续分析账号作品评论并自动触达潜客」，现在先正在分析新评论。",
+    "metadata": {
+      "source": "agent-activity",
+      "activityKey": "mkt-comment-acquisition:visual-check-only:seq:1",
+      "taskId": "visual-check-only",
+      "sequence": 1
+    },
+    "createdAt": "2026-09-07T05:00:49.679Z"
+  },
+  {
+    "id": "dm-mtsh9bhn-td8m",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "你在干啥",
+    "metadata": {
+      "clientMessageId": "0b0ccad5-2a49-40b0-bc5f-926680cffbfa",
+      "companionReply": {
+        "phase": "ready"
+      }
+    },
+    "createdAt": "2026-09-08T09:38:59.051Z"
+  },
+  {
+    "id": "dm-mtsh9g5d-fbah",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我现在在等你这边先把账号接待方式配好。\n刚检查到当前任务还没法启动：对话策略里还没保存这个账号的接待方式，所以自动找客户、发私信、跟进这些动作都还不能开始。\n你要是愿意，我可以接着帮你看该先设置哪一项。",
+    "metadata": {
+      "companion": {
+        "inReplyTo": "dm-mtsh9bhn-td8m",
+        "cards": [],
+        "preferenceRevision": 0
+      }
+    },
+    "createdAt": "2026-09-08T09:39:05.089Z"
+  },
+  {
+    "id": "dm-mtsha7zy-e2md",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "我希望你说话直接一点",
+    "metadata": {
+      "clientMessageId": "a5ac64b3-7379-407a-9e83-d3ab4b196c4f",
+      "companionReply": {
+        "phase": "ready"
+      }
+    },
+    "createdAt": "2026-09-08T09:39:41.182Z"
+  },
+  {
+    "id": "dm-mtshadku-n8lb",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "好，之后我直接说重点。\n当前没在跑获客：账号接待方式还没在对话策略里保存，任务启动不了。你配好后我就能开始从评论、直播和互动里找客户、发私信并跟进。",
+    "metadata": {
+      "companion": {
+        "inReplyTo": "dm-mtsha7zy-e2md",
+        "cards": [],
+        "preferenceRevision": 1,
+        "memoryUpdate": {
+          "changes": [
+            {
+              "id": "af03e44a-ff0a-4bc1-8dac-a130d89806d3",
+              "previous": null
+            }
+          ],
+          "revision": 1,
+          "settingsBefore": {
+            "tone": "warm",
+            "detail": "balanced",
+            "ranking": "relevance",
+            "remember": true
+          },
+          "settingSourcesBefore": {}
+        }
+      }
+    },
+    "createdAt": "2026-09-08T09:39:48.414Z"
+  },
+  {
+    "id": "dm-mtshb2d5-08ol",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "我希望你在私信承接的时候，口气可以温和一点",
+    "metadata": {
+      "clientMessageId": "265ba9f9-9e32-4f52-8337-1796eade2ebe",
+      "companionReply": {
+        "phase": "ready"
+      }
+    },
+    "createdAt": "2026-09-08T09:40:20.538Z"
+  },
+  {
+    "id": "dm-mtshb918-f7vc",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "收到。私信承接我会用温和口气和客户聊。\n当前还是没法启动：你还没在对话策略里保存这个账号的接待方式。先把接待方式配好，我才能按这个口气去发私信和跟进。",
+    "metadata": {
+      "companion": {
+        "inReplyTo": "dm-mtshb2d5-08ol",
+        "cards": [],
+        "preferenceRevision": 1
+      }
+    },
+    "createdAt": "2026-09-08T09:40:29.180Z"
+  },
+  {
+    "id": "dm-mtshua2y-u7d6",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "我希望你在私信承接的时候，口气可以温和一点",
+    "metadata": {
+      "receptionStrategyUpdate": {
+        "changes": [
+          {
+            "field": "tone",
+            "label": "亲切自然"
+          }
+        ],
+        "revision": 1
+      }
+    },
+    "createdAt": "2026-09-08T09:55:17.002Z"
+  },
+  {
+    "id": "dm-mtshua4d-25w7",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "已把这个账号的私信接待语气改为“亲切自然”。现在已保存，之后收到的新私信会按这个方式回复。",
+    "metadata": {
+      "source": "reception-strategy",
+      "receptionStrategyUpdate": {
+        "changes": [
+          {
+            "field": "tone",
+            "label": "亲切自然"
+          }
+        ],
+        "revision": 1,
+        "inReplyTo": "dm-mtshua2y-u7d6"
+      }
+    },
+    "createdAt": "2026-09-08T09:55:17.053Z"
+  },
+  {
+    "id": "dm-mttpv39t-vlrr",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "请告诉我当前账号接待方式",
+    "metadata": {
+      "clientMessageId": "f0206be5-9c82-448b-a5ed-4421297f757c",
+      "companionReply": {
+        "phase": "ready"
+      }
+    },
+    "createdAt": "2026-09-09T06:27:37.937Z"
+  },
+  {
+    "id": "dm-mttpv7ka-k7za",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我现在查不到这个账号已保存的接待方式。\n当前状态是：对话策略里还没保存该账号的接待方式，所以获客任务启动不了。你把接待方式保存好后，我会按你要求用温和口气做私信承接和跟进。",
+    "metadata": {
+      "companion": {
+        "inReplyTo": "dm-mttpv39t-vlrr",
+        "cards": [],
+        "preferenceRevision": 1
+      }
+    },
+    "createdAt": "2026-09-09T06:27:43.498Z"
+  },
+  {
+    "id": "dm-mtulg1kg-htrj",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "请只围绕当前岗位告诉我下一步",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "canCreateTeamTask": false,
+      "requiresChiefForNewTask": true,
+      "clientMessageId": "bfbac130-9b73-443e-8b16-640b7eb99427",
+      "companionReply": {
+        "phase": "ready"
+      }
+    },
+    "createdAt": "2026-09-09T21:11:43.600Z"
+  },
+  {
+    "id": "dm-mtulg7jx-2tjl",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "下一步：先去对话策略里保存当前账号的接待方式。保存完成后，我才能开始从抖音直播弹幕、评论和关注信号里找潜客，并按你要求用温和口气做私信承接和跟进。",
+    "metadata": {
+      "companion": {
+        "inReplyTo": "dm-mtulg1kg-htrj",
+        "cards": [],
+        "preferenceRevision": 1
+      }
+    },
+    "createdAt": "2026-09-09T21:11:51.357Z"
+  },
+  {
+    "id": "dm-mtv47rwi-erzv",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "最近有发现潜客吗",
+    "metadata": {
+      "clientMessageId": "807b9f45-4084-451e-b076-580e9b0682aa",
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "canCreateTeamTask": false,
+      "requiresChiefForNewTask": true,
+      "taskId": "comment-acquisition-daea0121-515c-41cf-a81a-02df4cd1f156",
+      "taskRunId": "run-8114a2b5-3e6a-4036-bf3b-0fd35cc0f821",
+      "accountId": "douyin-agent:mkt-comment-acquisition",
+      "companionReply": {
+        "phase": "ready"
+      }
+    },
+    "createdAt": "2026-09-10T05:57:10.530Z"
+  },
+  {
+    "id": "dm-mtv47wpd-yu0s",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "没有。当前还没发现潜客，原因是账号接待方式还没在对话策略里保存，任务没法启动，所以还没开始从直播弹幕、评论和关注信号里筛客户。你先把接待方式保存好，我这边才能开始找。",
+    "metadata": {
+      "companion": {
+        "inReplyTo": "dm-mtv47rwi-erzv",
+        "cards": [],
+        "preferenceRevision": 1
+      }
+    },
+    "createdAt": "2026-09-10T05:57:16.753Z"
+  },
+  {
+    "id": "dm-mtv736tv-xr51",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "你好",
+    "metadata": {
+      "clientMessageId": "22621916-7291-440e-afe5-0d02841657dc",
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "canCreateTeamTask": false,
+      "requiresChiefForNewTask": true,
+      "taskId": "comment-acquisition-daea0121-515c-41cf-a81a-02df4cd1f156",
+      "taskRunId": "run-8114a2b5-3e6a-4036-bf3b-0fd35cc0f821",
+      "accountId": "douyin-agent:mkt-comment-acquisition",
+      "companionReply": {
+        "phase": "ready"
+      }
+    },
+    "createdAt": "2026-09-10T07:17:35.443Z"
+  },
+  {
+    "id": "dm-mtv73b1s-memv",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "你好。目前还没开始找潜客，因为当前账号的接待方式还没在对话策略里保存，任务启动不了。你保存好接待方式后，我就按温和口气做私信承接和跟进。",
+    "metadata": {
+      "companion": {
+        "inReplyTo": "dm-mtv736tv-xr51",
+        "cards": [],
+        "preferenceRevision": 1
+      }
+    },
+    "createdAt": "2026-09-10T07:17:40.912Z"
+  },
+  {
+    "id": "dm-mtyrwtez-rshe",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-06",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "accountId": "unbound",
+      "reportDate": "2026-09-06"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-06",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-06.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务仍在执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 6 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>明天我会继续沿着找人、判断和触达链路推进，把新结果沉淀到同一份成果里。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-06",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.587Z"
+  },
+  {
+    "id": "dm-mtyrwtg3-b1gp",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-07",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "accountId": "unbound",
+      "reportDate": "2026-09-07"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-07",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-07.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务仍在执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 7 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>明天我会继续沿着找人、判断和触达链路推进，把新结果沉淀到同一份成果里。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-07",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.627Z"
+  },
+  {
+    "id": "dm-mtyrwth3-qxld",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-08",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "accountId": "unbound",
+      "reportDate": "2026-09-08"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-08",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-08.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务仍在执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 8 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>明天我会继续沿着找人、判断和触达链路推进，把新结果沉淀到同一份成果里。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-08",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.663Z"
+  },
+  {
+    "id": "dm-mtyrwti6-kx2o",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-09",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "accountId": "unbound",
+      "reportDate": "2026-09-09"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-09",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-09.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务仍在执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 9 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>明天我会继续沿着找人、判断和触达链路推进，把新结果沉淀到同一份成果里。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-09",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.702Z"
+  },
+  {
+    "id": "dm-mtyrwtjc-g4q9",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-10",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "accountId": "unbound",
+      "reportDate": "2026-09-10"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-10",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-10.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务仍在执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 10 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>明天我会继续沿着找人、判断和触达链路推进，把新结果沉淀到同一份成果里。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-10",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.744Z"
+  },
+  {
+    "id": "dm-mtyrwtkg-657v",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-11",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "accountId": "unbound",
+      "reportDate": "2026-09-11"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-11",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-11.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务仍在执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 11 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>明天我会继续沿着找人、判断和触达链路推进，把新结果沉淀到同一份成果里。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-11",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.784Z"
+  },
+  {
+    "id": "dm-mtyrwtlm-wjqm",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-12",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "accountId": "unbound",
+      "reportDate": "2026-09-12"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8:unbound:mkt-comment-acquisition:2026-09-12",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-12.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务仍在执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 12 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>明天我会继续沿着找人、判断和触达链路推进，把新结果沉淀到同一份成果里。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-24fbc6b9-cd26-4205-88ee-56ae144c72e8",
+      "taskRunId": "run-917b9d22-84b8-4228-9ce0-13683a012f42",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-12",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.826Z"
+  },
+  {
+    "id": "dm-mtyrwtmp-ps6d",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-daea0121-515c-41cf-a81a-02df4cd1f156",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-daea0121-515c-41cf-a81a-02df4cd1f156:unbound:mkt-comment-acquisition:2026-09-10",
+      "taskId": "comment-acquisition-daea0121-515c-41cf-a81a-02df4cd1f156",
+      "taskRunId": "run-8114a2b5-3e6a-4036-bf3b-0fd35cc0f821",
+      "accountId": "unbound",
+      "reportDate": "2026-09-10"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-daea0121-515c-41cf-a81a-02df4cd1f156:unbound:mkt-comment-acquisition:2026-09-10",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-10.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 10 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-daea0121-515c-41cf-a81a-02df4cd1f156",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-daea0121-515c-41cf-a81a-02df4cd1f156",
+      "taskRunId": "run-8114a2b5-3e6a-4036-bf3b-0fd35cc0f821",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-10",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.865Z"
+  },
+  {
+    "id": "dm-mtyrwtnw-gmw0",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-1b81a56d-0f0a-4fbd-9835-15dc09f0907a",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-1b81a56d-0f0a-4fbd-9835-15dc09f0907a:unbound:mkt-comment-acquisition:2026-09-10",
+      "taskId": "comment-acquisition-1b81a56d-0f0a-4fbd-9835-15dc09f0907a",
+      "taskRunId": "run-8b612e5f-5ebe-4754-ab0a-3e4988b7f075",
+      "accountId": "unbound",
+      "reportDate": "2026-09-10"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-1b81a56d-0f0a-4fbd-9835-15dc09f0907a:unbound:mkt-comment-acquisition:2026-09-10",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-10.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 10 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-1b81a56d-0f0a-4fbd-9835-15dc09f0907a",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-1b81a56d-0f0a-4fbd-9835-15dc09f0907a",
+      "taskRunId": "run-8b612e5f-5ebe-4754-ab0a-3e4988b7f075",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-10",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.908Z"
+  },
+  {
+    "id": "dm-mtyrwtp4-bzxb",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8:unbound:mkt-comment-acquisition:2026-09-09",
+      "taskId": "comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8",
+      "taskRunId": "run-765a33db-e064-421d-8652-1ab175de2a1a",
+      "accountId": "unbound",
+      "reportDate": "2026-09-09"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8:unbound:mkt-comment-acquisition:2026-09-09",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-09.html",
+      "summary": "今天已推进 2 位线索与 0 次触达",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 9 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进 2 位线索与 0 次触达</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>2</strong><span>位候选用户</span></li></ul>\n      <section class=\"section deliverables\"><h2>今日重点候选</h2><div class=\"deliverable-list\"><article class=\"deliverable\"><div class=\"deliverable-head\"><strong>LIA、</strong><span class=\"status\">低意向 · 5 分</span></div><p class=\"deliverable-meta\">评论区</p><blockquote>“这猫牛比”</blockquote></article><article class=\"deliverable\"><div class=\"deliverable-head\"><strong>国王</strong><span class=\"status\">低意向 · 10 分</span></div><p class=\"deliverable-meta\">评论区 · 7680948099816533745</p><blockquote>“想了解你的视频是怎么做的”</blockquote></article></div></section>\n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>正在执行触达</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8",
+      "taskRunId": "run-765a33db-e064-421d-8652-1ab175de2a1a",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-09",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 2,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.952Z"
+  },
+  {
+    "id": "dm-mtyrwtqb-4ofo",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8:unbound:mkt-comment-acquisition:2026-09-10",
+      "taskId": "comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8",
+      "taskRunId": "run-765a33db-e064-421d-8652-1ab175de2a1a",
+      "accountId": "unbound",
+      "reportDate": "2026-09-10"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8:unbound:mkt-comment-acquisition:2026-09-10",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-10.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 10 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-99c94afb-9c6c-4fc9-b392-5f6bd348f2d8",
+      "taskRunId": "run-765a33db-e064-421d-8652-1ab175de2a1a",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-10",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:48.995Z"
+  },
+  {
+    "id": "dm-mtyrwtrl-404h",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c:unbound:mkt-comment-acquisition:2026-09-06",
+      "taskId": "comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+      "taskRunId": "run-7834ac5c-5d67-46ff-b346-04005a17a46d",
+      "accountId": "unbound",
+      "reportDate": "2026-09-06"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c:unbound:mkt-comment-acquisition:2026-09-06",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-06.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 6 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+      "taskRunId": "run-7834ac5c-5d67-46ff-b346-04005a17a46d",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-06",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:49.041Z"
+  },
+  {
+    "id": "dm-mtyrwtsq-arh5",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c:unbound:mkt-comment-acquisition:2026-09-07",
+      "taskId": "comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+      "taskRunId": "run-7834ac5c-5d67-46ff-b346-04005a17a46d",
+      "accountId": "unbound",
+      "reportDate": "2026-09-07"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c:unbound:mkt-comment-acquisition:2026-09-07",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-07.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 7 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+      "taskRunId": "run-7834ac5c-5d67-46ff-b346-04005a17a46d",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-07",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:49.082Z"
+  },
+  {
+    "id": "dm-mtyrwttv-gpmj",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c:unbound:mkt-comment-acquisition:2026-09-09",
+      "taskId": "comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+      "taskRunId": "run-7834ac5c-5d67-46ff-b346-04005a17a46d",
+      "accountId": "unbound",
+      "reportDate": "2026-09-09"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c:unbound:mkt-comment-acquisition:2026-09-09",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-09.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 9 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-33d0969c-3e19-432b-83d8-bb38471f137c",
+      "taskRunId": "run-7834ac5c-5d67-46ff-b346-04005a17a46d",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-09",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:49.123Z"
+  },
+  {
+    "id": "dm-mtyrwtv1-jtpf",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a:unbound:mkt-comment-acquisition:2026-09-07",
+      "taskId": "comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "taskRunId": "run-d0ce0dd8-eaab-4823-8688-844317e30a97",
+      "accountId": "unbound",
+      "reportDate": "2026-09-07"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a:unbound:mkt-comment-acquisition:2026-09-07",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-07.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 7 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "taskRunId": "run-d0ce0dd8-eaab-4823-8688-844317e30a97",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-07",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:49.165Z"
+  },
+  {
+    "id": "dm-mtyrwtw6-bhhd",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a:unbound:mkt-comment-acquisition:2026-09-08",
+      "taskId": "comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "taskRunId": "run-d0ce0dd8-eaab-4823-8688-844317e30a97",
+      "accountId": "unbound",
+      "reportDate": "2026-09-08"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a:unbound:mkt-comment-acquisition:2026-09-08",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-08.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 8 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-5163197e-0739-413a-bf8a-8479f5cf508a",
+      "taskRunId": "run-d0ce0dd8-eaab-4823-8688-844317e30a97",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-08",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:49.206Z"
+  },
+  {
+    "id": "dm-mtyrwtxc-ky27",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7:unbound:mkt-comment-acquisition:2026-09-07",
+      "taskId": "comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "taskRunId": "run-35a8b2a2-784d-4103-8577-6f0fbf6c5561",
+      "accountId": "unbound",
+      "reportDate": "2026-09-07"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7:unbound:mkt-comment-acquisition:2026-09-07",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-07.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 7 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "taskRunId": "run-35a8b2a2-784d-4103-8577-6f0fbf6c5561",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-07",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:49.248Z"
+  },
+  {
+    "id": "dm-mtyrwtyl-y575",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7:unbound:mkt-comment-acquisition:2026-09-08",
+      "taskId": "comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "taskRunId": "run-35a8b2a2-784d-4103-8577-6f0fbf6c5561",
+      "accountId": "unbound",
+      "reportDate": "2026-09-08"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7:unbound:mkt-comment-acquisition:2026-09-08",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-08.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 8 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-fb91f3f3-2cbb-436b-bd2a-6712f404efa7",
+      "taskRunId": "run-35a8b2a2-784d-4103-8577-6f0fbf6c5561",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-08",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:49.293Z"
+  },
+  {
+    "id": "dm-mtyrwtzq-lhv2",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b:unbound:mkt-comment-acquisition:2026-09-07",
+      "taskId": "comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "taskRunId": "run-325770fd-0fea-41ba-a140-704d5afbb042",
+      "accountId": "unbound",
+      "reportDate": "2026-09-07"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b:unbound:mkt-comment-acquisition:2026-09-07",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-07.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 7 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "taskRunId": "run-325770fd-0fea-41ba-a140-704d5afbb042",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-07",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:49.334Z"
+  },
+  {
+    "id": "dm-mtyrwu0y-84d2",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "今天的托管工作我已经整理好了。日报在附件里，里面写了已经确认的结果和明天会继续处理的内容。",
+    "conversationId": "agent-square-comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+    "metadata": {
+      "source": "managed-daily-report",
+      "dailyReportArtifactId": "managed-daily-report:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b:unbound:mkt-comment-acquisition:2026-09-08",
+      "taskId": "comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "taskRunId": "run-325770fd-0fea-41ba-a140-704d5afbb042",
+      "accountId": "unbound",
+      "reportDate": "2026-09-08"
+    },
+    "artifact": {
+      "id": "managed-daily-report:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b:unbound:mkt-comment-acquisition:2026-09-08",
+      "kind": "managed_daily_report",
+      "type": "html",
+      "mimeType": "text/html; charset=utf-8",
+      "name": "抖音获客管家日报-2026-09-08.html",
+      "summary": "今天已推进一轮完整获客工作",
+      "content": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>抖音获客管家日报</title>\n  <style>\n    :root{color-scheme:light;font-family:-apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;color:#202735;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;padding:32px;background:#f4f6f8;line-height:1.6}.report{max-width:940px;margin:0 auto;border:1px solid #e2e7eb;background:#fff;box-shadow:0 18px 42px rgba(28,42,61,.07)}.filebar{display:flex;justify-content:space-between;gap:16px;padding:14px 32px;border-bottom:1px solid #e8edf1;background:#fbfcfd;color:#788595;font-size:13px}.filebar strong{color:#394555}.document{padding:48px 58px 54px}.meta{display:flex;justify-content:space-between;gap:24px;align-items:flex-start}.eyebrow{margin:0;color:var(--accent);font-size:14px;font-weight:700}.meta h1{margin:8px 0 0;color:#202735;font-size:30px;line-height:1.3;letter-spacing:0}.date{margin:8px 0 0;color:#7c8794;font-size:14px}.account{min-width:246px;padding:13px 16px;border-left:3px solid var(--accent);background:#f7f9fb}.account strong,.account span{display:block}.account strong{color:#303b49;font-size:14px}.account span{margin-top:4px;color:#84909e;font-size:12px}.hero{margin-top:34px;padding:31px 34px;border-top:1px solid var(--accent);background:#f8fafc}.hero h2{max-width:680px;margin:0;color:#25303e;font-size:27px;line-height:1.35;letter-spacing:0}.hero p{max-width:690px;margin:13px 0 0;color:#5d6978;font-size:16px}.facts{display:flex;gap:0;margin:0;padding:0;list-style:none;border-top:1px solid #e8edf1;border-bottom:1px solid #e8edf1}.facts li{flex:1;min-width:0;padding:22px 20px;border-right:1px solid #e8edf1}.facts li:last-child{border-right:0}.facts strong,.facts span{display:block}.facts strong{color:var(--accent);font-size:28px;line-height:1.1}.facts span{margin-top:7px;color:#687585;font-size:13px}.section{margin-top:34px;padding-top:28px;border-top:1px solid #e8edf1}.section h2{margin:0 0 15px;color:#2b3543;font-size:18px;letter-spacing:0}.deliverable-list{border-top:1px solid #e7ecf0}.deliverable{padding:17px 0;border-bottom:1px solid #e7ecf0}.deliverable:last-child{border-bottom:0}.deliverable-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.deliverable-head strong{color:#273241;font-size:16px}.deliverable-meta{margin:4px 0 0;color:#7a8795;font-size:13px}.status{flex:0 0 auto;color:var(--accent);font-size:13px;font-weight:700}.deliverable blockquote{margin:10px 0 0;padding:9px 13px;border-left:2px solid #d8e1ea;background:#fafbfd;color:#3d4a59;font-size:15px}.message{margin:10px 0 0;color:#425062;font-size:15px}.message span,.annotation span{color:#788595;font-size:13px;font-weight:700}.annotation{margin:8px 0 0;color:#536071;font-size:14px}.records{display:grid;gap:10px;margin:0;padding:0;list-style:none}.records li{position:relative;padding:12px 0 12px 23px;border-bottom:1px solid #eef1f4;color:#455160;font-size:15px}.records li::before{content:\"\";position:absolute;top:21px;left:0;width:8px;height:8px;border-radius:50%;background:var(--accent)}.records li:last-child{border-bottom:0}.details{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.8fr);gap:42px}.details p{margin:0;color:#536071;font-size:15px}.next{padding-left:22px;border-left:3px solid #dae1e8}.next h2{margin-bottom:10px}.attention{padding:19px 22px;border-left:3px solid #53a678;background:#f3faf6}.attention.is-required{border-left-color:#d98b32;background:#fff8ef}.attention h2{margin:0;color:#2f3b49;font-size:17px}.attention p{margin:6px 0 0;color:#536071;font-size:15px}.participants div{display:flex;flex-wrap:wrap;gap:8px}.participants span{padding:5px 10px;border:1px solid #dbe4ee;border-radius:999px;color:#52667d;font-size:13px}.foot{margin-top:34px;padding-top:21px;border-top:1px solid #e8edf1;color:#788595;font-size:13px}.foot strong{color:#4d5b6b}@media (max-width:720px){body{padding:0}.document{padding:30px 22px}.meta,.details{display:block}.account{margin-top:22px}.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.facts li{border-bottom:1px solid #e8edf1}.facts li:nth-child(2n){border-right:0}.facts li:last-child{border-bottom:0}.hero{padding:25px 22px}.hero h2{font-size:23px}.deliverable-head{align-items:flex-start}.status{max-width:46%;text-align:right}.details .next{margin-top:28px}.filebar{padding:13px 20px}.filebar span:last-child{display:none}}\n  </style>\n</head>\n<body style=\"--accent:#2f80ed\">\n  <main class=\"report\">\n    <header class=\"filebar\"><strong>日报文件</strong><span>由 抖音获客管家 生成 · 任务未继续执行</span></header>\n    <article class=\"document\">\n      <header class=\"meta\"><div><p class=\"eyebrow\">获客工作日报</p><h1>抖音获客管家日报</h1><p class=\"date\">2026 年 9 月 8 日 · Douyin acquisition activity</p></div><aside class=\"account\"><strong>未命名抖音账号</strong><span>已授权抖音账号 · unbound</span></aside></header>\n      <section class=\"hero\"><h2>今天已推进一轮完整获客工作</h2><p>找人、判断和触达的结果会放在同一份成果中，后续可以继续追踪。</p></section>\n      <ul class=\"facts\"><li><strong>—</strong><span>今日没有新增可确认结果</span></li></ul>\n      \n      <section class=\"section\"><h2>今天已经做完的事</h2><ul class=\"records\"><li>本日重点结果已列在上方，后续会沿当前任务继续推进。</li></ul></section>\n      <section class=\"section details\"><div><h2>已确认的工作记录</h2><p>记录只包含已确认的工作事件，不把轮询和等待当作完成。</p></div><aside class=\"next\"><h2>明天我会继续</h2><p>本轮任务当前没有继续执行，已确认的成果和原因会保留在这份记录中。</p></aside></section>\n      <section class=\"section attention\"><h2>今天无需你处理</h2><p>我会按当前规则继续推进；有需要你介入的事项时，会单独在对话里说明。</p></section>\n      \n      <footer class=\"foot\"><strong>成果已同步。</strong> 这份附件、任务成果和成果中心打开的是同一份工作记录。</footer>\n    </article>\n  </main>\n</body>\n</html>",
+      "projectId": "managed-task:comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "projectName": "托管任务日报",
+      "taskId": "comment-acquisition-775c1352-3fa4-4e59-839f-21cc71e5a77b",
+      "taskRunId": "run-325770fd-0fea-41ba-a140-704d5afbb042",
+      "agentId": "mkt-comment-acquisition",
+      "accountId": "unbound",
+      "reportDate": "2026-09-08",
+      "createdBy": "抖音获客管家",
+      "createdAt": "2026-09-12T19:23:48.529Z",
+      "metadata": {
+        "scope": "agent_task",
+        "participantAgentIds": [
+          "mkt-comment-acquisition"
+        ],
+        "metrics": {
+          "sources": 0,
+          "candidates": 0,
+          "qualified": 0,
+          "outreachAccepted": 0,
+          "outreachSent": 0,
+          "replies": 0,
+          "failed": 0
+        }
+      }
+    },
+    "createdAt": "2026-09-12T19:23:49.378Z"
+  },
+  {
+    "id": "dm-mu0qnd50-ryh0",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "你好，告诉我你现在能做什么",
+    "createdAt": "2026-09-14T04:24:00.324Z"
+  },
+  {
+    "id": "dm-mu0qne2x-lkvv",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "你好，我在。从授权账号的评论、直播和互动里汇总用户，保留来源证据，再交给客户分析员判断。你可以直接说想处理什么，我会先确认范围，再告诉你下一步。",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu0qnd50-ryh0"
+    },
+    "createdAt": "2026-09-14T04:24:01.545Z"
+  }
+]

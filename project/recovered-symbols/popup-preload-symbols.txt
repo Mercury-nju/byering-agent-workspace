@@ -1,0 +1,17 @@
+Pc2Ey
+contextBridge
+dragMove
+dragStart
+exposeInMainWorld
+ipcRenderer
+onInit
+onModeChanged
+remote-control-popup:close
+remote-control-popup:collapsed-drag-movei
+remote-control-popup:collapsed-drag-start
+remote-control-popup:init
+remote-control-popup:mode-changed
+remote-control-popup:toggle-modei
+remoteControlPopup
+send
+toggleMode

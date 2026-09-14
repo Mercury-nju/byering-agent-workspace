@@ -1,0 +1,114 @@
+# HTTP API Endpoint Candidates
+
+Generated from readable JavaScript assets under project/.
+
+- /v2/dynamicard_pcyyb
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/get_account_device_info
+  - assets/index-CriD6gLK.js
+- /v3/get_associated_device_list
+  - assets/index-CriD6gLK.js
+- /v3/get_marvis_notice
+  - assets/index-CriD6gLK.js
+- /v3/get_pc_wx_ticket
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/get_skill_detail
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/get_skill_list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/get_skill_type
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_add_skill_by_url
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_commerce_add_address
+  - cards/ordering-tea/empty-C-sLburo.js
+- /v3/marvis_commerce_address_search
+  - cards/ordering-tea/empty-C-sLburo.js
+- /v3/marvis_commerce_cancel_order
+  - cards/ordering-tea/place-order/index.esm.js
+- /v3/marvis_commerce_check_login_status
+  - cards/ordering-tea/userLogin-BzmJpzuu.js
+- /v3/marvis_commerce_create_order
+  - cards/ordering-tea/place-order/index.esm.js
+- /v3/marvis_commerce_get_auth_profile
+  - cards/ordering-tea/place-order/index.esm.js, cards/ordering-tea/userLogin-BzmJpzuu.js
+- /v3/marvis_commerce_get_city_list
+  - cards/ordering-tea/index-c2GmKP5G.js
+- /v3/marvis_commerce_get_product
+  - cards/ordering-tea/place-order/index.esm.js
+- /v3/marvis_commerce_get_store
+  - cards/ordering-tea/index-c2GmKP5G.js
+- /v3/marvis_commerce_list_addresses
+  - cards/ordering-tea/empty-C-sLburo.js
+- /v3/marvis_commerce_list_nearby_stores
+  - cards/ordering-tea/index-c2GmKP5G.js
+- /v3/marvis_commerce_order_login
+  - cards/ordering-tea/userLogin-BzmJpzuu.js
+- /v3/marvis_commerce_preview_order
+  - cards/ordering-tea/place-order/index.esm.js
+- /v3/marvis_commerce_price_sku
+  - cards/ordering-tea/place-order/index.esm.js
+- /v3/marvis_commerce_query_order
+  - cards/ordering-tea/place-order/index.esm.js
+- /v3/marvis_commerce_query_order_list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_commerce_search_products
+  - cards/ordering-tea/place-order/index.esm.js
+- /v3/marvis_commerce_search_stores
+  - cards/ordering-tea/index-c2GmKP5G.js
+- /v3/marvis_commerce_send_sms_code
+  - cards/ordering-tea/userLogin-BzmJpzuu.js
+- /v3/marvis_commerce_update_address
+  - cards/ordering-tea/empty-C-sLburo.js
+- /v3/marvis_create_conversation_share
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_del_my_skillcase
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_mcp_cli_types
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_mcp_service_detail
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_mcp_service_list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_mcp_services_by_names
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_my_skillcase_baseinfo
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_my_skillcases_page
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_put_presign_url
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_rec_mcps
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_skill_case_detail
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_skill_case_types
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_skill_cases
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_get_tool_tab_list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_ioa_2_fa
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_ioa_2_fa_verify
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_ioa_login_query
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_publish_skill_case
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_query_bind_status
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_save_skill_case_use_record
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_skill_case_comment
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_skill_case_comment_delete
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_skill_case_comment_like
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/marvis_skill_case_comment_list
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js
+- /v3/security_policy_manage
+  - assets/index-CriD6gLK.js
+- /v3/skill_operate
+  - assets/treemap-KZPCXAKY-Dm7XgKSQ.js

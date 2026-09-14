@@ -1,0 +1,10 @@
+# Renderer IPC Channel Candidates
+
+Generated from readable JavaScript assets under project/.
+
+- marvis:bugly:crash-test:trigger
+  - electron/main-reconstructed.mjs
+- marvis:drag-files:cache
+  - electron/main-reconstructed.mjs
+- marvis:renderer:ready
+  - electron/main-reconstructed.mjs
