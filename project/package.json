@@ -6,6 +6,7 @@
   "description": "Byering - AI chief of staff. Recovered renderer and Electron reconstruction scaffold",
   "scripts": {
     "dev": "node scripts/dev.mjs",
+    "dev:demo": "MARVIS_ENABLE_GATEWAY_MOCK=1 node scripts/dev.mjs",
     "serve": "node scripts/static-server.mjs",
     "electron": "electron electron/main-reconstructed.mjs",
     "electron:inspect": "electron --inspect=9229 electron/main-reconstructed.mjs",

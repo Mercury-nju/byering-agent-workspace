@@ -129,6 +129,12 @@ test("early brand guard precedes recovered bundle", () => {
   assert.ok(bootstrap.indexOf("main-BaWVt8Sl.js") < bootstrap.indexOf('import("./index.js'));
 });
 
+test("root URL opens the workspace instead of hiding it as marketing", () => {
+  const html = readFileSync(path.join(projectRoot, "index.html"), "utf8");
+  assert.match(html, /byeringPage===\"marketing\"\|\|byeringPage===\"landing\"/);
+  assert.doesNotMatch(html, /if\(!byeringPage&&!location\.hash/);
+});
+
 test("new defaults and direct-message seeds render Byering", () => {
   const profile = createDefaultProfile("main");
   assert.equal(profile.identity.name, "Byering · 幕僚长");

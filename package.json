@@ -1,0 +1,15 @@
+{
+  "name": "byering-agent-recovery",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Byering development launcher",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "npm --prefix project run dev:demo",
+    "start": "npm --prefix project run dev:demo",
+    "test": "node --test scripts/static-server.test.mjs scripts/knowledge-base-mock.test.mjs"
+  }
+}

@@ -562,6 +562,10 @@ test("browser control-plane client creates, starts, snapshots, and replays task 
   }
 });
 
+test("control plane starts without optional Douyin credentials", () => {
+  assert.doesNotThrow(() => createControlPlaneHttpServer({ auth: false }));
+});
+
 test("control-plane event replay preserves the real requirement proposal as AG-UI", async () => {
   const server = createControlPlaneHttpServer({ controlPlane: createControlPlane({ requirementService: testRequirementService() }) });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));

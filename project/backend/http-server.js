@@ -664,7 +664,10 @@ export function createControlPlaneHttpServer({
     autoResume: false,
     profileDataClient
   });
-  const authoritativeDouyinInboxAgentService = douyinInboxAgentService || getDouyinInboxAgentService();
+  // A missing production-only Douyin key must make that capability unavailable,
+  // not prevent the whole local control plane from starting.
+  const authoritativeDouyinInboxAgentService = douyinInboxAgentService
+    || (authoritativeDouyinAgentCloudRegistry?.configured ? getDouyinInboxAgentService() : null);
   const authoritativeCoreAgentExecutionService = coreAgentExecutionService || createCoreAgentExecutionService({
     douyinAcquisitionService: authoritativeDouyinAcquisitionService,
     intentAnalysisService: authoritativeIntentAnalysisService,

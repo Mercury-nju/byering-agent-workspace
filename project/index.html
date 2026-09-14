@@ -15,7 +15,7 @@
   <style id="byering-auth-early-style">html[data-byering-auth="1"] #root{display:none!important}html[data-byering-auth="1"],html[data-byering-auth="1"] body{background:#e8f6ff}</style>
   <style id="byering-onboarding-early-style">html[data-byering-onboarding="1"] #root{display:none!important}html[data-byering-onboarding="1"],html[data-byering-onboarding="1"] body{background:#f3f5f2}</style>
   <script>document.documentElement.dataset.byeringGuard = "pending";</script>
-  <script>var byeringPage=new URLSearchParams(location.search).get("page");if(!byeringPage&&!location.hash&&!/^\/share\//.test(location.pathname))document.documentElement.dataset.byeringMarketing="1";if(byeringPage==="login"||/^#\/?auth(?:\/login)?$/.test(location.hash))document.documentElement.dataset.byeringAuth="1";if(byeringPage==="onboarding"||/^#\/?onboarding(?:\/(?:identity|goal))?$/.test(location.hash))document.documentElement.dataset.byeringOnboarding="1";</script>
+  <script>var byeringPage=new URLSearchParams(location.search).get("page");if((byeringPage==="marketing"||byeringPage==="landing")&&!location.hash&&!/^\/share\//.test(location.pathname))document.documentElement.dataset.byeringMarketing="1";if(byeringPage==="login"||/^#\/?auth(?:\/login)?$/.test(location.hash))document.documentElement.dataset.byeringAuth="1";if(byeringPage==="onboarding"||/^#\/?onboarding(?:\/(?:identity|goal))?$/.test(location.hash))document.documentElement.dataset.byeringOnboarding="1";</script>
   <script>
     (function installOfficeAtlasFilter() {
       var nativeFetch = window.fetch;
