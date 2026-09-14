@@ -83,6 +83,7 @@ const CORE_EXECUTION_AGENT_IDS = new Set([
   "mkt-comment-acquisition",
   "mkt-find-people",
   "mkt-intent-analyst",
+  "mkt-live-danmaku-analysis",
   "mkt-cold-writer",
   "mkt-dm-inbox"
 ]);
@@ -464,7 +465,10 @@ export function createControlPlaneHttpServer({
   const authoritativeDouyinAccountActionCoordinator = douyinAccountActionCoordinator || createDouyinAccountActionCoordinator();
   const resolvedAgentStore = agentStore || createAgentStore(resolve(
     agentStoreRoot || process.env.BYERING_AGENT_STORE_ROOT || DEFAULT_AGENT_STORE_ROOT
-  ), { seedMessages: false });
+  ), {
+    seedMessages: process.env.MARVIS_ENABLE_GATEWAY_MOCK === "1",
+    demoConversationMode: process.env.MARVIS_ENABLE_GATEWAY_MOCK === "1"
+  });
   const resolvedKnowledgeProvider = knowledgeProvider || createAgentKnowledgeProvider({ agentStore: resolvedAgentStore });
   const resolvedAcquisitionEventSink = douyinAcquisitionEventSink
     || acquisitionEventSink
@@ -4780,6 +4784,7 @@ const CORE_EXECUTION_DEFAULT_GOALS = Object.freeze({
   "mkt-comment-acquisition": "持续从已授权抖音账号中寻找、判断并推进潜客",
   "mkt-find-people": "从已授权抖音直播与互动中寻找潜客",
   "mkt-intent-analyst": "分析候选客户并输出可跟进的潜客判断",
+  "mkt-live-danmaku-analysis": "分析授权账号当前直播间的弹幕与互动信号",
   "mkt-cold-writer": "向已核验潜客发送首轮私信",
   "mkt-dm-inbox": "持续承接抖音新私信并按已确认策略回复"
 });

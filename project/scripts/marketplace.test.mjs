@@ -10,16 +10,17 @@ const EXPECTED_DESCRIPTIONS = {
   "mkt-lead-miner": "从作品评论里找出有需求的人，保留账号、原话和来源。",
   "mkt-comment-filter": "按条件筛选差评、询价和竞品评论，保留原文与评论人。",
   "mkt-douyin-finder": "按你的要求找账号，查看主页和作品，给出匹配人选。",
-  "mkt-find-people": "汇总我账号评论、直播和互动通知里出现的全部用户，保留来源后交给客户分析员。",
+  "mkt-find-people": "汇总我账号评论、直播和互动里出现的全部用户，保留来源后交给客户分析员。",
   "mkt-user-research": "找到符合条件的受访者，并用指定账号发送问卷邀请。",
   "mkt-live-lead-miner": "从直播弹幕和互动中找出有需求的观众，整理账号与依据。",
-  "mkt-cold-writer": "自动识别待触达潜客；由你筛选名单、配置首轮信息后发送，并记录结果。",
-  "mkt-dm-inbox": "持续回复新私信，必要时把需要人工判断的事项转给你。",
+  "mkt-cold-writer": "按账号选择潜客或全部找到的人，配置首轮私信后发送，并记录结果。",
+  "mkt-dm-inbox": "持续处理新私信和历史会话，识别留资并把需要人工判断的事项交给你。",
   "mkt-research-expert": "分析账号主页、作品和互动，整理内容表现与账号画像。",
   "mkt-audience-search": "按地区、简介和账号类型筛选目标账号，说明匹配条件。",
   "mkt-network-miner": "分析粉丝与关注关系，找出相似账号和共同关注的人。",
   "mkt-trend-insight": "对比账号粉丝、播放和互动变化，找出增长与异常。",
-  "mkt-intent-analyst": "读取找客专员汇总的互动用户，展示判断过程，筛出需要人工确认触达的潜客。",
+  "mkt-intent-analyst": "从找客结果中判断值得继续跟进的人，也可按账号或指定目标生成分析报告。",
+  "mkt-live-danmaku-analysis": "分析直播间弹幕，提炼问题、需求和购买意向。",
   "mkt-follow-up": "根据沟通和意向安排回访时间，整理待跟进清单。",
   "mkt-phone-sdr": "准备电话开场和邀约话术，通话后整理结果与下一步。",
   "mkt-copywriter": "根据产品和受众写视频、直播和私信文案，整理发布计划。"
@@ -27,19 +28,20 @@ const EXPECTED_DESCRIPTIONS = {
 
 const EXPECTED_CARD_IDENTITIES = {
   "mkt-lead-miner": ["评论区找客户", "从留言里找出有需求的人", ["找有需求的人", "保留原始留言", "整理客户名单"]],
-  "mkt-comment-acquisition": ["获客专家", "覆盖找客、研究、首次触达和私信承接", ["自动找意向客户", "完成首次触达", "承接后续私信"]],
+  "mkt-comment-acquisition": ["抖音获客管家", "找人、分析、触达和对话", ["找互动用户", "筛出值得跟进的人", "完成首次联系和对话"]],
   "mkt-comment-filter": ["按条件筛评论", "差评、询价、提到竞品，都能筛", ["筛差评和询价", "查留言原文", "导出评论表"]],
   "mkt-douyin-finder": ["抖音找人助手", "说出你的要求，帮你找到合适的人", ["按要求找人", "查看账号和作品", "比较推荐人选"]],
   "mkt-find-people": ["找客专员", "从我的账号汇总全部互动用户", ["汇总互动用户", "保留原始证据", "整理待分析名单"]],
   "mkt-user-research": ["找人发问卷", "找到你想调研的人，邀请填写问卷", ["找合适的受访者", "核对人选条件", "私信邀请填问卷"]],
   "mkt-live-lead-miner": ["直播间找客户", "从弹幕和互动里找有兴趣的观众", ["查看弹幕互动", "找有意向的观众", "整理观众名单"]],
-  "mkt-cold-writer": ["潜客激活专员", "从已分析的潜客中筛选并完成首轮私信", ["确认触达名单", "发送私信", "查看触达结果"]],
-  "mkt-dm-inbox": ["私信客服", "有人发来私信，替你接待和解答", ["自动接待私信", "结合上下文回复", "难题交给你"]],
+  "mkt-cold-writer": ["潜客触达专员", "按账号触达潜客或全部找到的人，并记录结果", ["选择触达方式", "一键触达", "查看触达结果"]],
+  "mkt-dm-inbox": ["私信客服", "有人发来私信，替你接待和解答", ["自动接待私信", "结合上下文回复", "识别留资并转人工"]],
   "mkt-research-expert": ["抖音账号分析", "看看这个账号是谁、内容做得怎样", ["了解账号背景", "分析作品表现", "整理分析报告"]],
   "mkt-audience-search": ["按条件找账号", "按地区、行业和简介筛选账号", ["设置找人条件", "搜索合适账号", "说明入选理由"]],
   "mkt-network-miner": ["粉丝关系分析", "看看谁关注了谁，找到相似的人", ["查看粉丝关注", "找相似账号", "找共同关注"]],
   "mkt-trend-insight": ["涨粉趋势分析", "看看谁涨粉快、哪些内容带来增长", ["比较涨粉速度", "找表现好的内容", "提醒数据异常"]],
-  "mkt-intent-analyst": ["客户分析员", "分析互动用户，筛出值得跟进的潜客", ["核对原始表达", "判断购买意向", "给出下一步建议"]],
+  "mkt-intent-analyst": ["客户分析员", "分析互动用户或生成报告", ["查看原始表达", "判断购买意向", "生成分析报告"]],
+  "mkt-live-danmaku-analysis": ["直播间弹幕分析", "把直播互动整理成需求与意向判断", ["识别弹幕主题", "判断用户意向", "保留原始证据"]],
   "mkt-follow-up": ["客户跟进提醒", "记住该回访谁、什么时候联系", ["查看沟通记录", "安排回访时间", "整理跟进提醒"]],
   "mkt-phone-sdr": ["电话邀约准备", "打电话前准备话术，聊完整理结果", ["准备邀约话术", "整理通话记录", "记录预约结果"]],
   "mkt-copywriter": ["营销文案助手", "帮你写视频文案、直播预告和私信", ["写视频文案", "写预告和私信", "整理发布计划"]]
@@ -57,13 +59,13 @@ test("Agent Center cards use capability-first Chinese names and outcome tags", (
   }
 });
 
-test("客户分析员只判断交接候选人，不承担找人、账号研究或自动触达", () => {
+test("客户分析员只分析候选人或指定目标，不承担找人或自动触达", () => {
   const analyst = MARKETPLACE_AGENTS.find((agent) => agent.id === "mkt-intent-analyst");
 
-  assert.deepEqual(analyst.profile.role.responsibilities, ["接收找客沉淀的候选名单", "逐一核对原始表达和来源证据", "判断购买意向并给出下一步建议"]);
+  assert.deepEqual(analyst.profile.role.responsibilities, ["接收找客专员沉淀的互动用户", "按成果中心筛选结果或账号维度完成分析", "识别值得推进的人，或按用户目标生成 HTML 分析报告", "将报告同步到文件中心和产品内对话"]);
   assert.deepEqual(analyst.profile.scope.dataAccess, ["待判断候选名单", "候选人的原始表达与来源证据", "任务来源账号与时间信息"]);
-  assert.match(analyst.profile.permission.approvalRequired.join(" "), /将重点潜客交给潜客激活专员/);
-  assert.doesNotMatch(analyst.desc, /账号|作品|自动发送|私信/);
+  assert.match(analyst.profile.permission.approvalRequired.join(" "), /将重点潜客交给潜客触达专员/);
+  assert.doesNotMatch(analyst.desc, /作品|自动发送|私信/);
   assert.doesNotMatch(analyst.profile.role.responsibilities.join(" "), /找人|账号研究|发送/);
 });
 
@@ -105,15 +107,15 @@ test("marketplace agent descriptions state concrete scope and boundaries", () =>
   }
 });
 
-test("获客专家 advertises the authorized-account listener path", () => {
+test("抖音获客管家 advertises the authorized-account listener path", () => {
   const agent = MARKETPLACE_AGENTS.find((item) => item.id === "mkt-comment-acquisition");
   assert.ok(agent, "mkt-comment-acquisition missing from Agent Square");
-  assert.equal(agent.name, "获客专家");
-  assert.equal(agent.title, "获客专家");
+  assert.equal(agent.name, "抖音获客管家");
+  assert.equal(agent.title, "抖音获客管家");
   assert.match(agent.desc, /首次私信联系/);
   assert.match(agent.desc, /后续对话/);
   assert.match(agent.mission, /持续监听/);
-  assert.deepEqual(agent.inputs, ["授权账号", "目标人群与意向信号", "首次触达与私信接待规则"]);
+  assert.deepEqual(agent.inputs, ["授权账号"]);
   assert.doesNotMatch(agent.inputs.join(" "), /时间|范围|历史/);
   assert.equal(agent.capabilities.inboxReception, true);
   assert.ok(agent.searchTerms.includes("评论区获客"));
@@ -125,11 +127,11 @@ test("获客专家 advertises the authorized-account listener path", () => {
 
 test("找客专员私聊说明明确只汇总授权账号互动用户", () => {
   const reply = roleReply("mkt-find-people");
-  assert.match(reply, /已授权抖音账号/);
-  assert.match(reply, /启用后新产生/);
-  assert.match(reply, /客户分析员/);
+  assert.match(reply, /授权账号/);
+  assert.match(reply, /不直接把互动当成潜客/);
+  assert.match(reply, /不直接把互动当成潜客/);
   assert.doesNotMatch(reply, /公开找人/);
-  assert.match(reply, /不会自动发私信/);
+  assert.doesNotMatch(reply, /发私信/);
 });
 
 test("找客专员只持续监听授权账号的新互动", () => {
@@ -137,7 +139,7 @@ test("找客专员只持续监听授权账号的新互动", () => {
   const finder = MARKETPLACE_AGENTS.find((agent) => agent.id === "mkt-find-people");
 
   assert.match(manager.mission, /持续监听/);
-  assert.deepEqual(manager.inputs, ["授权账号", "目标人群与意向信号", "首次触达与私信接待规则"]);
+  assert.deepEqual(manager.inputs, ["授权账号"]);
   assert.doesNotMatch(manager.inputs.join(" "), /时间窗口|作品范围/);
 
   assert.match(finder.mission, /持续监听已授权账号/);
@@ -151,7 +153,7 @@ test("Agent Square categories use the generic capability taxonomy", () => {
   assert.deepEqual(MARKETPLACE_CATEGORIES, ["找人", "触达", "私信对话", "分析"]);
   const expectedIds = new Set([
     "mkt-lead-miner", "mkt-comment-acquisition", "mkt-comment-filter", "mkt-douyin-finder", "mkt-find-people", "mkt-user-research", "mkt-live-lead-miner", "mkt-cold-writer", "mkt-dm-inbox", "mkt-research-expert",
-    "mkt-audience-search", "mkt-network-miner", "mkt-trend-insight", "mkt-intent-analyst",
+    "mkt-audience-search", "mkt-network-miner", "mkt-trend-insight", "mkt-intent-analyst", "mkt-live-danmaku-analysis",
     "mkt-follow-up", "mkt-phone-sdr", "mkt-copywriter"
   ]);
   assert.deepEqual(new Set(MARKETPLACE_AGENTS.map((agent) => agent.id)), expectedIds);
@@ -176,16 +178,17 @@ test("private-message reply labels collapse into the conversation capability", (
 });
 
 test("only agents with a real end-to-end path are marked executable", () => {
-  assert.deepEqual(IMPLEMENTED_MARKETPLACE_AGENT_IDS, ["mkt-lead-miner", "mkt-comment-filter", "mkt-comment-acquisition", "mkt-dm-inbox", "mkt-cold-writer", "mkt-douyin-finder", "mkt-find-people", "mkt-user-research", "mkt-live-lead-miner", "mkt-research-expert", "mkt-intent-analyst"]);
+  assert.deepEqual(IMPLEMENTED_MARKETPLACE_AGENT_IDS, ["mkt-lead-miner", "mkt-comment-filter", "mkt-comment-acquisition", "mkt-dm-inbox", "mkt-cold-writer", "mkt-douyin-finder", "mkt-find-people", "mkt-user-research", "mkt-live-lead-miner", "mkt-research-expert", "mkt-intent-analyst", "mkt-live-danmaku-analysis"]);
   assert.equal(isImplementedMarketplaceAgent("mkt-lead-miner"), true);
   assert.equal(isImplementedMarketplaceAgent("mkt-live-lead-miner"), true);
   assert.equal(isImplementedMarketplaceAgent({ id: "mkt-comment-filter" }), true);
 });
 
-test("Agent Center activates one complete-capability Agent and four peer single-capability Agents", () => {
+test("Agent Center activates the complete-capability roster and live analysis Agent", () => {
   assert.deepEqual(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS, [
     DOUYIN_ACQUISITION_COMPLETE_AGENT_ID,
-    ...DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS
+    ...DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS,
+    "mkt-live-danmaku-analysis"
   ]);
   assert.deepEqual(listActivatedMarketplaceAgents().map(({ id }) => id), DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS);
   for (const agent of MARKETPLACE_AGENTS) {

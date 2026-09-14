@@ -82,6 +82,7 @@ test("uses the recovered DMG runtime as the only avatar source", () => {
   assert.deepEqual(grokAvatarSpecFor("客户研究员").shape, "pebble");
   assert.deepEqual(grokAvatarSpecFor("客户画像研究员").shape, "teardrop");
   assert.deepEqual(grokAvatarSpecFor("Research Agent").shape, "teardrop");
+  assert.deepEqual(grokAvatarSpecFor("潜客触达专员").shape, "gem");
   assert.deepEqual(grokAvatarSpecFor("潜客激活专员").shape, "gem");
   assert.deepEqual(grokAvatarSpecFor("mkt-comment-acquisition"), { shape: "blob", color: "blue", seed: grokAvatarSpecFor("mkt-comment-acquisition").seed });
   assert.deepEqual(grokAvatarSpecFor("mkt-dm-inbox"), { shape: "cloud", color: "orange", seed: grokAvatarSpecFor("mkt-dm-inbox").seed });

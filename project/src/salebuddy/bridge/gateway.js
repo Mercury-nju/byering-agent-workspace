@@ -10,6 +10,12 @@
 
 const DEFAULT_TIMEOUT_MS = 8000;
 
+/** Prefer the browser's native socket when the recovered demo shim replaced window.WebSocket. */
+export function getWebSocketConstructor(root = globalThis) {
+  if (root.__MARVIS_RECOVERED_DEMO_WEBSOCKET__) return root.WebSocket;
+  return root.__MARVIS_RECOVERED_NATIVE_WEBSOCKET__ || root.WebSocket;
+}
+
 export class SaleBuddyGatewayClient {
   constructor({ url, protocols = "ws-ag-ui" } = {}) {
     this.url = url;
@@ -50,7 +56,12 @@ export class SaleBuddyGatewayClient {
     if (!this.url) return Promise.reject(new Error("gateway url unavailable"));
     if (this.socket && this.socket.readyState === 1) return Promise.resolve();
     return new Promise((resolve, reject) => {
-      const socket = new WebSocket(this.url, this.protocols);
+      const WebSocketImpl = getWebSocketConstructor();
+      if (typeof WebSocketImpl !== "function") {
+        reject(new Error("WebSocket unavailable"));
+        return;
+      }
+      const socket = new WebSocketImpl(this.url, this.protocols);
       this.socket = socket;
       socket.addEventListener("open", () => resolve());
       socket.addEventListener("error", (event) => reject(event));

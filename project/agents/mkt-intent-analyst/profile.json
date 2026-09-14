@@ -73,7 +73,7 @@
   "permission": {
     "approvalRequired": [
       "导出含个人信息的分析结果",
-      "将重点潜客交给潜客激活专员"
+      "将重点潜客交给潜客触达专员"
     ],
     "limits": {
       "maxCandidatesPerRun": 500,

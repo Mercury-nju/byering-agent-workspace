@@ -9,6 +9,14 @@ import {
   validateCommentAcquisitionSetup,
   validateFinderListenerSetup
 } from "../src/salebuddy/ui/comment-acquisition-config.js";
+import {
+  DOUYIN_ACQUISITION_DISCOVERY_GOAL,
+  DOUYIN_ACQUISITION_FIRST_TOUCH_RULE,
+  DOUYIN_ACQUISITION_HANDOFF_RULES,
+  DOUYIN_ACQUISITION_OBJECTIVE,
+  DOUYIN_ACQUISITION_REPLY_TONE,
+  DOUYIN_ACQUISITION_SYSTEM_PROMPT
+} from "../src/salebuddy/agents/douyin-acquisition-prompt.js";
 
 test("comment acquisition defaults to the authorized account all-signal listener and a durable task", () => {
   const config = normalizeCommentAcquisitionConfig({
@@ -26,8 +34,41 @@ test("comment acquisition defaults to the authorized account all-signal listener
   assert.equal(config.touchChannel, "private_message");
   assert.equal(config.approvalMode, "auto");
   assert.equal(config.audienceRules.minScore, 80);
-  assert.equal(config.touchContent, "你好，看到你刚才的留言，想了解一下你的需求。");
+  assert.equal(config.objective, DOUYIN_ACQUISITION_OBJECTIVE);
+  assert.equal(config.systemPrompt, DOUYIN_ACQUISITION_SYSTEM_PROMPT);
+  assert.equal(config.audienceRules.goal, DOUYIN_ACQUISITION_DISCOVERY_GOAL);
+  assert.equal(config.touchContent, DOUYIN_ACQUISITION_FIRST_TOUCH_RULE);
   assert.equal(config.frequency.maxTouchesPerDay, COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay);
+});
+
+test("comprehensive acquisition accepts explicit optional advanced settings", () => {
+  const config = normalizeCommentAcquisitionConfig({
+    accountId: "account-1",
+    managerAdvancedSettingsEnabled: true,
+    managerAdvancedSettings: {
+      audienceGoal: "明确询价且准备预约的人",
+      requirements: "排除同行和抽奖互动",
+      firstTouch: "先回应用户刚才的问题，再确认具体需求。",
+      replyStyle: "克制、专业、像账号本人",
+      touchObjective: "获取联系方式并推进预约",
+      dialogueObjective: "确认需求和预约时间",
+      maxTouchesPerDay: 10,
+      minIntervalMinutes: 30
+    }
+  });
+
+  assert.equal(config.audienceRules.goal, "明确询价且准备预约的人");
+  assert.equal(config.audienceRules.requirements, "排除同行和抽奖互动");
+  assert.equal(config.contentPolicy.template, "先回应用户刚才的问题，再确认具体需求。");
+  assert.equal(config.contentPolicy.replyStyle, "克制、专业、像账号本人");
+  assert.equal(config.contentPolicy.conversionGoal, "获取联系方式并推进预约");
+  assert.equal(config.contentPolicy.dialogueObjective, "确认需求和预约时间");
+  assert.equal(config.frequency.maxTouchesPerDay, 10);
+  assert.equal(config.frequency.minIntervalMinutes, 30);
+  assert.equal(config.caps.dailyMax, 10);
+  assert.equal(config.caps.sendIntervalMs, 30 * 60 * 1000);
+  assert.match(config.systemPrompt, /用户可选设置/);
+  assert.match(config.systemPrompt, /明确询价且准备预约的人/);
 });
 
 test("comment acquisition fixes first outreach to immediate all-day operation", () => {
@@ -47,11 +88,11 @@ test("comment acquisition fixes first outreach to immediate all-day operation", 
 
   assert.equal("workWindow" in config, false);
   assert.equal(config.frequency.mode, "识别到高意向潜客后自动触达");
-  assert.equal(config.frequency.maxTouchesPerDay, 18);
-  assert.equal(config.frequency.minIntervalMinutes, 12);
-  assert.equal(config.contentPolicy.strategy, "先回应对方问到的车型，再询问预计购车时间。");
-  assert.equal(config.contentPolicy.replyStyle, "专业、简短、自然");
-  assert.equal(config.contentPolicy.handoffBoundary, "涉及具体报价、退款、投诉或无法确认的库存时交给人工。");
+  assert.equal(config.frequency.maxTouchesPerDay, COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay);
+  assert.equal(config.frequency.minIntervalMinutes, COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes);
+  assert.equal(config.contentPolicy.strategy, DOUYIN_ACQUISITION_FIRST_TOUCH_RULE);
+  assert.equal(config.contentPolicy.replyStyle, DOUYIN_ACQUISITION_REPLY_TONE);
+  assert.equal(config.contentPolicy.handoffBoundary, DOUYIN_ACQUISITION_HANDOFF_RULES.join("；"));
 });
 
 test("comment acquisition always uses private first outreach and never serializes the retired public-reply fields", () => {
@@ -64,12 +105,10 @@ test("comment acquisition always uses private first outreach and never serialize
   assert.equal("publicReplyAvailable" in config, false);
 });
 
-test("full acquisition setup requires an authorized account, audience goal, and saved reception strategy", () => {
+test("full acquisition setup only requires an authorized account", () => {
   assert.equal(validateCommentAcquisitionSetup({}), "请先完成当前抖音账号授权");
-  assert.equal(validateCommentAcquisitionSetup({ accountId: "account-1" }), "请告诉我你想找什么样的人");
-  assert.equal(validateCommentAcquisitionSetup({ accountId: "account-1", product: "近期准备购买的人" }), "请先保存这个账号的接待方式");
-  assert.equal(validateCommentAcquisitionSetup({ accountId: "account-1", product: "近期准备购买的人", reception: null }), "请先保存这个账号的接待方式");
-  assert.equal(validateCommentAcquisitionSetup({ accountId: "account-1", product: "近期准备购买的人", reception: { revision: "reception-v1" } }), null);
+  assert.equal(validateCommentAcquisitionSetup({ accountId: "account-1" }), null);
+  assert.equal(validateCommentAcquisitionSetup({ accountId: "account-1", product: "旧目标人群", requirements: "旧筛选条件", reception: null }), null);
 });
 
 test("finder listener stays discovery-only and never carries historical or outreach settings", () => {
@@ -131,7 +170,7 @@ test("finder listener needs an account and a target, but not a reception strateg
   assert.equal(validateFinderListenerSetup({ accountId: "account-1", product: "主动询价的人" }), null);
 });
 
-test("task payload starts a long-running auto-send task with one agent-scoped account", () => {
+test("task payload starts a long-running autonomous acquisition task with one agent-scoped account", () => {
   const payload = buildCommentAcquisitionTaskPayload({
     taskId: "comment-acquisition-task-1",
     taskRunId: "run-1",
@@ -149,9 +188,12 @@ test("task payload starts a long-running auto-send task with one agent-scoped ac
   assert.equal(payload.config.sourceScope.kind, "authorized_account_all_signals");
   assert.equal(payload.config.longRunning, true);
   assert.equal(payload.config.approvalMode, "auto");
-  assert.equal(payload.config.frequency.maxTouchesPerDay, 20);
+  assert.equal(payload.config.autonomousLeadAcquisition, true);
+  assert.equal(payload.config.audienceRules.goal, DOUYIN_ACQUISITION_DISCOVERY_GOAL);
+  assert.equal(payload.config.audienceRules.requirements, "");
+  assert.equal(payload.config.frequency.maxTouchesPerDay, COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay);
   assert.equal(payload.config.touchChannel, "private_message");
-  assert.equal(payload.config.touchContent, "你好");
+  assert.equal(payload.config.touchContent, DOUYIN_ACQUISITION_FIRST_TOUCH_RULE);
 });
 
 test("comment acquisition cannot be downgraded to a manual approval mode", () => {
@@ -185,7 +227,7 @@ test("task payload forwards the authorized account reference and identity to the
   assert.deepEqual(payload.accountIdentity, identity);
 });
 
-test("task payload maps user targeting, message template, and frequency to executor fields", () => {
+test("task payload ignores retired targeting, message, and frequency fields", () => {
   const payload = buildCommentAcquisitionTaskPayload({
     taskId: "comment-acquisition-task-3",
     taskRunId: "run-3",
@@ -199,11 +241,11 @@ test("task payload maps user targeting, message template, and frequency to execu
     minIntervalMinutes: 20
   });
 
-  assert.match(payload.config.audienceRules.goal, /近期准备购买家居用品并主动询价的人/);
-  assert.match(payload.config.audienceRules.goal, /排除同行、抽奖和无关互动/);
-  assert.equal(payload.config.audienceRules.requirements, "排除同行、抽奖和无关互动");
+  assert.equal(payload.config.audienceRules.goal, DOUYIN_ACQUISITION_DISCOVERY_GOAL);
+  assert.equal(payload.config.audienceRules.requirements, "");
   assert.equal(payload.config.audienceRules.minScore, 80);
-  assert.equal(payload.config.contentPolicy.template, "你好，看到你提到这个问题，方便了解一下你的具体需求吗？");
-  assert.equal(payload.config.caps.dailyMax, 12);
-  assert.equal(payload.config.caps.sendIntervalMs, 20 * 60 * 1000);
+  assert.equal(payload.config.contentPolicy.template, DOUYIN_ACQUISITION_FIRST_TOUCH_RULE);
+  assert.equal(payload.config.caps.dailyMax, COMMENT_ACQUISITION_DEFAULTS.frequency.dailyMax);
+  assert.equal(payload.config.caps.sendIntervalMs, COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes * 60 * 1000);
+  assert.equal(payload.config.systemPrompt, DOUYIN_ACQUISITION_SYSTEM_PROMPT);
 });

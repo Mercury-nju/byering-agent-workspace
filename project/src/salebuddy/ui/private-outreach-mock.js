@@ -128,6 +128,75 @@ const MOCK_RECORDS = Object.freeze([
     createdAt: "2026-09-14T08:41:00.000Z",
     updatedAt: "2026-09-14T10:20:00.000Z",
     lastSeen: "2026-09-14T10:20:00.000Z"
+  },
+  {
+    id: "mock-outreach-shaoxing-tang",
+    name: "绍兴唐女士",
+    handle: "tang_tang_sx",
+    secId: "mock-sec-tang-sx",
+    secUid: "mock-sec-tang-sx",
+    profileUrl: "https://www.douyin.com/user/mock-sec-tang-sx",
+    avatar: MOCK_AVATARS[1],
+    status: "已触达",
+    outreachStatus: "sent",
+    replyStatus: "未回复",
+    tier: "high",
+    score: 86,
+    tags: ["已触达", "直播间用户"],
+    reason: "已在本批次前完成首轮私信触达，不再重复出现。",
+    source: {
+      type: "直播间弹幕",
+      sourceScope: "own_account_live",
+      accountName: MOCK_ACCOUNT.name,
+      accountId: MOCK_ACCOUNT.id,
+      accountAvatar: MOCK_SOURCE_ACCOUNT_AVATAR,
+      videoTitle: "新能源车型直播间",
+      taskId: "mock-outreach-previous-run",
+      observedAt: "2026-09-13T16:20:00.000Z"
+    },
+    contactability: {
+      allowed: true,
+      sourceScope: "own_account_live",
+      reason: "来自用户已授权账号的直播互动"
+    },
+    evidence: [{ quote: "想问一下这款车的落地价。", observedAt: "2026-09-13T16:20:00.000Z" }],
+    createdAt: "2026-09-13T16:20:00.000Z",
+    updatedAt: "2026-09-14T09:40:00.000Z",
+    lastSeen: "2026-09-14T09:40:00.000Z"
+  },
+  {
+    id: "mock-outreach-jiaxing-wu",
+    name: "嘉兴吴先生",
+    handle: "wu_jx_newcar",
+    secId: "mock-sec-wu-jx",
+    secUid: "mock-sec-wu-jx",
+    profileUrl: "https://www.douyin.com/user/mock-sec-wu-jx",
+    avatar: MOCK_AVATARS[2],
+    status: "触达中",
+    outreachStatus: "pending",
+    tier: "medium",
+    score: 78,
+    tags: ["触达中", "价格咨询"],
+    reason: "已有一条私信提交，正在等待平台最终回执。",
+    source: {
+      type: "作品评论",
+      sourceScope: "own_account_comments",
+      accountName: MOCK_ACCOUNT.name,
+      accountId: MOCK_ACCOUNT.id,
+      accountAvatar: MOCK_SOURCE_ACCOUNT_AVATAR,
+      videoTitle: "新能源车型价格说明",
+      taskId: "mock-outreach-previous-run",
+      observedAt: "2026-09-14T09:42:00.000Z"
+    },
+    contactability: {
+      allowed: true,
+      sourceScope: "own_account_comments",
+      reason: "来自用户已授权账号的作品评论"
+    },
+    evidence: [{ quote: "这个价格包含购置税吗？", observedAt: "2026-09-14T09:42:00.000Z" }],
+    createdAt: "2026-09-14T09:42:00.000Z",
+    updatedAt: "2026-09-14T09:48:00.000Z",
+    lastSeen: "2026-09-14T09:48:00.000Z"
   }
 ]);
 

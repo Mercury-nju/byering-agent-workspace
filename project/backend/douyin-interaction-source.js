@@ -91,6 +91,7 @@ export function createDouyinInteractionSource({
   const notifications = commentSource || createDouyinCommentNotificationSource({ cloudRegistry });
   const liveSessions = new Map();
   const liveConsumers = new Map();
+  const accountContexts = new Map();
 
   function liveConsumerKey(listenerKey, agentId) {
     return String(listenerKey || `default:${String(agentId || "").trim()}`);
@@ -109,6 +110,94 @@ export function createDouyinInteractionSource({
     if (consumers.size) return false;
     liveConsumers.delete(scopeKey);
     return true;
+  }
+
+  async function loadAccountContext(account, cloudScope) {
+    const base = account && typeof account === "object" ? account : null;
+    const summary = {
+      state: profileDataClient ? "waiting" : "unavailable",
+      requested: 0,
+      completed: 0,
+      failed: 0,
+      profile: { requested: 0, completed: 0, failed: 0 },
+      content: { requested: 0, completed: 0, failed: 0 }
+    };
+    const secUid = profileKey(base || {});
+    if (!profileDataClient || !secUid) return { account: base, summary };
+
+    const cacheKey = cloudScopeKey("account-context", cloudScope);
+    const cached = accountContexts.get(cacheKey);
+    if (cached) return cached;
+
+    const pending = (async () => {
+      const profileRequested = typeof profileDataClient.profile === "function";
+      const contentRequested = typeof profileDataClient.videosLatest === "function";
+      summary.requested = Number(profileRequested) + Number(contentRequested);
+      summary.profile.requested = Number(profileRequested);
+      summary.content.requested = Number(contentRequested);
+      if (!summary.requested) {
+        summary.state = "unavailable";
+        return { account: base, summary };
+      }
+
+      const calls = [];
+      if (profileRequested) {
+        calls.push(Promise.resolve()
+          .then(() => profileDataClient.profile(secUid, { fresh: false, timeout: profileDataTimeoutMs }))
+          .then(value => ({ kind: "profile", value }))
+          .catch(error => ({ kind: "profile", error })));
+      }
+      if (contentRequested) {
+        calls.push(Promise.resolve()
+          .then(() => profileDataClient.videosLatest(secUid, { count: 20, fresh: false, timeout: profileDataTimeoutMs }))
+          .then(value => ({ kind: "content", value }))
+          .catch(error => ({ kind: "content", error })));
+      }
+
+      let profile = null;
+      let recentWorks = null;
+      const errors = [];
+      for (const result of await Promise.all(calls)) {
+        if (result.error) {
+          errors.push({ source: result.kind, ...sourceError(result.error) });
+          summary.failed += 1;
+          summary[result.kind].failed += 1;
+          continue;
+        }
+        if (result.kind === "profile") {
+          profile = result.value;
+          summary.completed += 1;
+          summary.profile.completed += 1;
+        } else {
+          recentWorks = result.value;
+          summary.completed += 1;
+          summary.content.completed += 1;
+        }
+      }
+
+      summary.state = summary.failed
+        ? "degraded"
+        : summary.completed
+          ? "available"
+          : "unavailable";
+      return {
+        account: {
+          ...base,
+          ...(profile ? { profile } : {}),
+          ...(recentWorks ? { recentWorks } : {})
+        },
+        summary: {
+          ...summary,
+          ...(errors.length ? { errors } : {})
+        }
+      };
+    })();
+    const result = pending.then(value => {
+      if (value.summary.state !== "available") accountContexts.delete(cacheKey);
+      return value;
+    });
+    accountContexts.set(cacheKey, result);
+    return result;
   }
 
   async function enrichCandidates(candidates, profiles) {
@@ -241,6 +330,7 @@ export function createDouyinInteractionSource({
     liveOnly = false,
     includeNotifications = true,
     includeLive = true,
+    includeAccountContext = false,
     listenerKey = null,
     isActive = () => true
   } = {}) {
@@ -328,8 +418,14 @@ export function createDouyinInteractionSource({
     const profileSource = await enrichCandidates(candidates, updatedProfiles);
     sources.profile = profileSource;
     const enrichedCandidates = [...changed].map(key => updatedProfiles[key]);
+    let analysisAccount = account;
+    if (includeAccountContext) {
+      const accountContext = await loadAccountContext(account, cloudScope);
+      analysisAccount = accountContext.account;
+      sources.account = accountContext.summary;
+    }
     const analysis = enrichedCandidates.length ? await analyzer.analyze({
-      mode: "intent", goal, account,
+      mode: "intent", goal, account: analysisAccount,
       comments: enrichedCandidates.map((lead, index) => ({
         index, text: lead.evidence.map(e => `${e.type}: ${e.quote || "[行为记录，无用户原话]"}`).join("\n"),
         evidence: lead.evidence,

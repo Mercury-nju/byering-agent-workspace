@@ -9,28 +9,78 @@ const source = fs.readFileSync(new URL("../src/salebuddy/ui/agent-square.js", im
 const taskChoicesSource = fs.readFileSync(new URL("../src/salebuddy/ui/task-choices.js", import.meta.url), "utf8");
 const appSource = fs.readFileSync(new URL("../src/salebuddy/index.js", import.meta.url), "utf8");
 
-test("Agent Square toolbar stays compact on wide screens", () => {
-  assert.match(source, /\.sb-as-toolbar\{[^}]*gap:22px;[^}]*padding:28px 28px 24px/);
+test("Agent Square categories are grouped into a vertical workflow", () => {
+  assert.match(source, /\.sb-as-toolbar\{[^}]*gap:8px;[^}]*padding:28px 28px 10px\}/);
+  assert.doesNotMatch(source, /\.sb-as-toolbar\{[^}]*border-bottom:1px solid/);
   assert.match(source, /\.sb-as-cta\{[^}]*max-width:760px/);
   assert.match(source, /\.sb-as-cta strong\{[^}]*font-size:24px/);
   assert.match(source, /\.sb-as-cta span\{[^}]*max-width:700px;[^}]*font-size:14px/);
-  assert.match(source, /\.sb-as-chip\{[^}]*min-width:78px;[^}]*height:34px;[^}]*font-size:13px;[^}]*padding:0 12px/);
-  assert.match(source, /\.sb-as-chip-icon\{[^}]*width:15px;height:15px/);
-    assert.match(source, /const AGENT_STAGE_ICONS = Object\.freeze\(\{/);
-    assert.match(source, /const AGENT_WORKFLOW_DISPLAY_ORDER = Object\.freeze\(\["找人", "分析", "触达", "私信对话"\]\)/);
-    assert.match(source, /for \(const stage of \["全部", \.\.\.AGENT_WORKFLOW_DISPLAY_ORDER\]\)/);
+  assert.match(source, /\.sb-as-filter-row\{[^}]*display:flex;[^}]*margin-top:10px/);
+  assert.match(source, /\.sb-as-chips\{[^}]*display:flex;[^}]*overflow-x:auto;[^}]*flex-wrap:nowrap/);
+  assert.match(source, /\.sb-as-category-icon\.sb-as-chip-icon\{[^}]*width:15px;[^}]*height:15px/);
+  assert.match(source, /\.sb-as-chip\{[^}]*height:34px/);
+  assert.match(source, /\.sb-as-chip::after\{[^}]*content:attr\(data-count\)/);
+  assert.match(source, /\.sb-as-chip\.sb-on\{[^}]*background:#1F2329/);
+  assert.match(source, /\.sb-as-category-list\{[^}]*display:grid;[^}]*gap:12px;[^}]*padding:8px 28px 28px/);
+  assert.match(source, /\.sb-as-category-section\{[^}]*min-width:0/);
+  assert.match(source, /\.sb-as-category-section\+\.sb-as-category-section\{[^}]*padding-top:8px\}/);
+  assert.doesNotMatch(source, /\.sb-as-category-section\+\.sb-as-category-section\{[^}]*border-top:1px solid/);
+  assert.match(source, /\.sb-as-category-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+  assert.match(source, /const AGENT_STAGE_ICONS = Object\.freeze\(\{/);
+  assert.match(source, /const AGENT_STAGE_DESCRIPTIONS = Object\.freeze\(\{/);
+  assert.match(source, /const AGENT_SQUARE_FILTER_ORDER = Object\.freeze\(\["全部", \.\.\.AGENT_WORKFLOW_DISPLAY_ORDER\]\)/);
+  assert.match(source, /const AGENT_WORKFLOW_DISPLAY_ORDER = Object\.freeze\(\["找人", "分析", "触达", "私信对话"\]\)/);
+  assert.match(source, /categoryNav: "全部"/);
+  assert.match(source, /全部: \{ filledIcon: "agent-grid", color: "#536273" \}/);
+  assert.doesNotMatch(source, /filledIcon: "sparkles"/);
   assert.match(source, /找人: \{ filledIcon: "people-search", color: "#278AF0" \}/);
   assert.match(source, /触达: \{ filledIcon: "paper-plane", color: "#7C45F7" \}/);
   assert.match(source, /私信对话: \{ filledIcon: "chat-bubble", color: "#E28A2B" \}/);
   assert.match(source, /分析: \{ filledIcon: "growth-chart", color: "#5CB85C" \}/);
-  assert.match(source, /if \(iconConfig\) \{[\s\S]*createFilledStageIcon\(iconConfig\.filledIcon, iconConfig\.color\)[\s\S]*chip\.appendChild\(icon\);/);
-  assert.match(source, /chip\.appendChild\(el\("span", "sb-as-chip-label", stage\)\)/);
+  assert.match(source, /const sections = el\("div", "sb-as-category-list"\)/);
+  assert.match(source, /const mainFilterRow = el\("div", "sb-as-filter-row sb-as-filter-main"\)/);
+  assert.match(source, /for \(const stage of AGENT_SQUARE_FILTER_ORDER\) \{/);
+  assert.match(source, /let activeFilter = state\.categoryNav \|\| "全部"/);
+  assert.match(source, /state\.categoryNav = stage/);
+  assert.match(source, /target\?\.scrollIntoView\?\.\(\{ behavior: "smooth", block: "start" \}\)/);
+  assert.match(source, /const allAgentsGrid = el\("div", "sb-as-category-grid"\)/);
+  assert.match(source, /targetRow: allAgentsGrid/);
+  assert.match(source, /const allSection = buildCategorySection\("全部", allAgentsGrid\)/);
+  assert.match(source, /sectionByCategory\.set\("全部", allSection\)/);
+  assert.match(source, /const categoryRows = new Map\(AGENT_WORKFLOW_DISPLAY_ORDER\.map/);
+  assert.match(source, /renderTeamSection\(sections, \{[\s\S]*includeReady: true,[\s\S]*includeUnavailable: false,[\s\S]*targetRows: categoryRows/);
+  assert.match(source, /const agentsByCategory = new Map\(AGENT_WORKFLOW_DISPLAY_ORDER\.map/);
+  assert.match(source, /const availableAgents = MARKETPLACE_AGENTS[\s\S]*\.filter\(\(agent\) => !hiddenIds\.has\(agent\.id\)\)[\s\S]*\.filter\(isFirstReleaseAgent\)/);
+  assert.match(source, /for \(const category of AGENT_WORKFLOW_DISPLAY_ORDER\) \{/);
+  assert.match(source, /categoryRows\.get\(category\)\?\.appendChild/);
+  assert.match(source, /buildCategorySection\(category, grid\)/);
   assert.match(source, /el\("strong", null, "找到能直接帮你做事的 Agent"\)/);
   assert.match(source, /el\("span", null, "这些 Agent 覆盖找客户、分析账号、首次触达和私信接待，选一个就能开始"\)/);
-  assert.match(source, /renderTeamSection\(root, \{ includeReady: true, includeUnavailable: false, showTitle: false \}\)/);
   assert.doesNotMatch(source, /sb-as-search-row|sb-as-search|搜索成员、技能|搜索过滤/);
   assert.doesNotMatch(source, /sb-as-filter-label/);
   assert.doesNotMatch(source, /mainFilterRow\.appendChild\(el\("span", [^\n]*"能力"\)\)/);
+});
+
+test("Agent Square keeps the complete acquisition Agent in the all-agents section", () => {
+  assert.doesNotMatch(source, /"mkt-comment-acquisition": "综合能力"/);
+  assert.match(source, /if \(agent\?\.id === DOUYIN_ACQUISITION_COMPLETE_AGENT_ID\) return null/);
+  assert.doesNotMatch(source, /综合能力: "一个 Agent 串起找人、分析、触达和私信对话"/);
+
+  const homeStart = source.indexOf("function renderHome()");
+  const homeEnd = source.indexOf("\n  function render()", homeStart);
+  assert.ok(homeStart >= 0 && homeEnd > homeStart);
+  const homeSource = source.slice(homeStart, homeEnd);
+  assert.match(homeSource, /const target = sectionByCategory\.get\(stage\)/);
+  assert.doesNotMatch(homeSource, /category === "综合能力"/);
+  assert.match(homeSource, /allSection\.id = "sb-as-category-all"/);
+  assert.match(homeSource, /if \(category && agentsByCategory\.has\(category\)\)/);
+
+  const teamStart = source.indexOf("function renderTeamSection");
+  const teamEnd = source.indexOf("// ── Agent市场卡片 ──", teamStart);
+  assert.ok(teamStart >= 0 && teamEnd > teamStart);
+  const teamSource = source.slice(teamStart, teamEnd);
+  assert.match(teamSource, /const categoryRow = targetRows\.get\(category\)/);
+  assert.doesNotMatch(teamSource, /targetRows\.get\(workflowCategory\(\{ category \}\)\)/);
 });
 
 test("Agent Square cards use one complete responsibility description", () => {
@@ -56,7 +106,7 @@ test("Agent summary descriptions stay concise without losing the core outcome", 
   );
 });
 
-test("获客专家在一个启动流中完成账号、监听目标和接待策略配置", () => {
+test("获客管家在一个启动流中完成账号授权并使用固定策略", () => {
   assert.match(source, /function isInboxIntakeFlow\(agent, flow = null\)/);
   const flowStart = source.indexOf("function openUseFlow");
   const flowEnd = source.indexOf("function clearAuthFeedback", flowStart);
@@ -68,9 +118,9 @@ test("获客专家在一个启动流中完成账号、监听目标和接待策�
   const setupStart = source.indexOf("function renderInboxSetup");
   const setupEnd = source.indexOf("function renderInboxStarting", setupStart);
   const setup = source.slice(setupStart, setupEnd);
-  assert.match(setup, /告诉我想找什么样的人/);
+  assert.match(setup, /自动识别账号定位与潜客/);
   assert.doesNotMatch(setup, /监听方式|持续监听新的作品评论、直播互动和账号互动通知，不回扫历史内容/);
-  assert.match(setup, /告诉我怎么回复/);
+  assert.match(setup, /按获客目标自动执行/);
   assert.match(setup, /启动完整获客任务/);
   assert.doesNotMatch(setup, /配置接待方式（必填）/);
   assert.match(source, /if \(isInboxIntakeFlow\(agent, flow\)\) \{\s*startInboxIntake\(agent, flow/);
@@ -101,7 +151,7 @@ test("only durable agents are marked long-running in setup and resume state", ()
   assert.ok(flowStart >= 0 && flowEnd > flowStart);
   const flow = source.slice(flowStart, flowEnd);
 
-  assert.match(flow, /const isDurableTask = inboxIntake \|\| savedLongRunning;/);
+  assert.match(flow, /const isDurableTask = inboxIntake \|\| savedLongRunning \|\| savedLiveDanmakuAnalysis;/);
   assert.match(flow, /longRunning: isDurableTask,/);
   assert.doesNotMatch(flow, /longRunning: true,/);
 
@@ -110,7 +160,7 @@ test("only durable agents are marked long-running in setup and resume state", ()
   assert.ok(resumeStart >= 0 && resumeEnd > resumeStart);
   const resume = source.slice(resumeStart, resumeEnd);
 
-  assert.match(resume, /const isDurableTask = inboxIntake \|\| longRunningAcquisition;/);
+  assert.match(resume, /const isDurableTask = inboxIntake \|\| longRunningAcquisition \|\| liveDanmakuAnalysis;/);
   assert.match(resume, /longRunning: isDurableTask/);
   assert.doesNotMatch(resume, /longRunning: true/);
 });
@@ -130,7 +180,7 @@ test("所有监听任务恢复时都会清理旧版本遗留的历史回看字�
   assert.match(helper, /strip\(flow\.taskSnapshot\?\.config\);/);
   assert.match(helper, /strip\(flow\.taskSnapshot\?\.configuration\);/);
   assert.doesNotMatch(helper, /preserveSchedule|timeWindow\.schedule/);
-  assert.match(source, /if \(longRunningAcquisition\) stripListenerHistoricalFields\(resume\);/);
+  assert.match(source, /if \(longRunningAcquisition \|\| liveDanmakuAnalysis\) stripListenerHistoricalFields\(resume\);/);
 });
 
 test("监听任务在迁移旧快照前会复制快照，避免修改已保存的原始任务", () => {
@@ -146,7 +196,7 @@ test("客户分析员在没有候选人时展示完整链路并提供可执行�
 
   assert.match(setup, /先完成找客，再分析客户/);
   assert.match(setup, /找客专员先汇总互动用户，再由客户分析员判断购买意向/);
-  assert.match(setup, /找客专员 → 客户分析员 → 潜客激活专员/);
+  assert.match(setup, /找客专员 → 客户分析员 → 潜客触达专员/);
   assert.match(setup, /先使用找客专员/);
   assert.match(setup, /openFinderForDependency\(\)/);
   assert.doesNotMatch(setup, /先运行「抖音找人助手」/);
@@ -192,17 +242,17 @@ test("找客结果可以直接交给客户分析员，而不要求用户重新�
   assert.match(running, /openIntentAnalystForFinder\(flow\)/);
 });
 
-test("潜客激活专员在未选择合规对象时提供上游获取入口且保留账号边界", () => {
+test("潜客触达专员在未选择合规对象时提供上游获取入口且保留账号边界", () => {
   const setupStart = source.indexOf("function renderPrivateOutreachSetup");
   const setupEnd = source.indexOf("function renderPrivateOutreachReview", setupStart);
   assert.ok(setupStart >= 0 && setupEnd > setupStart);
   const setup = source.slice(setupStart, setupEnd);
 
   assert.match(setup, /先用找客专员汇总用户/);
-  assert.match(setup, /找客专员先汇总互动用户，再由客户分析员判断意向/);
+  assert.match(setup, /先由客户分析员判断意向后，符合条件的潜客会自动出现在这里/);
   assert.match(setup, /openFinderForDependency\(\)/);
   assert.match(setup, /openProspectSelectionForOutreach/);
-  assert.doesNotMatch(setup, /targetInput|targetProfileUrl|外部账号录入/);
+  assert.doesNotMatch(setup, /外部账号录入|粘贴账号主页|上传名单/);
 });
 
 test("finder listener resumes as a durable discovery task without outreach residue", () => {
@@ -213,7 +263,7 @@ test("finder listener resumes as a durable discovery task without outreach resid
 
   assert.match(resume, /const finderListener = isFinderListenerFlow\(agent, flow\);/);
   assert.match(resume, /const longRunningAcquisition = isLongRunningAcquisitionAgent\(agent\) \|\| finderListener;/);
-  assert.match(resume, /longRunningAcquisition && flow\.taskKey && flow\.running !== false \? "running" : "setup"/);
+  assert.match(resume, /\(longRunningAcquisition \|\| liveDanmakuAnalysis\) && flow\.taskKey && flow\.running !== false \? "running" : "setup"/);
   assert.match(resume, /resume\.compositeFinderSource = "own";/);
   assert.match(resume, /resume\.finderGoal = flow\.finderGoal \|\| flow\.product \|\| "";/);
   assert.match(resume, /"window", "workScope", "workCount"/);
@@ -319,13 +369,15 @@ test("Agent card action buttons use one shared brand color", () => {
   assert.doesNotMatch(source.slice(hireStart, hireEnd), /style\.setProperty\(/);
 });
 
-test("the featured comprehensive Agent leads the complete Agent Square card stream", () => {
-  const refreshStart = source.indexOf("function refreshGrid()");
-  const refreshEnd = source.indexOf("\n    }\n  }", refreshStart);
-  assert.ok(refreshStart >= 0 && refreshEnd > refreshStart);
-  const refreshSource = source.slice(refreshStart, refreshEnd);
-  assert.match(refreshSource, /isFeaturedMarketplaceAgent\(agent\)/);
-  assert.match(refreshSource, /grid\.insertBefore\(card, grid\.firstChild\)/);
+test("Agent Square places sorted marketplace cards into their workflow sections", () => {
+  const homeStart = source.indexOf("function renderHome()");
+  const homeEnd = source.indexOf("\n  function render()", homeStart);
+  assert.ok(homeStart >= 0 && homeEnd > homeStart);
+  const homeSource = source.slice(homeStart, homeEnd);
+  assert.match(homeSource, /sortMarketplaceAgentsForDisplay\(agentsByCategory\.get\(category\), \{ isReady: isFirstReleaseAgent \}\)/);
+  assert.match(homeSource, /categoryRows\.get\(category\)\?\.appendChild/);
+  assert.match(homeSource, /for \(const category of AGENT_WORKFLOW_DISPLAY_ORDER\) \{/);
+  assert.match(homeSource, /buildCategorySection\(category, grid\)/);
 });
 
 test("Agent Center hides the default chief of staff while retaining it in runtime profiles", () => {
@@ -353,8 +405,8 @@ test("private outreach mock exposes the full activation workflow without real pr
   assert.match(source, /const privateOutreachMockData = isPrivateOutreachMockPreview\(\) \? createPrivateOutreachMockData\(\) : null/);
   assert.match(source, /mockPreview: mockPrivateOutreach/);
   assert.match(source, /mockProspectRecords: mockPrivateOutreach \? structuredClone\(privateOutreachMockData\.records\)/);
-  assert.match(source, /MOCK 预览：下面会完整展示确认名单、发送私信和查看触达结果/);
-  assert.match(source, /\["1 确认触达名单", "2 发送私信", "3 查看触达结果"\]/);
+  assert.match(source, /MOCK 预览：下面会完整展示两种触达方式、发送私信和查看触达结果/);
+  assert.match(source, /\["1 选择触达方式", "2 一键触达", "3 查看实时结果"\]/);
   const start = source.indexOf("async function startPrivateOutreach");
   const end = source.indexOf("function inboxStartState", start);
   assert.ok(start >= 0 && end > start);
@@ -491,15 +543,16 @@ test("cloud account labels use the remote nickname and refresh stale placeholder
   assert.doesNotMatch(source.slice(privateStart, privateEnd), /已授权抖音账号/);
 });
 
-test("comment acquisition uses the unified setup without a review gate", () => {
+test("comment acquisition uses the unified setup without user-configured targeting", () => {
   const start = source.indexOf("function renderInboxSetup");
   const end = source.indexOf("function renderInboxStarting", start);
   const setup = source.slice(start, end);
   assert.match(setup, /startsCompleteManager/);
-  assert.match(setup, /启动获客专家/);
+  assert.match(setup, /启动获客管家/);
   assert.match(setup, /startInboxIntake\(activeAgent, flow/);
   assert.doesNotMatch(setup, /先找一批机会|previewCommentAcquisition|不会先发消息/);
-  assert.match(setup, /group:\s*"audience",\s*field:\s*"product"/);
+  assert.doesNotMatch(setup, /group:\s*"audience",\s*field:\s*"product"/);
+  assert.doesNotMatch(setup, /目标人群与意向信号|首次触达与私信接待规则/);
   assert.doesNotMatch(setup, /触达策略/);
   assert.match(setup, /openAccountReceptionPage/);
   assert.doesNotMatch(setup, /flow\.step = "review"/);
@@ -778,7 +831,7 @@ test("private outreach review keeps long values inside a focused confirmation la
 test("private outreach only accepts result-center identities that satisfy the prospect boundary", () => {
   assert.match(source, /prefilledFromResult: saved\?\.prefilledFromResult === true/);
   assert.match(source, /function privateOutreachEntryIsAllowed/);
-  assert.match(source, /isContactableRecord\(record\) \|\| record\.status !== "待确认触达"/);
+  assert.match(source, /isPrivateOutreachRecordCandidate\(record, privateOutreachMode\(flow\)\)/);
   assert.match(source, /contactabilityFor\(\{ sourceScope: scope \}\)\.allowed/);
   assert.match(source, /privateOutreachMatchesSender\(flow, entry\)/);
   assert.match(source, /请先从成果中心选择当前账号下的待确认触达潜客/);
@@ -794,9 +847,10 @@ test("batch private outreach has no external-account entry and returns to the pr
 
   assert.match(setup, /去成果中心选择/);
   assert.match(setup, /openProspectSelectionForOutreach/);
-  assert.match(setup, /评论、直播或互动任务找到/);
-  assert.doesNotMatch(setup, /targetInput|targetProfileUrls|粘贴账号主页|上传名单|readPrivateOutreachFile|mergePrivateOutreachUrls/);
+  assert.match(setup, /这个账号自己找到/);
+  assert.doesNotMatch(setup, /粘贴账号主页|上传名单|readPrivateOutreachFile|mergePrivateOutreachUrls/);
   assert.match(privateFlow, /只能触达当前账号通过评论、直播或互动任务找到的待确认触达潜客/);
+  assert.match(privateFlow, /只能触达当前账号找到且尚未触达的用户/);
   assert.match(privateFlow, /privateOutreachEntryIsAllowed/);
 });
 
@@ -1106,20 +1160,18 @@ test("inbox setup reuses the account-scoped conversation strategy and stays cons
   assert.doesNotMatch(setup, /acquisitionAccountControl\(flow|makeTaskSettings\("回复设置"\)|group: "conversion"|预览回复方式/);
 });
 
-test("comment acquisition does not split reception settings into another page", () => {
+test("comment acquisition does not expose reception or targeting settings", () => {
   const start = source.indexOf("function renderInboxSetup");
   const end = source.indexOf("function renderInboxStarting", start);
   assert.ok(start >= 0 && end > start);
   const setup = source.slice(start, end);
-  assert.match(setup, /group:\s*"audience",\s*field:\s*"product"/);
   assert.match(setup, /1\. 登录你的抖音账号/);
-  assert.match(setup, /2\. 告诉我想找什么样的人/);
-  assert.match(setup, /3\. 告诉我怎么回复/);
+  assert.match(setup, /2\. 自动识别账号定位与潜客/);
+  assert.match(setup, /3\. 按获客目标自动执行/);
   assert.match(setup, /4\. 启动完整获客任务/);
   assert.doesNotMatch(setup, /监听方式|持续监听新的作品评论、直播互动和账号互动通知，不回扫历史内容/);
-  assert.match(setup, /先补充业务资料，避免自动回复不准确或无法确认的信息。/);
   assert.match(setup, /const strategyReady = hasReception && hasBusinessKnowledge && !businessKnowledgePending;/);
-  assert.match(setup, /start\.disabled = !hasAccount \|\| !strategyReady/);
+  assert.match(setup, /start\.disabled = !hasAccount \|\| \(managerInbox \? false : !strategyReady\)/);
   assert.doesNotMatch(source, /updatePreviewTaskStrategy|updatePreviewTaskTarget|fromPreview|previewCommentAcquisition/);
   assert.doesNotMatch(setup, /flow\.step = "review"/);
   assert.doesNotMatch(source, /renderCommentAcquisitionReview|确认并启动长期任务/);
@@ -1234,35 +1286,49 @@ test("Douyin finder makes follower growth the primary metric for growth tasks", 
   assert.match(running, /匹配评分/);
 });
 
-test("Agent Center keeps non-core Agents visible as disabled cards", () => {
-  const filteredStart = source.indexOf("function filteredAgents()");
-  const countStart = source.indexOf("function stageCount(stage)");
-  const teamStart = source.indexOf("// ── 我的团队 ──");
-  assert.ok(filteredStart >= 0 && countStart > filteredStart);
-  assert.ok(countStart >= 0 && teamStart > countStart);
+test("Agent Center removes non-core Agents instead of rendering disabled cards", () => {
+  const homeStart = source.indexOf("function renderHome()");
+  const homeEnd = source.indexOf("\n  function render()", homeStart);
+  assert.ok(homeStart >= 0 && homeEnd > homeStart);
 
-  const filteredSource = source.slice(filteredStart, countStart);
-  const countSource = source.slice(countStart, teamStart);
-  assert.doesNotMatch(filteredSource, /if \(!isFirstReleaseAgent\(agent\)\) return false/);
-  assert.doesNotMatch(countSource, /isFirstReleaseAgent\(agent\)/);
-  assert.match(source, /disabledReason: enabled \? acquisitionGate\?\.label : "当前版本仅开放获客专家及四个独立能力 Agent"/);
+  const homeSource = source.slice(homeStart, homeEnd);
+  assert.doesNotMatch(homeSource, /includeUnavailable: true/);
+  assert.match(homeSource, /includeUnavailable: false/);
+  assert.match(homeSource, /const hiddenIds = new Set\(/);
+  assert.match(homeSource, /DEFAULT_INSTALLED_MARKETPLACE_IDS/);
+  assert.match(homeSource, /listHiredAgents\(\)\.map\(\(agent\) => agent\.id\)/);
+  assert.match(homeSource, /\.filter\(isFirstReleaseAgent\)/);
+  assert.doesNotMatch(homeSource, /暂未开放/);
 });
 
-test("private conversation category keeps the hired private auto-reply Agent visible", () => {
-  const countStart = source.indexOf("function stageCount(stage)");
-  const teamStart = source.indexOf("// ── 我的团队 ──", countStart);
-  assert.ok(countStart >= 0 && teamStart > countStart);
-  const countSource = source.slice(countStart, teamStart);
-  assert.match(countSource, /const hiredCount = listHiredAgents\(\)\.filter/);
-  assert.match(countSource, /workflowCategory\(agent\) === stage/);
+test("Agent Center keeps each marketplace category in its own workflow section", () => {
+  const homeStart = source.indexOf("function renderHome()");
+  const homeEnd = source.indexOf("\n  function render()", homeStart);
+  assert.ok(homeStart >= 0 && homeEnd > homeStart);
+  const homeSource = source.slice(homeStart, homeEnd);
 
-  const refreshStart = source.indexOf("function refreshGrid()");
-  const refreshEnd = source.indexOf("\n    }\n  }", refreshStart);
-  assert.ok(refreshStart >= 0 && refreshEnd > refreshStart);
-  const refreshSource = source.slice(refreshStart, refreshEnd);
-  assert.match(refreshSource, /const category = workflowCategory\(\{/);
-  assert.match(refreshSource, /const hasVisibleTeamCard = \[\.\.\.grid\.children\]\.some/);
-  assert.match(refreshSource, /if \(!list\.length && !hasVisibleTeamCard\)/);
+  assert.match(homeSource, /const category = workflowCategory\(agent\)/);
+  assert.match(homeSource, /agentsByCategory\.get\(category\)\.push\(agent\)/);
+  assert.match(homeSource, /sortMarketplaceAgentsForDisplay\(agentsByCategory\.get\(category\), \{ isReady: isFirstReleaseAgent \}\)/);
+  assert.match(homeSource, /card\.dataset\.sbMarketCard = "true"/);
+  assert.match(homeSource, /card\.dataset\.sbAgentId = agent\.id/);
+  assert.doesNotMatch(homeSource, /filteredAgents|stageCount|refreshGrid/);
+});
+
+test("live danmaku analysis has a dedicated account-scoped setup and signal selection", () => {
+  assert.match(source, /function renderLiveDanmakuAnalysisSetup\(panel, flow\)/);
+  const setupStart = source.indexOf("function renderLiveDanmakuAnalysisSetup");
+  const setupEnd = source.indexOf("function renderLiveDanmakuAnalysisRunning", setupStart);
+  assert.ok(setupStart >= 0 && setupEnd > setupStart);
+  const setup = source.slice(setupStart, setupEnd);
+  assert.match(setup, /直播间弹幕分析目标/);
+  assert.match(setup, /直播弹幕/);
+  assert.match(setup, /点赞/);
+  assert.match(setup, /送礼/);
+  assert.match(setup, /点赞和送礼不会单独被判定为购买意向/);
+  assert.match(source, /buildLiveDanmakuAnalysisTaskPayload/);
+  assert.match(source, /isLiveDanmakuAnalysisAgent\(agent\)\) renderLiveDanmakuAnalysisSetup\(panel, flow\)/);
+  assert.match(source, /isLiveDanmakuAnalysisAgent\(agent\)\) renderLiveDanmakuAnalysisRunning\(panel, flow\)/);
 });
 
 test("抖音获客管家首次使用会先落正式雇佣合同，再进入配置", () => {

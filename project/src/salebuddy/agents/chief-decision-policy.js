@@ -43,7 +43,7 @@ const PRODUCT_AGENT_SELECTIONS = Object.freeze([
   Object.freeze({ agentId: "mkt-comment-acquisition", labels: Object.freeze(["获客专家", "抖音获客管家"]) }),
   Object.freeze({ agentId: "mkt-find-people", labels: Object.freeze(["找客专员", "抖音找人管家"]) }),
   Object.freeze({ agentId: "mkt-intent-analyst", labels: Object.freeze(["客户分析员", "客户研究员", "抖音分析助手"]) }),
-  Object.freeze({ agentId: "mkt-cold-writer", labels: Object.freeze(["潜客激活专员", "私信运营", "抖音触达助手"]) }),
+  Object.freeze({ agentId: "mkt-cold-writer", labels: Object.freeze(["潜客触达专员", "潜客激活专员", "私信运营", "抖音触达助手"]) }),
   Object.freeze({ agentId: "mkt-dm-inbox", labels: Object.freeze(["私信客服", "私信自动回复", "抖音对话助手"]) })
 ]);
 const PRODUCT_AGENT_IDS = new Set(PRODUCT_AGENT_SELECTIONS.map(({ agentId }) => agentId));
@@ -54,8 +54,8 @@ const PRODUCT_AGENT_CAPABILITIES = Object.freeze({
   "mkt-dm-inbox": Object.freeze(["douyin_inbox_reply"])
 });
 const PRODUCT_CAPABILITY_QUESTION_PATTERNS = [
-  /(?:获客专家|找客专员|客户分析员|客户研究员|潜客激活专员|私信运营|私信客服|抖音获客管家|抖音找人管家|抖音分析助手|抖音触达助手|私信自动回复|抖音对话助手).{0,12}(?:能|可以|会).{0,12}(?:做什么|帮我做什么|怎么帮我|提供什么)/u,
-  /(?:获客专家|找客专员|客户分析员|客户研究员|潜客激活专员|私信运营|私信客服|抖音获客管家|抖音找人管家|抖音分析助手|抖音触达助手|私信自动回复|抖音对话助手).{0,12}(?:有什么能力|职责是什么|负责什么)/u
+  /(?:获客专家|找客专员|客户分析员|客户研究员|潜客触达专员|潜客激活专员|私信运营|私信客服|抖音获客管家|抖音找人管家|抖音分析助手|抖音触达助手|私信自动回复|抖音对话助手).{0,12}(?:能|可以|会).{0,12}(?:做什么|帮我做什么|怎么帮我|提供什么)/u,
+  /(?:获客专家|找客专员|客户分析员|客户研究员|潜客触达专员|潜客激活专员|私信运营|私信客服|抖音获客管家|抖音找人管家|抖音分析助手|抖音触达助手|私信自动回复|抖音对话助手).{0,12}(?:有什么能力|职责是什么|负责什么)/u
 ];
 const CONVERSATION_ONLY_PATTERNS = [
   /(?:不要|不需要|无需|不得|不).{0,12}(?:启动|创建|执行|安排|推进).{0,8}(?:任务|工作)/u,

@@ -7,6 +7,7 @@ const CORE_AGENT_IDS = new Set([
   "mkt-comment-acquisition",
   "mkt-find-people",
   "mkt-intent-analyst",
+  "mkt-live-danmaku-analysis",
   "mkt-cold-writer",
   "mkt-dm-inbox"
 ]);

@@ -522,22 +522,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     };
   }
 
-  function openChildFromContacts(mode, opener, options = {}) {
-    const onClose = claimPageRoute(mode);
-    emit("contacts", false);
-    emit(mode, true);
-    opener({
-      ...options,
-      onClose
-    });
-  }
-
-  function openRoomsFromContacts(room) {
-    const onClose = claimPageRoute(null);
-    clearActive();
-    openers.rooms({ gateway, teamLive, initialRoom: room, onClose });
-  }
-
   function openCustom(mode, options = {}) {
     if (["prospects", "discoveredPeople", "files"].includes(mode)) resultsExpanded = true;
     if (activeMode === mode && getCurrentPage()) return;
@@ -547,16 +531,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       openers.contacts({
         gateway,
         teamLive,
-        onOpenRoom: (room) => openRoomsFromContacts(room),
-        onOpenData: (room) => openChildFromContacts("kanban", openers.kanban, {
-          gateway,
-          teamLive,
-          initialRoom: room
-        }),
-        onOpenFiles: (room) => openChildFromContacts("files", openers.files, {
-          projectId: room?.id || null,
-          projectName: room?.name || ""
-        }),
         onRecruit: () => {
           const recruitClose = claimPageRoute("agentSquare");
           emit("agentSquare", true);
@@ -1027,16 +1001,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
         taskRunId: handoff.taskRunId || null,
         accountId: handoff.accountId || null
       },
-      onOpenRoom: (room) => openRoomsFromContacts(room),
-      onOpenData: (room) => openChildFromContacts("kanban", openers.kanban, {
-        gateway,
-        teamLive,
-        initialRoom: room
-      }),
-      onOpenFiles: (room) => openChildFromContacts("files", openers.files, {
-        projectId: room?.id || null,
-        projectName: room?.name || ""
-      }),
       onClose
     });
     emit("contacts", true);

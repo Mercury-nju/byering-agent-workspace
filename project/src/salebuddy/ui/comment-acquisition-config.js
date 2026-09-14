@@ -1,29 +1,32 @@
+import {
+  DOUYIN_ACQUISITION_DISCOVERY_GOAL,
+  DOUYIN_ACQUISITION_FIRST_TOUCH_RULE,
+  DOUYIN_ACQUISITION_HANDOFF_RULES,
+  DOUYIN_ACQUISITION_LIMITS,
+  DOUYIN_ACQUISITION_OBJECTIVE,
+  DOUYIN_ACQUISITION_REPLY_TONE,
+  DOUYIN_ACQUISITION_SYSTEM_PROMPT,
+  buildDouyinAcquisitionSystemPrompt,
+  douyinAcquisitionHandoffBoundary,
+  normalizeDouyinAcquisitionAdvancedSettings
+} from "../agents/douyin-acquisition-prompt.js";
+
 export const COMMENT_ACQUISITION_DEFAULTS = Object.freeze({
   sourceScope: Object.freeze({ kind: "authorized_account_all_signals" }),
   longRunning: true,
   approvalMode: "auto",
   touchChannel: "private_message",
-  touchStrategy: "先回应对方的具体留言，再用一个问题了解需求，语气自然，不直接承诺价格或效果。",
+  touchStrategy: DOUYIN_ACQUISITION_FIRST_TOUCH_RULE,
   contactTiming: "识别到高意向潜客后自动触达",
-  replyStyle: "专业、简短、自然",
-  handoffBoundary: "价格承诺、退款、投诉和无法确认的库存信息交给人工。",
-  minScore: 80,
-  frequency: Object.freeze({ maxTouchesPerDay: 30, minIntervalMinutes: 15 }),
+  replyStyle: DOUYIN_ACQUISITION_REPLY_TONE,
+  handoffBoundary: DOUYIN_ACQUISITION_HANDOFF_RULES.join("；"),
+  minScore: DOUYIN_ACQUISITION_LIMITS.minScore,
+  frequency: Object.freeze({ dailyMax: DOUYIN_ACQUISITION_LIMITS.dailyMax, maxTouchesPerDay: DOUYIN_ACQUISITION_LIMITS.dailyMax, minIntervalMinutes: DOUYIN_ACQUISITION_LIMITS.minIntervalMinutes }),
   stopConditions: Object.freeze({ stopOnReply: false, stopOnOptOut: true })
 });
 
 function text(value) {
   return String(value ?? "").trim();
-}
-
-function positiveInt(value, fallback) {
-  const parsed = Number(value);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-}
-
-function score(value, fallback) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? Math.max(0, Math.min(100, Math.round(parsed))) : fallback;
 }
 
 function firstText(...values) {
@@ -64,25 +67,24 @@ function authorizedAccountReference(flow = {}, identity = authorizedAccountIdent
 }
 
 export function normalizeCommentAcquisitionConfig(flow = {}) {
-  const frequency = flow.frequency && typeof flow.frequency === "object" && !Array.isArray(flow.frequency)
-    ? flow.frequency
-    : {};
-  const configuredStopConditions = flow.stopConditions && typeof flow.stopConditions === "object" && !Array.isArray(flow.stopConditions)
-    ? flow.stopConditions
-    : {};
   const accountIdentity = authorizedAccountIdentity(flow);
   const accountRef = authorizedAccountReference(flow, accountIdentity);
-  const audienceGoal = firstText(flow.product);
-  const requirements = firstText(flow.requirements);
-  const executorGoal = [audienceGoal, requirements ? `补充筛选要求：${requirements}` : ""]
-    .filter(Boolean)
-    .join("\n");
-  const maxTouchesPerDay = positiveInt(frequency.maxTouchesPerDay ?? flow.maxTouchesPerDay, COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay);
-  const minIntervalMinutes = positiveInt(frequency.minIntervalMinutes ?? flow.minIntervalMinutes, COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes);
-  const minScore = score(flow.minScore ?? flow.audienceRules?.minScore, COMMENT_ACQUISITION_DEFAULTS.minScore);
-  const touchStrategy = text(flow.touchStrategy || flow.message || COMMENT_ACQUISITION_DEFAULTS.touchStrategy);
-  const replyStyle = firstText(flow.replyStyle, flow.replyTone, COMMENT_ACQUISITION_DEFAULTS.replyStyle);
-  const handoffBoundary = firstText(flow.handoffBoundary, flow.handoffRules, COMMENT_ACQUISITION_DEFAULTS.handoffBoundary);
+  const advanced = normalizeDouyinAcquisitionAdvancedSettings(flow);
+  const maxTouchesPerDay = advanced.maxTouchesPerDay === null
+    ? COMMENT_ACQUISITION_DEFAULTS.frequency.dailyMax
+    : Math.min(advanced.maxTouchesPerDay, DOUYIN_ACQUISITION_LIMITS.dailyMax);
+  const minIntervalMinutes = advanced.minIntervalMinutes === null
+    ? COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes
+    : Math.max(advanced.minIntervalMinutes, DOUYIN_ACQUISITION_LIMITS.minIntervalMinutes);
+  const minScore = COMMENT_ACQUISITION_DEFAULTS.minScore;
+  const audienceGoal = advanced.audienceGoal || DOUYIN_ACQUISITION_DISCOVERY_GOAL;
+  const requirements = advanced.requirements;
+  const touchStrategy = advanced.firstTouch || COMMENT_ACQUISITION_DEFAULTS.touchStrategy;
+  const replyStyle = advanced.replyStyle || COMMENT_ACQUISITION_DEFAULTS.replyStyle;
+  const touchObjective = advanced.touchObjective || DOUYIN_ACQUISITION_OBJECTIVE;
+  const dialogueObjective = advanced.dialogueObjective || DOUYIN_ACQUISITION_OBJECTIVE;
+  const handoffBoundary = douyinAcquisitionHandoffBoundary(advanced.handoffBoundary);
+  const systemPrompt = buildDouyinAcquisitionSystemPrompt(advanced);
   return {
     sourceScope: {
       ...COMMENT_ACQUISITION_DEFAULTS.sourceScope,
@@ -94,28 +96,33 @@ export function normalizeCommentAcquisitionConfig(flow = {}) {
     accountRef,
     accountIdentity,
     longRunning: true,
+    autonomousLeadAcquisition: true,
+    managerAdvancedSettingsEnabled: advanced.enabled,
+    managerAdvancedSettings: advanced,
     approvalMode: COMMENT_ACQUISITION_DEFAULTS.approvalMode,
     // The comprehensive acquisition Agent only performs first outreach by
     // private message. Public replies are not part of this product surface.
     touchChannel: COMMENT_ACQUISITION_DEFAULTS.touchChannel,
+    objective: DOUYIN_ACQUISITION_OBJECTIVE,
+    systemPrompt,
     audienceGoal,
     requirements,
     touchContent: touchStrategy,
-    // Keep the UI-friendly fields above, but also emit the executor's
-    // canonical fields so the durable backend consumes the user's inputs.
     audienceRules: {
-      goal: executorGoal,
+      goal: audienceGoal,
       requirements,
       minScore
     },
     contentPolicy: {
       quoteComment: false,
       maxLength: 120,
-      template: text(flow.message || touchStrategy),
+      template: touchStrategy,
       strategy: touchStrategy,
-      conversionGoal: text(flow.conversionGoal),
+      conversionGoal: touchObjective,
+      dialogueObjective,
       replyStyle,
-      handoffBoundary
+      handoffBoundary,
+      systemPrompt
     },
     frequency: {
       // First outreach is continuous: a high-intent signal is handled when
@@ -131,7 +138,6 @@ export function normalizeCommentAcquisitionConfig(flow = {}) {
     },
     stopConditions: {
       ...COMMENT_ACQUISITION_DEFAULTS.stopConditions,
-      ...configuredStopConditions,
       stopOnReply: false
     }
   };
@@ -139,8 +145,6 @@ export function normalizeCommentAcquisitionConfig(flow = {}) {
 
 export function validateCommentAcquisitionSetup(flow = {}) {
   if (!text(flow.accountId) && !(Array.isArray(flow.authorizedAccounts) && flow.authorizedAccounts.length)) return "请先完成当前抖音账号授权";
-  if (!text(flow.product) && !text(flow.requirements)) return "请告诉我你想找什么样的人";
-  if (!flow.reception?.revision) return "请先保存这个账号的接待方式";
   return null;
 }
 

@@ -97,7 +97,7 @@ test("office activation source matches the enabled Agent Center capabilities", (
     ["mkt-comment-acquisition", "获客专家"],
     ["mkt-find-people", "找客专员"],
     ["mkt-intent-analyst", "客户分析员"],
-    ["mkt-cold-writer", "潜客激活专员"],
+    ["mkt-cold-writer", "潜客触达专员"],
     ["mkt-dm-inbox", "私信客服"]
   ]);
 });

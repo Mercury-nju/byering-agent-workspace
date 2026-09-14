@@ -241,7 +241,7 @@ const REQUIREMENT_SYSTEM_PROMPT = [
   "只根据用户输入和提供的上下文做结构化理解，不得编造数据、客户数量、账号状态或执行结果。",
   "必须返回一个 JSON 对象，字段必须包含：title、objective、scope、deliverable、guardrail、missing、assumptions、confidence。",
   "同时返回决策字段：intent、riskLevel、confirmationPolicy、responseMode、requiredCapabilities、requestedAgentId、blockingMissing、optionalMissing、defaultsApplied、taskAction、userMessage。",
-  "只有用户明确点名获客专家、找客专员、客户分析员、潜客激活专员或私信客服时，requestedAgentId 才可填写对应产品 ID；旧名称客户研究员、私信运营、抖音获客管家、抖音找人管家、抖音分析助手、抖音触达助手和私信自动回复也需要兼容识别；否则设为空。",
+  "只有用户明确点名获客专家、找客专员、客户分析员、潜客触达专员或私信客服时，requestedAgentId 才可填写对应产品 ID；旧名称潜客激活专员、客户研究员、私信运营、抖音获客管家、抖音找人管家、抖音分析助手、抖音触达助手和私信自动回复也需要兼容识别；否则设为空。",
   "userMessage 必须是直接给用户看的简洁答复：咨询类直接回答问题；状态类依据 context.activeTask 汇报；任务类说明将安排什么 Agent；不能执行时明确说明缺少什么。不要输出内部分析过程。",
   "intent 只能是 conversation、task、task_update、task_control、status_query、supplement；riskLevel 只能是 low、bounded_external、high。",
   "只读、分析、搜索和内部整理默认为 low 且 confirmationPolicy=none；有明确对象、账号和范围的外部动作使用 bounded_external 且 once_per_task；越权、拒绝后继续联系、敏感承诺和不可逆删除使用 high 且 blocking。",

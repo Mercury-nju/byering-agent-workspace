@@ -1569,14 +1569,14 @@ const ACTIVE_AGENT_REALTIME_DEFAULTS = Object.freeze({
     action: "基于来源证据、内容与互动判断潜客优先级",
     input: "候选对象 · 原始证据 · 分析要求",
     output: "潜客列表、优先级、判断依据",
-    handoff: "潜客激活专员 / 成果中心",
+    handoff: "潜客触达专员 / 成果中心",
     tool: "核心执行 MCP · AI 分析",
     steps: ["读取原始证据", "归纳需求信号", "交付潜客列表"],
     context: Object.freeze({ prospect: "等待分析对象", source: "候选线索与原始证据", score: "--", activity: "等待分析任务启动" })
   }),
   "mkt-cold-writer": Object.freeze({
     phase: "触达",
-    role: "触达 · 潜客激活",
+    role: "触达 · 首轮联系",
     task: "等待确认触达名单",
     action: "按确认名单执行首次私信，并保留真实平台回执",
     input: "确认名单 · 首触内容 · 已授权账号",

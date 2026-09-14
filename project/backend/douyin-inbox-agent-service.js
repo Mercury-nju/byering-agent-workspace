@@ -6,6 +6,16 @@ import { createDouyinInboxAgent } from "./douyin-inbox-agent.js";
 import { createReplyStrategy, planReply, validateReply } from "./douyin-reply-strategy.js";
 import { createReceptionReplyHandler } from "./account-reception-runtime.js";
 import { receptionGoalObjective, receptionResponseStyle } from "../src/salebuddy/agents/account-reception.js";
+import {
+  DOUYIN_ACQUISITION_FIRST_TOUCH_RULE,
+  DOUYIN_ACQUISITION_HANDOFF_RULES,
+  DOUYIN_ACQUISITION_OBJECTIVE,
+  DOUYIN_ACQUISITION_REPLY_TONE,
+  DOUYIN_ACQUISITION_SYSTEM_PROMPT,
+  buildDouyinAcquisitionSystemPrompt,
+  douyinAcquisitionHandoffBoundary,
+  normalizeDouyinAcquisitionAdvancedSettings
+} from "../src/salebuddy/agents/douyin-acquisition-prompt.js";
 
 const DEFAULT_LLM_ENDPOINT = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
 const DEFAULT_LLM_MODEL = "doubao-seed-2-1-pro-260628";
@@ -69,6 +79,27 @@ export function createDouyinInboxAgentService({
     if (!receptionStore) return options;
     const owner = { tenantId: options.tenantId || null, account: options.accountIdentity || receptionOwner?.account || { uid: options.accountId } };
     const saved = receptionStore.get(owner);
+    if (agentId === "mkt-comment-acquisition" && options.autonomousLeadAcquisition === true) {
+      const settings = saved?.settings && typeof saved.settings === "object" ? saved.settings : {};
+      const advanced = normalizeDouyinAcquisitionAdvancedSettings(options);
+      const managerPrompt = buildDouyinAcquisitionSystemPrompt(advanced);
+      const managerFirstTouch = advanced.firstTouch || DOUYIN_ACQUISITION_FIRST_TOUCH_RULE;
+      const managerDialogueObjective = advanced.dialogueObjective || DOUYIN_ACQUISITION_OBJECTIVE;
+      const managerReplyTone = advanced.replyStyle || DOUYIN_ACQUISITION_REPLY_TONE;
+      const managerHandoff = douyinAcquisitionHandoffBoundary(advanced.handoffBoundary);
+      return {
+        ...options,
+        receptionOwner: owner,
+        receptionRevision: Number(saved?.revision) > 0 ? saved.revision : null,
+        autonomousLeadAcquisition: true,
+        systemPrompt: managerPrompt,
+        replyObjective: managerDialogueObjective,
+        replyTone: managerReplyTone,
+        replyRule: managerFirstTouch,
+        businessKnowledge: cleanText(settings.knowledge) || cleanText(options.businessKnowledge),
+        handoffRules: managerHandoff.split(/[、,，；;\n]/).map((value) => value.trim()).filter(Boolean)
+      };
+    }
     if (!saved.revision) throw Object.assign(new Error("请先完成这个账号的接待方式设置"), { code: "RECEPTION_SETUP_REQUIRED", statusCode: 409 });
     const settings = saved.settings;
     return { ...options, receptionOwner: owner, receptionRevision: saved.revision,
@@ -153,7 +184,7 @@ export function createDouyinInboxAgentService({
         pollWaitMs: options.pollWaitMs,
         batchLimit: options.batchLimit,
         onEvent: recordEvent,
-        receptionHandler,
+        receptionHandler: agentId === "mkt-comment-acquisition" ? null : receptionHandler,
         now
       });
     } else if (options.autoReply !== undefined) {
@@ -348,7 +379,13 @@ export function createDouyinInboxAgentService({
   }
 
   async function startManaged(options = {}) {
-    const explicitObjective = options.taskObjective || "";
+    const autonomousAcquisition = agentId === "mkt-comment-acquisition";
+    if (autonomousAcquisition) {
+      options = { ...options, autonomousLeadAcquisition: true };
+    }
+    const explicitObjective = autonomousAcquisition
+      ? DOUYIN_ACQUISITION_OBJECTIVE
+      : options.taskObjective || "";
     options = accountOptions(options);
     const knowledge = await resolveKnowledge(options);
     const normalized = normalizePlanConfiguration(options, knowledge);
@@ -405,7 +442,7 @@ export function createDouyinInboxAgentService({
     const knowledgeContext = knowledge.context;
     strategy = createReplyStrategy({
       objective: normalized.replyObjective,
-      continuousConversion: options.continuousConversion === true,
+      continuousConversion: options.continuousConversion === true || normalized.autonomousLeadAcquisition,
       tone: normalized.replyTone,
       knowledge: knowledgeContext,
       approvedClaims: options.approvedClaims,
@@ -415,7 +452,8 @@ export function createDouyinInboxAgentService({
     context = {
       replyRule: normalized.replyRule,
       knowledgeContext,
-      strategy
+      strategy,
+      systemPrompt: normalized.systemPrompt || ""
     };
   }
 
@@ -629,6 +667,8 @@ function normalizePlanConfiguration(options, knowledge) {
     replyTone: cleanText(options.replyTone || options.tone) || "专业、简短、自然。",
     handoffRules: normalizeTextList(options.handoffRules),
     autoReply: Boolean(options.autoReply),
+    autonomousLeadAcquisition: options.autonomousLeadAcquisition === true,
+    systemPrompt: cleanText(options.systemPrompt),
     knowledgeSourceIds: knowledge.sources.map((source) => source.id).sort()
   };
 }
@@ -636,6 +676,16 @@ function normalizePlanConfiguration(options, knowledge) {
 function assertPlanConfiguration(configuration, knowledge) {
   const fieldErrors = {};
   if (!configuration.accountId) fieldErrors.accountId = "请先选择并授权一个抖音账号。";
+  if (configuration.autonomousLeadAcquisition) {
+    if (Object.keys(fieldErrors).length > 0) {
+      throw Object.assign(new Error("私信承接配置尚未完整"), {
+        code: "DOUYIN_INBOX_PLAN_INVALID_CONFIG",
+        statusCode: 400,
+        details: { fieldErrors }
+      });
+    }
+    return;
+  }
   if (!knowledge.context || knowledge.sources.length === 0) {
     fieldErrors.businessKnowledge = "请填写产品、服务范围和可确认事实，或先添加已生效的长期业务知识。";
   }
@@ -914,9 +964,12 @@ export function createModelReplyGenerator({ env, fetchImpl, now, getContext }) {
     const model = env.BYERING_LLM_MODEL || DEFAULT_LLM_MODEL;
     if (!apiKey) throw Object.assign(new Error("回复模型未配置，请配置 BYERING_LLM_API_KEY"), { code: "DOUYIN_REPLY_MODEL_NOT_CONFIGURED", statusCode: 503 });
     if (typeof fetchImpl !== "function") throw Object.assign(new Error("回复模型客户端不可用"), { code: "DOUYIN_REPLY_MODEL_CLIENT_UNAVAILABLE", statusCode: 503 });
-    const { replyRule, knowledgeContext, strategy } = details.context || getContext();
+    const { replyRule, knowledgeContext, strategy, systemPrompt } = details.context || getContext();
     const prompt = [
-      "你是私信客服。根据已确定的回复策略生成一条自然、简短、可直接发送的中文回复。不要解释过程，不要编造价格、库存、优惠、承诺或事实。",
+      systemPrompt
+        ? "你是抖音获客管家。根据账号定位、用户当前需求和已确定的获客策略，生成一条自然、简短、可直接发送的中文回复。不要解释过程，不要编造价格、库存、优惠、承诺或事实。"
+        : "你是私信客服。根据已确定的回复策略生成一条自然、简短、可直接发送的中文回复。不要解释过程，不要编造价格、库存、优惠、承诺或事实。",
+      systemPrompt ? `系统业务提示词：${systemPrompt}` : "",
       `承接目标：${strategy.objective}`,
       `回复风格：${strategy.tone}`,
       `回复规则：${replyRule}`,

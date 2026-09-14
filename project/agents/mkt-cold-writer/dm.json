@@ -191,7 +191,7 @@
     "id": "dm-mu0sbz8u-ov5s",
     "agentType": "mkt-cold-writer",
     "from": "mkt-cold-writer",
-    "fromName": "潜客激活专员",
+    "fromName": "潜客触达专员",
     "text": "我收到你的发送意图了。发送前还会核对抖音账号、潜客名单和最终文案；确认无误后逐条执行，完成后把成功、失败和跳过原因分别回传。现在还没有把消息发出去。",
     "metadata": {
       "source": "member-conversation",

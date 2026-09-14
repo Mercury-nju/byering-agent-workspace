@@ -343,18 +343,15 @@ test("project groups use member avatar compositions instead of text initials", (
   const sourceFor = (name) => readFileSync(path.join(projectRoot, "src/salebuddy/ui", name), "utf8");
   const avatar = readFileSync(path.join(projectRoot, "src/salebuddy/ui/agent-avatar.js"), "utf8");
   assert.match(avatar, /mountGroupAvatar/);
-  assert.match(sourceFor("contacts-page.js"), /mountGroupAvatar/);
   assert.match(sourceFor("rooms-page.js"), /mountGroupAvatar/);
   assert.match(sourceFor("kanban.js"), /mountGroupAvatar/);
-  assert.doesNotMatch(sourceFor("contacts-page.js"), /sb-cavatar sb-room", avatarInitial\(room\.name\)/);
   assert.doesNotMatch(sourceFor("rooms-page.js"), /sb-room-card-avatar", avatarInitial\(room\.name\)/);
 });
 
-test("contacts groups open the shared right-side chat surface", () => {
+test("contacts page stays focused on one-to-one Agent conversations", () => {
   const source = readFileSync(path.join(projectRoot, "src/salebuddy/ui/contacts-page.js"), "utf8");
-  assert.match(source, /function renderRoomChat\(container, room\)/);
-  assert.match(source, /renderRoomChat\(content, room\)/);
-  assert.match(source, /room\.message\.list/);
-  assert.match(source, /room\.message\.send/);
-  assert.doesNotMatch(source, /label: "进入群聊"/);
+  assert.doesNotMatch(source, /mountGroupAvatar|renderRoomDetail|renderRoomOverview|renderRoomChat/);
+  assert.doesNotMatch(source, /room\.action\.list|room\.message\.(list|send)/);
+  assert.doesNotMatch(source, /群组|项目组|initialRoom|onOpenRoom|onOpenData|onOpenFiles/);
+  assert.match(source, /从左侧选择一位 Agent 或联系人/);
 });

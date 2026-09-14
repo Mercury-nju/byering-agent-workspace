@@ -149,6 +149,44 @@ test("real prospect facts are sourced from interaction evidence and account data
   assert.equal(result.snapshot.sources.profile.state, "available");
 });
 
+test("comprehensive analysis receives authorized account profile and recent works", async () => {
+  let analysisInput;
+  const source = createDouyinInteractionSource({
+    cloudRegistry: { getService: () => ({}) },
+    commentSource: { scan: async () => ({ nextCursor: 1, leads: [{
+      secUid: "customer-account-context",
+      evidence: [{ eventId: "context-comment", type: "comment", quote: "想了解你们的到店服务" }]
+    }] }) },
+    profileDataClient: {
+      profile: async (secUid) => {
+        assert.equal(secUid, "owner");
+        return { data: { nickname: "门店账号", signature: "专注上海家居改造" } };
+      },
+      videosLatest: async (secUid) => {
+        assert.equal(secUid, "owner");
+        return { data: { items: [{ aweme_id: "owner-video", desc: "小户型餐桌搭配", publish_time: "2026-09-12" }] } };
+      }
+    },
+    analyzer: { analyze: async (input) => {
+      analysisInput = input;
+      return { source: "model", items: [{ index: 0, score: 88, tier: "high", reason: "明确询问服务", confidence: 0.9 }] };
+    } }
+  });
+
+  const result = await source.scan({
+    agentId: context.agentId,
+    account,
+    accountId: "owner",
+    goal: "获客",
+    includeAccountContext: true
+  });
+
+  assert.equal(analysisInput.account.profile.data.nickname, "门店账号");
+  assert.equal(analysisInput.account.profile.data.signature, "专注上海家居改造");
+  assert.equal(analysisInput.account.recentWorks.data.items[0].desc, "小户型餐桌搭配");
+  assert.equal(result.snapshot.sources.account.state, "available");
+});
+
 test("account data failure degrades enrichment without blocking real interaction facts", async () => {
   const source = createDouyinInteractionSource({
     cloudRegistry: { getService: () => ({}) },
@@ -183,7 +221,12 @@ async function fixture(t, overrides = {}) {
     interactionSource: source, prospectService: { discover: async () => { throw new Error("Must use interaction source"); } },
     cloudRegistry: {
       status: async () => fail ? { state: "OFFLINE", login_state: "logged_out", worker: { online: false } } : { state: "ONLINE", login_state: "logged_in", account },
-      getService: () => ({ sendPrivateMessage: async p => { sends.push(p); return { ok: true, state: "sent" }; }, pullMessages: async () => ({ messages: [{ msg_id: "reply-1", sender, content: { text: "Yes" } }] }) })
+      getService: () => ({
+        startLivePolling: async () => ({ ok: true }),
+        pullLiveMessages: async () => ({ ok: true, messages: [] }),
+        sendPrivateMessage: async p => { sends.push(p); return { ok: true, state: "sent" }; },
+        pullMessages: async () => ({ messages: [{ msg_id: "reply-1", sender, content: { text: "Yes" } }] })
+      })
     },
     ...overrides
   };
@@ -212,6 +255,8 @@ test("received private replies are written back to prospect conversation facts",
     cloudRegistry: {
       status: async () => ({ state: "ONLINE", login_state: "logged_in", account }),
       getService: () => ({
+        startLivePolling: async () => ({ ok: true }),
+        pullLiveMessages: async () => ({ ok: true, messages: [] }),
         sendPrivateMessage: async () => ({ ok: true, state: "sent" }),
         pullMessages: async () => ({
           messages: [{ msg_id: "prospect-reply", sender: { sec_uid: "a", nickname: "a" }, content: { text: "方便的话发我试驾时间" } }],
@@ -293,6 +338,8 @@ test("opt-out received before the send window suppresses first contact", async t
   const f = await fixture(t, { cloudRegistry: {
     status: async () => ({ state: "ONLINE", login_state: "logged_in", account }),
     getService: () => ({
+      startLivePolling: async () => ({ ok: true }),
+      pullLiveMessages: async () => ({ ok: true, messages: [] }),
       pullMessages: async () => ({ messages: [{ msg_id: "optout", sender: { sec_uid: "a" }, content: { text: "不要再联系我" } }] }),
       sendPrivateMessage: async () => { assert.fail("Must not contact an opted-out recipient"); }
     })

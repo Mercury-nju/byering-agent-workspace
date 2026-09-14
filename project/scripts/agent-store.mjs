@@ -59,7 +59,17 @@ function writeJsonAtomic(file, value) {
   renameSync(tmp, file);
 }
 
-export function createAgentStore(root, { seedMessages = true } = {}) {
+export function createAgentStore(root, { seedMessages = true, demoConversationMode = false } = {}) {
+  const demoDmMessages = new Map();
+
+  function listDemoDm(agentType) {
+    if (!demoConversationMode) return null;
+    const seeds = seedMessages ? seedDmMessages(agentType) : [];
+    if (!seeds.length) return null;
+    if (!demoDmMessages.has(agentType)) demoDmMessages.set(agentType, seeds);
+    return demoDmMessages.get(agentType);
+  }
+
   return {
     root,
 
@@ -175,6 +185,8 @@ export function createAgentStore(root, { seedMessages = true } = {}) {
     listDm(agentType) {
       const dir = ensureLayout(root, agentType);
       const file = path.join(dir, "dm.json");
+      const demoMessages = listDemoDm(agentType);
+      if (demoMessages) return demoMessages;
       const seeds = seedMessages ? seedDmMessages(agentType) : [];
       const messages = existsSync(file) ? readJson(file, []) : [];
       if (!seedMessages && messages.some((message) => String(message.id || "").startsWith("dm-seed-"))) {

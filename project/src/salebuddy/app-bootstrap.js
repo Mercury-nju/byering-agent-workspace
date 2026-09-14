@@ -40,6 +40,6 @@ async function registerOfficeAssetWorker() {
 
 void registerOfficeAssetWorker();
 
-await import("../../browser-shim.js?v=20260907-native-agents-1");
+await import("../../browser-shim.js?v=20260914-business-memory-demo-1");
 await import("../../assets/main-BaWVt8Sl.js");
 await import("./index.js?v=20260914-grid-alignment-1");

@@ -52,3 +52,23 @@ test("gateway client sends task runs through the AG-UI agent.run envelope", asyn
     globalThis.WebSocket = previous;
   }
 });
+
+test("gateway client prefers the native socket behind the recovered demo shim", async () => {
+  const { getWebSocketConstructor } = await import(`../src/salebuddy/bridge/gateway.js?native-test=${Date.now()}`);
+  const shimSocket = class ShimSocket {};
+  const nativeSocket = class NativeSocket {};
+
+  assert.equal(
+    getWebSocketConstructor({ WebSocket: shimSocket, __MARVIS_RECOVERED_NATIVE_WEBSOCKET__: nativeSocket }),
+    nativeSocket
+  );
+  assert.equal(getWebSocketConstructor({ WebSocket: shimSocket }), shimSocket);
+  assert.equal(
+    getWebSocketConstructor({
+      WebSocket: shimSocket,
+      __MARVIS_RECOVERED_DEMO_WEBSOCKET__: true,
+      __MARVIS_RECOVERED_NATIVE_WEBSOCKET__: nativeSocket
+    }),
+    shimSocket
+  );
+});

@@ -4,7 +4,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAgentStore } from "./agent-store.mjs";
 import { createRoomsStore } from "./rooms-store.mjs";
-import { mockChiefDecision, roleReply } from "../src/salebuddy/agents/dm-scenarios.js";
+import {
+  mockChiefDecision,
+  mockConversationTurn,
+  roleReply,
+  seedDmMessages
+} from "../src/salebuddy/agents/dm-scenarios.js";
 import { resolveBusinessPrompt } from "../src/salebuddy/business/prompt-catalog.js";
 import { buildMaterialArtifact } from "../src/salebuddy/materials/material-generator.js";
 import PptxGenJS from "pptxgenjs";
@@ -150,6 +155,10 @@ function createGatewayState({ seedOfficeDemo = false } = {}) {
     inProgress: new Set(),
     shares: [],
     materials: new Map(),
+    // Keep the investor-demo conversation separate from runtime activity that
+    // may already exist on disk from earlier local runs.
+    demoDmMessages: new Map(),
+    demoConversationState: new Map(),
     agents: createAgentStore(path.join(projectRoot, "agents")),
     rooms,
     settings: {
@@ -166,6 +175,22 @@ function createGatewayState({ seedOfficeDemo = false } = {}) {
       ]
     }
   };
+}
+
+function demoDmMessagesFor(state, agentType) {
+  const seeds = seedDmMessages(agentType);
+  if (!seeds.length) return null;
+  if (!state.demoDmMessages.has(agentType)) state.demoDmMessages.set(agentType, seeds);
+  return state.demoDmMessages.get(agentType);
+}
+
+function appendDemoDmMessage(state, agentType, message) {
+  const messages = demoDmMessagesFor(state, agentType);
+  if (messages && message) messages.push(message);
+}
+
+function demoConversationKey(agentType, conversationId) {
+  return `${agentType}::${conversationId || "default"}`;
 }
 
 function sendEvent(client, event, data = {}) {
@@ -351,26 +376,36 @@ async function actionResult(state, action, payload) {
     return ok({ roomId: room.id, conversationId: room.conversationId });
   }
   // ── SaleBuddy 私聊（与指定 Agent 的 1:1 会话）──
-  if (action === "dm.message.list") return ok({ messages: state.agents.listDm(payload?.agentType || "main") });
+  if (action === "dm.message.list") {
+    const agentType = payload?.agentType || "main";
+    return ok({ messages: demoDmMessagesFor(state, agentType) || state.agents.listDm(agentType) });
+  }
   if (action === "dm.message.send") {
     const agentType = payload?.agentType || "main";
     const message = state.agents.appendDm(agentType, payload || {});
+    appendDemoDmMessage(state, agentType, message);
     // Simulated collaboration: every employee replies in their own role.
     if ((payload?.from || "user") === "user" && payload?.metadata?.suppressAutoReply !== true) {
       setTimeout(() => {
         const name = state.agents.getProfile(agentType)?.identity?.name || agentType;
-        state.agents.appendDm(agentType, {
+        const stateKey = demoConversationKey(agentType, payload?.conversationId);
+        const turn = mockConversationTurn(agentType, payload?.text, { state: state.demoConversationState.get(stateKey) });
+        if (turn?.state) state.demoConversationState.set(stateKey, turn.state);
+        const reply = state.agents.appendDm(agentType, {
           from: agentType,
           fromName: name,
-          text: roleReply(agentType, payload?.text),
+          text: turn?.text || roleReply(agentType, payload?.text),
           conversationId: payload?.conversationId || null,
           metadata: {
             source: agentType === "main" ? "chief-conversation" : "member-conversation",
             conversationRole: agentType === "main" ? "chief" : "specialist-executor",
             inReplyTo: message.id,
+            ...(turn?.proposal ? { demoProposal: turn.proposal } : {}),
+            ...(turn?.appliedConfig ? { demoConfigApplied: turn.appliedConfig } : {}),
             ...(payload?.conversationId ? { conversationId: payload.conversationId } : {})
           }
         });
+        appendDemoDmMessage(state, agentType, reply);
       }, 1200);
     }
     return ok({ message });

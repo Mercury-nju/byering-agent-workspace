@@ -86,6 +86,37 @@ test("lead intent analysis passes profile and recent works to dynamic trait anal
   assert.equal(result.items[0].traits[0].label, "课程阶段");
 });
 
+test("lead intent analysis sends authorized account positioning and recent works as context", async () => {
+  let requestAccount;
+  const service = createLeadIntentAnalysisService({
+    endpoint: "https://llm.test/chat/completions",
+    apiKey: "test-key",
+    fetchImpl: async (_, request) => {
+      requestAccount = JSON.parse(JSON.parse(request.body).messages.at(-1).content).account;
+      return new Response(JSON.stringify({
+        choices: [{ message: { content: JSON.stringify({
+          items: [{ index: 0, tier: "high", score: 88, confidence: 0.9, reason: "用户明确询问服务", signals: ["询问服务"] }]
+        }) } }]
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }
+  });
+
+  await service.analyze({
+    goal: "识别对账号服务有明确需求的人",
+    account: {
+      nickname: "门店账号",
+      profile: { signature: "专注上海家居改造" },
+      recentWorks: { data: { items: [{ desc: "小户型餐桌搭配", publish_time: "2026-09-12" }] } }
+    },
+    comments: [{ text: "想了解你们的到店服务" }]
+  });
+
+  assert.deepEqual(requestAccount, {
+    profile: { nickname: "门店账号", signature: "专注上海家居改造" },
+    recentWorks: [{ title: "小户型餐桌搭配", observedAt: "2026-09-12" }]
+  });
+});
+
 test("lead intent analysis fails closed when the model is not configured", async () => {
   const service = createLeadIntentAnalysisService({ endpoint: "", apiKey: "" });
   await assert.rejects(

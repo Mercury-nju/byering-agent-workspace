@@ -763,7 +763,7 @@ export function createProspectStore({ storage = globalThis.localStorage, now = (
       const sourceScope = text(entry?.sourceScope || entry?.source?.sourceScope || sourceContext?.sourceScope);
       const contactability = contactabilityFor({
         agentId: text(sourceContext?.agentId, "mkt-cold-writer"),
-        agentName: text(sourceContext?.agentName, "潜客激活专员"),
+        agentName: text(sourceContext?.agentName, "潜客触达专员"),
         source: text(entry?.triggerSource || sourceContext?.source, "成果中心潜客"),
         sourceScope,
         sourceResultType: text(entry?.sourceResultType || sourceContext?.sourceResultType, "潜客"),
@@ -823,7 +823,7 @@ export function createProspectStore({ storage = globalThis.localStorage, now = (
           accountId: sourceAccountId || existing.source?.accountId || null,
           accountName: sourceAccountName || existing.source?.accountName || null
         },
-        owner: existing.owner || text(sourceContext?.agentName, "潜客激活专员"),
+        owner: existing.owner || text(sourceContext?.agentName, "潜客触达专员"),
         execution: existing.execution || { status: "idle", task: "私信触达" },
         timeline: Array.isArray(existing.timeline) ? existing.timeline : [],
         discoveredAt: existing.discoveredAt || now(),

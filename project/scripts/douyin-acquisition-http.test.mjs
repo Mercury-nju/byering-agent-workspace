@@ -287,6 +287,68 @@ test("core execution authenticates with the configured provider identity instead
   assert.equal(statusScope.accountIdentity.sec_uid, identity.sec_uid);
 });
 
+test("live danmaku analysis passes through the HTTP core execution gateway", async (t) => {
+  const identity = { sec_uid: "sec-live-analysis-account", user_id: "58262205543", nickname: "一以万真" };
+  const leaseCalls = [];
+  const registry = {
+    configured: true,
+    adopt() {},
+    getService() {
+      return {
+        configured: true,
+        async status() {
+          return { ok: true, login_state: "logged_in", account: identity };
+        }
+      };
+    },
+    async status() {
+      return { ok: true, login_state: "logged_in", account: identity };
+    }
+  };
+  const coreAgentExecutionService = {
+    configured: true,
+    async lease(input) {
+      leaseCalls.push(input);
+      return { accepted: true, status: "running" };
+    }
+  };
+  const employmentStore = {
+    list() {
+      return [{ agentId: "mkt-live-danmaku-analysis", status: "active" }];
+    }
+  };
+  const { request } = await fixture(t, {
+    douyinAgentCloudRegistry: registry,
+    coreAgentExecutionService,
+    employmentStore
+  });
+  const response = await request("/v1/core-agent-executions", {
+    method: "POST",
+    body: JSON.stringify(context({
+      agentId: "mkt-live-danmaku-analysis",
+      taskId: "task-live-analysis-http-1",
+      taskRunId: "run-live-analysis-http-1",
+      conversationId: "conversation-live-analysis-http-1",
+      accountId: "douyin-agent:mkt-live-danmaku-analysis",
+      goal: "分析当前直播间弹幕和互动信号",
+      config: {
+        sourceScope: "authorized_account_live",
+        analysisOnly: true,
+        discoveryOnly: true,
+        analysisKind: "live_danmaku",
+        liveSignals: ["danmaku", "likes", "gifts"]
+      }
+    }))
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 200, JSON.stringify(body));
+  assert.equal(leaseCalls.length, 1);
+  assert.equal(leaseCalls[0].agentId, "mkt-live-danmaku-analysis");
+  assert.equal(leaseCalls[0].accountIdentity.sec_uid, identity.sec_uid);
+  assert.equal(leaseCalls[0].config.analysisKind, "live_danmaku");
+});
+
 test("core execution recovers the sole bound account when the UI sends only its local Agent account key", async (t) => {
   const identity = { sec_uid: "sec-bound-account", user_id: "58262205543", nickname: "一以万真" };
   const scopes = [];

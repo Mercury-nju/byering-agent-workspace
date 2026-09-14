@@ -9,7 +9,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createAgentStore } from "./agent-store.mjs";
 import { startGatewayMock } from "./gateway-mock.mjs";
-import { mockChiefDecision, mockConversationReply } from "../src/salebuddy/agents/dm-scenarios.js";
+import {
+  DEMO_DM_AGENT_TYPES,
+  demoMemoryFor,
+  mockChiefDecision,
+  mockConversationReply,
+  mockConversationTurn
+} from "../src/salebuddy/agents/dm-scenarios.js";
+import { isPrivateConversationMessage } from "../src/salebuddy/agents/direct-message-contract.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const results = [];
@@ -41,8 +48,8 @@ await run("mock conversation: current Douyin Agents respond like role-specific t
   }
   assert(/负责|可以|先从/.test(mockConversationReply("mkt-comment-acquisition", "你好")), "找客专员没有自然问候回复");
   assert(/分析|意向|报告/.test(mockConversationReply("mkt-intent-analyst", "你能做什么")), "客户分析员没有能力回复");
-  assert(/确认|发送/.test(mockConversationReply("mkt-cold-writer", "确认发送")), "潜客激活专员没有确认回复");
-  assert(!/已经发出|发送成功/.test(mockConversationReply("mkt-cold-writer", "确认发送")), "潜客激活专员不应提前宣称发送成功");
+  assert(/确认|发送/.test(mockConversationReply("mkt-cold-writer", "确认发送")), "潜客触达专员没有确认回复");
+  assert(!/已经发出|发送成功/.test(mockConversationReply("mkt-cold-writer", "确认发送")), "潜客触达专员不应提前宣称发送成功");
   assert(/会话|私信|回复/.test(mockConversationReply("mkt-dm-inbox", "当前进展怎么样了")), "私信客服没有进展回复");
 });
 
@@ -63,6 +70,44 @@ await run("mock conversation: chief routes status, guidance, and capability ques
   assert(mockChiefDecision("") === null, "空消息不应生成幕僚长回复");
 });
 
+await run("mock conversation: business memory supports metrics, diagnosis, solution, and applied config", () => {
+  const memory = demoMemoryFor("mkt-comment-acquisition");
+  assert(memory.account.name === "臻选新能源·上海", "获客管家缺少当前账号记忆");
+  assert(memory.yesterday.foundUsers === 138, "获客管家缺少昨日获客数据");
+  assert(memory.yesterday.qualifiedLeads === 0, "获客管家缺少昨日转化数据");
+
+  const metrics = mockConversationTurn("mkt-comment-acquisition", "昨天的数据怎么样？转化了多少线索？");
+  assert(/138/.test(metrics.text) && /0/.test(metrics.text), `昨日数据回复不完整：${metrics.text}`);
+  assert(/转化|线索/.test(metrics.text), "昨日数据回复没有说明转化线索");
+
+  const diagnosis = mockConversationTurn("mkt-comment-acquisition", "为什么转化率低？", { state: metrics.state });
+  assert(/触达|窗口|原因/.test(diagnosis.text), `低转化原因没有结合业务记忆：${diagnosis.text}`);
+
+  const solution = mockConversationTurn("mkt-comment-acquisition", "后面要怎么解决？", { state: diagnosis.state });
+  assert(solution.proposal?.status === "pending", "解决方案没有生成待确认配置");
+  assert(/生效|确认/.test(solution.text), "配置提案没有请求用户确认");
+
+  const cancelled = mockConversationTurn("mkt-comment-acquisition", "先不要生效", { state: solution.state });
+  assert(!cancelled.appliedConfig && cancelled.state.pendingProposal, "取消配置后不应生效");
+
+  const applied = mockConversationTurn("mkt-comment-acquisition", "可以，立即生效", { state: cancelled.state });
+  assert(applied.appliedConfig?.touchWindow === "2 小时内", "确认后没有应用首触窗口配置");
+  assert(!applied.state.pendingProposal, "确认后仍保留待确认配置");
+  assert(/已生效/.test(applied.text), `确认后的回复没有说明已生效：${applied.text}`);
+});
+
+await run("mock conversation: every investor-demo Agent has domain memory and an actionable improvement flow", () => {
+  for (const agentType of DEMO_DM_AGENT_TYPES) {
+    const memory = demoMemoryFor(agentType);
+    assert(memory.businessContext?.length > 20, `${agentType} 缺少业务记忆摘要`);
+    assert(memory.metrics && Object.keys(memory.metrics).length > 0, `${agentType} 缺少业务指标记忆`);
+    const result = mockConversationTurn(agentType, "后面怎么优化？");
+    assert(result.text.length > 30, `${agentType} 优化回复过短`);
+    assert(result.proposal?.changes?.length > 0, `${agentType} 没有给出可执行配置提案`);
+    assert(/确认|生效/.test(result.text), `${agentType} 没有请求配置生效确认`);
+  }
+});
+
 // ── agent-store 私聊与工作区单元 ─────────────────────────────
 const storeRoot = mkdtempSync(path.join(tmpdir(), "sb-dm-"));
 try {
@@ -80,6 +125,17 @@ try {
       artifactNames.add(artifactMessage.artifact.name);
     }
     assert(artifactNames.size === CORE_AGENT_TYPES.length, "六位员工的产出不应复用同一份模板");
+  });
+
+  await run("store: 投资人演示覆盖幕僚长与五位抖音 Agent", () => {
+    for (const agentType of DEMO_DM_AGENT_TYPES) {
+      const messages = store.listDm(agentType);
+      assert(messages.length >= 4, `${agentType} 演示对话不足`);
+      assert(messages.some((item) => item.from === "user"), `${agentType} 缺用户输入`);
+      assert(messages.some((item) => item.artifact?.content), `${agentType} 缺可查看的业务产出`);
+      assert(messages.filter((item) => item.from !== "user").every(isPrivateConversationMessage), `${agentType} 的演示回复不能被对话过滤器丢弃`);
+      assert(!messages.every((item) => /工作状态|等待真实任务事件/.test(item.text)), `${agentType} 不能只有状态通知`);
+    }
   });
 
   await run("store: appendDm/listDm 往返一致并保留产出字段", () => {
@@ -158,6 +214,37 @@ try {
     assert(reply.metadata?.conversationRole === "specialist-executor", "Agent 回复缺少执行 Agent 会话角色");
     assert(reply.metadata?.conversationId === "mock-conversation-1", "Agent 回复未保留会话上下文");
     assert(reply.metadata?.inReplyTo === messages[messages.length - 2]?.id, "Agent 回复未指向用户消息");
+  });
+
+  await run("gateway: mock 演示会话隔离旧的运行日志", async () => {
+    const messages = (await action("dm.message.list", { agentType: "mkt-comment-acquisition" }))?.data?.messages || [];
+    assert(messages.length >= 6, "抖音获客管家应有完整演示历史");
+    assert(messages.some((item) => item.artifact?.name === "抖音获客管家日报-2026-09-14.html"), "缺日报产出卡片");
+    assert(messages.some((item) => /4,286|138 位|26 位/.test(item.text)), "缺少具体获客数据");
+    assert(!messages.some((item) => /今天的托管工作我已经整理好了/.test(item.text)), "不应显示旧的重复日报消息");
+  });
+
+  await run("gateway: demo Agent remembers a proposal until explicit confirmation", async () => {
+    const agentType = "mkt-comment-acquisition";
+    const conversationId = "investor-memory-flow";
+    const sendAndWait = async (text) => {
+      await action("dm.message.send", { agentType, from: "user", fromName: "我", text, conversationId });
+      await sleep(1500);
+      const messages = (await action("dm.message.list", { agentType }))?.data?.messages || [];
+      return messages.filter((item) => item.conversationId === conversationId);
+    };
+
+    const metrics = await sendAndWait("昨天的数据怎么样？转化了多少线索？");
+    assert(metrics.at(-1)?.from === agentType && /138|0/.test(metrics.at(-1)?.text || ""), "网关没有返回带记忆的昨日数据");
+    await sendAndWait("为什么转化率低？");
+    const proposalMessages = await sendAndWait("后面要怎么解决？");
+    const proposal = proposalMessages.at(-1);
+    assert(proposal?.metadata?.demoProposal?.status === "pending", "网关没有保存待确认提案");
+
+    const appliedMessages = await sendAndWait("可以");
+    const applied = appliedMessages.at(-1);
+    assert(applied?.metadata?.demoConfigApplied?.touchWindow === "2 小时内", "网关确认后没有应用配置");
+    assert(/已生效/.test(applied?.text || ""), "网关没有返回配置已生效提示");
   });
 
   await run("gateway: chief.message.decide 返回可渲染消息且不会重复自动回复", async () => {

@@ -1,8 +1,21 @@
 import { receptionGoalObjective, receptionResponseStyle } from "../src/salebuddy/agents/account-reception.js";
+import {
+  DOUYIN_ACQUISITION_DISCOVERY_GOAL,
+  DOUYIN_ACQUISITION_FIRST_TOUCH_RULE,
+  DOUYIN_ACQUISITION_HANDOFF_RULES,
+  DOUYIN_ACQUISITION_LIMITS,
+  DOUYIN_ACQUISITION_OBJECTIVE,
+  DOUYIN_ACQUISITION_REPLY_TONE,
+  DOUYIN_ACQUISITION_SYSTEM_PROMPT,
+  buildDouyinAcquisitionSystemPrompt,
+  douyinAcquisitionHandoffBoundary,
+  normalizeDouyinAcquisitionAdvancedSettings
+} from "../src/salebuddy/agents/douyin-acquisition-prompt.js";
 
 const PRODUCT_AGENT_IDS = new Set([
   "mkt-comment-acquisition",
   "mkt-find-people",
+  "mkt-live-danmaku-analysis",
   "mkt-intent-analyst",
   "mkt-cold-writer",
   "mkt-dm-inbox"
@@ -10,6 +23,7 @@ const PRODUCT_AGENT_IDS = new Set([
 
 const ACQUISITION_AGENT_ID = "mkt-comment-acquisition";
 const FINDER_AGENT_ID = "mkt-find-people";
+const LIVE_DANMAKU_ANALYSIS_AGENT_ID = "mkt-live-danmaku-analysis";
 
 export class CoreAgentExecutionError extends Error {
   constructor(message, { code = "CORE_AGENT_EXECUTION_ERROR", statusCode = 400, details = {} } = {}) {
@@ -22,7 +36,7 @@ export class CoreAgentExecutionError extends Error {
 }
 
 /**
- * The only execution boundary for the five product Agents. It selects a
+ * The only execution boundary for the product Agents. It selects a
  * capability inside the authorized Douyin account runtime without exposing
  * the legacy public discovery adapter to normal product tasks.
  */
@@ -54,6 +68,8 @@ export function createCoreAgentExecutionService({
         return request.operation === "inbox_hosting" ? startInboxHosting(request) : startAcquisition(request);
       case FINDER_AGENT_ID:
         return startFinder(request);
+      case LIVE_DANMAKU_ANALYSIS_AGENT_ID:
+        return startLiveDanmakuAnalysis(request);
       case "mkt-intent-analyst":
         return analyzeCandidates(request);
       case "mkt-cold-writer":
@@ -66,9 +82,7 @@ export function createCoreAgentExecutionService({
   }
 
   async function startAcquisition(request) {
-    const reception = await requireReceptionStrategy(request);
     const config = acquisitionConfig(request, "authorized_account_all_signals");
-    attachReceptionReference(config, reception);
     const context = acquisitionContext(request);
     return startAcquisitionTask(request, context, config, "acquisition_started");
   }
@@ -80,6 +94,24 @@ export function createCoreAgentExecutionService({
       executionAgentId: ACQUISITION_AGENT_ID
     };
     return startAcquisitionTask(request, context, config, "finder_listener_started");
+  }
+
+  async function startLiveDanmakuAnalysis(request) {
+    const config = acquisitionConfig(request, "authorized_account_live", {
+      discoveryOnly: true,
+      analysisOnly: true,
+      analysisKind: "live_danmaku",
+      liveSignals: Array.isArray(request.config?.liveSignals) && request.config.liveSignals.length
+        ? request.config.liveSignals
+        : ["danmaku", "likes", "gifts"],
+      approvalMode: "manual",
+      autoStartCloud: false
+    });
+    const context = {
+      ...acquisitionContext(request),
+      executionAgentId: ACQUISITION_AGENT_ID
+    };
+    return startAcquisitionTask(request, context, config, "live_danmaku_analysis_started");
   }
 
   async function startAcquisitionTask(request, context, config, operation) {
@@ -190,7 +222,7 @@ export function createCoreAgentExecutionService({
     const secUid = cleanText(request.secUid);
     const candidate = firstRecord(request.lead, request.candidate, request.prospect, request.recipient, request.config?.lead, request.config?.candidate);
     if (!content || ((!secId && !secUid) && !candidate)) {
-      throw executionError("潜客激活需要目标账号和发送内容", "CORE_AGENT_INPUT_REQUIRED", 400, {
+      throw executionError("潜客触达需要目标账号和发送内容", "CORE_AGENT_INPUT_REQUIRED", 400, {
         fields: [!content ? "content" : null, !secId && !secUid && !candidate ? "lead_or_secId_or_secUid" : null].filter(Boolean)
       });
     }
@@ -238,11 +270,17 @@ export function createCoreAgentExecutionService({
 
   async function startInboxHosting(request) {
     assertCapability("inbox", "授权账号的私信承接能力不可用");
-    const reception = await requireReceptionStrategy(request);
+    const autonomousAcquisition = request.agentId === ACQUISITION_AGENT_ID;
+    const reception = autonomousAcquisition
+      ? await optionalReceptionStrategy(request)
+      : await requireReceptionStrategy(request);
     const callerConfig = record(request.config) ? request.config : {};
+    const managerConfig = autonomousAcquisition ? autonomousAcquisitionConfig(callerConfig) : null;
     const hasSavedReception = record(reception?.settings);
     const settings = hasSavedReception ? reception.settings : callerConfig;
-    const schedule = record(settings.schedule) ? settings.schedule : {};
+    const schedule = autonomousAcquisition
+      ? {}
+      : record(settings.schedule) ? settings.schedule : {};
     try {
       const input = {
         taskId: request.taskId,
@@ -253,8 +291,10 @@ export function createCoreAgentExecutionService({
         accountName: request.accountName,
         accountIdentity: request.accountIdentity,
         accountCoordinationKey: request.accountKey || request.accountId,
-        taskObjective: request.goal,
+        taskObjective: autonomousAcquisition ? DOUYIN_ACQUISITION_OBJECTIVE : request.goal,
         autoReply: true,
+        autonomousLeadAcquisition: autonomousAcquisition,
+        ...(autonomousAcquisition ? { systemPrompt: managerConfig.systemPrompt } : {}),
         startPolling: true,
         planToken: cleanText(request.config?.planToken || request.planToken),
         startRequestId: cleanText(request.config?.startRequestId || request.startRequestId || request.idempotencyKey),
@@ -263,11 +303,17 @@ export function createCoreAgentExecutionService({
         batchLimit: request.config?.batchLimit ?? request.batchLimit,
         receptionRevision: hasSavedReception ? Number(reception.revision) : null,
         receptionSettings: hasSavedReception ? settings : null,
-        replyRule: cleanText(settings.answerRules || settings.replyRule) || "只根据已保存的业务资料回答，不确定的信息不猜测。",
-        replyObjective: cleanText(settings.goalDetails || settings.replyObjective) || receptionGoalObjective(settings),
-        replyTone: receptionResponseStyle(settings),
+        replyRule: autonomousAcquisition
+          ? managerConfig.contentPolicy.template
+          : cleanText(settings.answerRules || settings.replyRule) || "只根据已保存的业务资料回答，不确定的信息不猜测。",
+        replyObjective: autonomousAcquisition
+          ? managerConfig.contentPolicy.dialogueObjective
+          : cleanText(settings.goalDetails || settings.replyObjective) || receptionGoalObjective(settings),
+        replyTone: autonomousAcquisition ? managerConfig.contentPolicy.replyStyle : receptionResponseStyle(settings),
         businessKnowledge: cleanText(settings.knowledge),
-        handoffRules: hasSavedReception
+        handoffRules: autonomousAcquisition
+          ? managerConfig.contentPolicy.handoffBoundary.split(/[、,，；;\n]/).map((value) => value.trim()).filter(Boolean)
+          : hasSavedReception
           ? normalizeHandoffRules(settings.handoff)
           : cleanText(callerConfig.handoffRules) || normalizeHandoffRules(settings.handoff),
         schedule,
@@ -315,6 +361,21 @@ export function createCoreAgentExecutionService({
     return reception;
   }
 
+  async function optionalReceptionStrategy(request) {
+    if (typeof resolveReceptionStrategy !== "function") return null;
+    try {
+      const reception = await resolveReceptionStrategy({
+        request,
+        tenantId: request.tenantId || null,
+        account: request.accountIdentity || null,
+        accountId: request.accountId || request.accountKey || null
+      });
+      return record(reception) && record(reception.settings) ? reception : null;
+    } catch (error) {
+      throw normalizeServiceError(error, "CORE_AGENT_RECEPTION_STRATEGY_LOOKUP_FAILED");
+    }
+  }
+
   function assertCapability(capability, message) {
     if (capabilityReady[capability]) return;
     throw executionError(message, "CORE_AGENT_EXECUTION_NOT_CONFIGURED", 503, { capability });
@@ -324,7 +385,7 @@ export function createCoreAgentExecutionService({
     const rawLead = outreachLead(request, directAddress);
     if (typeof resolveOutreachLead !== "function") {
       if (!rawLead.secId && !rawLead.secUid) {
-        throw executionError("潜客激活需要可验证的抖音账号", "CORE_AGENT_INPUT_REQUIRED", 400, { field: "lead" });
+        throw executionError("潜客触达需要可验证的抖音账号", "CORE_AGENT_INPUT_REQUIRED", 400, { field: "lead" });
       }
       return rawLead;
     }
@@ -472,7 +533,7 @@ function acquisitionConfig(request, sourceKind, additions = {}) {
   }
   // These two product Agents are listeners. Historical scans belong to public
   // discovery or a separate project, never to an always-on account task.
-  return {
+  const normalized = {
     ...config,
     ...additions,
     accountId: cleanText(config.accountId) || request.accountId || request.accountKey,
@@ -480,6 +541,64 @@ function acquisitionConfig(request, sourceKind, additions = {}) {
     accountIdentity: config.accountIdentity || request.accountIdentity || null,
     workWindow,
     sourceScope
+  };
+  return request.agentId === ACQUISITION_AGENT_ID
+    ? autonomousAcquisitionConfig(normalized)
+    : normalized;
+}
+
+function autonomousAcquisitionConfig(config = {}) {
+  const advanced = normalizeDouyinAcquisitionAdvancedSettings(config);
+  const maxTouchesPerDay = advanced.maxTouchesPerDay === null
+    ? DOUYIN_ACQUISITION_LIMITS.dailyMax
+    : Math.min(advanced.maxTouchesPerDay, DOUYIN_ACQUISITION_LIMITS.dailyMax);
+  const minIntervalMinutes = advanced.minIntervalMinutes === null
+    ? DOUYIN_ACQUISITION_LIMITS.minIntervalMinutes
+    : Math.max(advanced.minIntervalMinutes, DOUYIN_ACQUISITION_LIMITS.minIntervalMinutes);
+  const audienceGoal = advanced.audienceGoal || DOUYIN_ACQUISITION_DISCOVERY_GOAL;
+  const requirements = advanced.requirements;
+  const firstTouch = advanced.firstTouch || DOUYIN_ACQUISITION_FIRST_TOUCH_RULE;
+  const replyStyle = advanced.replyStyle || DOUYIN_ACQUISITION_REPLY_TONE;
+  const touchObjective = advanced.touchObjective || DOUYIN_ACQUISITION_OBJECTIVE;
+  const dialogueObjective = advanced.dialogueObjective || DOUYIN_ACQUISITION_OBJECTIVE;
+  const handoffBoundary = douyinAcquisitionHandoffBoundary(advanced.handoffBoundary);
+  const systemPrompt = buildDouyinAcquisitionSystemPrompt(advanced);
+  return {
+    ...config,
+    autonomousLeadAcquisition: true,
+    managerAdvancedSettingsEnabled: advanced.enabled,
+    managerAdvancedSettings: advanced,
+    objective: DOUYIN_ACQUISITION_OBJECTIVE,
+    systemPrompt,
+    touchChannel: "private_message",
+    audienceRules: {
+      goal: audienceGoal,
+      requirements,
+      minScore: DOUYIN_ACQUISITION_LIMITS.minScore
+    },
+    contentPolicy: {
+      quoteComment: false,
+      maxLength: 120,
+      template: firstTouch,
+      strategy: firstTouch,
+      conversionGoal: touchObjective,
+      dialogueObjective,
+      replyStyle,
+      handoffBoundary,
+      systemPrompt
+    },
+    frequency: {
+      mode: "识别到高意向潜客后自动触达",
+      maxTouchesPerDay,
+      minIntervalMinutes
+    },
+    caps: {
+      dailyMax: maxTouchesPerDay,
+      sendIntervalMs: minIntervalMinutes * 60 * 1000,
+      cooldownMs: 0
+    },
+    stopConditions: { stopOnReply: false, stopOnOptOut: true },
+    platformConstraints: {}
   };
 }
 
@@ -547,15 +666,6 @@ function normalizeFinderListenerSource(value) {
   throw executionError("找客专员的长期任务只能监听已授权账号的评论、直播互动、账号互动通知或它们的组合；公域找人应走公开找人服务", "CORE_AGENT_FINDER_LISTENER_SOURCE_INVALID", 409, {
     sourceScope: source
   });
-}
-
-function attachReceptionReference(config, reception) {
-  if (!record(reception)) return config;
-  config.reception = {
-    revision: Number(reception.revision),
-    settings: reception.settings
-  };
-  return config;
 }
 
 function normalizeHandoffRules(value) {

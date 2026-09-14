@@ -19,10 +19,23 @@ import { createDouyinInteractionSource } from "./douyin-interaction-source.js";
 import { normalizeMessage } from "./douyin-inbox-agent.js";
 import { classifyIntent, INBOX_INTENTS } from "./douyin-reply-strategy.js";
 import { extractLeadContact } from "../src/salebuddy/agents/lead-capture.js";
+import { analyzeLiveDanmakuSignals } from "../src/salebuddy/agents/live-danmaku-analysis.js";
 import {
   DOUYIN_ACCOUNT_CLOUD_RUNTIME_ID,
   DOUYIN_ACQUISITION_LEGACY_CLOUD_AGENT_IDS
 } from "../src/salebuddy/agents/marketplace.js";
+import {
+  DOUYIN_ACQUISITION_DISCOVERY_GOAL,
+  DOUYIN_ACQUISITION_FIRST_TOUCH_RULE,
+  DOUYIN_ACQUISITION_HANDOFF_RULES,
+  DOUYIN_ACQUISITION_LIMITS,
+  DOUYIN_ACQUISITION_OBJECTIVE,
+  DOUYIN_ACQUISITION_REPLY_TONE,
+  DOUYIN_ACQUISITION_SYSTEM_PROMPT,
+  buildDouyinAcquisitionSystemPrompt,
+  douyinAcquisitionHandoffBoundary,
+  normalizeDouyinAcquisitionAdvancedSettings
+} from "../src/salebuddy/agents/douyin-acquisition-prompt.js";
 
 let defaultCloudRegistryFactory = null;
 try {
@@ -34,7 +47,8 @@ try {
 const SNAPSHOT_VERSION = 1;
 const MAX_EVENTS = 500;
 const MAX_REPLIES = 200;
-const AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-people"]);
+const LIVE_DANMAKU_ANALYSIS_AGENT_ID = "mkt-live-danmaku-analysis";
+const AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-people", LIVE_DANMAKU_ANALYSIS_AGENT_ID]);
 const EXECUTION_AGENT_IDS = new Set(["mkt-comment-acquisition"]);
 const FINDER_AGENT_ID = "mkt-find-people";
 const COMPREHENSIVE_AGENT_ID = "mkt-comment-acquisition";
@@ -66,7 +80,7 @@ const TASK_FINGERPRINT_IGNORED_KEYS = new Set(["accountIdentity", "accountRef", 
 // These Agent ids own durable account-scoped listeners. Finder also has a
 // public one-off mode, but its authorized-account mode is a listener and must
 // receive the same deduplication and cloud-authentication guarantees.
-const CONTINUOUS_AGENT_IDS = new Set([COMPREHENSIVE_AGENT_ID, FINDER_AGENT_ID]);
+const CONTINUOUS_AGENT_IDS = new Set([COMPREHENSIVE_AGENT_ID, FINDER_AGENT_ID, LIVE_DANMAKU_ANALYSIS_AGENT_ID]);
 const SYSTEM_DUPLICATE_PAUSE_REASON = "system_duplicate_consolidation";
 const STALE_ERROR_RETENTION_MS = 72 * 60 * 60 * 1000;
 
@@ -192,6 +206,15 @@ export function createDouyinAcquisitionService({
     }
     if (context.agentId === FINDER_AGENT_ID && config.discoveryOnly !== true) {
       throw acquisitionError("找客专员只负责发现和归档候选客户，不能在监听任务中创建或发送触达内容", "DOUYIN_DISCOVERY_ONLY_REQUIRED", 400);
+    }
+    if (context.agentId === LIVE_DANMAKU_ANALYSIS_AGENT_ID && config.sourceScope?.kind !== "authorized_account_live") {
+      throw acquisitionError("直播间弹幕分析只能读取已授权账号当前直播间", "DOUYIN_LIVE_ANALYSIS_SOURCE_SCOPE_INVALID", 400);
+    }
+    if (context.agentId === LIVE_DANMAKU_ANALYSIS_AGENT_ID && config.analysisOnly !== true) {
+      throw acquisitionError("直播间弹幕分析只能以分析模式运行", "DOUYIN_LIVE_ANALYSIS_ONLY_REQUIRED", 400);
+    }
+    if (context.agentId === LIVE_DANMAKU_ANALYSIS_AGENT_ID && config.discoveryOnly !== true) {
+      throw acquisitionError("直播间弹幕分析不支持触达，只能归档和分析互动信号", "DOUYIN_DISCOVERY_ONLY_REQUIRED", 400);
     }
     const key = acquisitionOwnerKey(context);
     const taskFingerprint = acquisitionTaskFingerprint(context, config);
@@ -414,6 +437,15 @@ export function createDouyinAcquisitionService({
       return { ...scan, task: clone(task) };
     }
     const draftResult = await processCandidates(task, scan.leads, executionConfig, executionConfigVersion);
+    const danmakuAnalysis = isLiveDanmakuAnalysis(task)
+      ? analyzeLiveDanmakuSignals({
+        signals: Object.values(scan.profiles || task.candidateProfiles || {}).length
+          ? Object.values(scan.profiles || task.candidateProfiles || {})
+          : scan.leads,
+        goal: executionConfig.audienceRules.goal,
+        now: now()
+      })
+      : null;
     if (isComprehensive(task) || usesAuthorizedInteractionListener(task)) {
       task.cursor = scan.nextCursor ?? task.cursor;
       task.candidateProfiles = scan.profiles || task.candidateProfiles;
@@ -432,10 +464,12 @@ export function createDouyinAcquisitionService({
     task.resultSnapshot = {
       ...clone(task.lastScan),
       status: "completed",
-      leads: clone(scan.leads),
+      leads: danmakuAnalysis ? clone(danmakuAnalysis.users) : clone(scan.leads),
+      ...(danmakuAnalysis ? { danmakuAnalysis: clone(danmakuAnalysis) } : {}),
       counts: {
         ...(task.lastScan.counts || {}),
-        candidates: scan.leads.length,
+        ...(danmakuAnalysis ? danmakuAnalysis.counts : {}),
+        candidates: danmakuAnalysis ? danmakuAnalysis.users.length : scan.leads.length,
         drafts: draftResult.drafts.length,
         newCandidates: draftResult.newCandidates,
         duplicates: draftResult.duplicates
@@ -450,7 +484,7 @@ export function createDouyinAcquisitionService({
     persist();
     emit(task, EVENT_TYPES.SCAN_WINDOW, {
       cursor: task.cursor,
-      candidates: scan.leads.length,
+      candidates: danmakuAnalysis ? danmakuAnalysis.users.length : scan.leads.length,
       newCandidates: draftResult.newCandidates,
       duplicates: draftResult.duplicates,
       observedAt: task.lastSuccessfulScan,
@@ -474,7 +508,7 @@ export function createDouyinAcquisitionService({
     let lastError = null;
     for (let attempt = 1; attempt <= attempts; attempt += 1) {
       try {
-        const analysisMode = task.context.agentId === FINDER_AGENT_ID ? "collect" : "intent";
+        const analysisMode = [FINDER_AGENT_ID, LIVE_DANMAKU_ANALYSIS_AGENT_ID].includes(task.context.agentId) ? "collect" : "intent";
         if (isComprehensive(task) || usesAuthorizedInteractionListener(task)) {
           if (!comprehensiveSource?.scan) throw acquisitionError("综合获客数据源不可用", "DOUYIN_SOURCE_UNAVAILABLE", 503);
           const cloud = cloudBindingForTask(task);
@@ -486,6 +520,7 @@ export function createDouyinAcquisitionService({
             liveOnly: isLiveDiscovery(task),
             includeNotifications: !isLiveDiscovery(task),
             includeLive: includesLiveSignals(task),
+            includeAccountContext: isComprehensive(task),
             listenerKey: task.key,
             isActive: () => preview || [TASK_STATES.RUNNING, TASK_STATES.DEGRADED].includes(task.state)
           }), ok: true };
@@ -900,7 +935,7 @@ export function createDouyinAcquisitionService({
       task.config = nextConfig;
       task.configuration = nextConfiguration;
       task.taskFingerprint = acquisitionTaskFingerprint(task.context, task.config);
-      task.updatedAt = now();
+      task.updatedAt = task.state === TASK_STATES.ERROR ? (task.updatedAt || now()) : now();
       changed = true;
     }
     return changed;
@@ -918,7 +953,7 @@ export function createDouyinAcquisitionService({
         task.config = nextConfig;
         task.configuration = nextConfiguration;
         task.taskFingerprint = acquisitionTaskFingerprint(task.context, task.config);
-        task.updatedAt = now();
+        task.updatedAt = task.state === TASK_STATES.ERROR ? (task.updatedAt || now()) : now();
         changed = true;
       }
       if (!isComprehensivePrivateTouchChannel(nextConfig.touchChannel)) {
@@ -1716,7 +1751,7 @@ function normalizeContext(value) {
   if (context.agentId === RETIRED_LIVE_AGENT_ID) {
     throw acquisitionError("直播间找客户已并入找客专员。请使用找客专员并选择“我的账号直播互动”。", "DOUYIN_ACQUISITION_AGENT_RETIRED", 410);
   }
-  if (!AGENT_IDS.has(context.agentId)) throw acquisitionError("仅支持获客专家或找客专员", "DOUYIN_ACQUISITION_AGENT_INVALID", 400);
+  if (!AGENT_IDS.has(context.agentId)) throw acquisitionError("仅支持获客专家、找客专员或直播间弹幕分析", "DOUYIN_ACQUISITION_AGENT_INVALID", 400);
   const runtimeAgentId = acquisitionExecutionAgentId(context);
   if (!EXECUTION_AGENT_IDS.has(runtimeAgentId)) {
     throw acquisitionError("获客执行身份无效", "DOUYIN_ACQUISITION_EXECUTION_AGENT_INVALID", 400);
@@ -1724,7 +1759,8 @@ function normalizeContext(value) {
   if (context.agentId === FINDER_AGENT_ID && runtimeAgentId !== COMPREHENSIVE_AGENT_ID) {
     throw acquisitionError("找客专员的授权账号监听必须使用已授权账号对应的云电脑", "DOUYIN_ACQUISITION_EXECUTION_AGENT_INVALID", 400);
   }
-  if (context.agentId !== FINDER_AGENT_ID && executionAgentId && runtimeAgentId !== context.agentId) {
+  const delegatedAgent = context.agentId === LIVE_DANMAKU_ANALYSIS_AGENT_ID;
+  if (context.agentId !== FINDER_AGENT_ID && !delegatedAgent && executionAgentId && runtimeAgentId !== context.agentId) {
     throw acquisitionError("当前获客任务不支持委托其他云电脑执行", "DOUYIN_ACQUISITION_EXECUTION_AGENT_INVALID", 400);
   }
   for (const field of ["taskId", "taskRunId", "conversationId", "accountId"]) if (!context[field]) throw acquisitionError(`${field} is required`, "DOUYIN_ACQUISITION_CONTEXT_REQUIRED", 400, { field });
@@ -1771,6 +1807,11 @@ function normalizeConfig(value) {
   const normalized = {
     sourceScope,
     discoveryOnly,
+    analysisOnly: source.analysisOnly === true,
+    analysisKind: String(source.analysisKind || "").trim(),
+    liveSignals: Array.isArray(source.liveSignals)
+      ? [...new Set(source.liveSignals.map((value) => String(value || "").trim().toLowerCase()).filter(Boolean))]
+      : [],
     accountRef: source.accountRef || source.account || sourceScope.accountRef || null,
     accountIdentity: source.accountIdentity || null,
     cursor: source.cursor ?? null,
@@ -1778,6 +1819,8 @@ function normalizeConfig(value) {
     audienceRules: { goal: String(audienceRules.goal || source.goal || "公开抖音评论潜客发现"), minScore: audienceRules.minScore ?? source.minScore ?? 80, ...audienceRules },
     autoStartCloud: source.autoStartCloud !== false
   };
+  if (isRecord(source.managerAdvancedSettings)) normalized.managerAdvancedSettings = clone(source.managerAdvancedSettings);
+  if (source.managerAdvancedSettingsEnabled === true) normalized.managerAdvancedSettingsEnabled = true;
   if (discoveryOnly) {
     normalized.approvalMode = APPROVAL_MODES.MANUAL;
     normalized.autoStartCloud = false;
@@ -1824,7 +1867,14 @@ function canonicalConfiguration(config = {}) {
     ...(audience.minScore !== undefined ? { minScore: audience.minScore } : {}),
     ...(audience.filters !== undefined ? { filters: clone(audience.filters) } : {})
   };
-  if (source.discoveryOnly === true) return { findingStrategy };
+  if (source.discoveryOnly === true) {
+    return {
+      findingStrategy,
+      ...(source.analysisOnly ? { analysisOnly: true } : {}),
+      ...(source.analysisKind ? { analysisKind: source.analysisKind } : {}),
+      ...(source.liveSignals?.length ? { liveSignals: clone(source.liveSignals) } : {})
+    };
+  }
   return {
     findingStrategy,
     touchContent: {
@@ -2059,10 +2109,31 @@ function isComprehensiveSourceScope(value) {
 function normalizeComprehensiveScope(context = {}, config = {}) {
   if (context?.agentId !== COMPREHENSIVE_AGENT_ID) return config;
   const sourceScope = comprehensiveScopeIdentity(config.sourceScope);
-  return {
+  const advanced = normalizeDouyinAcquisitionAdvancedSettings(config);
+  const systemPrompt = buildDouyinAcquisitionSystemPrompt(advanced);
+  const maxTouchesPerDay = advanced.maxTouchesPerDay === null
+    ? DOUYIN_ACQUISITION_LIMITS.dailyMax
+    : Math.min(advanced.maxTouchesPerDay, DOUYIN_ACQUISITION_LIMITS.dailyMax);
+  const minIntervalMinutes = advanced.minIntervalMinutes === null
+    ? DOUYIN_ACQUISITION_LIMITS.minIntervalMinutes
+    : Math.max(advanced.minIntervalMinutes, DOUYIN_ACQUISITION_LIMITS.minIntervalMinutes);
+  const audienceGoal = advanced.audienceGoal || DOUYIN_ACQUISITION_DISCOVERY_GOAL;
+  const firstTouch = advanced.firstTouch || DOUYIN_ACQUISITION_FIRST_TOUCH_RULE;
+  const replyStyle = advanced.replyStyle || DOUYIN_ACQUISITION_REPLY_TONE;
+  const touchObjective = advanced.touchObjective || DOUYIN_ACQUISITION_OBJECTIVE;
+  const dialogueObjective = advanced.dialogueObjective || DOUYIN_ACQUISITION_OBJECTIVE;
+  const handoffBoundary = douyinAcquisitionHandoffBoundary(advanced.handoffBoundary);
+  const normalized = {
     ...config,
     sourceScope: { ...sourceScope, kind: COMPREHENSIVE_SOURCE_SCOPE },
     discoveryOnly: false,
+    autonomousLeadAcquisition: true,
+    managerAdvancedSettingsEnabled: advanced.enabled,
+    managerAdvancedSettings: advanced,
+    objective: DOUYIN_ACQUISITION_OBJECTIVE,
+    systemPrompt,
+    // Preserve a legacy public-reply value during migration so the task can
+    // pause and require an explicit switch to private outreach.
     touchChannel: normalizeComprehensiveTouchChannel(config.touchChannel),
     approvalMode: APPROVAL_MODES.AUTO,
     frequency: {
@@ -2071,8 +2142,36 @@ function normalizeComprehensiveScope(context = {}, config = {}) {
     },
     // The task is an account-level listener. Individual prospect boundaries
     // must never be represented as a condition that stops the listener.
-    stopConditions: { stopOnReply: false, stopOnOptOut: true }
+    stopConditions: { stopOnReply: false, stopOnOptOut: true },
+    audienceRules: {
+      goal: audienceGoal,
+      requirements: advanced.requirements,
+      minScore: DOUYIN_ACQUISITION_LIMITS.minScore
+    },
+    contentPolicy: {
+      quoteComment: false,
+      maxLength: 120,
+      template: firstTouch,
+      strategy: firstTouch,
+      conversionGoal: touchObjective,
+      dialogueObjective,
+      replyStyle,
+      handoffBoundary,
+      systemPrompt
+    },
+    frequency: {
+      mode: "识别到高意向潜客后自动触达",
+      maxTouchesPerDay,
+      minIntervalMinutes
+    },
+    platformConstraints: {},
+    caps: {
+      dailyMax: maxTouchesPerDay,
+      sendIntervalMs: minIntervalMinutes * 60 * 1000,
+      cooldownMs: 0
+    }
   };
+  return normalized;
 }
 
 function normalizeComprehensiveTouchChannel(value) {
@@ -2470,6 +2569,10 @@ function isComprehensive(task) {
     && isComprehensiveSourceScope(task.config.sourceScope?.kind);
 }
 
+function isLiveDanmakuAnalysis(task) {
+  return task?.context?.agentId === LIVE_DANMAKU_ANALYSIS_AGENT_ID;
+}
+
 function isFinderListenerSourceScope(scope = {}) {
   return ["authorized_account_all_signals", "authorized_account_comments", "authorized_account_live", "authorized_account_interactions"].includes(String(scope?.kind || "").trim());
 }
@@ -2484,14 +2587,16 @@ function usesAuthorizedInteractionListener(task) {
   return (agentId === FINDER_AGENT_ID
     && scopeKind === "authorized_account_interactions")
     || (agentId === FINDER_AGENT_ID && scopeKind === "authorized_account_live")
-    || (agentId === FINDER_AGENT_ID && scopeKind === COMPREHENSIVE_SOURCE_SCOPE);
+    || (agentId === FINDER_AGENT_ID && scopeKind === COMPREHENSIVE_SOURCE_SCOPE)
+    || (agentId === LIVE_DANMAKU_ANALYSIS_AGENT_ID && scopeKind === "authorized_account_live");
 }
 
 function includesLiveSignals(task) {
   const scopeKind = String(task?.config?.sourceScope?.kind || "").trim();
   return isComprehensive(task)
     || (task?.context?.agentId === FINDER_AGENT_ID
-      && ["authorized_account_live", COMPREHENSIVE_SOURCE_SCOPE].includes(scopeKind));
+      && ["authorized_account_live", COMPREHENSIVE_SOURCE_SCOPE].includes(scopeKind))
+    || (task?.context?.agentId === LIVE_DANMAKU_ANALYSIS_AGENT_ID && scopeKind === "authorized_account_live");
 }
 
 function requiresAuthenticatedCloud(task) {
@@ -2518,7 +2623,10 @@ function isLiveDiscovery(task) {
   const finderLive = task.context.agentId === FINDER_AGENT_ID
     && scope.kind === "authorized_account_live"
     && runtimeAgentId === COMPREHENSIVE_AGENT_ID;
-  return finderLive;
+  const liveAnalysis = task.context.agentId === LIVE_DANMAKU_ANALYSIS_AGENT_ID
+    && scope.kind === "authorized_account_live"
+    && runtimeAgentId === COMPREHENSIVE_AGENT_ID;
+  return finderLive || liveAnalysis;
 }
 
 function withinCaps(task, currentTime) {

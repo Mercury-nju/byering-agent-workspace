@@ -1,10 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { buildConsumerOverviewModel, buildInboxResumeFlow, buildPrivateOutreachResumeFlow, buildProspectDashboardModel, commentResultItems, consumerNavigationItems, dashboardAcquisitionAccount, dashboardLeadLabel, dashboardReplyLabel, discoveredUserItems, discoverySourceGroups, discoveryTaskGroups, isBusinessResult, leadCaptureContactEntries, normalizePeopleFilter, outreachResultItems, personAvatarHydrationReference, privateOutreachRecipientId, prospectSelectionIds, resultFunnelCounts, selectedResultIdForType } from "../src/salebuddy/ui/prospect-center.js";
+import { buildConsumerOverviewModel, buildInboxResumeFlow, buildPrivateOutreachResumeFlow, buildProspectDashboardModel, commentResultItems, consumerNavigationItems, dashboardAcquisitionAccount, dashboardLeadLabel, dashboardReplyLabel, discoveredUserItems, discoverySourceGroups, discoveryTaskGroups, isBusinessResult, isDirectOutreachCandidate, leadCaptureContactEntries, normalizePeopleFilter, outreachResultItems, personAvatarHydrationReference, privateOutreachRecipientId, prospectSelectionIds, resultFunnelCounts, selectedResultIdForType } from "../src/salebuddy/ui/prospect-center.js";
 import { createResultsMockPreviewData, createResultsMockPreviewFiles, isResultsMockPreview } from "../src/salebuddy/ui/results-mock-preview.js";
 import { finderAccountToOutreach, mergeResolvedFinderAccounts, normalizeDouyinFinderAccount } from "../src/salebuddy/ui/douyin-finder-results.js";
 import { personAvatarUrl } from "../src/salebuddy/ui/person-avatar.js";
+import { PRIVATE_OUTREACH_MODES } from "../src/salebuddy/agents/private-outreach-contract.js";
 
 const prospectCenterSource = fs.readFileSync(new URL("../src/salebuddy/ui/prospect-center.js", import.meta.url), "utf8");
 
@@ -120,6 +121,56 @@ test("selected own discovered users enter intent analysis instead of public acco
   assert.match(implementation, /openAccountAnalysis/);
   assert.match(prospectCenterSource.slice(prospectCenterSource.indexOf("function openIntentAnalysisFromProspects"), prospectCenterSource.indexOf("function openPrivateOutreachFromProspects")), /analysisMode: "intent"/);
   assert.match(prospectCenterSource.slice(prospectCenterSource.indexOf("function openIntentAnalysisFromProspects"), prospectCenterSource.indexOf("function openPrivateOutreachFromProspects")), /analysisKind: "intent"/);
+});
+
+test("found people can be sent directly when the record is contactable and untouched", () => {
+  const record = {
+    id: "found-ready",
+    status: "待触达",
+    profileUrl: "https://www.douyin.com/user/found-ready",
+    source: { accountId: "account-1", accountName: "鸿扬的家居号" },
+    contactability: { allowed: true, sourceScope: "own_account_comments" }
+  };
+
+  assert.equal(isDirectOutreachCandidate(record), true);
+  assert.equal(isDirectOutreachCandidate({ ...record, status: "已触达" }), false);
+  assert.equal(isDirectOutreachCandidate({ ...record, contactability: { allowed: false, sourceScope: "public_search" } }), false);
+});
+
+test("found people profile URLs become stable recipient identities for outreach", () => {
+  const profileUrl = "https://www.douyin.com/user/mock-sec-found-ready";
+
+  assert.equal(privateOutreachRecipientId({ profileUrl }), "mock-sec-found-ready");
+  const flow = buildPrivateOutreachResumeFlow({
+    outreachMode: PRIVATE_OUTREACH_MODES.ALL_FOUND,
+    source: "找到的人",
+    run: { resultType: "找到的人", sourceScope: "own_account_comments", accountId: "account-1", accountName: "鸿扬的家居号" },
+    items: [{ id: "found-ready", name: "互动用户", profileUrl, sourceScope: "own_account_comments" }]
+  });
+
+  assert.equal(flow.targetEntries[0].secUid, "mock-sec-found-ready");
+  assert.equal(flow.targetEntries[0].status, "ready");
+});
+
+test("mock found people include usable Douyin identities for direct outreach", () => {
+  const data = createResultsMockPreviewData();
+  const directTargets = data.records.filter(isDirectOutreachCandidate);
+
+  assert.ok(directTargets.length >= 2);
+  assert.ok(directTargets.every((record) => record.profileUrl || record.secUid || record.secId));
+});
+
+test("found-people outreach preserves the all-found mode in the resumable flow", () => {
+  const flow = buildPrivateOutreachResumeFlow({
+    outreachMode: PRIVATE_OUTREACH_MODES.ALL_FOUND,
+    source: "找到的人",
+    run: { resultType: "找到的人", sourceScope: "own_account_comments", accountId: "account-1", accountName: "鸿扬的家居号" },
+    items: [{ id: "found-ready", name: "互动用户", profileUrl: "https://www.douyin.com/user/found-ready", sourceScope: "own_account_comments" }]
+  });
+
+  assert.equal(flow.outreachMode, PRIVATE_OUTREACH_MODES.ALL_FOUND);
+  assert.equal(flow.source, "找到的人");
+  assert.equal(flow.sourceAccountId, "account-1");
 });
 
 test("found people groups historical interactions by the current authorized Douyin account", () => {
@@ -561,7 +612,8 @@ test("results center builds a resumable private outreach flow from selected comm
   assert.equal(flow.prefilledFromResult, true);
   assert.deepEqual(flow.targetProfileUrls, ["https://www.douyin.com/user/sec-1", "https://www.douyin.com/user/profile-2"]);
   assert.equal(flow.targetEntries[0].status, "ready");
-  assert.equal(flow.targetEntries[1].status, "pending");
+  assert.equal(flow.targetEntries[1].status, "ready");
+  assert.equal(flow.targetEntries[1].secUid, "profile-2");
   assert.equal(flow.targetEntries.length, 2);
   assert.equal(flow.targetEntries[0].handle, "xiaozhou");
   assert.equal(flow.targetEntries[0].triggerSource, "评论筛选结果");

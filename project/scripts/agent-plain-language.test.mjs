@@ -11,7 +11,7 @@ const names = {
   "mkt-douyin-finder": "抖音找人助手",
   "mkt-find-people": "找客专员",
   "mkt-user-research": "找人发问卷",
-  "mkt-cold-writer": "潜客激活专员",
+  "mkt-cold-writer": "潜客触达专员",
   "mkt-dm-inbox": "私信客服",
   "mkt-live-lead-miner": "直播间找客户",
   "mkt-research-expert": "抖音账号分析",
@@ -51,12 +51,12 @@ test("office labels and generated member profiles use the same card names", () =
     assert.equal(localizeAgentText(agent.desc), agent.desc);
   }
   assert.equal(localizeAgentText("客户研究员已完成分析"), "客户分析员已完成分析");
-  assert.equal(localizeAgentText("私信运营已完成首轮联系"), "潜客激活专员已完成首轮联系");
+  assert.equal(localizeAgentText("私信运营已完成首轮联系"), "潜客触达专员已完成首轮联系");
 });
 
 test("copy distinguishes continuous customer conversations from one-off sending", () => {
   const byId = Object.fromEntries(MARKETPLACE_AGENTS.map(agent => [agent.id, agent]));
   assert.match(byId["mkt-comment-acquisition"].desc, /后续对话/);
-  assert.match(byId["mkt-cold-writer"].desc, /私信联系/);
+  assert.match(byId["mkt-cold-writer"].desc, /首轮私信/);
   assert.match(byId["mkt-phone-sdr"].desc, /准备电话/);
 });

@@ -176,42 +176,24 @@ test("Agent Square route forwards resumable flow options", () => {
   instance.unmount();
 });
 
-test("contacts data and internal file preview replace stale navigation with their destination", () => {
+test("contacts navigation only exposes recruitment and conversation entry points", () => {
   const document = installDom();
   buildSidebarFixture(document);
   let contactsOptions = null;
-  let kanbanOptions = null;
-  let filesOptions = null;
   const instance = mountNavFramework({
     openers: {
       ...noOpOpeners(),
-      contacts(options) { contactsOptions = options; },
-      kanban(options) { kanbanOptions = options; },
-      files(options) { filesOptions = options; }
+      contacts(options) { contactsOptions = options; }
     }
   });
   FakeMutationObserver.flush();
 
-  modeRow(document, "skills").click();
   modeRow(document, "contacts").click();
   assertSingleActive(document, "contacts");
-
-  contactsOptions.onOpenData({ id: "room-1", name: "潜在客户拓展项目组" });
-  assert.equal(kanbanOptions.initialRoom.id, "room-1");
-  assertSingleActive(document, "kanban");
-  kanbanOptions.onClose();
-  assertSingleActive(document, null);
-
-  modeRow(document, "contacts").click();
-  contactsOptions.onOpenFiles({ id: "room-2", name: "触达内容共创项目组" });
-  assert.deepEqual(filesOptions, {
-    projectId: "room-2",
-    projectName: "触达内容共创项目组",
-    onClose: filesOptions.onClose
-  });
-  assertSingleActive(document, "files");
-  filesOptions.onClose();
-  assertSingleActive(document, null);
+  assert.equal(typeof contactsOptions?.onRecruit, "function");
+  assert.equal("onOpenRoom" in contactsOptions, false);
+  assert.equal("onOpenData" in contactsOptions, false);
+  assert.equal("onOpenFiles" in contactsOptions, false);
 
   instance.unmount();
 });

@@ -7,6 +7,7 @@ import { listWorks, subscribeWork } from "../agents/work-live.js";
 import { fetchCanonicalResultRuns } from "../bridge/results-client.js";
 import { createResultsMockPreviewData, isResultsMockPreview } from "./results-mock-preview.js";
 import { accountAvatarSource, getAuthorizedManagedAccounts } from "./realtime-work.js";
+import { PRIVATE_OUTREACH_MODES, isPrivateOutreachRecordCandidate, normalizePrivateOutreachMode, privateOutreachProfileIdentifier } from "../agents/private-outreach-contract.js";
 import {
   finderAccountCsvRows,
   finderAccountEvidence,
@@ -775,21 +776,29 @@ function legacySecUidFromHandle(item = {}) {
 }
 
 export function privateOutreachRecipientId(item = {}) {
-  return nestedIdentityValue(item) || legacySecUidFromHandle(item);
+  return nestedIdentityValue(item)
+    || legacySecUidFromHandle(item)
+    || privateOutreachProfileIdentifier(item?.profileUrl || item?.profile_url);
 }
 
 function commentCanBeContacted(comment = {}) {
   return Boolean(comment.profileUrl || privateOutreachRecipientId(comment));
 }
 
-export function buildPrivateOutreachResumeFlow({ run = {}, items = [], message = "", source = "评论筛选结果" } = {}) {
+export function isDirectOutreachCandidate(record = {}) {
+  return isPrivateOutreachRecordCandidate(record, PRIVATE_OUTREACH_MODES.ALL_FOUND)
+    && isContactableRecord(record)
+    && commentCanBeContacted(record);
+}
+
+export function buildPrivateOutreachResumeFlow({ run = {}, items = [], message = "", source = "评论筛选结果", outreachMode = PRIVATE_OUTREACH_MODES.PROSPECTS } = {}) {
   const targets = (Array.isArray(items) ? items : [])
     .filter(commentCanBeContacted)
     .map((comment) => {
       const recipient = privateOutreachRecipientId(comment);
       return {
         id: comment.id,
-        recordId: comment.recordId || comment.sourceRecordId || "",
+        recordId: comment.recordId || comment.sourceRecordId || comment.id || "",
         nickname: comment.name || "抖音用户",
         avatar: personAvatarUrl(comment),
         handle: comment.handle || comment.uniqueId || "",
@@ -822,6 +831,7 @@ export function buildPrivateOutreachResumeFlow({ run = {}, items = [], message =
     agentId: "mkt-cold-writer",
     step: "setup",
     phase: "setup",
+    outreachMode: normalizePrivateOutreachMode(outreachMode),
     prefilledFromResult: true,
     source,
     sourceScope: run.sourceScope || run.inputs?.sourceScope || targets.find((target) => target.sourceScope)?.sourceScope || "",
@@ -1824,7 +1834,7 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     return personAvatarNode(className, { avatar: resolvedAvatar(item) }, name, options);
   }
 
-function openPrivateOutreachFromResult(run, comments, source = "评论筛选结果") {
+function openPrivateOutreachFromResult(run, comments, source = "评论筛选结果", outreachMode = PRIVATE_OUTREACH_MODES.PROSPECTS) {
     if (runHasExplicitOrigin(run) && !runCanCreateProspects(run)) {
       showToast("这批结果来自公域分析，不能直接触达");
       return;
@@ -1840,7 +1850,8 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
         sourceScope: run.sourceScope || run.inputs?.sourceScope || selected.find((item) => item.sourceScope)?.sourceScope || ""
       },
       items: selected,
-      source
+      source,
+      outreachMode
     });
     globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openAgentSquare?.({
       initialAgentId: resumeFlow.agentId,
@@ -1896,12 +1907,13 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     }));
   }
 
-  function openPrivateOutreachFromProspects(items = null) {
+  function openPrivateOutreachFromProspects(items = null, { outreachMode = PRIVATE_OUTREACH_MODES.PROSPECTS, source = "成果中心潜客", run = {} } = {}) {
+    const mode = normalizePrivateOutreachMode(outreachMode);
     const selectedIds = prospectSelectionIds(items, state.selected);
     const selectedRecords = records
-      .filter((item) => selectedIds.has(item.id) && isManualOutreachReady(item))
+      .filter((item) => selectedIds.has(item.id) && (mode === PRIVATE_OUTREACH_MODES.ALL_FOUND ? isDirectOutreachCandidate(item) : isManualOutreachReady(item) && isContactableRecord(item)))
     if (!selectedRecords.length) {
-      showToast(`请选择状态为“${PROSPECT_STATUSES.WAITING_OUTREACH_CONFIRMATION}”的潜客`);
+      showToast(mode === PRIVATE_OUTREACH_MODES.ALL_FOUND ? "请选择来源明确、尚未触达且有抖音身份的用户" : `请选择状态为“${PROSPECT_STATUSES.WAITING_OUTREACH_CONFIRMATION}”的潜客`);
       return;
     }
     const selected = selectedRecords
@@ -1920,7 +1932,14 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       showToast(`已选中 ${selectedRecords.length} 位待确认触达用户，但他们暂未回传可用于私信的抖音身份`);
       return;
     }
-    openPrivateOutreachFromResult({ taskId: "results-center", resultType: "潜客" }, selected, "成果中心潜客");
+    const first = selectedRecords[0] || {};
+    openPrivateOutreachFromResult({
+      taskId: run.taskId || "results-center",
+      resultType: run.resultType || (mode === PRIVATE_OUTREACH_MODES.ALL_FOUND ? "找到的人" : "潜客"),
+      sourceScope: run.sourceScope || first.contactability?.sourceScope || first.sourceScope || first.source?.sourceScope || "",
+      accountId: run.accountId || first.source?.accountId || "",
+      accountName: run.accountName || first.source?.accountName || ""
+    }, selected, source, mode);
   }
 
   function openInboxFromProspects(items = null) {
@@ -2255,11 +2274,11 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     if (ownView) {
       const touchTargets = selectedItems
         .map((item) => recordForDiscovered(item))
-        .filter((item) => item && isManualOutreachReady(item) && isContactableRecord(item));
+        .filter(isDirectOutreachCandidate);
       const outreach = el("button", null, "开始触达");
       outreach.type = "button";
       outreach.disabled = !touchTargets.length;
-      outreach.title = "仅向来自已授权账号、且完成分析的互动用户发起触达";
+      outreach.title = "向来自已授权账号、尚未触达且有抖音身份的互动用户发起触达";
       outreach.addEventListener("click", () => openDiscoveredOutreach(selectedItems));
       bulk.append(selectAll, analyze, outreach);
     } else {
@@ -2397,12 +2416,23 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
   function openDiscoveredOutreach(items = []) {
     const prospects = (Array.isArray(items) ? items : [])
       .map(recordForDiscovered)
-      .filter((item) => item && isManualOutreachReady(item) && isContactableRecord(item));
+      .filter(isDirectOutreachCandidate);
     if (!prospects.length) {
-      showToast(`请先完成互动用户分析，再向${PROSPECT_STATUSES.WAITING_OUTREACH_CONFIRMATION}用户发起私信`);
+      showToast("请选择来源明确、尚未触达且有抖音身份的互动用户");
       return;
     }
-    openPrivateOutreachFromProspects(prospects);
+    const first = prospects[0] || {};
+    openPrivateOutreachFromProspects(prospects, {
+      outreachMode: PRIVATE_OUTREACH_MODES.ALL_FOUND,
+      source: "找到的人",
+      run: {
+        taskId: "discovered-people",
+        resultType: "找到的人",
+        sourceScope: first.contactability?.sourceScope || first.sourceScope || first.source?.sourceScope || "",
+        accountId: first.source?.accountId || "",
+        accountName: first.source?.accountName || ""
+      }
+    });
   }
 
   function openDiscoveredBatchAnalysis(items = []) {
@@ -2516,6 +2546,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     }
     const ownDiscovery = item.origin === "own";
     const record = recordForDiscovered(item);
+    const canDirectOutreach = isDirectOutreachCandidate(record);
     const top = el("div", "sb-prospect-detail-top");
     top.append(renderPersonAvatar("sb-prospect-detail-avatar", item, item.name, { eager: true }));
     const copy = el("div");
@@ -2559,7 +2590,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       container.appendChild(profileInfo);
     }
     const suggestion = el("div", "sb-prospect-detail-suggestion");
-    suggestion.append(el("strong", null, "下一步"), el("span", null, ownDiscovery ? isManualOutreachReady(record) ? "客户分析员已完成判断，确认后可以从来源抖音账号发起私信触达。" : record?.status === PROSPECT_STATUSES.AUTOMATIC_OUTREACH ? "该用户已进入自动触达流程，请在自动流程中查看进展。" : "先完成互动用户分析，再决定是否进入触达。" : "先核对公开画像和匹配依据；确认值得进一步了解时，再进行账号分析。"));
+    suggestion.append(el("strong", null, "下一步"), el("span", null, ownDiscovery ? canDirectOutreach ? "该用户来自已授权账号且尚未触达，可以直接交给潜客触达专员。" : record?.status === PROSPECT_STATUSES.AUTOMATIC_OUTREACH ? "该用户已进入自动触达流程，请在自动流程中查看进展。" : isManualOutreachReady(record) ? "客户分析员已完成判断，确认后可以从来源抖音账号发起私信触达。" : "先完成互动用户分析，再决定是否进入触达。" : "先核对公开画像和匹配依据；确认值得进一步了解时，再进行账号分析。"));
     container.appendChild(suggestion);
     const actions = el("div", "sb-prospect-detail-actions");
     const analyze = el("button", "primary", ownDiscovery ? isAwaitingIntentAnalysis(record || item) ? "分析互动用户" : "分析这个用户" : "分析这个账号"); analyze.type = "button";
@@ -2569,9 +2600,9 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       : openAccountAnalysis({ run: sourceRun || {}, items: [item.accountData || item] }));
     actions.appendChild(analyze);
     if (ownDiscovery) {
-      const outreach = el("button", null, record?.status === "已触达" ? "开启私信承接" : isManualOutreachReady(record) ? "开始触达" : "自动触达中");
+      const outreach = el("button", null, record?.status === "已触达" ? "开启私信承接" : canDirectOutreach ? "开始触达" : "自动触达中");
       outreach.type = "button";
-      outreach.disabled = !record || (!isManualOutreachReady(record) && record.status !== "已触达");
+      outreach.disabled = !record || (!canDirectOutreach && record.status !== "已触达");
       outreach.addEventListener("click", () => record?.status === "已触达" ? openInboxFromProspects([record]) : openDiscoveredOutreach([item]));
       actions.appendChild(outreach);
     } else if (sourceRun) {

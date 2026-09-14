@@ -5,6 +5,12 @@ import {
   createPrivateOutreachMockResult,
   isPrivateOutreachMockPreview
 } from "../src/salebuddy/ui/private-outreach-mock.js";
+import {
+  PRIVATE_OUTREACH_MODES,
+  isAlreadyContactedRecord,
+  isPrivateOutreachRecordCandidate,
+  normalizePrivateOutreachMode
+} from "../src/salebuddy/agents/private-outreach-contract.js";
 
 test("private outreach mock exposes a usable account and analyzed prospects", () => {
   const data = createPrivateOutreachMockData();
@@ -12,12 +18,25 @@ test("private outreach mock exposes a usable account and analyzed prospects", ()
   assert.equal(data.account.mock, true);
   assert.equal(data.account.agentId, "mkt-cold-writer");
   assert.ok(data.account.identity?.uniqueId);
-  assert.ok(data.records.length >= 3);
-  assert.ok(data.records.every((record) => record.status === "待确认触达"));
+  assert.ok(data.records.length >= 5);
+  assert.equal(data.records.filter((record) => record.status === "待确认触达").length, 3);
+  assert.ok(data.records.some((record) => record.status === "已触达"));
+  assert.ok(data.records.some((record) => record.status === "触达中"));
   assert.ok(data.records.every((record) => record.contactability?.allowed === true));
   assert.ok(data.records.every((record) => record.source?.accountId === data.account.id));
   assert.ok(data.records.every((record) => record.evidence?.[0]?.quote));
   assert.ok(new Set(data.records.map((record) => record.source?.sourceScope)).size >= 2);
+});
+
+test("private outreach modes share one contacted-history exclusion rule", () => {
+  const data = createPrivateOutreachMockData();
+  const prospects = data.records.filter((record) => isPrivateOutreachRecordCandidate(record, PRIVATE_OUTREACH_MODES.PROSPECTS));
+  const allFound = data.records.filter((record) => isPrivateOutreachRecordCandidate(record, PRIVATE_OUTREACH_MODES.ALL_FOUND));
+
+  assert.equal(normalizePrivateOutreachMode("unknown"), PRIVATE_OUTREACH_MODES.PROSPECTS);
+  assert.equal(prospects.length, 3);
+  assert.equal(allFound.length, 3);
+  assert.ok(data.records.filter(isAlreadyContactedRecord).every((record) => !allFound.includes(record)));
 });
 
 test("private outreach mock result returns one platform receipt per target", () => {

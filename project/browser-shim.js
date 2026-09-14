@@ -1,4 +1,4 @@
-import { seedDmMessages, roleReply } from "./src/salebuddy/agents/dm-scenarios.js";
+import { mockConversationTurn, seedDmMessages, roleReply } from "./src/salebuddy/agents/dm-scenarios.js";
 import { fillProfileDefaults } from "./src/salebuddy/agents/model.js";
 import { marketplaceProfileSeed } from "./src/salebuddy/agents/marketplace.js";
 import * as workbench from "./assets/workbench-biG8PRTg.js";
@@ -44,8 +44,13 @@ if (!isElectronRuntime) {
   // wait for the real Agent Gateway instead of replaying fake business work.
   const isRecoveredDemoMode = (() => {
     try {
+      const params = new URLSearchParams(location.search);
+      const host = String(location.hostname || "").trim().toLowerCase();
+      const isStylePreview = params.get("preview") === "style"
+        && (!host || ["localhost", "127.0.0.1", "::1"].includes(host));
       return globalThis.__SALEBUDDY_CONFIG__?.demoMode === true
-        || new URLSearchParams(location.search).get("demo") === "1";
+        || params.get("demo") === "1"
+        || isStylePreview;
     } catch {
       return false;
     }
@@ -189,6 +194,7 @@ if (!isElectronRuntime) {
       schedules: []
     };
     window.__MARVIS_RECOVERED_WS_STATE__ = state;
+    state.demoConversationState ||= new Map();
     const emit = (socket, type, payload) => {
       const event = { type, data: JSON.stringify(payload) };
       socket.listeners[type]?.forEach((listener) => listener(event));
@@ -470,21 +476,28 @@ if (!isElectronRuntime) {
 
     // ── SaleBuddy 私聊（localStorage 镜像，键 salebuddy:dm:<agentType>）──
     const dmKey = (agentType) => `salebuddy:dm:${agentType || "main"}`;
+    const DEMO_DM_SEED_VERSION = "20260914-business-memory-2";
+    const dmDemoVersionKey = (agentType) => `salebuddy:dm-demo-version:${agentType || "main"}`;
     const AGENT_NAMES = { main: "Byering · 幕僚长", "Browser Agent": "线索猎人", "Search Agent": "数据分析师", "App Agent": "销售顾问", "File Agent": "内容策划", "Computer Agent": "开发助手" };
     const displayName = (agentType) => AGENT_NAMES[agentType] || MARKETPLACE_DEFAULTS[agentType]?.name || agentType;
     const readDm = (agentType) => {
       const messages = readJson(dmKey(agentType), []);
       const seeds = seedDmMessages(agentType);
-      if (seeds.length && !messages.some((message) => String(message.id || "").startsWith("dm-seed-"))) {
-        const migrated = [...seeds, ...messages];
+      if (!seeds.length) return messages;
+      let version = "";
+      try { version = localStorage.getItem(dmDemoVersionKey(agentType)) || ""; } catch { /* storage may be unavailable */ }
+      if (version !== DEMO_DM_SEED_VERSION) {
+        const preserved = messages.filter((message) => !String(message.id || "").startsWith("dm-seed-"));
+        const migrated = [...seeds, ...preserved];
         writeJson(dmKey(agentType), migrated);
+        try { localStorage.setItem(dmDemoVersionKey(agentType), DEMO_DM_SEED_VERSION); } catch { /* storage may be unavailable */ }
         return migrated;
       }
       return messages;
     };
-    const appendDm = (agentType, { from, fromName, text, artifact = null, metadata = null }) => {
+    const appendDm = (agentType, { from, fromName, text, artifact = null, metadata = null, conversationId = null }) => {
       const messages = readDm(agentType);
-      const message = { id: `dm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`, agentType, from: from || "user", fromName: fromName || "我", text: String(text || ""), ...(artifact ? { artifact: { ...artifact } } : {}), ...(metadata && typeof metadata === "object" ? { metadata: { ...metadata } } : {}), createdAt: new Date().toISOString() };
+      const message = { id: `dm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`, agentType, from: from || "user", fromName: fromName || "我", text: String(text || ""), ...(artifact ? { artifact: { ...artifact } } : {}), ...(metadata && typeof metadata === "object" ? { metadata: { ...metadata } } : {}), ...(conversationId ? { conversationId } : {}), createdAt: new Date().toISOString() };
       messages.push(message);
       writeJson(dmKey(agentType), messages);
       return message;
@@ -495,7 +508,25 @@ if (!isElectronRuntime) {
       if (action === "dm.message.send") {
         const message = appendDm(agentType, payload || {});
         if ((payload?.from || "user") === "user") {
-          window.setTimeout(() => appendDm(agentType, { from: agentType, fromName: displayName(agentType), text: roleReply(agentType) }), 1200);
+          const stateKey = `${agentType}::${payload?.conversationId || "default"}`;
+          window.setTimeout(() => {
+            const turn = mockConversationTurn(agentType, payload?.text, {
+              state: state.demoConversationState.get(stateKey)
+            });
+            if (turn?.state) state.demoConversationState.set(stateKey, turn.state);
+            appendDm(agentType, {
+              from: agentType,
+              fromName: displayName(agentType),
+              text: turn?.text || roleReply(agentType),
+              conversationId: payload?.conversationId || null,
+              metadata: {
+                source: agentType === "main" ? "chief-conversation" : "member-conversation",
+                conversationRole: agentType === "main" ? "chief" : "specialist-executor",
+                ...(turn?.proposal ? { demoProposal: turn.proposal } : {}),
+                ...(turn?.appliedConfig ? { demoConfigApplied: turn.appliedConfig } : {})
+              }
+            });
+          }, 1200);
         }
         return { message };
       }
@@ -653,6 +684,7 @@ if (!isElectronRuntime) {
         emit(this, "close", { code, reason, wasClean: code === 1000 });
       }
     }
+    window.__MARVIS_RECOVERED_DEMO_WEBSOCKET__ = true;
     window.__MARVIS_RECOVERED_NATIVE_WEBSOCKET__ = window.WebSocket;
     window.WebSocket = RecoveredWebSocket;
   }

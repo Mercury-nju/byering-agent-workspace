@@ -15,6 +15,12 @@ test("contacts has a direct route entry for the message workspace", () => {
   assert.match(navSource, /openContacts:\s*\(options = \{\}\) => openCustom\("contacts", options\)/);
 });
 
+test("contacts does not load or render project groups", () => {
+  assert.doesNotMatch(contactsSource, /room\.action\.list|room\.message\.(list|send)/);
+  assert.doesNotMatch(contactsSource, /mountGroupAvatar|renderRoomDetail|renderRoomOverview|renderRoomChat/);
+  assert.doesNotMatch(contactsSource, /群组|项目组|initialRoom/);
+});
+
 test("member conversation uses the current Agent avatar system", () => {
   const proactiveStart = contactsSource.indexOf("function buildProactiveBrief");
   const proactiveEnd = contactsSource.indexOf("function updateProactiveBrief");

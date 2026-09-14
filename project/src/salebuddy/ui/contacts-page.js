@@ -1,9 +1,8 @@
 /**
  * ui/contacts-page.js (v3)
  * 通讯录（双栏 master-detail）：
- *   左栏：好友（团队成员，状态与办公室同源）+ 群组（项目组）列表
- *   右栏：选中对象的详情——成员：发消息（1:1 私聊）/ 云电脑（工作区文件）/ 配置（档案）；
- *         群组：目标与成员概览 + 进入群聊。
+ *   左栏：好友（团队成员，状态与办公室同源）+ 已保存联系人列表
+ *   右栏：选中对象的详情——成员：发消息（1:1 私聊）/ 云电脑（工作区文件）/ 配置（档案）。
  */
 import { el, openPage } from "./pages.js";
 import { TEAM_STATE_LABELS, TEAM_STATES } from "../agents/status.js";
@@ -17,7 +16,7 @@ import { prospectStore } from "./prospect-store.js";
 import { displayAgentName, displayAgentTitle, projectMessage } from "../brand.js";
 import { getWork, subscribeWork } from "../agents/work-live.js";
 import { listAgentActivity, recordAgentActivity } from "../agents/agent-activity-journal.js";
-import { mountAgentAvatar, mountGroupAvatar } from "./agent-avatar.js";
+import { mountAgentAvatar } from "./agent-avatar.js";
 import { grokStateForTeamStatus, mountGrokBotAvatar } from "./grok-bot-avatar.js";
 import { createAgentActivityBadge } from "./agent-activity.js";
 import { douyinCloudTaskStore, isDouyinCloudProvisioningStatus, isDouyinCloudReadyStatus } from "../agents/douyin-cloud-state.js";
@@ -28,18 +27,11 @@ import { listTasks, updateTask } from "../agents/task-store.js";
 import { companionPersona } from "../agents/companion.js";
 import { appendCompanionCards, mountCompanionStatus, openCompanionPreferences } from "./agent-companion-ui.js";
 import { companionRequest, companionCardAction, latestCompanionPhase } from "../bridge/companion-client.js";
+import { isStyleMockPreview } from "../bridge/preview-mode.js";
+import { createDemoDmGateway } from "../agents/dm-demo-client.js";
 
 export { ACQUISITION_TASK_UPDATE_ACTION, acquisitionTaskUpdatePayload };
 export { specialistConversationMetadata };
-
-export const ROOM_DETAIL_ACTIONS = Object.freeze(["查看数据", "查看文件"]);
-
-export function roomDataTarget(room) {
-  return {
-    projectId: room?.id || null,
-    projectName: room?.name || ""
-  };
-}
 
 export function sortContactFriendEntries(entries) {
   return [...entries].sort((left, right) => Number(Boolean(right?.available)) - Number(Boolean(left?.available)));
@@ -181,7 +173,6 @@ const CSS = `
 .sb-cavatar.sb-grok-avatar{border-radius:0;overflow:visible;background:transparent!important}
 .sb-cavatar.sb-grok-avatar .sb-grok-avatar-svg{display:block;width:100%;height:100%;overflow:visible}
 .sb-cavatar.sb-main{background:#1F2329}
-.sb-cavatar.sb-room{border-radius:10px;background:#7A8BA8}
 .sb-ctext{flex:1;min-width:0}
 .sb-cname{font-size:13.5px;font-weight:500;color:#1F2329;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sb-cname-row{flex-wrap:wrap}
@@ -189,7 +180,6 @@ const CSS = `
 .sb-cdot{width:6px;height:6px;border-radius:50%;background:#57B26A;flex:none}
 .sb-cdot.sb-busy{background:#E8A33D}
 .sb-cdot.sb-waiting{background:#D45B5B}
-.sb-cempty{font-size:12px;color:#B0B4BB;padding:8px 10px}
 
 .sb-cdetail{flex:1;min-width:0;display:flex;flex-direction:column}
 .sb-cplaceholder{flex:1;display:flex;align-items:center;justify-content:center;font-size:13px;color:#B0B4BB}
@@ -198,7 +188,6 @@ const CSS = `
 .sb-chead-avatar.sb-grok-avatar,.sb-msg-avatar.sb-grok-avatar{border-radius:0;overflow:visible;background:transparent!important}
 .sb-chead-avatar.sb-grok-avatar .sb-grok-avatar-svg,.sb-msg-avatar.sb-grok-avatar .sb-grok-avatar-svg{display:block;width:100%;height:100%;overflow:visible}
 .sb-chead-avatar.sb-main{background:#1F2329}
-.sb-chead-avatar.sb-room{border-radius:22px;background:#7A8BA8}
 .sb-chead-name{font-size:18px;font-weight:600;color:#1F2329}
 .sb-chead-status{font-size:12px;color:#8A8F99;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:6px}
 .sb-chead-goal{font-size:12px;color:#5A5E66;margin-top:10px;line-height:1.6;max-width:420px;margin-left:auto;margin-right:auto}
@@ -363,18 +352,15 @@ function fmtSize(bytes) {
   return `${bytes} B`;
 }
 
-function groupMembers(room) {
-  return [...new Set([room?.owner, ...(room?.members || [])].filter(Boolean))];
-}
-
 /**
  * 打开通讯录页。
- * deps: { teamLive, gateway, onOpenRoom(room), onOpenData(room), onOpenFiles(room), onRecruit, onClose, initialFriend, initialRoom }
+ * deps: { teamLive, gateway, onRecruit, onClose, initialFriend }
  * initialFriend：打开后自动选中该成员并进入私聊（agentType）。
- * initialRoom：打开后自动选中该项目组并进入群聊。
  */
-export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenData, onOpenFiles, onRecruit, onClose, initialFriend = null, initialRoom = null, initialConversationContext = null }) {
+export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, initialFriend = null, initialConversationContext = null }) {
   ensureStyle();
+  const demoGateway = isStyleMockPreview() ? createDemoDmGateway() : null;
+  gateway = demoGateway || (gateway?.action ? gateway : null);
   const page = openPage({ title: "成员", onClose });
   // The contacts workspace already provides its own master-detail context;
   // remove the generic page header so the member list starts at the top edge.
@@ -386,13 +372,11 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
   page.body.appendChild(root);
 
   const state = {
-    selected: null,        // { kind: "friend"|"room", id }
+    selected: null,        // { kind: "friend"|"prospect", id }
     tab: "chat",           // chat | cloud | settings
-    rooms: [],
     dmLastId: null,
     proactiveEl: null,
     memberRosterSignature: "",
-    roomSignature: "",
     conversationAvatarUpdate: null,
     conversationAvatarTimer: null,
     conversationAvatarTransientUntil: 0
@@ -427,15 +411,6 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
       profiles: [...profiles.keys()].sort(),
       hired: hired.map(({ id }) => id).sort()
     });
-  }
-
-  function roomListSignature(rooms) {
-    return JSON.stringify((rooms || []).map((room) => ({
-      id: room?.id || "",
-      name: room?.name || "",
-      lastMessage: room?.lastMessage || "",
-      members: room?.members || []
-    })));
   }
 
   function refreshMemberRows() {
@@ -483,13 +458,6 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
       return;
     }
     refreshMemberRows();
-  }
-
-  // ── 数据 ──
-  async function fetchRooms() {
-    if (!gateway) return [];
-    try { return (await gateway.action("room.action.list"))?.data?.rooms || []; }
-    catch { return state.rooms; }
   }
 
   function profileOf(agentType) {
@@ -631,27 +599,7 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
         listCol.appendChild(row);
       }
     }
-    // 群组
-    const roomTitle = el("div", "sb-cgroup-title", "群组");
-    roomTitle.appendChild(el("span", "sb-cgroup-count", `${state.rooms.length}`));
-    listCol.appendChild(roomTitle);
-    if (!state.rooms.length) {
-      listCol.appendChild(el("div", "sb-cempty", gateway ? "暂无项目组" : "gateway 未连接"));
-    }
-    for (const room of state.rooms) {
-      const row = el("div", `sb-crow${state.selected?.kind === "room" && state.selected.id === room.id ? " sb-on" : ""}`);
-      const groupAvatar = el("div", "sb-cavatar sb-room");
-      mountGroupAvatar(groupAvatar, groupMembers(room), { alt: `${room.name || "项目组"}成员头像` });
-      row.appendChild(groupAvatar);
-      const text = el("div", "sb-ctext");
-      text.appendChild(el("div", "sb-cname", room.name || "未命名项目组"));
-      text.appendChild(el("div", "sb-csub", room.lastMessage || `${(room.members || []).length} 人`));
-      row.appendChild(text);
-      row.addEventListener("click", () => select({ kind: "room", id: room.id }));
-      listCol.appendChild(row);
-    }
     state.memberRosterSignature = currentMemberRosterSignature();
-    state.roomSignature = roomListSignature(state.rooms);
   }
 
   // ── 右栏：成员详情 ──
@@ -1212,7 +1160,9 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
       let remoteMessages = [];
       try {
         if (gateway?.action) remoteMessages = (await gateway.action("dm.message.list", dmPayload()))?.data?.messages || [];
-      } catch { /* 本地日志仍可用于回放 */ }
+      } catch (error) {
+        remoteMessages = [];
+      }
       try {
         if (!active) return;
         for (const id of pendingMessages.keys()) {
@@ -1229,6 +1179,7 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
         } else if (latestAgentKey && latestAgentKey !== lastAgentMessageKey) {
           lastAgentMessageKey = latestAgentKey;
           awaitingAgentReply = false;
+          clearLocalCompanionPhase();
           showConversationAvatarState("sending", 1400);
         } else if (awaitingAgentReply && (teamLive?.getStatusOf?.(agentType)?.state === TEAM_STATES.WORKING || getWork(agentType)?.state === "working")) {
           showConversationAvatarState("thinking");
@@ -1410,127 +1361,17 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
     renderAgentProfile(container, agentType, profile, { gateway, teamLive });
   }
 
-  // ── 右栏：群组详情与群聊 ──
-  function renderRoomDetail(room) {
-    stopDmPoll();
-    stopCloudFeed();
-    detailCol.textContent = "";
-    const head = el("div", "sb-chead sb-chead-friend");
-    const groupAvatar = el("div", "sb-chead-avatar sb-room");
-    mountGroupAvatar(groupAvatar, groupMembers(room), { alt: `${room.name || "项目组"}成员头像` });
-    head.appendChild(groupAvatar);
-    const headText = el("div", "sb-chead-text");
-    headText.appendChild(el("div", "sb-chead-name", room.name || "未命名项目组"));
-    const statusLine = el("div", "sb-chead-status");
-    statusLine.append(el("span", `sb-cdot${room.status === "active" ? " sb-busy" : ""}`), el("span", null, `${(room.members || []).length} 位成员 · ${room.status === "active" ? "进行中" : "已结束"}`));
-    headText.appendChild(statusLine);
-    head.appendChild(headText);
-    detailCol.appendChild(head);
-    const actions = el("div", "sb-cactions sb-cactions-friend");
-    actions.append(
-      buildActionButton({ key: "data", label: ROOM_DETAIL_ACTIONS[0], icon: ICONS.data, primary: true, onClick: () => onOpenData?.(room) }),
-      buildActionButton({ key: "files", label: ROOM_DETAIL_ACTIONS[1], icon: ICONS.files, onClick: () => onOpenFiles?.(room) })
-    );
-    detailCol.appendChild(actions);
-    const content = el("div", "sb-ccontent");
-    detailCol.appendChild(content);
-    if (state.tab === "settings") renderRoomOverview(content, room);
-    else renderRoomChat(content, room);
-  }
-
-  function renderRoomOverview(container, room) {
-    stopDmPoll();
-    container.textContent = "";
-    const pane = el("div", "sb-pane");
-    pane.appendChild(el("div", "sb-pane-title", "项目目标"));
-    pane.appendChild(el("div", "sb-kv", room.goal || "暂未填写项目目标"));
-    pane.appendChild(el("div", "sb-pane-title", "参与成员"));
-    pane.appendChild(el("div", "sb-kv", `${(room.members || []).length} 位成员`));
-    pane.appendChild(el("div", "sb-pane-title", "最近进展"));
-    pane.appendChild(el("div", "sb-pane-empty", room.lastMessage || "暂无消息"));
-    container.appendChild(pane);
-  }
-
-  // 群聊：沿用个人私聊的消息、头像与输入框结构，消息来源保持真实项目组数据。
-  function renderRoomChat(container, room) {
-    const list = el("div", "sb-chat-list2");
-    const inputWrap = el("div", "sb-chat-input2");
-    const textarea = document.createElement("textarea");
-    textarea.placeholder = `发到 ${room.name || "项目组"}…（Enter 发送）`;
-    const sendBtn = el("button", "sb-chat-send2", "发送");
-    inputWrap.append(textarea, sendBtn);
-    container.append(list, inputWrap);
-
-    function bubble(message) {
-      message = projectMessage(message);
-      const mine = message.from === "user";
-      const row = el("div", `sb-msg${mine ? " sb-mine" : ""}`);
-      const messageAvatar = el("div", `sb-msg-avatar${message.from === "main" ? " sb-main" : ""}`, avatarInitial(message.fromName));
-      const messageAgentType = message.agentType || message.from;
-      const messageStatus = teamLive?.getStatusOf?.(messageAgentType) || { state: TEAM_STATES.IDLE };
-      mine
-        ? mountAgentAvatar(messageAvatar, messageAgentType, { alt: message.fromName || message.from })
-        : mountGrokBotAvatar(messageAvatar, messageAgentType, {
-          alt: message.fromName || message.from,
-          state: grokStateForTeamStatus(messageStatus),
-          trackPointer: false,
-          mode: "members"
-        });
-      row.appendChild(messageAvatar);
-      const body = el("div", "sb-msg-body");
-      body.appendChild(el("div", "sb-msg-name", message.fromName || message.from || ""));
-      body.appendChild(el("div", "sb-msg-bubble", message.text || ""));
-      row.appendChild(body);
-      return row;
-    }
-
-    async function refresh({ scroll = false } = {}) {
-      if (!gateway) return;
-      try {
-        const messages = (await gateway.action("room.message.list", { roomId: room.id }))?.data?.messages || [];
-        const newest = messages[messages.length - 1];
-        if (newest?.id === state.dmLastId && list.childElementCount === messages.length) return;
-        state.dmLastId = newest?.id || null;
-        list.textContent = "";
-        for (const message of messages) list.appendChild(bubble(message));
-        if (scroll || true) list.scrollTop = list.scrollHeight;
-      } catch { /* 保持现状 */ }
-    }
-
-    async function send() {
-      const text = textarea.value.trim();
-      if (!text || !gateway) return;
-      sendBtn.disabled = true;
-      try {
-        await gateway.action("room.message.send", { roomId: room.id, from: "user", fromName: "我", text });
-        textarea.value = "";
-        await refresh({ scroll: true });
-      } finally { sendBtn.disabled = false; }
-    }
-    sendBtn.addEventListener("click", send);
-    textarea.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); send(); }
-    });
-    state.dmLastId = null;
-    refresh({ scroll: true });
-    dmPollTimer = setInterval(() => refresh(), 2000);
-  }
-
   function renderDetail() {
     if (disposed) return;
     if (!state.selected) {
       stopDmPoll();
       stopCloudFeed();
       detailCol.textContent = "";
-      detailCol.appendChild(el("div", "sb-cplaceholder", "从左侧选择一位成员或一个群组"));
+      detailCol.appendChild(el("div", "sb-cplaceholder", "从左侧选择一位 Agent 或联系人"));
       return;
     }
     if (state.selected.kind === "friend") renderFriendDetail(state.selected.id);
     else if (state.selected.kind === "prospect") renderProspectDetail(state.selected.id);
-    else {
-      const room = state.rooms.find((item) => item.id === state.selected.id);
-      if (room) renderRoomDetail(room);
-    }
   }
 
   function select(next) {
@@ -1541,16 +1382,8 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
   }
 
   // ── 启动与订阅 ──
-  state.rooms = await fetchRooms();
-  const initialRoomId = initialRoom?.id && state.rooms.some((room) => room.id === initialRoom.id)
-    ? initialRoom.id
-    : null;
   renderList();
   renderDetail();
-  // 外部入口指定了项目组（如侧边栏项目组）：直接选中并进入群聊
-  if (initialRoomId) {
-    select({ kind: "room", id: initialRoomId });
-  }
   // 外部入口指定了成员（如办公室卡片「沟通」）：直接选中并进入私聊
   const initialProfile = initialFriend
     ? teamLive?.getProfiles?.().has(initialFriend) && isContactAgentAvailable(initialFriend)
@@ -1558,7 +1391,7 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
   const initialMarketplaceAgent = initialFriend
     && isContactAgentAvailable(initialFriend)
     && [...listActivatedMarketplaceAgents(), ...listHiredAgents()].some(({ id }) => id === initialFriend);
-  if (!initialRoomId && initialFriend && (initialProfile || initialMarketplaceAgent)) {
+  if (initialFriend && (initialProfile || initialMarketplaceAgent)) {
     select({ kind: "friend", id: initialFriend });
   }
   const unsubscribe = teamLive?.subscribe?.(() => {
@@ -1586,19 +1419,10 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
     renderList();
     if (state.selected?.kind === "prospect") renderDetail();
   });
-  const roomsPollTimer = setInterval(async () => {
-    const nextRooms = await fetchRooms();
-    const selectedRoomStillExists = state.selected?.kind !== "room" || nextRooms.some((room) => room.id === state.selected.id);
-    const roomsChanged = roomListSignature(nextRooms) !== state.roomSignature;
-    state.rooms = nextRooms;
-    if (roomsChanged) renderList();
-    if (state.selected?.kind === "room" && !selectedRoomStillExists) renderDetail();
-  }, 5000);
-
   const origClose = page.close;
   page.setGateway = (nextGateway) => {
     if (disposed) return;
-    gateway = nextGateway || null;
+    gateway = demoGateway || (nextGateway?.action ? nextGateway : null);
     state.dmLastId = null;
     renderList();
     renderDetail();
@@ -1607,7 +1431,6 @@ export async function openContactsPage({ teamLive, gateway, onOpenRoom, onOpenDa
     disposed = true;
     stopDmPoll();
     stopCloudFeed();
-    clearInterval(roomsPollTimer);
     unsubscribe();
     unsubscribeWork();
     unsubscribeProspects();

@@ -166,8 +166,8 @@ test("comment prospect miner and cold writer keep independent responsibilities a
   assert.match(getMarketplaceAgent("mkt-lead-miner").desc, /评论/);
   assert.match(getMarketplaceAgent("mkt-lead-miner").desc, /有需求的人/);
   assert.match(getMarketplaceAgent("mkt-lead-miner").desc, /保留账号/);
-  assert.equal(getMarketplaceAgent("mkt-cold-writer").name, "潜客激活专员");
-  assert.equal(getMarketplaceAgent("mkt-cold-writer").title, "潜客激活专员");
-  assert.match(getMarketplaceAgent("mkt-cold-writer").desc, /私信联系/);
-  assert.match(getMarketplaceAgent("mkt-cold-writer").desc, /发送结果/);
+  assert.equal(getMarketplaceAgent("mkt-cold-writer").name, "潜客触达专员");
+  assert.equal(getMarketplaceAgent("mkt-cold-writer").title, "潜客触达专员");
+  assert.match(getMarketplaceAgent("mkt-cold-writer").desc, /首轮私信/);
+  assert.match(getMarketplaceAgent("mkt-cold-writer").desc, /记录结果/);
 });

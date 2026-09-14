@@ -113,6 +113,7 @@ const PACKAGE_ROLE_ALIASES = Object.freeze({
   "客户分析员": "mkt-intent-analyst",
   "客户研究员": "mkt-intent-analyst",
   "客户画像研究员": "prospect_researcher",
+  "潜客触达专员": "mkt-cold-writer",
   "潜客激活专员": "mkt-cold-writer",
   "私信运营": "mkt-cold-writer",
   "Byering": "main",

@@ -10,6 +10,12 @@ import {
 } from "../backend/core-agent-execution-service.js";
 import { createEmploymentStore } from "../backend/employment-store.js";
 import { createControlPlaneHttpServer } from "../backend/http-server.js";
+import {
+  DOUYIN_ACQUISITION_DISCOVERY_GOAL,
+  DOUYIN_ACQUISITION_FIRST_TOUCH_RULE,
+  DOUYIN_ACQUISITION_OBJECTIVE,
+  DOUYIN_ACQUISITION_SYSTEM_PROMPT
+} from "../src/salebuddy/agents/douyin-acquisition-prompt.js";
 
 function request(overrides = {}) {
   return {
@@ -122,6 +128,10 @@ test("core gateway routes acquisition and finder listeners through the authorize
   assert.equal(calls.acquisitionCreate.length, 1);
   assert.equal(calls.acquisitionCreate[0].context.agentId, "mkt-comment-acquisition");
   assert.equal(calls.acquisitionCreate[0].config.sourceScope.kind, "authorized_account_all_signals");
+  assert.equal(calls.acquisitionCreate[0].config.objective, DOUYIN_ACQUISITION_OBJECTIVE);
+  assert.equal(calls.acquisitionCreate[0].config.systemPrompt, DOUYIN_ACQUISITION_SYSTEM_PROMPT);
+  assert.equal(calls.acquisitionCreate[0].config.audienceRules.goal, DOUYIN_ACQUISITION_DISCOVERY_GOAL);
+  assert.equal(calls.acquisitionCreate[0].config.contentPolicy.template, DOUYIN_ACQUISITION_FIRST_TOUCH_RULE);
   assert.deepEqual(calls.acquisitionStart[0], {
     key: "acquisition:run-1",
     options: { runImmediately: false, schedule: true }
@@ -157,6 +167,40 @@ test("core gateway routes acquisition and finder listeners through the authorize
   assert.equal(calls.acquisitionCreate[2].context.agentId, "mkt-find-people");
   assert.equal(calls.acquisitionCreate[2].config.sourceScope.kind, "authorized_account_all_signals");
   assert.equal(calls.acquisitionCreate[2].config.discoveryOnly, true);
+});
+
+test("core gateway routes live danmaku analysis to the authorized live listener without outreach", async () => {
+  const { service, calls } = createService();
+  const result = await service.lease(request({
+    taskId: "live-analysis-task",
+    taskRunId: "live-analysis-run",
+    agentId: "mkt-live-danmaku-analysis",
+    config: {
+      sourceScope: { kind: "authorized_account_live" },
+      audienceRules: { goal: "识别直播间的价格问题和购买意向" },
+      discoveryOnly: true,
+      analysisOnly: true,
+      analysisKind: "live_danmaku",
+      liveSignals: ["danmaku", "likes", "gifts"],
+      approvalMode: "manual",
+      autoStartCloud: false
+    }
+  }));
+
+  assert.equal(result.accepted, true);
+  assert.equal(calls.acquisitionCreate.length, 1);
+  const { context, config } = calls.acquisitionCreate[0];
+  assert.equal(context.agentId, "mkt-live-danmaku-analysis");
+  assert.equal(context.executionAgentId, "mkt-comment-acquisition");
+  assert.equal(config.sourceScope.kind, "authorized_account_live");
+  assert.equal(config.discoveryOnly, true);
+  assert.equal(config.analysisOnly, true);
+  assert.equal(config.analysisKind, "live_danmaku");
+  assert.deepEqual(config.liveSignals, ["danmaku", "likes", "gifts"]);
+  assert.equal(config.approvalMode, "manual");
+  assert.equal("touchChannel" in config, false);
+  assert.equal("contentPolicy" in config, false);
+  assert.equal("frequency" in config, false);
 });
 
 test("core gateway removes every historical scan alias from finder listener input", async () => {
@@ -229,17 +273,45 @@ test("core gateway never coerces public discovery into an authorized-account lis
   assert.equal(calls.acquisitionStart.length, 0);
 });
 
-test("core gateway requires a server-resolved reception strategy for auto outreach and inbox hosting", async () => {
+test("core gateway keeps comprehensive acquisition autonomous while standalone inbox hosting requires reception", async () => {
   const { service } = createService({ resolveReceptionStrategy: async () => null });
 
-  await assert.rejects(
-    service.lease(request()),
-    (error) => error instanceof CoreAgentExecutionError && error.code === "CORE_AGENT_RECEPTION_STRATEGY_REQUIRED"
-  );
+  const acquisition = await service.lease(request());
+  assert.equal(acquisition.accepted, true);
   await assert.rejects(
     service.lease(request({ agentId: "mkt-dm-inbox", operation: "inbox_hosting" })),
     (error) => error instanceof CoreAgentExecutionError && error.code === "CORE_AGENT_RECEPTION_STRATEGY_REQUIRED"
   );
+});
+
+test("core gateway carries optional comprehensive settings into the acquisition prompt", async () => {
+  const { service, calls } = createService();
+  await service.lease(request({
+    taskRunId: "advanced-run",
+    config: {
+      managerAdvancedSettingsEnabled: true,
+      managerAdvancedSettings: {
+        audienceGoal: "明确询价且准备预约的人",
+        requirements: "排除同行和抽奖互动",
+        firstTouch: "先回应用户刚才的问题，再确认具体需求。",
+        replyStyle: "克制、专业、像账号本人",
+        touchObjective: "获取联系方式并推进预约",
+        dialogueObjective: "确认需求和预约时间",
+        maxTouchesPerDay: 10,
+        minIntervalMinutes: 30
+      }
+    }
+  }));
+
+  const config = calls.acquisitionCreate[0].config;
+  assert.equal(config.audienceRules.goal, "明确询价且准备预约的人");
+  assert.equal(config.audienceRules.requirements, "排除同行和抽奖互动");
+  assert.equal(config.contentPolicy.template, "先回应用户刚才的问题，再确认具体需求。");
+  assert.equal(config.contentPolicy.conversionGoal, "获取联系方式并推进预约");
+  assert.equal(config.contentPolicy.dialogueObjective, "确认需求和预约时间");
+  assert.equal(config.frequency.maxTouchesPerDay, 10);
+  assert.equal(config.frequency.minIntervalMinutes, 30);
+  assert.match(config.systemPrompt, /明确询价且准备预约的人/);
 });
 
 test("core gateway uses the saved reception strategy instead of caller supplied inbox copy", async () => {
@@ -462,6 +534,20 @@ test("core gateway rejects the chief and unknown agents as non-executors", async
   assert.equal(service.configured, true);
   assert.equal(service.requiresExecutorUid, true);
   assert.equal(service.acceptsExecutionPayload, true);
+});
+
+test("employment store accepts live danmaku analysis as an open product Agent", () => {
+  const root = mkdtempSync(join(tmpdir(), "live-danmaku-employment-"));
+  try {
+    const employmentStore = createEmploymentStore({ stateFile: join(root, "employment.json") });
+    const contract = employmentStore.hire(null, { agentId: "mkt-live-danmaku-analysis", name: "直播间弹幕分析" });
+
+    assert.equal(contract.agentId, "mkt-live-danmaku-analysis");
+    assert.equal(employmentStore.list(null)[0]?.agentId, "mkt-live-danmaku-analysis");
+    assert.ok(employmentStore.coreAgentIds.includes("mkt-live-danmaku-analysis"));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("a production HTTP server wires product tasks to the core gateway and retains their configuration", async () => {

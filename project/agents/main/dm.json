@@ -1,6 +1,166 @@
 [
   {
-    "id": "dm-mu0sj3ja-7voe",
+    "id": "dm-seed-main-1",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "今天先盯潜客拓展项目组。重点不是抓了多少人，而是高意向客户能不能顺利进入私信跟进。",
+    "metadata": {
+      "source": "demo-conversation",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T00:36:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-2",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "明白。我把目标拆成三道检查：线索有效性、意向评分、触达承接。线索猎人和线索分析师先交叉核验，触达策略师只接收 A 级客户。",
+    "metadata": {
+      "source": "chief-conversation",
+      "conversationRole": "chief",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T00:45:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-3",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "下午复盘前给我一版可决策的结论，异常也要写出来。",
+    "metadata": {
+      "source": "demo-conversation",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T00:54:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-4",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "首轮已收口：新增有效潜客 214 位，其中 A 级 47 位；已触达 31 位，收到有效回复 12 位。当前卡点是 6 位客户主页信息不足，我已安排二次核验。",
+    "metadata": {
+      "source": "chief-conversation",
+      "conversationRole": "chief",
+      "demo": true
+    },
+    "artifact": {
+      "name": "潜客拓展项目执行简报-0810.md",
+      "type": "doc",
+      "summary": "214 位有效潜客 · 47 位 A 级 · 12 位有效回复",
+      "status": "已汇总",
+      "projectId": "room-lead-expansion",
+      "projectName": "潜在客户拓展项目组",
+      "createdBy": "Byering · 幕僚长",
+      "content": "# 潜客拓展项目执行简报\n\n## 今日结论\n\n- 新增有效潜客：214 位\n- A 级高意向：47 位\n- 已发送私信：31 位\n- 有效回复：12 位\n- 待二次核验：6 位\n\n## 决策建议\n\n优先让触达策略师承接明确提到预算、车型或到店时间的 12 位客户；信息不足的客户暂不触达，避免浪费账号额度。\n\n## 风险\n\n晚间直播场次评论增速较快，建议 20:00 前扩容一次采集队列。"
+    },
+    "createdAt": "2026-08-10T01:03:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-5",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "昨天的全局数据怎么样？转化了多少线索？",
+    "metadata": {
+      "source": "demo-conversation",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T01:12:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-6",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "我记得昨天有 5 个 Agent 参与工作，完成 3 项任务，产出 47 位高意向线索，收到 12 位客户回复，整体转化率 25.81%。当前主要卡点是证据不足和触达承接。",
+    "metadata": {
+      "source": "chief-conversation",
+      "conversationRole": "chief",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T01:21:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-7",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "为什么转化率还有损耗？",
+    "metadata": {
+      "source": "demo-conversation",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T01:30:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-8",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "我回看了获客、分析和触达链路：6 位用户证据不足没有进入触达，31 位已触达用户里有 12 位回复，还有一部分高意向用户错过了有效承接时间。问题集中在中间环节，不是继续抓更多人。",
+    "metadata": {
+      "source": "chief-conversation",
+      "conversationRole": "chief",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T01:39:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-9",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "后面要怎么解决？",
+    "metadata": {
+      "source": "demo-conversation",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T01:48:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-10",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "我建议把今日重点从扩大获客覆盖切到优先处理高意向用户转化，同时先处理有预算、车型或到店时间的用户。这组调整还没有生效，要不要确认？",
+    "metadata": {
+      "source": "chief-conversation",
+      "conversationRole": "chief",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T01:57:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-11",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "可以",
+    "metadata": {
+      "source": "demo-conversation",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T02:06:00.000Z"
+  },
+  {
+    "id": "dm-seed-main-12",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "好的，配置已生效。今天会优先处理高意向用户转化，并把有明确购买证据的用户提前进入触达。",
+    "metadata": {
+      "source": "chief-conversation",
+      "conversationRole": "chief",
+      "demo": true
+    },
+    "createdAt": "2026-08-10T02:15:00.000Z"
+  },
+  {
+    "id": "dm-mu14b4mc-83e6",
     "agentType": "main",
     "from": "user",
     "fromName": "我",
@@ -10,36 +170,10 @@
       "source": "chief-conversation",
       "suppressAutoReply": true
     },
-    "createdAt": "2026-09-14T05:16:40.486Z"
+    "createdAt": "2026-09-14T10:46:24.036Z"
   },
   {
-    "id": "dm-mu0sk1cz-o12t",
-    "agentType": "main",
-    "from": "user",
-    "fromName": "我",
-    "text": "查看所有 Agent 和任务状态",
-    "conversationId": "chief-of-staff",
-    "metadata": {
-      "source": "chief-conversation",
-      "suppressAutoReply": true
-    },
-    "createdAt": "2026-09-14T05:17:24.323Z"
-  },
-  {
-    "id": "dm-mu0sks35-dj8p",
-    "agentType": "main",
-    "from": "user",
-    "fromName": "我",
-    "text": "查看所有 Agent 和任务状态",
-    "conversationId": "chief-of-staff",
-    "metadata": {
-      "source": "chief-conversation",
-      "suppressAutoReply": true
-    },
-    "createdAt": "2026-09-14T05:17:58.961Z"
-  },
-  {
-    "id": "dm-mu0sks3c-8p0t",
+    "id": "dm-mu14b4mj-eozi",
     "agentType": "main",
     "from": "main",
     "fromName": "Byering · 幕僚长",
@@ -64,133 +198,6 @@
         "shouldCreateTask": false
       }
     },
-    "createdAt": "2026-09-14T05:17:58.968Z"
-  },
-  {
-    "id": "dm-mu0slbxz-6vxy",
-    "agentType": "main",
-    "from": "user",
-    "fromName": "我",
-    "text": "查看所有 Agent 和任务状态",
-    "conversationId": "chief-of-staff",
-    "metadata": {
-      "source": "chief-conversation",
-      "suppressAutoReply": true
-    },
-    "createdAt": "2026-09-14T05:18:24.695Z"
-  },
-  {
-    "id": "dm-mu0slby5-1mj1",
-    "agentType": "main",
-    "from": "main",
-    "fromName": "Byering · 幕僚长",
-    "text": "当前任务总览：执行中 1 项，等待处理 1 项，阻塞 0 项，已结束 3 项。正在关注：潜客拓展项目（执行中）。",
-    "conversationId": "chief-of-staff",
-    "metadata": {
-      "source": "chief-conversation",
-      "chiefDecision": {
-        "intent": "status_query",
-        "responseMode": "status_card",
-        "riskLevel": "low",
-        "confirmationPolicy": "none",
-        "requiredCapabilities": [],
-        "requestedAgentId": null,
-        "incompatibleCapabilities": [],
-        "blockingMissing": [],
-        "optionalMissing": [],
-        "defaultsApplied": [],
-        "taskAction": "",
-        "userMessage": "",
-        "confidence": 1,
-        "shouldCreateTask": false
-      }
-    },
-    "createdAt": "2026-09-14T05:18:24.701Z"
-  },
-  {
-    "id": "dm-mu0t5kko-ny6u",
-    "agentType": "main",
-    "from": "user",
-    "fromName": "我",
-    "text": "查看所有 Agent 和任务状态",
-    "conversationId": "chief-of-staff",
-    "metadata": {
-      "source": "chief-conversation",
-      "suppressAutoReply": true
-    },
-    "createdAt": "2026-09-14T05:34:09.000Z"
-  },
-  {
-    "id": "dm-mu0t5kky-by6j",
-    "agentType": "main",
-    "from": "main",
-    "fromName": "Byering · 幕僚长",
-    "text": "当前任务总览：执行中 1 项，等待处理 1 项，阻塞 0 项，已结束 3 项。正在关注：潜客拓展项目（执行中）。",
-    "conversationId": "chief-of-staff",
-    "metadata": {
-      "source": "chief-conversation",
-      "chiefDecision": {
-        "intent": "status_query",
-        "responseMode": "status_card",
-        "riskLevel": "low",
-        "confirmationPolicy": "none",
-        "requiredCapabilities": [],
-        "requestedAgentId": null,
-        "incompatibleCapabilities": [],
-        "blockingMissing": [],
-        "optionalMissing": [],
-        "defaultsApplied": [],
-        "taskAction": "",
-        "userMessage": "",
-        "confidence": 1,
-        "shouldCreateTask": false
-      }
-    },
-    "createdAt": "2026-09-14T05:34:09.010Z"
-  },
-  {
-    "id": "dm-mu0u0iub-kash",
-    "agentType": "main",
-    "from": "user",
-    "fromName": "我",
-    "text": "昨天有多少个用户留资",
-    "conversationId": "chief-of-staff",
-    "metadata": {
-      "source": "chief-conversation",
-      "entry": "members",
-      "suppressAutoReply": true,
-      "clientMessageId": "d5867ec4-151e-4475-85fe-619312095b4a"
-    },
-    "createdAt": "2026-09-14T05:58:13.091Z"
-  },
-  {
-    "id": "dm-mu0u0iwq-c7cv",
-    "agentType": "main",
-    "from": "main",
-    "fromName": "Byering · 幕僚长",
-    "text": "幕僚长不创建、派发、启动或控制任务。我可以查看全局 Agent 状态、汇总已有数据，并引导你前往对应专业 Agent 发起具体业务。",
-    "conversationId": "chief-of-staff",
-    "metadata": {
-      "source": "chief-conversation",
-      "chiefDecision": {
-        "intent": "conversation",
-        "responseMode": "text",
-        "riskLevel": "low",
-        "confirmationPolicy": "none",
-        "requiredCapabilities": [],
-        "requestedAgentId": null,
-        "incompatibleCapabilities": [],
-        "blockingMissing": [],
-        "optionalMissing": [],
-        "defaultsApplied": [],
-        "taskAction": "",
-        "userMessage": "",
-        "confidence": null,
-        "shouldCreateTask": false,
-        "taskTitle": null,
-        "statusText": null
-      }
-    },
-    "createdAt": "2026-09-14T05:58:13.178Z"
+    "createdAt": "2026-09-14T10:46:24.043Z"
   }
 ]
