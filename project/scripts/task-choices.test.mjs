@@ -38,7 +38,8 @@ test("preset-only audiences validate for live, comments and automatic acquisitio
   assert.equal(validateLiveLeadSetup({ accountId: "account", product }), null);
   assert.equal(validateLeadMinerSetup({ accountRef: "https://www.douyin.com/user/test", accountResolveStatus: "ready", product }), null);
   const config = normalizeCommentAcquisitionConfig({ product, accountId: "account", message: "你好" });
-  assert.equal(config.audienceRules.goal, product);
+  assert.equal(config.audienceRules.mode, "account_context");
+  assert.equal(config.audienceRules.requirements, "");
   assert.equal(config.approvalMode, "auto");
 });
 

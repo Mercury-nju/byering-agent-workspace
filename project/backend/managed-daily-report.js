@@ -9,7 +9,8 @@ const MAX_BACKFILL_REPORT_DAYS = 7;
 const PRODUCT_AGENT_IDS = new Set(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS);
 const CONTINUOUS_DAILY_REPORT_AGENT_IDS = new Set([
   "mkt-comment-acquisition",
-  "mkt-dm-inbox"
+  "mkt-dm-inbox",
+  "mkt-gold-customer-service"
 ]);
 const FINDER_AGENT_ID = "mkt-find-people";
 const FINDER_LISTENER_SOURCE_KINDS = new Set([
@@ -245,6 +246,13 @@ const REPORT_PROFILES = Object.freeze({
     evidenceTitle: "对话记录",
     nextTitle: "明天我会继续",
     plan: "明天我会继续承接新消息，遇到需要人工判断的内容会单独向你说明。"
+  }),
+  "mkt-gold-customer-service": Object.freeze({
+    label: "金牌客服日报",
+    accent: "#2e9e8f",
+    evidenceTitle: "对话记录",
+    nextTitle: "明天我会继续",
+    plan: "明天我会继续承接新私信，先回应客户当前问题，再按用户设定目标推进；命中人工边界的会话会单独说明。"
   }),
   "mkt-comment-acquisition": Object.freeze({
     label: "获客专家日报",
@@ -489,7 +497,7 @@ function reportDetails({ task, events, scope }) {
     ];
   }
   if (scope.agentId === "mkt-find-people") return [{ title: "今日重点候选", type: "lead", items: leads }];
-  if (scope.agentId === "mkt-dm-inbox") return [{ title: "关键对话", type: "conversation", items: conversationDetails(events) }];
+  if (["mkt-dm-inbox", "mkt-gold-customer-service"].includes(scope.agentId)) return [{ title: "关键对话", type: "conversation", items: conversationDetails(events) }];
   return [];
 }
 
@@ -543,7 +551,7 @@ function factItems(agentId, metrics) {
     item(qualified, "位可优先跟进"),
     item(source, "个来源已核验")
   ].filter(Boolean);
-  if (agentId === "mkt-dm-inbox") return [
+  if (["mkt-dm-inbox", "mkt-gold-customer-service"].includes(agentId)) return [
     item(replies, "位用户发来回复"),
     item(sent, "次对话已回复"),
     item(failed, "条对话待复核")
@@ -575,9 +583,11 @@ function presentationFor({ task, events, scope, metrics, taskState }) {
     lead = qualified
       ? `其中 ${qualified} 位表现出更明确的需求信号，来源和原话已经保留。`
       : "候选名单和每个人出现的位置已经整理，后续可继续补齐判断。";
-  } else if (agentId === "mkt-dm-inbox") {
+  } else if (["mkt-dm-inbox", "mkt-gold-customer-service"].includes(agentId)) {
     headline = replies ? `今天收到了 ${replies} 位用户的回复` : sent ? `今天已完成 ${sent} 次私信回复` : "今天已承接一轮私信对话";
-    lead = "已经处理的对话和下一步会留在对应用户记录中，不会重复打扰。";
+    lead = agentId === "mkt-gold-customer-service"
+      ? "已处理的对话、下一步和人工接管边界都保留在对应用户记录中，不会重复打扰。"
+      : "已经处理的对话和下一步会留在对应用户记录中，不会重复打扰。";
   } else if (agentId === "mkt-comment-acquisition") {
     const advanced = candidates || qualified;
     headline = advanced || sent ? `今天已推进 ${advanced || 0} 位线索与 ${sent || 0} 次触达` : "今天已推进一轮完整获客工作";
@@ -589,7 +599,7 @@ function presentationFor({ task, events, scope, metrics, taskState }) {
     : ["今天没有新增可确认的业务结果，因此没有生成额外结论。"];
   const evidenceDescription = agentId === "mkt-find-people"
     ? "候选用户、出现位置和原始内容已保留，可在成果中心继续核验。"
-    : agentId === "mkt-dm-inbox"
+    : ["mkt-dm-inbox", "mkt-gold-customer-service"].includes(agentId)
       ? "对话进展只记录已确认的消息状态，不把等待中的内容当作结果。"
       : "记录只包含已确认的工作事件，不把轮询和等待当作完成。";
 

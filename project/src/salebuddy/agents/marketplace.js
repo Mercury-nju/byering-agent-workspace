@@ -29,6 +29,8 @@ const FEATURED_MARKETPLACE_AGENT_IDS = Object.freeze([
 
 /** One complete-capability Agent plus independently runnable capability Agents. */
 export const DOUYIN_ACQUISITION_COMPLETE_AGENT_ID = "mkt-comment-acquisition";
+/** Public-facing independent inbox experience with its own runtime identity. */
+export const GOLD_CUSTOMER_SERVICE_AGENT_ID = "mkt-gold-customer-service";
 
 /**
  * Single-capability Agents can run independently only with an account that is
@@ -38,7 +40,8 @@ export const DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS = Object.freeze([
   "mkt-find-people",
   "mkt-intent-analyst",
   "mkt-cold-writer",
-  "mkt-dm-inbox"
+  "mkt-dm-inbox",
+  GOLD_CUSTOMER_SERVICE_AGENT_ID
 ]);
 
 /**
@@ -90,7 +93,13 @@ export function douyinAcquisitionBindingAgentId(agentOrId) {
 export const DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS = Object.freeze([
   DOUYIN_ACQUISITION_COMPLETE_AGENT_ID,
   ...DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS,
-  "mkt-live-danmaku-analysis"
+  "mkt-live-danmaku-analysis",
+  "mkt-live-danmaku-outreach"
+]);
+
+/** One-off public-data Agents do not own or start an authorized account runtime. */
+export const MARKETPLACE_STANDALONE_AGENT_IDS = Object.freeze([
+  "mkt-viral-work-analysis"
 ]);
 
 /**
@@ -148,6 +157,8 @@ export const MARKETPLACE_AGENT_ARCHITECTURE_ORDER = Object.freeze([
   DOUYIN_ACQUISITION_COMPLETE_AGENT_ID,
   ...DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS,
   "mkt-live-danmaku-analysis",
+  "mkt-live-danmaku-outreach",
+  "mkt-viral-work-analysis",
   "mkt-lead-miner",
   "mkt-research-expert",
   "mkt-comment-filter",
@@ -293,6 +304,19 @@ const MARKETPLACE_PROFILE_SPECS = Object.freeze({
     forbidden: ["把主动触达当作承接", "循环回复自己发送的消息", "自动发送高风险或缺少事实依据的内容"],
     maxCalls: 60
   }),
+  [GOLD_CUSTOMER_SERVICE_AGENT_ID]: profileSpec({
+    responsibilities: ["监听已授权抖音账号的新私信和触达回复", "理解用户设定的私信目标并设计对话策略", "根据客户上下文自动回复和推进对话", "命中边界时停止自动回复并交给人工"],
+    principles: ["先回答客户当前最关心的问题，再按用户目标推进对话", "每次回复保留消息、依据和发送结果"],
+    deliveryStandard: "交付会话摘要、回复记录、目标达成进展和需要人工处理的事项。",
+    safetyRules: ["只自动回复规则允许且有事实依据的内容", "尊重用户拒绝、勿扰和平台频控", "首次启动和关键业务承诺保留用户确认"],
+    honestyRules: ["没有读取到消息时不虚构会话", "没有足够上下文时转人工处理", "没有真实平台回执时不标记为已回复"],
+    dataAccess: ["已授权抖音账号私信", "用户设定的私信目标", "已批准知识库与回复规则", "回复发送记录"],
+    forbiddenZones: ["未授权账号私信", "支付信息和敏感个人信息", "主动陌生人触达名单"],
+    approvalRequired: ["首次启动金牌客服", "人工接管涉及价格、承诺或敏感信息的会话"],
+    limits: { maxMessagesPerPoll: 100, maxReplyLength: 500 },
+    forbidden: ["把主动触达当作承接", "循环回复自己发送的消息", "自动发送高风险或缺少事实依据的内容"],
+    maxCalls: 60
+  }),
   "mkt-research-expert": profileSpec({
     responsibilities: ["研究指定账号或账号集合", "整理账号画像、内容与经营数据", "输出可回溯的账号调研简报"],
     principles: ["先确认研究对象和时间范围，再汇总事实", "区分账号原始数据、观察结论和待确认信息"],
@@ -398,17 +422,43 @@ const MARKETPLACE_PROFILE_SPECS = Object.freeze({
     maxCalls: 70
   }),
   "mkt-live-danmaku-analysis": profileSpec({
-    responsibilities: ["直播间弹幕分析", "读取授权账号的直播弹幕和互动信号", "归纳高频主题、用户问题、需求与异议", "保留弹幕、点赞和送礼的来源证据"],
-    principles: ["先区分弹幕内容和互动行为，再判断用户意向", "点赞和送礼只作为互动强度参考，不单独升级为购买意向"],
-    deliveryStandard: "交付直播间弹幕分析结果，分别呈现弹幕、点赞、送礼、关注和进场数据，并保留主题、用户和原始证据。",
+    responsibilities: ["直播间弹幕分析", "读取授权账号当前直播间的新弹幕", "归纳高频主题、用户问题、需求与异议", "保留弹幕原始证据"],
+    principles: ["只基于弹幕原文判断用户意向", "不读取点赞、送礼、关注或进场等其他互动"],
+    deliveryStandard: "交付直播间新弹幕分析结果，呈现主题、用户意向和可回查的原始证据。",
     safetyRules: ["只使用已授权账号当前直播间的数据", "分析任务只读不触达，不自动发送私信", "用户意向结论必须能回查到弹幕原文"],
-    honestyRules: ["只有点赞或送礼的用户标记为待分析", "弹幕不足时标记样本不足，不把互动次数写成购买事实"],
-    dataAccess: ["授权账号当前直播间弹幕", "直播间点赞和送礼事件", "直播间关注与进场事件", "互动用户公开身份"],
+    honestyRules: ["没有弹幕原文就不做意向判断", "弹幕不足时标记样本不足，不把单条表达写成购买事实"],
+    dataAccess: ["授权账号当前直播间新弹幕", "弹幕用户公开身份"],
     forbiddenZones: ["私信内容", "未授权账号直播间", "个人敏感信息", "主动触达动作"],
     approvalRequired: ["导出含账号信息的分析结果", "将分析结果交给触达专员"],
     limits: { maxRoomsPerRun: 1, maxUsersPerRun: 200, maxEvidencePerUser: 20 },
-    forbidden: ["绕过登录或平台权限", "把点赞或送礼单独写成购买意向", "未经审批发送私信"],
+    forbidden: ["绕过登录或平台权限", "读取或分析点赞、送礼、关注、进场信号", "未经审批发送私信"],
     maxCalls: 80
+  }),
+  "mkt-live-danmaku-outreach": profileSpec({
+    responsibilities: ["持续读取授权账号当前直播间的新弹幕", "每位发弹幕的用户都进入首次私信触达", "记录触达提交和回执结果"],
+    principles: ["只以是否出现弹幕作为进入触达流程的条件", "不判断成交状态、购买意向或用户价值"],
+    deliveryStandard: "交付直播间弹幕用户的首次私信触达结果，保留用户身份、弹幕原话、发送状态和回执，不产出成交或意向判断。",
+    safetyRules: ["只使用已授权账号当前直播间的数据", "发送前必须能回查到抖音用户身份", "用户明确拒绝联系、投诉或退款时停止自动触达并转人工"],
+    honestyRules: ["不把直播间弹幕写成已成交或未成交事实", "不把触达结果写成用户购买意向", "发送未获得最终回执时标记为待核验"],
+    dataAccess: ["授权账号当前直播间弹幕", "弹幕用户公开身份", "私信发送状态和回执"],
+    forbiddenZones: ["未授权账号直播间", "个人敏感信息", "主动判断成交或购买意向"],
+    approvalRequired: ["用户拒绝联系、投诉或退款的消息", "缺少可验证用户身份的触达"],
+    limits: { maxRoomsPerRun: 1, maxUsersPerRun: 200, maxTouchesPerDay: 50 },
+    forbidden: ["绕过登录或平台权限", "虚构成交状态或购买意向", "向缺少可验证身份的用户自动发送私信"],
+    maxCalls: 80
+  }),
+  "mkt-viral-work-analysis": profileSpec({
+    responsibilities: ["服务准备做或正在做自媒体、希望增长流量的博主", "直接解析视频画面、音轨、口播、字幕和时间结构", "拆解可能带来传播的内容机制并标注验证边界", "输出带来源和边界说明的爆款作品分析报告"],
+    principles: ["先观察视频本身，再用作品数据和评论补充验证", "区分视频事实、平台返回事实、增长假设和下一轮测试"],
+    deliveryStandard: "交付视频内容概览、流量信号与增长假设、画面与口播拆解、字幕、节奏、剪辑、作品数据、评论需求、可复用元素、下一轮创作测试和来源证据。",
+    safetyRules: ["只读取用户提供的公开作品链接和公开数据", "分析任务只读不触达，不执行关注、评论或私信"],
+    honestyRules: ["没有返回的播放、评论或转化数据标记为待核验", "不把高播放或高互动直接写成成交结果，不复制原作品素材"],
+    dataAccess: ["用户提供的抖音作品链接", "作品实际视频资源", "作品公开详情与互动指标", "作品公开评论（已配置评论源时）"],
+    forbiddenZones: ["私信内容", "未授权账号数据", "个人敏感信息", "主动触达动作"],
+    approvalRequired: ["导出含账号信息的分析结果", "将分析结论交给触达专员"],
+    limits: { maxWorksPerRun: 1, maxCommentsPerWork: 200, maxEvidencePerReport: 40 },
+    forbidden: ["绕过登录或平台权限", "虚构播放、互动或转化数据", "把推测写成作品事实", "复制原作品素材"],
+    maxCalls: 40
   }),
   "mkt-follow-up": profileSpec({
     responsibilities: ["维护客户阶段和触达记录", "安排下一步跟进", "识别丢单风险并提醒"],
@@ -584,6 +634,7 @@ const CORE_MARKETPLACE_AGENT_IDS = new Set([
   "mkt-live-lead-miner",
   "mkt-cold-writer",
   "mkt-dm-inbox",
+  GOLD_CUSTOMER_SERVICE_AGENT_ID,
   "mkt-research-expert",
   "mkt-douyin-finder",
   "mkt-find-people",
@@ -593,6 +644,8 @@ const CORE_MARKETPLACE_AGENT_IDS = new Set([
   "mkt-trend-insight",
   "mkt-intent-analyst",
   "mkt-live-danmaku-analysis",
+  "mkt-live-danmaku-outreach",
+  "mkt-viral-work-analysis",
   "mkt-follow-up",
   "mkt-phone-sdr",
   "mkt-copywriter"
@@ -612,8 +665,11 @@ const MARKETPLACE_AGENT_CAPABILITIES = Object.freeze({
   "mkt-trend-insight": "分析",
   "mkt-intent-analyst": "分析",
   "mkt-live-danmaku-analysis": "分析",
+  "mkt-live-danmaku-outreach": "触达",
+  "mkt-viral-work-analysis": "分析",
   "mkt-cold-writer": "触达",
   "mkt-dm-inbox": "私信对话",
+  [GOLD_CUSTOMER_SERVICE_AGENT_ID]: "私信对话",
   "mkt-follow-up": "触达",
   "mkt-phone-sdr": "触达",
   "mkt-copywriter": "触达"
@@ -625,6 +681,7 @@ export const IMPLEMENTED_MARKETPLACE_AGENT_IDS = Object.freeze([
   "mkt-comment-filter",
   "mkt-comment-acquisition",
   "mkt-dm-inbox",
+  GOLD_CUSTOMER_SERVICE_AGENT_ID,
   "mkt-cold-writer",
   "mkt-douyin-finder",
   "mkt-find-people",
@@ -632,7 +689,9 @@ export const IMPLEMENTED_MARKETPLACE_AGENT_IDS = Object.freeze([
   "mkt-live-lead-miner",
   "mkt-research-expert",
   "mkt-intent-analyst",
-  "mkt-live-danmaku-analysis"
+  "mkt-live-danmaku-analysis",
+  "mkt-live-danmaku-outreach",
+  "mkt-viral-work-analysis"
 ]);
 
 /** Legacy labels are presentation-only migrations; runtime records keep their stable IDs. */
@@ -646,6 +705,7 @@ export const MARKETPLACE_DISPLAY_NAME_MIGRATIONS = Object.freeze({
   "mkt-live-lead-miner": Object.freeze({ from: ["Luca", "播播", "直播间潜客筛选专员", "直播间获客专家", "直播间潜客挖掘"], to: "直播间找客户" }),
   "mkt-cold-writer": Object.freeze({ from: ["Owen", "私信运营", "私信触达专员", "潜客激活专员", "抖音私信触达", "批量发私信", "抖音触达助手"], to: "潜客触达专员" }),
   "mkt-dm-inbox": Object.freeze({ from: ["Sophia", "私信承接 / 自动回复专员", "私信自动承接", "私信自动回复", "抖音对话助手"], to: "私信客服" }),
+  [GOLD_CUSTOMER_SERVICE_AGENT_ID]: Object.freeze({ from: ["金牌私信客服", "金牌客服助手"], to: "金牌客服" }),
   "mkt-research-expert": Object.freeze({ from: ["抖音账号研究"], to: "抖音账号分析" }),
   "mkt-audience-search": Object.freeze({ from: ["目标人群搜索"], to: "按条件找账号" }),
   "mkt-network-miner": Object.freeze({ from: ["受众关系分析"], to: "粉丝关系分析" }),
@@ -664,13 +724,14 @@ export function isImplementedMarketplaceAgent(agentOrId) {
 /** Shared availability gate for marketplace and contacts surfaces. */
 export function isMarketplaceAgentAvailable(agentOrId) {
   const id = typeof agentOrId === "string" ? agentOrId : agentOrId?.id;
-  return isImplementedMarketplaceAgent(id) && DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.includes(id);
+  return isImplementedMarketplaceAgent(id)
+    && (DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.includes(id) || MARKETPLACE_STANDALONE_AGENT_IDS.includes(id));
 }
 
 /** Current executable Agent Center roster shared by office and member surfaces. */
 export function listActivatedMarketplaceAgents() {
   return sortMarketplaceAgentsForDisplay(
-    MARKETPLACE_AGENTS.filter(isMarketplaceAgentAvailable),
+    MARKETPLACE_AGENTS.filter((agent) => DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.includes(agent.id)),
     { isReady: isMarketplaceAgentAvailable }
   );
 }
@@ -864,6 +925,29 @@ export const MARKETPLACE_AGENTS = Object.freeze([
     color: "#357A73"
   },
   {
+    id: GOLD_CUSTOMER_SERVICE_AGENT_ID,
+    name: "金牌客服",
+    displayName: "金牌客服",
+    displayTitle: "按你的目标完成私信对话",
+    title: "金牌客服",
+    category: "销售",
+    domains: ["销售", "客户成功", "教育培训", "专业服务"],
+    industries: ["电商卖货", "直播带货", "知识付费", "付费社群", "汽车服务", "房地产", "医美健康", "教育培训", "专业服务", "本地商家", "品牌营销"],
+    desc: "把客户私信交给 AI，根据你设定的目标自动设计回复和推进方式。",
+    skills: ["自动接待私信", "按目标设计对话", "识别人工接管节点"],
+    tools: ["私信收件箱", "业务知识", "回复策略", "发送记录"],
+    deliverables: ["会话摘要", "回复记录", "目标达成进展", "人工接管事项"],
+    rating: 4.9,
+    hires: "首期开放",
+    color: "#2E9E8F",
+    mission: "使用独立的金牌客服承接已授权账号的新私信，根据用户设定的目标自动分析、回复和推进对话；没有依据或涉及敏感信息时交给人工。",
+    inputs: ["授权账号", "私信对话目标"],
+    outputs: ["会话摘要", "回复记录", "目标达成进展", "人工接管事项"],
+    approvalDefaults: { mode: "manual", touchChannel: "private_message" },
+    acquisition: { kind: "inbox", capability: "goldCustomerService" },
+    capabilities: { independent: true, inboxReception: true, goldCustomerService: true }
+  },
+  {
     id: "mkt-research-expert",
     name: "抖音账号分析",
     displayName: "抖音账号分析",
@@ -952,25 +1036,73 @@ export const MARKETPLACE_AGENTS = Object.freeze([
     id: "mkt-live-danmaku-analysis",
     name: "直播间弹幕分析",
     displayName: "直播间弹幕分析",
-    displayTitle: "把直播互动整理成需求与意向判断",
+    displayTitle: "把直播弹幕整理成需求与意向判断",
     title: "直播间弹幕分析",
     category: "分析",
     domains: ["分析"],
     industries: [],
     desc: "分析直播间弹幕，提炼问题、需求和购买意向。",
-    searchTerms: ["直播间弹幕分析", "直播弹幕", "直播间需求分析", "直播互动分析", "点赞用户", "送礼用户"],
+    searchTerms: ["直播间弹幕分析", "直播弹幕", "直播间需求分析", "直播弹幕主题"],
     skills: ["识别弹幕主题", "判断用户意向", "保留原始证据"],
-    tools: ["直播弹幕", "主题聚类", "互动信号分析", "分析报告"],
+    tools: ["直播弹幕", "主题聚类", "意向判断", "分析报告"],
     deliverables: ["弹幕分析报告", "主题与问题清单", "用户意向清单"],
     rating: 4.9,
     hires: "首期开放",
     color: "#2E9E6B",
-    mission: "持续读取授权账号当前直播间的弹幕和互动信号，归纳用户问题、需求、异议与购买意向；点赞和送礼只作互动强度参考，不自动触达。",
+    mission: "持续分析授权账号当前直播间的新弹幕，归纳用户问题、需求、异议与购买意向，不读取点赞或送礼。",
     inputs: ["已授权抖音账号", "当前直播场次（自动读取）", "分析重点（可选）"],
-    outputs: ["弹幕主题与高频问题", "需求与异议分析", "弹幕、点赞和送礼统计", "用户意向与原始证据"],
+    outputs: ["弹幕主题与高频问题", "需求与异议分析", "新弹幕统计", "用户意向与原始证据"],
     approvalDefaults: { mode: "manual", analysisOnly: true, discoveryOnly: true },
     acquisition: { kind: "live_analysis", capability: "liveDanmakuAnalysis", sourceScope: "authorized_account_live" },
     capabilities: { independent: true, liveDanmakuAnalysis: true, liveAnalysis: true, discoveryOnly: true, analysisOnly: true }
+  },
+  {
+    id: "mkt-live-danmaku-outreach",
+    name: "电商直播间未成交客户触达",
+    displayName: "电商直播间未成交客户触达",
+    displayTitle: "直播间有人发弹幕，就自动触达",
+    title: "电商直播间未成交客户触达",
+    category: "触达",
+    domains: ["触达"],
+    industries: [],
+    desc: "监听电商直播间弹幕，弹幕出现即触达对应用户，不判断成交或购买意向。",
+    searchTerms: ["直播间未成交客户触达", "直播弹幕触达", "弹幕私信", "直播间自动触达"],
+    skills: ["监听直播间弹幕", "逐一触达弹幕用户", "记录触达结果"],
+    tools: ["直播弹幕", "用户身份", "私信触达", "触达回执"],
+    deliverables: ["弹幕用户触达记录", "私信发送状态", "触达结果清单"],
+    rating: 4.9,
+    hires: "首期开放",
+    color: "#7C45F7",
+    mission: "持续读取已授权账号当前直播间的新弹幕；每位发弹幕的用户都进入首次私信触达，不判断成交状态、购买意向或用户价值。",
+    inputs: ["已授权抖音账号", "当前直播场次（自动读取）"],
+    outputs: ["弹幕用户身份", "首次私信触达状态", "发送回执与异常记录"],
+    approvalDefaults: { mode: "auto", touchEveryLiveDanmaku: true },
+    acquisition: { kind: "live_outreach", capability: "liveDanmakuOutreach", sourceScope: "authorized_account_live" },
+    capabilities: { independent: true, liveDanmakuOutreach: true, touchEveryLiveDanmaku: true, discoveryOnly: false, analysisOnly: false }
+  },
+  {
+    id: "mkt-viral-work-analysis",
+    name: "爆款作品分析",
+    displayName: "爆款作品分析",
+    displayTitle: "拆解爆款为什么火，找到下一条怎么做",
+    title: "爆款作品分析",
+    category: "分析",
+    domains: ["分析"],
+    industries: [],
+    desc: "面向自媒体博主，拆解爆款视频，提炼流量机制与可验证的创作打法。",
+    searchTerms: ["爆款作品分析", "作品分析", "视频分析", "抖音作品报告", "内容拆解", "爆款拆解"],
+    skills: ["解析视频画面和口播", "识别流量抓手与内容结构", "生成可执行的创作测试报告"],
+    tools: ["视频内容分析", "作品详情", "作品评论", "互动指标", "分析报告"],
+    deliverables: ["视频内容拆解", "流量机制假设", "作品表现摘要", "评论需求分析", "下一轮创作测试", "爆款作品分析报告"],
+    rating: 4.9,
+    hires: "首期开放",
+    color: "#357A73",
+    mission: "服务准备做或正在做自媒体、希望增长流量的博主：读取公开抖音作品视频本身，拆解它为什么可能获得流量，再结合作品数据和评论验证假设，输出下一条内容可执行的测试方向。",
+    inputs: ["抖音作品完整链接", "分析重点（可选）"],
+    outputs: ["视频内容拆解", "流量信号与增长假设", "作品基础数据", "开头与内容结构", "评论需求和疑问", "可复用元素", "下一轮创作测试", "HTML 分析报告"],
+    approvalDefaults: { mode: "manual", analysisOnly: true, discoveryOnly: true },
+    acquisition: { kind: "public_work_analysis", sourceScope: "public_work_link" },
+    capabilities: { independent: true, publicWorkAnalysis: true, discoveryOnly: true, analysisOnly: true }
   },
   {
     id: "mkt-follow-up",

@@ -63,6 +63,19 @@ test("a second Agent with a different batch cannot send the same incoming messag
   const replay = await f.handler({ message: { id: "two", secUid: "customer", content: "想预约" }, send: () => assert.fail("duplicate send") });
   assert.equal(replay.status, "duplicate");
 });
+
+test("answer-only reception uses the user's question as the stopping point", async t => {
+  const f = setup(t); f.setTime("2026-09-08T02:00:00Z");
+  const current = f.store.get(f.owner);
+  f.store.save(f.owner, { ...current.settings, goal: "answer" }, current.revision);
+
+  const result = await f.handle({ content: "这个服务怎么用？" });
+
+  assert.equal(result.status, "sent");
+  assert.match(f.generated[0].context.strategy.objective, /回答问题/);
+  assert.match(f.generated[0].context.replyRule, /问题解决后不主动引导留资、预约或继续追问/);
+});
+
 test("the inbox persists deferred messages and combines a customer burst after restart", async t => {
   const f = setup(t);
   const stateStore = createMemoryStateStore();

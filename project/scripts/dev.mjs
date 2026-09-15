@@ -9,7 +9,11 @@ const backendPort = Number(process.env.BYERING_BACKEND_PORT || 6681);
 const children = [
   spawn(process.execPath, ["--env-file-if-exists=.env.local", "backend/http-server.js"], {
     cwd: root,
-    env: { ...process.env, BYERING_BACKEND_PORT: String(backendPort) },
+    env: {
+      ...process.env,
+      BYERING_BACKEND_PORT: String(backendPort),
+      BYERING_RENDERER_PORT: String(webPort)
+    },
     stdio: "inherit"
   }),
   spawn(process.execPath, ["scripts/static-server.mjs", "--port", String(webPort)], {

@@ -132,6 +132,7 @@ const HUMAN_AVATAR_KEYS = Object.freeze({
   "mkt-cold-writer": "human07",
   "mkt-user-research": "human13",
   "mkt-dm-inbox": "human10",
+  "mkt-gold-customer-service": "human05",
   "mkt-follow-up": "human08",
   "mkt-phone-sdr": "human01",
   "mkt-copywriter": "human02",

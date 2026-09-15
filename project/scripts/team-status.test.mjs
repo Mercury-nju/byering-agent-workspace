@@ -103,7 +103,7 @@ await run("deriveTeamStatus：全部完成 → 全员空闲", () => {
 
 // ── 与 gateway-mock 真实数据的一致性 ──────────────────────────
 const TEST_PORT = 5197;
-const server = startGatewayMock({ port: TEST_PORT });
+  const server = startGatewayMock({ port: TEST_PORT, seedOfficeDemo: true });
 await new Promise((resolve) => server.on("listening", resolve));
 try {
   const socket = new WebSocket(`ws://127.0.0.1:${TEST_PORT}/agent?token=team-status`, "ws-ag-ui");

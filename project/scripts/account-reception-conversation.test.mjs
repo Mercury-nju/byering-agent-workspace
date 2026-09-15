@@ -40,6 +40,14 @@ test("chat stages do not overwrite the selected conversion outcome", () => {
   assert.equal(result, null);
 });
 
+test("a clear answer-only objective switches the strategy to resolving questions", () => {
+  const result = applyReceptionStrategyUpdate(normalizeReception({ goal: "contact" }), "私信只回答客户问题，解决咨询后不要留资或预约");
+
+  assert.equal(result.settings.goal, "answer");
+  assert.equal(result.changes[0].label, "回答问题");
+  assert.match(result.confirmation, /对话目标改为“回答问题”/);
+});
+
 test("clearing reception data requires the current revision and resets durable conversations", () => {
   const directory = mkdtempSync(join(tmpdir(), "reception-clear-"));
   try {

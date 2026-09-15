@@ -220,6 +220,27 @@ const SCENARIOS = Object.freeze({
         content: "<h1>私信承接与留资记录</h1><table><tr><th>客户</th><th>当前阶段</th><th>关键原话</th><th>下一步</th></tr><tr><td>南京徐女士</td><td>留资确认</td><td>可以加微信发一下现车颜色和周末档期吗？</td><td>确认方便的日期，再记录微信号</td></tr><tr><td>合肥赵先生</td><td>预约确认</td><td>周六下午两点可以到店，留个微信方便确认。</td><td>确认门店与试驾车型</td></tr><tr><td>宁波程女士</td><td>跟进中</td><td>先看看家用空间和续航表现。</td><td>发送短版车型对比</td></tr></table>"
       }]
     ]
+  },
+  "mkt-gold-customer-service": {
+    name: "金牌客服",
+    startedAt: "2026-09-13T11:20:00.000Z",
+    messages: [
+      ["user", "我", "用金牌客服接待新私信，目标是先回答客户问题；如果客户有明确需求，再帮我获取可跟进线索。"],
+      ["mkt-gold-customer-service", "金牌客服", "可以。我会监听臻选新能源·上海账号的新私信，先回应客户当前最关心的问题，再根据你的目标决定是否澄清需求、获取线索或交给人工；涉及价格承诺、投诉或敏感信息时，我会把证据和需要人工决定的部分讲明白。"],
+      ["user", "我", "南京徐女士这条先怎么接？"],
+      ["mkt-gold-customer-service", "金牌客服", "她问现车颜色和周末档期。我会先回答已确认的信息；如果她继续表达购车需求，再按“获取可跟进线索”的目标询问必要信息，不会跳过当前问题直接索要联系方式。"],
+      ["user", "我", "按这个方式继续接待。"],
+      ["mkt-gold-customer-service", "金牌客服", "已按目标承接 3 个新会话：2 个完成了目标要求的关键对话动作，1 个因缺少可确认信息交给人工。原始消息、回复记录和目标判断均已保留。", {
+        name: "金牌客服目标执行记录-2026-09-14.html",
+        type: "html",
+        summary: "3 个新会话 · 2 个完成目标动作 · 1 个交人工",
+        status: "持续跟进",
+        projectId: "room-lead-expansion",
+        projectName: "潜在客户拓展项目组",
+        createdBy: "金牌客服",
+        content: "<h1>金牌客服目标执行记录</h1><table><tr><th>客户</th><th>目标</th><th>当前状态</th><th>关键原话</th><th>处理结果</th></tr><tr><td>南京徐女士</td><td>获取可跟进线索</td><td>已回应并确认需求</td><td>可以加微信发一下现车颜色和周末档期吗？</td><td>按目标询问必要的联系方式</td></tr><tr><td>合肥赵先生</td><td>引导预约</td><td>待人工确认</td><td>周六下午两点可以到店，留个微信方便确认。</td><td>涉及确认性承诺，保留给人工</td></tr><tr><td>宁波程女士</td><td>解答咨询</td><td>跟进中</td><td>先看看家用空间和续航表现。</td><td>继续回答车型问题，不扩展无关话题</td></tr></table>"
+      }]
+    ]
   }
 });
 
@@ -229,7 +250,8 @@ export const DEMO_DM_AGENT_TYPES = Object.freeze([
   "mkt-find-people",
   "mkt-intent-analyst",
   "mkt-cold-writer",
-  "mkt-dm-inbox"
+  "mkt-dm-inbox",
+  "mkt-gold-customer-service"
 ]);
 
 /**
@@ -354,6 +376,26 @@ const DEMO_AGENT_MEMORY = Object.freeze({
         { field: "replySla", label: "回复时限", to: "15 分钟" },
         { field: "handoffRule", label: "交接规则", to: "出现加微信、预约或报价请求时立即提示人工确认" },
         { field: "greeting", label: "首句策略", to: "先回答当前问题，再追问一个必要信息" }
+      ]
+    }
+  },
+  "mkt-gold-customer-service": {
+    businessContext: "负责承接授权账号的新私信，根据用户设定的目标自动设计回复、追问和推进方式；涉及无法确认的事实或敏感信息时交给人工。",
+    account: { name: "臻选新能源·上海", handle: "@58262205543" },
+    metrics: { activeSessions: 3, answeredSessions: 3, nextStepSessions: 2, capturedLeads: 2, followingSessions: 1, replySla: "15 分钟" },
+    yesterday: { activeSessions: 3, answeredSessions: 3, nextStepSessions: 2, capturedLeads: 1, followingSessions: 2, conversionRate: "33.33%" },
+    diagnosis: [
+      "3 个新会话都已得到回复，但只有 2 个完成了目标要求的关键动作，另 1 个仍需更多上下文",
+      "部分会话没有把客户当前问题和用户设定的目标衔接好，目标动作出现得偏早或偏晚",
+      "涉及报价、承诺或敏感信息的人工边界已经明确，需要继续根据事实和目标判断推进方式"
+    ],
+    config: { replySla: "30 分钟", goalDriven: "按用户目标设计对话", handoffRule: "无法确认的事实、报价承诺、投诉或敏感信息交人工" },
+    proposal: {
+      title: "优化金牌客服的目标承接",
+      changes: [
+        { field: "replySla", label: "回复时限", to: "15 分钟" },
+        { field: "goalDriven", label: "对话方式", to: "先回应问题，再按用户目标推进" },
+        { field: "handoffRule", label: "人工边界", to: "无法确认或涉及敏感信息时交人工" }
       ]
     }
   },
@@ -515,6 +557,16 @@ const DEMO_CONVERSATION_TAILS = Object.freeze({
     ["user", "我", "可以，立即生效"],
     ["mkt-dm-inbox", "私信客服", "配置已生效。后续会在 15 分钟内优先承接新消息，并在出现加微信、预约或报价请求时及时交给你确认。"]
   ],
+  "mkt-gold-customer-service": [
+    ["user", "我", "昨天金牌客服接待得怎么样？按目标完成得如何？"],
+    ["mkt-gold-customer-service", "金牌客服", "我记得昨天承接了 3 个私信会话，3 个都已得到回复，其中 2 个按用户设定的目标完成了关键对话动作，形成可跟进结果 1 个，另外 2 个仍在跟进中。"],
+    ["user", "我", "为什么还有会话没有完成目标？"],
+    ["mkt-gold-customer-service", "金牌客服", "有一条会话还停留在问题确认阶段，客户没有继续表达目标相关需求；另一条涉及尚未确认的业务信息，我没有直接猜测，先保留给人工判断。"],
+    ["user", "我", "后面怎么优化？"],
+    ["mkt-gold-customer-service", "金牌客服", "我建议把回复时限从 30 分钟改成 15 分钟，并让每次推进都直接服务于当前设定目标；遇到无法确认的事实、报价承诺、投诉或敏感信息立即交人工。现在只是提案，还没有影响真实任务，要确认生效吗？"],
+    ["user", "我", "确认生效"],
+    ["mkt-gold-customer-service", "金牌客服", "配置已生效。后续会在 15 分钟内优先承接新私信，先回应客户当前问题，再根据用户目标设计追问、方案和下一步，并保留需要人工接管的会话。"]
+  ],
   "Browser Agent": [
     ["user", "我", "昨天公开找人找得怎么样？"],
     ["Browser Agent", "线索猎人", "我记得昨天扫描了 3,842 条公开互动，保留 214 位候选，其中 68 位出现预算、车型或到店信号；6 位主页证据不足，暂未进入高意向名单。"],
@@ -591,6 +643,7 @@ const ROLE_CAPABILITIES = Object.freeze({
   "mkt-intent-analyst": "基于已有互动用户判断购买意向，给出评分、证据和分析报告，不重新找人也不自动私信。",
   "mkt-cold-writer": "承接已经确认的潜客名单，配置首轮私信，发送前让你确认，发送后返回平台结果。",
   "mkt-dm-inbox": "监听授权账号的新私信，结合对话策略继续承接客户，需要人工决定的节点会先交给你。",
+  "mkt-gold-customer-service": "承接授权账号的新私信，根据用户设定的目标自动设计回复和推进方式；需要人工决定的节点会先交给你。",
   "Browser Agent": "从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。",
   "Search Agent": "合并重复账号、核验来源，并按购买意向给线索分层。",
   "App Agent": "按客户原问题匹配首触话术，记录回复和下一步跟进动作。",
@@ -605,6 +658,7 @@ const BUSINESS_REPLIES = Object.freeze({
   "mkt-live-lead-miner": "我会先按直播场次筛选互动，保留用户原话、商品、时间和来源；仅停留或点赞会标记待分析，不直接判成高意向。",
   "mkt-market-scout": "我会按行业、竞品和招标主题去重，给每条情报补来源、日期、影响和建议动作。",
   "mkt-cold-writer": "我会解析指定抖音用户主页，确认私信内容后通过已授权云电脑发送一条，并返回真实发送结果。",
+  "mkt-gold-customer-service": "我会承接授权账号的新私信，根据用户设定的目标自动设计回复和推进方式；需要人工决定的节点会先交给你。",
   "mkt-follow-up": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
   "mkt-phone-sdr": "我会按客户类型准备外呼脚本，通话后只根据录音原话记录意向和异议。",
   "mkt-copywriter": "我会先核对业务素材和渠道规格，再出内容初稿和发布日历，不虚构案例数据。",
@@ -718,6 +772,9 @@ function demoMetricsReply(agentType, memory) {
   if (agentType === "mkt-dm-inbox") {
     return `我记得昨天承接了 ${data.activeSessions} 个私信会话，其中 ${data.clearIntentSessions} 个有明确意向，完成留资 ${data.capturedLeads} 个，另外 ${data.followingSessions} 个仍在跟进中，当前转化率为 ${data.conversionRate}。`;
   }
+  if (agentType === "mkt-gold-customer-service") {
+    return `我记得昨天承接了 ${data.activeSessions} 个私信会话，${data.answeredSessions} 个都已得到回复，其中 ${data.nextStepSessions} 个按用户设定目标完成了关键对话动作，形成可跟进结果 ${data.capturedLeads} 个，另外 ${data.followingSessions} 个仍在跟进中。`;
+  }
   return `我记得昨天完成了 ${data.completedTasks || data.analyzedUsers || data.foundUsers || data.sentUsers || data.activeSessions || 0} 项核心工作，结果已经沉淀在当前 Agent 的工作记录里。`;
 }
 
@@ -770,6 +827,15 @@ export function mockConversationTurn(agentType, taskText = "", context = {}) {
     }
   }
 
+  if (agentType === "mkt-gold-customer-service") {
+    if (hasAny(text, [/(?:私信|消息|会话|回复|承接|客户说)/u])) {
+      return { text: "收到。我会先回应客户当前最关心的问题，再根据用户设定的目标决定是否继续追问、提供方案、获取线索或交给人工；涉及价格、承诺、投诉或敏感信息时，我会先标出需要人工确认的节点。", state, memory };
+    }
+    if (hasAny(text, [/(?:接待|监听|自动回复|持续|客服)/u])) {
+      return { text: "可以。我会持续监听授权账号的新私信，根据用户设定的目标设计对话节奏，先回应当前问题，再推进与目标直接相关的动作，并保留原始消息、回复记录和人工边界。", state, memory };
+    }
+  }
+
   if (isDemoMetricQuestion(text)) {
     state.lastTopic = "metrics";
     return { text: demoMetricsReply(agentType, memory), state, memory };
@@ -808,6 +874,9 @@ function genericReply(agentType, text) {
 
 export function mockConversationReply(agentType, taskText = "") {
   const text = String(taskText || "").trim();
+  if (agentType === "main" && hasAny(text, [/(?:金牌客服|快速接待客服)/u])) {
+    return "这属于目标驱动的私信承接流程，建议使用金牌客服。它只处理授权账号收到的新私信，会先回应当前问题，再根据用户目的设计后续对话；原私信客服继续保留给开发者探索。";
+  }
   if (agentType === "mkt-comment-acquisition" || agentType === "mkt-find-people" || agentType === "Browser Agent") {
     if (hasAny(text, [/(?:开始|执行|找人|找用户|找客户|找潜客|评论|直播|互动|候选)/u])) {
       return "收到。我先从已授权账号的评论、直播和互动里汇总用户，过滤重复和明显无关账号，同时保留原话、来源和时间。完成后我会把可分析名单交给客户分析员，不会直接发送私信。";
@@ -844,6 +913,15 @@ export function mockConversationReply(agentType, taskText = "") {
     }
     if (hasAny(text, [/(?:接待|监听|自动回复|持续)/u])) {
       return "可以。我会持续监听授权账号的新私信，只在有真实消息时推进对话，并保留原始消息、回复内容和当前跟进状态。";
+    }
+  }
+
+  if (agentType === "mkt-gold-customer-service") {
+    if (hasAny(text, [/(?:私信|消息|会话|回复|承接|客户说)/u])) {
+      return "收到。我会先回应客户当前最关心的问题，再根据用户设定的目标决定是否继续追问、提供方案、获取线索或交给人工；涉及价格、承诺、投诉或敏感信息时，我会先标出需要人工确认的节点。";
+    }
+    if (hasAny(text, [/(?:接待|监听|自动回复|持续|客服)/u])) {
+      return "可以。我会持续监听授权账号的新私信，根据用户设定的目标设计对话节奏，先回应当前问题，再推进与目标直接相关的动作，并保留原始消息、回复记录和人工边界。";
     }
   }
 

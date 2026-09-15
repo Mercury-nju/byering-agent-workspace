@@ -59,6 +59,7 @@ function displayName(agentType) {
     "mkt-intent-analyst": "客户分析员",
     "mkt-cold-writer": "潜客触达专员",
     "mkt-dm-inbox": "私信客服",
+    "mkt-gold-customer-service": "金牌客服",
     "Browser Agent": "线索猎人",
     "Search Agent": "线索分析师",
     "App Agent": "触达策略师",

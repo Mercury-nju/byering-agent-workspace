@@ -15,12 +15,15 @@ const EXPECTED_DESCRIPTIONS = {
   "mkt-live-lead-miner": "从直播弹幕和互动中找出有需求的观众，整理账号与依据。",
   "mkt-cold-writer": "按账号选择潜客或全部找到的人，配置首轮私信后发送，并记录结果。",
   "mkt-dm-inbox": "持续处理新私信和历史会话，识别留资并把需要人工判断的事项交给你。",
+  "mkt-gold-customer-service": "把客户私信交给 AI，根据你设定的目标自动设计回复和推进方式。",
   "mkt-research-expert": "分析账号主页、作品和互动，整理内容表现与账号画像。",
   "mkt-audience-search": "按地区、简介和账号类型筛选目标账号，说明匹配条件。",
   "mkt-network-miner": "分析粉丝与关注关系，找出相似账号和共同关注的人。",
   "mkt-trend-insight": "对比账号粉丝、播放和互动变化，找出增长与异常。",
   "mkt-intent-analyst": "从找客结果中判断值得继续跟进的人，也可按账号或指定目标生成分析报告。",
   "mkt-live-danmaku-analysis": "分析直播间弹幕，提炼问题、需求和购买意向。",
+  "mkt-live-danmaku-outreach": "监听电商直播间弹幕，弹幕出现即触达对应用户，不判断成交或购买意向。",
+  "mkt-viral-work-analysis": "面向自媒体博主，拆解爆款视频，提炼流量机制与可验证的创作打法。",
   "mkt-follow-up": "根据沟通和意向安排回访时间，整理待跟进清单。",
   "mkt-phone-sdr": "准备电话开场和邀约话术，通话后整理结果与下一步。",
   "mkt-copywriter": "根据产品和受众写视频、直播和私信文案，整理发布计划。"
@@ -36,12 +39,15 @@ const EXPECTED_CARD_IDENTITIES = {
   "mkt-live-lead-miner": ["直播间找客户", "从弹幕和互动里找有兴趣的观众", ["查看弹幕互动", "找有意向的观众", "整理观众名单"]],
   "mkt-cold-writer": ["潜客触达专员", "按账号触达潜客或全部找到的人，并记录结果", ["选择触达方式", "一键触达", "查看触达结果"]],
   "mkt-dm-inbox": ["私信客服", "有人发来私信，替你接待和解答", ["自动接待私信", "结合上下文回复", "识别留资并转人工"]],
+  "mkt-gold-customer-service": ["金牌客服", "按你的目标完成私信对话", ["自动接待私信", "按目标设计对话", "识别人工接管节点"]],
   "mkt-research-expert": ["抖音账号分析", "看看这个账号是谁、内容做得怎样", ["了解账号背景", "分析作品表现", "整理分析报告"]],
   "mkt-audience-search": ["按条件找账号", "按地区、行业和简介筛选账号", ["设置找人条件", "搜索合适账号", "说明入选理由"]],
   "mkt-network-miner": ["粉丝关系分析", "看看谁关注了谁，找到相似的人", ["查看粉丝关注", "找相似账号", "找共同关注"]],
   "mkt-trend-insight": ["涨粉趋势分析", "看看谁涨粉快、哪些内容带来增长", ["比较涨粉速度", "找表现好的内容", "提醒数据异常"]],
   "mkt-intent-analyst": ["客户分析员", "分析互动用户或生成报告", ["查看原始表达", "判断购买意向", "生成分析报告"]],
-  "mkt-live-danmaku-analysis": ["直播间弹幕分析", "把直播互动整理成需求与意向判断", ["识别弹幕主题", "判断用户意向", "保留原始证据"]],
+  "mkt-live-danmaku-analysis": ["直播间弹幕分析", "把直播弹幕整理成需求与意向判断", ["识别弹幕主题", "判断用户意向", "保留原始证据"]],
+  "mkt-live-danmaku-outreach": ["电商直播间未成交客户触达", "直播间有人发弹幕，就自动触达", ["监听直播间弹幕", "逐一触达弹幕用户", "记录触达结果"]],
+  "mkt-viral-work-analysis": ["爆款作品分析", "拆解爆款为什么火，找到下一条怎么做", ["解析视频画面和口播", "识别流量抓手与内容结构", "生成可执行的创作测试报告"]],
   "mkt-follow-up": ["客户跟进提醒", "记住该回访谁、什么时候联系", ["查看沟通记录", "安排回访时间", "整理跟进提醒"]],
   "mkt-phone-sdr": ["电话邀约准备", "打电话前准备话术，聊完整理结果", ["准备邀约话术", "整理通话记录", "记录预约结果"]],
   "mkt-copywriter": ["营销文案助手", "帮你写视频文案、直播预告和私信", ["写视频文案", "写预告和私信", "整理发布计划"]]
@@ -76,7 +82,8 @@ test("comprehensive operating agents lead the Agent Square", () => {
     { id: "mkt-douyin-finder" },
     { id: "mkt-find-people" },
     { id: "mkt-intent-analyst" },
-    { id: "mkt-dm-inbox" }
+    { id: "mkt-dm-inbox" },
+    { id: "mkt-gold-customer-service" }
   ];
   assert.deepEqual(
     sortMarketplaceAgentsForDisplay(agents, { isReady: () => true }).map(({ id }) => id),
@@ -152,8 +159,8 @@ test("找客专员只持续监听授权账号的新互动", () => {
 test("Agent Square categories use the generic capability taxonomy", () => {
   assert.deepEqual(MARKETPLACE_CATEGORIES, ["找人", "触达", "私信对话", "分析"]);
   const expectedIds = new Set([
-    "mkt-lead-miner", "mkt-comment-acquisition", "mkt-comment-filter", "mkt-douyin-finder", "mkt-find-people", "mkt-user-research", "mkt-live-lead-miner", "mkt-cold-writer", "mkt-dm-inbox", "mkt-research-expert",
-    "mkt-audience-search", "mkt-network-miner", "mkt-trend-insight", "mkt-intent-analyst", "mkt-live-danmaku-analysis",
+    "mkt-lead-miner", "mkt-comment-acquisition", "mkt-comment-filter", "mkt-douyin-finder", "mkt-find-people", "mkt-user-research", "mkt-live-lead-miner", "mkt-cold-writer", "mkt-dm-inbox", "mkt-gold-customer-service", "mkt-research-expert",
+    "mkt-audience-search", "mkt-network-miner", "mkt-trend-insight", "mkt-intent-analyst", "mkt-live-danmaku-analysis", "mkt-live-danmaku-outreach", "mkt-viral-work-analysis",
     "mkt-follow-up", "mkt-phone-sdr", "mkt-copywriter"
   ]);
   assert.deepEqual(new Set(MARKETPLACE_AGENTS.map((agent) => agent.id)), expectedIds);
@@ -166,6 +173,8 @@ test("Agent Square categories use the generic capability taxonomy", () => {
   }
   assert.equal(MARKETPLACE_AGENTS.find((agent) => agent.id === "mkt-dm-inbox")?.category, "私信对话");
   assert.equal(MARKETPLACE_AGENTS.find((agent) => agent.id === "mkt-dm-inbox")?.domains?.[0], "私信对话");
+  assert.equal(MARKETPLACE_AGENTS.find((agent) => agent.id === "mkt-gold-customer-service")?.category, "私信对话");
+  assert.equal(MARKETPLACE_AGENTS.find((agent) => agent.id === "mkt-gold-customer-service")?.domains?.[0], "私信对话");
   assert.equal(MARKETPLACE_AGENTS.some((agent) => agent.id === "mkt-designer"), false, "visual designer must not be in the marketplace");
 });
 
@@ -178,28 +187,45 @@ test("private-message reply labels collapse into the conversation capability", (
 });
 
 test("only agents with a real end-to-end path are marked executable", () => {
-  assert.deepEqual(IMPLEMENTED_MARKETPLACE_AGENT_IDS, ["mkt-lead-miner", "mkt-comment-filter", "mkt-comment-acquisition", "mkt-dm-inbox", "mkt-cold-writer", "mkt-douyin-finder", "mkt-find-people", "mkt-user-research", "mkt-live-lead-miner", "mkt-research-expert", "mkt-intent-analyst", "mkt-live-danmaku-analysis"]);
+  assert.deepEqual(IMPLEMENTED_MARKETPLACE_AGENT_IDS, ["mkt-lead-miner", "mkt-comment-filter", "mkt-comment-acquisition", "mkt-dm-inbox", "mkt-gold-customer-service", "mkt-cold-writer", "mkt-douyin-finder", "mkt-find-people", "mkt-user-research", "mkt-live-lead-miner", "mkt-research-expert", "mkt-intent-analyst", "mkt-live-danmaku-analysis", "mkt-live-danmaku-outreach", "mkt-viral-work-analysis"]);
   assert.equal(isImplementedMarketplaceAgent("mkt-lead-miner"), true);
   assert.equal(isImplementedMarketplaceAgent("mkt-live-lead-miner"), true);
   assert.equal(isImplementedMarketplaceAgent({ id: "mkt-comment-filter" }), true);
 });
 
-test("Agent Center activates the complete-capability roster and live analysis Agent", () => {
+test("金牌客服 is independent from the developer exploration inbox Agent", () => {
+  const legacy = MARKETPLACE_AGENTS.find((agent) => agent.id === "mkt-dm-inbox");
+  const gold = MARKETPLACE_AGENTS.find((agent) => agent.id === "mkt-gold-customer-service");
+
+  assert.ok(legacy);
+  assert.ok(gold);
+  assert.notEqual(legacy.id, gold.id);
+  assert.notEqual(legacy.name, gold.name);
+  assert.equal(gold.capabilities.independent, true);
+  assert.equal(gold.capabilities.goldCustomerService, true);
+  assert.match(gold.profile.role.responsibilities.join(" "), /私信目标|对话策略|自动回复/);
+  assert.match(gold.profile.soul.safetyRules.join(" "), /确认/);
+});
+
+test("Agent Center activates the complete-capability roster and live capability Agents", () => {
   assert.deepEqual(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS, [
     DOUYIN_ACQUISITION_COMPLETE_AGENT_ID,
     ...DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS,
-    "mkt-live-danmaku-analysis"
+    "mkt-live-danmaku-analysis",
+    "mkt-live-danmaku-outreach"
   ]);
   assert.deepEqual(listActivatedMarketplaceAgents().map(({ id }) => id), DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS);
   for (const agent of MARKETPLACE_AGENTS) {
     assert.equal(
       isMarketplaceAgentAvailable(agent),
-      DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.includes(agent.id),
+      DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.includes(agent.id) || ["mkt-gold-customer-service", "mkt-viral-work-analysis"].includes(agent.id),
       `${agent.id} availability drifted from the focused Agent Center roster`
     );
   }
   assert.equal(isImplementedMarketplaceAgent("mkt-live-lead-miner"), true);
   assert.equal(isMarketplaceAgentAvailable("mkt-live-lead-miner"), false);
+  assert.equal(isMarketplaceAgentAvailable("mkt-viral-work-analysis"), true);
+  assert.equal(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.includes("mkt-viral-work-analysis"), false);
 });
 
 test("manager-bound Douyin accounts cannot be reused by a single-capability Agent", () => {

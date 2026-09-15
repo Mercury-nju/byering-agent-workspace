@@ -6,7 +6,7 @@
  */
 import { openRoomsPage } from "./rooms-page.js";
 import { openContactsPage } from "./contacts-page.js";
-import { openAgentSquarePage } from "./agent-square.js?v=20260914-grid-alignment-1";
+import { openAgentSquarePage } from "./agent-square.js?v=20260915-live-danmaku-only-1";
 import { openKnowledgePage } from "./knowledge-page.js";
 import { openMemoryPage } from "./memory-page.js";
 import { openFileCenterPage } from "./file-center.js";

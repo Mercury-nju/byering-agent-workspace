@@ -6,6 +6,7 @@ import {
   buildDouyinAcquisitionAccountCapabilityMatrix,
   DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
   DOUYIN_ACQUISITION_COMPLETE_AGENT_ID,
+  GOLD_CUSTOMER_SERVICE_AGENT_ID,
   DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS,
   getMarketplaceAgent
 } from "../agents/marketplace.js";
@@ -366,7 +367,7 @@ const REALTIME_MOCK_AUTOMOTIVE_SOURCE_PROFILES = Object.freeze([
   { type: "interaction", channel: "interaction", label: "互动通知", title: "试驾预约互动通知", reference: "互动通知E305" }
 ]);
 
-const DOUYIN_CLOUD_AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-people", "mkt-intent-analyst", "mkt-cold-writer", "mkt-dm-inbox"]);
+const DOUYIN_CLOUD_AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-people", "mkt-intent-analyst", "mkt-cold-writer", "mkt-dm-inbox", GOLD_CUSTOMER_SERVICE_AGENT_ID, "mkt-live-danmaku-outreach"]);
 const ACQUISITION_REALTIME_AGENT_IDS = new Set(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS);
 const LEGACY_ACQUISITION_REALTIME_AGENT_IDS = new Set(["mkt-live-lead-miner"]);
 const REALTIME_MOCK_SPECIALIST_DEFINITIONS = Object.freeze([
@@ -397,6 +398,27 @@ const REALTIME_MOCK_SPECIALIST_DEFINITIONS = Object.freeze([
     phase: "客服转化",
     task: "承接收到的私信并标记需要人工处理的会话",
     activities: ["持续读取新会话", "按策略自动回复并保留人工接管边界"]
+  },
+  {
+    id: "gold-customer-service",
+    agentType: GOLD_CUSTOMER_SERVICE_AGENT_ID,
+    phase: "金牌客服",
+    task: "按用户设定目标完成私信对话",
+    activities: ["持续读取新会话", "先回应当前问题，再推进与目标直接相关的动作并保留人工边界"]
+  },
+  {
+    id: "live-danmaku-analysis",
+    agentType: "mkt-live-danmaku-analysis",
+    phase: "直播分析",
+    task: "持续分析直播间新弹幕",
+    activities: ["持续读取直播间新弹幕", "整理用户问题、需求信号和原始证据"]
+  },
+  {
+    id: "live-danmaku-outreach",
+    agentType: "mkt-live-danmaku-outreach",
+    phase: "直播触达",
+    task: "监听新弹幕并逐一发送首次私信",
+    activities: ["持续读取直播间新弹幕", "逐一发送私信并归档平台回执"]
   }
 ]);
 const ACQUISITION_CLOUD_LABELS = Object.freeze({
@@ -1141,7 +1163,8 @@ const REALTIME_SPECIALIST_WORKSITES = Object.freeze({
   "mkt-find-people": "finder",
   "mkt-intent-analyst": "analysis",
   "mkt-cold-writer": "outreach",
-  "mkt-dm-inbox": "conversion"
+  "mkt-dm-inbox": "conversion",
+  [GOLD_CUSTOMER_SERVICE_AGENT_ID]: "conversion"
 });
 
 export function realtimeSpecialistWorksiteFor(agentId, work = null) {
@@ -1574,6 +1597,30 @@ const ACTIVE_AGENT_REALTIME_DEFAULTS = Object.freeze({
     steps: ["读取原始证据", "归纳需求信号", "交付潜客列表"],
     context: Object.freeze({ prospect: "等待分析对象", source: "候选线索与原始证据", score: "--", activity: "等待分析任务启动" })
   }),
+  "mkt-live-danmaku-analysis": Object.freeze({
+    phase: "直播分析",
+    role: "直播分析 · 弹幕判断",
+    task: "等待授权账号直播间的新弹幕",
+    action: "读取直播间新弹幕，整理用户问题、需求与异议",
+    input: "授权账号直播间 · 新弹幕",
+    output: "直播主题、用户问题、需求信号、原始证据",
+    handoff: "客户分析员 / 成果中心",
+    tool: "核心执行 MCP · 抖音云电脑",
+    steps: ["监听新弹幕", "归纳高频问题", "保留用户与原始证据"],
+    context: Object.freeze({ prospect: "等待新弹幕", source: "授权账号当前直播间", score: "--", activity: "等待新的弹幕通知" })
+  }),
+  "mkt-live-danmaku-outreach": Object.freeze({
+    phase: "直播触达",
+    role: "直播触达 · 弹幕即私信",
+    task: "等待授权账号直播间的新弹幕",
+    action: "每位发弹幕的用户都进入首次私信触达，不判断成交或购买意向",
+    input: "授权账号直播间 · 新弹幕",
+    output: "逐人触达结果 · 平台回执",
+    handoff: "用户 / 成果中心",
+    tool: "核心执行 MCP · 抖音云电脑",
+    steps: ["监听新弹幕", "逐一发送首次私信", "归档真实回执"],
+    context: Object.freeze({ prospect: "等待发弹幕的用户", source: "授权账号当前直播间", score: "--", activity: "监听中，弹幕出现即进入触达" })
+  }),
   "mkt-cold-writer": Object.freeze({
     phase: "触达",
     role: "触达 · 首轮联系",
@@ -1597,6 +1644,18 @@ const ACTIVE_AGENT_REALTIME_DEFAULTS = Object.freeze({
     tool: "核心执行 MCP · 抖音云电脑",
     steps: ["监听新私信", "按策略回复", "交接需要人工处理的事项"],
     context: Object.freeze({ prospect: "等待新的私信会话", source: "已授权账号私信", score: "--", activity: "接待中，等待新的私信" })
+  }),
+  [GOLD_CUSTOMER_SERVICE_AGENT_ID]: Object.freeze({
+    phase: "金牌客服",
+    role: "金牌客服 · 快速接待",
+    task: "等待已授权账号的新私信",
+    action: "先回应客户问题，再按用户目标设计后续对话",
+    input: "已授权账号 · 私信对话目标 · 业务资料",
+    output: "客户问题摘要、回复记录、目标达成进展、人工接管事项",
+    handoff: "用户 / 成果中心",
+    tool: "核心执行 MCP · 抖音云电脑",
+    steps: ["监听新私信", "回应当前问题", "按目标推进并保留人工边界"],
+    context: Object.freeze({ prospect: "等待新的私信会话", source: "已授权账号私信", score: "--", activity: "金牌客服接待中，等待新的私信" })
   })
 });
 
@@ -2418,6 +2477,12 @@ export function acquisitionTaskUpdatePayload(agentType, context = {}, changes = 
   // opt-out protection is fixed by the backend and cannot be updated as a
   // task-level stop rule through an older client payload.
   if (agentType === "mkt-comment-acquisition") {
+    // Comprehensive acquisition owns audience discovery and first-message
+    // generation in the backend. Ignore legacy caller fields at this boundary.
+    delete update.strategy.audienceGoal;
+    delete update.strategy.requirements;
+    delete update.touchContent.message;
+    delete update.touchContent.strategy;
     delete update.runtimeRules.frequency;
     delete update.runtimeRules.stopConditions;
     // Keep older clients and deep links from reviving the retired public
@@ -2693,6 +2758,35 @@ function taskUpdateSummarySections(draft = {}, { discoveryOnly = false, comprehe
       }
     ];
   }
+  if (comprehensive) {
+    return [
+      {
+        title: "后台识别",
+        rows: [
+          ["账号定位和服务对象", "根据账号主页、近期作品和新互动自动识别"],
+          ["潜客判断", "结合评论、直播互动和账号互动证据判断"]
+        ]
+      },
+      {
+        title: "联系",
+        rows: [
+          ["怎么联系", "私信首触达"],
+          ["首条内容", "根据用户具体互动证据自动生成"],
+          ["说话方式", draft.touchContent?.replyStyle],
+          ["哪些情况交给你", draft.touchContent?.handoffBoundary],
+          ["发送方式", "自动发送"]
+        ]
+      },
+      {
+        title: "发送保护",
+        rows: [
+          ["每天最多联系", draft.runtimeRules?.maxTouchesPerDay ? `${draft.runtimeRules.maxTouchesPerDay} 位` : "不限制"],
+          ["两次联系至少间隔", draft.runtimeRules?.minIntervalMinutes ? `${draft.runtimeRules.minIntervalMinutes} 分钟` : "不限制"],
+          ["触达边界", "用户拒绝、退订或转人工时，仅停止该潜客的自动触达；账号持续监听"]
+        ]
+      }
+    ];
+  }
   return [
     {
       title: "找人",
@@ -2752,6 +2846,23 @@ function taskUpdateFormDraft(form, baseDraft = {}, { discoveryOnly = false, comp
       }
     };
   }
+  if (comprehensive) {
+    return {
+      strategy: {
+        sourceScope: base.strategy?.sourceScope
+      },
+      touchContent: {
+        channel: taskUpdateInput(form, "touchContent.channel")?.value,
+        replyStyle: taskUpdateInput(form, "touchContent.replyStyle")?.value,
+        handoffBoundary: taskUpdateInput(form, "touchContent.handoffBoundary")?.value,
+        approvalMode: taskUpdateInput(form, "touchContent.approvalMode")?.value
+      },
+      runtimeRules: {
+        maxTouchesPerDay: taskUpdateInput(form, "runtimeRules.maxTouchesPerDay")?.value,
+        minIntervalMinutes: taskUpdateInput(form, "runtimeRules.minIntervalMinutes")?.value
+      }
+    };
+  }
   return {
     strategy: {
       // Source scope is deliberately read-only in the form, so retain the
@@ -2808,7 +2919,9 @@ export function openAcquisitionTaskUpdateDialog({
   title.id = "sb-rw-task-update-title";
   titleCopy.append(title, el("p", null, discoveryOnly
     ? "只调整找人条件；修改仅对未来的新信号生效。"
-    : "只调整找人策略、触达策略和运行规则；修改仅对未来执行生效。"));
+    : comprehensive
+      ? "账号定位、服务对象和首条私信由后台自动判断；这里只调整接待边界和发送保护。"
+      : "只调整找人策略、触达策略和运行规则；修改仅对未来执行生效。"));
   const closeButton = el("button", "sb-rw-task-update-close", "×");
   closeButton.type = "button";
   closeButton.setAttribute("aria-label", "关闭任务调整");
@@ -2818,18 +2931,28 @@ export function openAcquisitionTaskUpdateDialog({
   const body = el("div", "sb-rw-task-update-body");
   body.appendChild(el("div", "sb-rw-task-update-boundary", discoveryOnly
     ? "这次调整只会影响后续新产生的评论、直播互动和账号通知。已归档候选和原始证据不会改变。"
-    : "这次调整只会影响后续找到的人。已经处理过的用户、发送记录和历史结果不会改变。"));
+    : comprehensive
+      ? "后台会持续使用授权账号资料和新互动证据识别服务对象；已经处理过的用户、发送记录和历史结果不会改变。"
+      : "这次调整只会影响后续找到的人。已经处理过的用户、发送记录和历史结果不会改变。"));
   const form = el("form", "sb-rw-task-update-form");
   form.addEventListener("submit", (event) => event.preventDefault());
   const grid = el("div", "sb-rw-task-update-grid");
 
   const strategySection = el("section", "sb-rw-task-update-section");
-  strategySection.appendChild(el("h3", null, "找什么样的人"));
-  strategySection.append(
-    taskUpdateField("从哪里监听", taskUpdateReadOnly(initial.strategy.sourceScope, "持续接收新产生的互动，不回扫历史内容。")),
-    taskUpdateField("想找的人", taskUpdateControl("textarea", "strategy.audienceGoal", initial.strategy.audienceGoal, { rows: 2, placeholder: "例如：正在询问现车、价格或提车时间的人" })),
-    taskUpdateField("额外要求", taskUpdateControl("textarea", "strategy.requirements", initial.strategy.requirements, { rows: 2, placeholder: "例如：只保留上海地区、明确表达购买需求的人" }))
-  );
+  strategySection.appendChild(el("h3", null, comprehensive ? "后台自动识别" : "找什么样的人"));
+  if (comprehensive) {
+    strategySection.append(
+      taskUpdateField("从哪里监听", taskUpdateReadOnly(initial.strategy.sourceScope, "持续接收新产生的互动，不回扫历史内容。")),
+      taskUpdateField("账号定位和服务对象", taskUpdateReadOnly("根据账号资料和互动证据自动识别")),
+      taskUpdateField("潜客判断", taskUpdateReadOnly("结合每条评论、直播互动和账号互动综合判断"))
+    );
+  } else {
+    strategySection.append(
+      taskUpdateField("从哪里监听", taskUpdateReadOnly(initial.strategy.sourceScope, "持续接收新产生的互动，不回扫历史内容。")),
+      taskUpdateField("想找的人", taskUpdateControl("textarea", "strategy.audienceGoal", initial.strategy.audienceGoal, { rows: 2, placeholder: "例如：正在询问现车、价格或提车时间的人" })),
+      taskUpdateField("额外要求", taskUpdateControl("textarea", "strategy.requirements", initial.strategy.requirements, { rows: 2, placeholder: "例如：只保留上海地区、明确表达购买需求的人" }))
+    );
+  }
 
   grid.appendChild(strategySection);
   if (!discoveryOnly) {
@@ -2847,7 +2970,7 @@ export function openAcquisitionTaskUpdateDialog({
           "private_message"
         )
         : taskUpdateControl("select", "touchContent.channel", initial.touchContent.channel, { options: [["", "保持不变"], ["private_message", "私信联系"], ["comment_reply", "评论区回复"]] })),
-      taskUpdateField("第一句话怎么说", taskUpdateControl("textarea", "touchContent.strategy", initial.touchContent.strategy || initial.touchContent.message, { rows: 3, placeholder: "例如：先回应具体留言，再确认需求，语气自然，不直接推销" })),
+      ...(comprehensive ? [] : [taskUpdateField("第一句话怎么说", taskUpdateControl("textarea", "touchContent.strategy", initial.touchContent.strategy || initial.touchContent.message, { rows: 3, placeholder: "例如：先回应具体留言，再确认需求，语气自然，不直接推销" }))]),
       taskUpdateField("说话方式", taskUpdateControl("input", "touchContent.replyStyle", initial.touchContent.replyStyle, { placeholder: "例如：专业、简短、自然" })),
       taskUpdateField("哪些情况交给你", taskUpdateControl("textarea", "touchContent.handoffBoundary", initial.touchContent.handoffBoundary, { rows: 2, placeholder: "例如：价格、退款、投诉和无法确认的信息交给人工" })),
       taskUpdateField("发送模式", fixedAutoSend
@@ -6719,7 +6842,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     const specialistWork = Boolean(specialistWorksite);
     const finderWork = specialistWorksite === "finder";
     const analysisWork = specialistWorksite === "analysis";
-    const inboxWork = selected.id === "mkt-dm-inbox" && Boolean(selected.liveWork) && !specialistWork;
+    const inboxWork = ["mkt-dm-inbox", GOLD_CUSTOMER_SERVICE_AGENT_ID].includes(selected.id) && Boolean(selected.liveWork) && !specialistWork;
     const commentAcquisitionWork = selected.id === "mkt-comment-acquisition" && Boolean(selected.liveWork);
     const acquisitionWorkView = commentAcquisitionWork ? acquisitionWorkViewFor(state) : DEFAULT_ACQUISITION_WORK_VIEW;
     const fullDesktopOutreachWork = commentAcquisitionWork && acquisitionWorkView === "outreach";
@@ -6901,7 +7024,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     const selected = selectedAgent();
     if (!selected || state.selected !== previousSelected || !selected.liveWork || !isDouyinCloudAgent(selected.id, selected.liveWork)) return false;
     if (realtimeSpecialistWorksiteFor(selected.id, selected.liveWork)) return false;
-    const inboxWork = selected.id === "mkt-dm-inbox" && Boolean(selected.liveWork);
+    const inboxWork = ["mkt-dm-inbox", GOLD_CUSTOMER_SERVICE_AGENT_ID].includes(selected.id) && Boolean(selected.liveWork);
     const commentAcquisitionWork = selected.id === "mkt-comment-acquisition" && Boolean(selected.liveWork);
     const acquisitionWorkView = commentAcquisitionWork ? acquisitionWorkViewFor(state) : DEFAULT_ACQUISITION_WORK_VIEW;
     const fullDesktopOutreachWork = commentAcquisitionWork && acquisitionWorkView === "outreach";

@@ -1,3 +1,5 @@
+import { normalizeDouyinWorkUrl } from "../bridge/douyin-work-url.js";
+
 const MAX_RECENT_WORKS = 300;
 const DEFAULT_RECENT_WORKS = 30;
 const MAX_SELECTED_WORKS = 20;
@@ -36,9 +38,9 @@ export function parseCommentSource(value = "") {
   try {
     const url = new URL(links[0].replace(/[)）\]】,;!?]+$/, ""));
     if (!/(^|\.)douyin\.com$/i.test(url.hostname)) throw new Error("Invalid host");
-    const videoId = url.pathname.match(/^\/(?:share\/)?(?:video|note)\/(\d+)\/?$/)?.[1]
-      || (url.pathname === "/" ? url.searchParams.get("modal_id") : null);
-    if (videoId && /^\d+$/.test(videoId)) return { kind: "video", url: `https://www.douyin.com/video/${videoId}`, videoId };
+    const normalizedWorkUrl = normalizeDouyinWorkUrl(url.href);
+    const videoId = normalizedWorkUrl?.match(/\/(?:video|note)\/(\d+)$/u)?.[1];
+    if (videoId) return { kind: "video", url: normalizedWorkUrl, videoId };
     if (url.hostname === "v.douyin.com") return { kind: "invalid", message: "这是分享短链接，请打开作品后复制浏览器里的完整作品链接" };
     if (/^\/user\/[^/]+\/?$/.test(url.pathname)) return { kind: "profile", url: url.href };
   } catch { /* Return the same actionable validation for malformed links. */ }

@@ -78,7 +78,7 @@ export function addFile({ id = null, name, type, mimeType, content, projectId, p
     updated_at: updatedAt || createdAt || now
   });
   writeAll(files);
-  return id;
+  return fileId;
 }
 
 /** 全部文件（新的在前）。 */

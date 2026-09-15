@@ -6,15 +6,7 @@ import { join } from "node:path";
 
 import { acquisitionTaskFingerprint, createDouyinAcquisitionService } from "../backend/douyin-acquisition-service.js";
 import { startControlPlaneServer } from "../backend/http-server.js";
-import {
-  DOUYIN_ACQUISITION_DISCOVERY_GOAL,
-  DOUYIN_ACQUISITION_FIRST_TOUCH_RULE,
-  DOUYIN_ACQUISITION_HANDOFF_RULES,
-  DOUYIN_ACQUISITION_LIMITS,
-  DOUYIN_ACQUISITION_OBJECTIVE,
-  DOUYIN_ACQUISITION_REPLY_TONE,
-  DOUYIN_ACQUISITION_SYSTEM_PROMPT
-} from "../src/salebuddy/agents/douyin-acquisition-prompt.js";
+import { DOUYIN_AUTO_AUDIENCE_GOAL } from "../src/salebuddy/agents/acquisition-contract.js";
 
 function context(overrides = {}) {
   return {
@@ -204,11 +196,10 @@ test("listener configuration drops legacy history windows and schedules while re
   assert.equal(snapshot.findingStrategy.timeWindow, undefined);
   assert.equal(Object.hasOwn(snapshot, "timeWindow"), false);
   assert.equal(snapshot.frequency.mode, "识别到高意向潜客后自动触达");
-  assert.equal(snapshot.frequency.maxTouchesPerDay, DOUYIN_ACQUISITION_LIMITS.dailyMax);
-  assert.equal(snapshot.frequency.minIntervalMinutes, DOUYIN_ACQUISITION_LIMITS.minIntervalMinutes);
-  assert.equal(snapshot.touchContent.strategy, DOUYIN_ACQUISITION_FIRST_TOUCH_RULE);
-  assert.equal(snapshot.touchContent.replyStyle, DOUYIN_ACQUISITION_REPLY_TONE);
-  assert.equal(snapshot.touchContent.handoffBoundary, DOUYIN_ACQUISITION_HANDOFF_RULES.join("；"));
+  assert.equal(snapshot.frequency.maxTouchesPerDay, 18);
+  assert.equal(snapshot.frequency.minIntervalMinutes, 12);
+  assert.equal(snapshot.touchContent.replyStyle, "专业、简短、自然");
+  assert.equal(snapshot.touchContent.handoffBoundary, "报价、投诉和无法确认的库存交给人工。");
 
   const current = service.status(task.key);
   assert.throws(() => service.updateTaskConfig(task.key, {
@@ -257,35 +248,6 @@ test("listener configuration drops legacy history windows and schedules while re
     workWindow: { timeWindow: "10:00-22:00" }
   }));
   assert.deepEqual(service.status(migrated.key).config.workWindow, {});
-});
-
-test("comprehensive acquisition stores explicit optional advanced settings", async t => {
-  const directory = await mkdtemp(join(tmpdir(), "byering-acquisition-advanced-settings-"));
-  const { service } = build(directory);
-  t.after(() => service.close());
-  const task = await service.createTask(context({ taskId: "advanced-task", taskRunId: "advanced-run" }), config({
-    managerAdvancedSettingsEnabled: true,
-    managerAdvancedSettings: {
-      audienceGoal: "明确询价且准备预约的人",
-      requirements: "排除同行和抽奖互动",
-      firstTouch: "先回应用户刚才的问题，再确认具体需求。",
-      replyStyle: "克制、专业、像账号本人",
-      touchObjective: "获取联系方式并推进预约",
-      dialogueObjective: "确认需求和预约时间",
-      maxTouchesPerDay: 10,
-      minIntervalMinutes: 30
-    }
-  }));
-
-  const snapshot = service.status(task.key);
-  assert.equal(snapshot.config.audienceRules.goal, "明确询价且准备预约的人");
-  assert.equal(snapshot.config.audienceRules.requirements, "排除同行和抽奖互动");
-  assert.equal(snapshot.config.contentPolicy.template, "先回应用户刚才的问题，再确认具体需求。");
-  assert.equal(snapshot.config.contentPolicy.conversionGoal, "获取联系方式并推进预约");
-  assert.equal(snapshot.config.contentPolicy.dialogueObjective, "确认需求和预约时间");
-  assert.equal(snapshot.config.frequency.maxTouchesPerDay, 10);
-  assert.equal(snapshot.config.frequency.minIntervalMinutes, 30);
-  assert.match(snapshot.config.systemPrompt, /明确询价且准备预约的人/);
 });
 
 test("persisted acquisition tasks migrate every legacy manager scope to all-signal listening", async t => {
@@ -784,11 +746,13 @@ test("runtime strategy updates persist a versioned future-only patch without tou
   assert.deepEqual(updated.cursor, before.cursor);
   assert.deepEqual(updated.seenCandidates, before.seenCandidates);
   assert.equal(updated.approvalQueue[0].content, before.approvalQueue[0].content);
-  assert.equal(updated.config.audienceRules.goal, DOUYIN_ACQUISITION_DISCOVERY_GOAL);
-  assert.equal(updated.config.audienceRules.filters, undefined);
-  assert.equal(updated.config.contentPolicy.template, DOUYIN_ACQUISITION_FIRST_TOUCH_RULE);
-  assert.equal(updated.config.objective, DOUYIN_ACQUISITION_OBJECTIVE);
-  assert.equal(updated.config.systemPrompt, DOUYIN_ACQUISITION_SYSTEM_PROMPT);
+  assert.equal(updated.config.audienceRules.goal, DOUYIN_AUTO_AUDIENCE_GOAL);
+  assert.equal(updated.config.audienceRules.requirements, "");
+  assert.equal(updated.config.audienceRules.autoIdentifyAccountPositioning, true);
+  assert.equal(updated.config.audienceRules.autoIdentifyServiceUsers, true);
+  assert.equal("filters" in updated.config.audienceRules, false);
+  assert.equal(updated.config.contentPolicy.template, "");
+  assert.equal(updated.config.contentPolicy.strategy, "");
   assert.equal(updated.configuration.effectiveScope, "future_only");
   assert.ok(updated.configuration.effectiveAt);
   assert.equal(updated.configuration.effectiveFromSeq, before.eventSeq + 1);
@@ -1402,7 +1366,7 @@ test("finder-owned live discovery keeps finder ownership and routes execution to
   assert.equal(service.status(task.key).resultSnapshot.counts.candidates, 1);
 });
 
-test("live danmaku analysis separates danmaku intent from like and gift signals", async t => {
+test("live danmaku analysis only processes danmaku and ignores like and gift signals", async t => {
   const directory = await mkdtemp(join(tmpdir(), "byering-live-danmaku-analysis-"));
   let scanInput = null;
   const interactionSource = {
@@ -1449,7 +1413,7 @@ test("live danmaku analysis separates danmaku intent from like and gift signals"
       discoveryOnly: true,
       analysisOnly: true,
       analysisKind: "live_danmaku",
-      liveSignals: ["danmaku", "likes", "gifts"],
+      liveSignals: ["likes", "gifts"],
       approvalMode: "manual",
       autoStartCloud: false,
       audienceRules: { goal: "识别直播间的价格问题和购买意向", minScore: 0 }
@@ -1466,23 +1430,103 @@ test("live danmaku analysis separates danmaku intent from like and gift signals"
   assert.equal(scanInput.includeNotifications, false);
   assert.equal(scanInput.analysisMode, "collect");
   assert.deepEqual(snapshot.resultSnapshot.danmakuAnalysis.counts, {
-    total: 3,
+    total: 1,
     danmaku: 1,
-    likes: 1,
-    gifts: 1,
-    follows: 0,
-    joins: 0,
-    uniqueUsers: 3,
+    uniqueUsers: 1,
     questions: 1,
     highIntent: 1,
     mediumIntent: 0,
-    behaviorOnly: 2
+    behaviorOnly: 0
   });
   assert.equal(snapshot.resultSnapshot.leads.find((user) => user.userId === "user-question").intentTier, "重点");
-  assert.equal(snapshot.resultSnapshot.leads.find((user) => user.userId === "user-like").intentTier, "待分析");
-  assert.equal(snapshot.resultSnapshot.leads.find((user) => user.userId === "user-gift").intentTier, "待分析");
+  assert.equal(snapshot.resultSnapshot.leads.some((user) => user.userId === "user-like"), false);
+  assert.equal(snapshot.resultSnapshot.leads.some((user) => user.userId === "user-gift"), false);
   assert.equal(snapshot.approvalQueue.length, 0);
   assert.equal(snapshot.resultSnapshot.danmakuAnalysis.roomId, "room-1");
+});
+
+test("live danmaku outreach touches every unique danmaku user without intent analysis", async t => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-live-danmaku-outreach-"));
+  let scanInput = null;
+  let touchGeneratorCalls = 0;
+  const interactionSource = {
+    async scan(input) {
+      scanInput = input;
+      return {
+        leads: [
+          lead({
+            externalUserId: "danmaku-user-1",
+            secUid: "sec-danmaku-user-1",
+            text: "随便看看",
+            score: 0,
+            tier: "low",
+            intent: undefined,
+            source: { type: "live_chat", roomId: "room-1" },
+            evidence: [{ type: "live_chat", quote: "随便看看", roomId: "room-1" }]
+          }),
+          lead({
+            externalUserId: "danmaku-user-2",
+            secUid: "sec-danmaku-user-2",
+            text: "我不确定是不是买过",
+            score: 0,
+            tier: "low",
+            intent: undefined,
+            source: { type: "live_chat", roomId: "room-1" },
+            evidence: [{ type: "live_chat", quote: "我不确定是不是买过", roomId: "room-1" }]
+          })
+        ],
+        profiles: {},
+        nextCursor: { live: 2, notifications: 0 },
+        snapshot: { sources: { live: { state: "receiving", count: 2 } }, counts: { signals: 2 } }
+      };
+    }
+  };
+  const cloud = fakeCloud();
+  const { service } = build(directory, {
+    cloud,
+    interactionSource,
+    prospect: null,
+    touchGenerator: async () => {
+      touchGeneratorCalls += 1;
+      return "这条消息不应该覆盖直播弹幕触达默认话术";
+    }
+  });
+  t.after(() => service.close());
+  const task = await service.createTask(
+    context({
+      agentId: "mkt-live-danmaku-outreach",
+      executionAgentId: "mkt-comment-acquisition",
+      taskId: "live-outreach-task",
+      taskRunId: "live-outreach-run"
+    }),
+    config({
+      sourceScope: { kind: "authorized_account_live" },
+      liveDanmakuOutreach: true,
+      touchEveryLiveDanmaku: true,
+      analysisKind: "live_danmaku_outreach",
+      liveSignals: ["danmaku"],
+      approvalMode: "auto",
+      contentPolicy: { strategy: "看到你刚才在直播间留言了，方便说说你想了解什么吗？" }
+    })
+  );
+
+  await service.start(task.key, { runImmediately: false });
+  await service.runOnce(task.key);
+
+  const snapshot = service.status(task.key);
+  assert.equal(scanInput.liveOnly, true);
+  assert.equal(scanInput.includeNotifications, false);
+  assert.equal(scanInput.includeLive, true);
+  assert.equal(scanInput.analysisMode, "collect");
+  assert.equal(snapshot.config.discoveryOnly, false);
+  assert.equal(snapshot.config.analysisOnly, false);
+  assert.equal(snapshot.approvalQueue.length, 2);
+  assert.equal(snapshot.approvalQueue.every((touch) => touch.autoApproved === true), true);
+  assert.equal(snapshot.approvalQueue.every((touch) => touch.risk.action === "auto_send"), true);
+  assert.equal(snapshot.approvalQueue.every((touch) => touch.content.includes("直播间留言")), true);
+  assert.equal(touchGeneratorCalls, 0);
+  assert.equal(cloud.calls.filter((call) => call.type === "send").length, 2);
+  assert.equal(snapshot.resultSnapshot.counts.newCandidates, 2);
 });
 
 test("finder combines comments, live interactions, and account notifications in one authorized listener", async t => {
@@ -1803,9 +1847,6 @@ test("auto mode respects send interval and platform per-minute limits", async ()
   assert.equal(service.status(task.key).approvalQueue.filter((touch) => touch.state === "approved").length, 1);
   current += 61_000;
   await service.runOnce(task.key);
-  assert.equal(cloud.calls.filter((call) => call.type === "send").length, 1);
-  current += DOUYIN_ACQUISITION_LIMITS.minIntervalMinutes * 60_000;
-  await service.runOnce(task.key);
   assert.equal(cloud.calls.filter((call) => call.type === "send").length, 2);
 });
 
@@ -1951,7 +1992,7 @@ test("获客专家 uses the authorized-account signal listener and persists its 
   assert.equal(calls.length, 1);
   assert.equal(calls[0].agentId, "mkt-douyin-account-runtime");
   assert.equal(calls[0].cursor, null);
-  assert.equal(calls[0].goal, DOUYIN_ACQUISITION_DISCOVERY_GOAL);
+  assert.equal(calls[0].goal, DOUYIN_AUTO_AUDIENCE_GOAL);
   assert.equal(service.status(task.key).cursor, 7);
   assert.equal(service.status(task.key).approvalQueue[0].lead.intent.source, "model");
   assert.equal(service.status(task.key).approvalQueue[0].lead.intent.reason, "评论直接表达预算和预约意向");

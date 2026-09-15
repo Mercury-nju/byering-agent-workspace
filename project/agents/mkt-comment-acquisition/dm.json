@@ -3583,5 +3583,1213 @@
       "conversationId": "investor-memory-flow"
     },
     "createdAt": "2026-09-14T10:46:23.713Z"
+  },
+  {
+    "id": "dm-mu258b2f-wsjs",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "昨天的数据怎么样？转化了多少线索？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T03:59:58.215Z"
+  },
+  {
+    "id": "dm-mu258c02-hklt",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我记得昨天处理的是臻选新能源·上海。共读取 4,286 条互动，去重后找到 138 位用户，完成首触 4 位，收到回复 2 位，新增转化线索 0 位，转化率为 0%。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu258b2f-wsjs",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T03:59:59.426Z"
+  },
+  {
+    "id": "dm-mu258c8f-5sr5",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "为什么转化率低？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T03:59:59.727Z"
+  },
+  {
+    "id": "dm-mu258d63-ij3x",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我回看了当前账号和最近的业务记录，主要有三点：1. 9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足；2. 其中 3 条首触发生在用户活跃窗口之后，错过了用户刚提问的上下文；3. 首触内容没有引用用户原话，且没有优先处理‘价格 + 到店’这类强信号。所以当前问题更像是业务链路中间的承接损耗，不是单纯数据量不够。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu258c8f-5sr5",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:00:00.939Z"
+  },
+  {
+    "id": "dm-mu258deg-iy98",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "后面要怎么解决？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:00:01.240Z"
+  },
+  {
+    "id": "dm-mu258ec1-ieu7",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我建议先处理承接链路：9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足。我可以把首触时间窗由“24 小时内”调整为“2 小时内”；触达优先级由“按采集时间顺序”调整为“价格 + 到店信号优先”；首次触达批次由“4 位”调整为“8 位”。这只是待确认配置，还没有影响真实任务；你确认后我再让它生效，可以吗？",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu258deg-iy98",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "pending",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:00:02.449Z"
+  },
+  {
+    "id": "dm-mu258eke-doiw",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "可以",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:00:02.750Z"
+  },
+  {
+    "id": "dm-mu258fhz-iuu5",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "好的，配置“优化获客后的首触承接”已生效。首触时间窗现在是“2 小时内”；触达优先级现在是“价格 + 到店信号优先”；首次触达批次现在是“8 位”。后续任务会按新配置执行。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu258eke-doiw",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "applied",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "demoConfigApplied": {
+        "touchWindow": "2 小时内",
+        "priorityRule": "价格 + 到店信号优先",
+        "firstTouchBatch": "8 位"
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:00:03.959Z"
+  },
+  {
+    "id": "dm-mu25iwp9-qer0",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "昨天的数据怎么样？转化了多少线索？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:08:12.813Z"
+  },
+  {
+    "id": "dm-mu25ixmx-orw9",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我记得昨天处理的是臻选新能源·上海。共读取 4,286 条互动，去重后找到 138 位用户，完成首触 4 位，收到回复 2 位，新增转化线索 0 位，转化率为 0%。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu25iwp9-qer0",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:08:14.025Z"
+  },
+  {
+    "id": "dm-mu25ixvb-q5cc",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "为什么转化率低？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:08:14.327Z"
+  },
+  {
+    "id": "dm-mu25iyt6-okrw",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我回看了当前账号和最近的业务记录，主要有三点：1. 9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足；2. 其中 3 条首触发生在用户活跃窗口之后，错过了用户刚提问的上下文；3. 首触内容没有引用用户原话，且没有优先处理‘价格 + 到店’这类强信号。所以当前问题更像是业务链路中间的承接损耗，不是单纯数据量不够。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu25ixvb-q5cc",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:08:15.546Z"
+  },
+  {
+    "id": "dm-mu25iz1b-7rwz",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "后面要怎么解决？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:08:15.839Z"
+  },
+  {
+    "id": "dm-mu25izyv-xjki",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我建议先处理承接链路：9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足。我可以把首触时间窗由“24 小时内”调整为“2 小时内”；触达优先级由“按采集时间顺序”调整为“价格 + 到店信号优先”；首次触达批次由“4 位”调整为“8 位”。这只是待确认配置，还没有影响真实任务；你确认后我再让它生效，可以吗？",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu25iz1b-7rwz",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "pending",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:08:17.047Z"
+  },
+  {
+    "id": "dm-mu25j079-kiv9",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "可以",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:08:17.349Z"
+  },
+  {
+    "id": "dm-mu25j14x-yv4g",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "好的，配置“优化获客后的首触承接”已生效。首触时间窗现在是“2 小时内”；触达优先级现在是“价格 + 到店信号优先”；首次触达批次现在是“8 位”。后续任务会按新配置执行。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu25j079-kiv9",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "applied",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "demoConfigApplied": {
+        "touchWindow": "2 小时内",
+        "priorityRule": "价格 + 到店信号优先",
+        "firstTouchBatch": "8 位"
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:08:18.561Z"
+  },
+  {
+    "id": "dm-mu25toef-59ui",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "昨天的数据怎么样？转化了多少线索？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:16:35.271Z"
+  },
+  {
+    "id": "dm-mu25tpc0-w31q",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我记得昨天处理的是臻选新能源·上海。共读取 4,286 条互动，去重后找到 138 位用户，完成首触 4 位，收到回复 2 位，新增转化线索 0 位，转化率为 0%。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu25toef-59ui",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:16:36.480Z"
+  },
+  {
+    "id": "dm-mu25tpkf-y6x1",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "为什么转化率低？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:16:36.783Z"
+  },
+  {
+    "id": "dm-mu25tqi0-0h4h",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我回看了当前账号和最近的业务记录，主要有三点：1. 9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足；2. 其中 3 条首触发生在用户活跃窗口之后，错过了用户刚提问的上下文；3. 首触内容没有引用用户原话，且没有优先处理‘价格 + 到店’这类强信号。所以当前问题更像是业务链路中间的承接损耗，不是单纯数据量不够。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu25tpkf-y6x1",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:16:37.992Z"
+  },
+  {
+    "id": "dm-mu25tqqc-00mk",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "后面要怎么解决？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:16:38.292Z"
+  },
+  {
+    "id": "dm-mu25trnx-h7ex",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我建议先处理承接链路：9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足。我可以把首触时间窗由“24 小时内”调整为“2 小时内”；触达优先级由“按采集时间顺序”调整为“价格 + 到店信号优先”；首次触达批次由“4 位”调整为“8 位”。这只是待确认配置，还没有影响真实任务；你确认后我再让它生效，可以吗？",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu25tqqc-00mk",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "pending",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:16:39.501Z"
+  },
+  {
+    "id": "dm-mu25trw9-yeoi",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "可以",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:16:39.801Z"
+  },
+  {
+    "id": "dm-mu25tstu-449o",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "好的，配置“优化获客后的首触承接”已生效。首触时间窗现在是“2 小时内”；触达优先级现在是“价格 + 到店信号优先”；首次触达批次现在是“8 位”。后续任务会按新配置执行。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu25trw9-yeoi",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "applied",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "demoConfigApplied": {
+        "touchWindow": "2 小时内",
+        "priorityRule": "价格 + 到店信号优先",
+        "firstTouchBatch": "8 位"
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:16:41.010Z"
+  },
+  {
+    "id": "dm-mu26jzdg-rq8h",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "昨天的数据怎么样？转化了多少线索？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:37:02.548Z"
+  },
+  {
+    "id": "dm-mu26k0b3-d85r",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我记得昨天处理的是臻选新能源·上海。共读取 4,286 条互动，去重后找到 138 位用户，完成首触 4 位，收到回复 2 位，新增转化线索 0 位，转化率为 0%。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu26jzdg-rq8h",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:37:03.759Z"
+  },
+  {
+    "id": "dm-mu26k0ji-9ckc",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "为什么转化率低？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:37:04.062Z"
+  },
+  {
+    "id": "dm-mu26k1h8-950u",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我回看了当前账号和最近的业务记录，主要有三点：1. 9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足；2. 其中 3 条首触发生在用户活跃窗口之后，错过了用户刚提问的上下文；3. 首触内容没有引用用户原话，且没有优先处理‘价格 + 到店’这类强信号。所以当前问题更像是业务链路中间的承接损耗，不是单纯数据量不够。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu26k0ji-9ckc",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:37:05.276Z"
+  },
+  {
+    "id": "dm-mu26k1pj-0obi",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "后面要怎么解决？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:37:05.575Z"
+  },
+  {
+    "id": "dm-mu26k2n3-zfr3",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我建议先处理承接链路：9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足。我可以把首触时间窗由“24 小时内”调整为“2 小时内”；触达优先级由“按采集时间顺序”调整为“价格 + 到店信号优先”；首次触达批次由“4 位”调整为“8 位”。这只是待确认配置，还没有影响真实任务；你确认后我再让它生效，可以吗？",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu26k1pj-0obi",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "pending",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:37:06.783Z"
+  },
+  {
+    "id": "dm-mu26k2vg-zjxi",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "可以",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T04:37:07.084Z"
+  },
+  {
+    "id": "dm-mu26k3sz-u2s9",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "好的，配置“优化获客后的首触承接”已生效。首触时间窗现在是“2 小时内”；触达优先级现在是“价格 + 到店信号优先”；首次触达批次现在是“8 位”。后续任务会按新配置执行。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu26k2vg-zjxi",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "applied",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "demoConfigApplied": {
+        "touchWindow": "2 小时内",
+        "priorityRule": "价格 + 到店信号优先",
+        "firstTouchBatch": "8 位"
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T04:37:08.291Z"
+  },
+  {
+    "id": "dm-mu28zfdx-yczc",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "昨天的数据怎么样？转化了多少线索？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T05:45:02.373Z"
+  },
+  {
+    "id": "dm-mu28zgbp-aani",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我记得昨天处理的是臻选新能源·上海。共读取 4,286 条互动，去重后找到 138 位用户，完成首触 4 位，收到回复 2 位，新增转化线索 0 位，转化率为 0%。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu28zfdx-yczc",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T05:45:03.589Z"
+  },
+  {
+    "id": "dm-mu28zgk5-i0kn",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "为什么转化率低？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T05:45:03.893Z"
+  },
+  {
+    "id": "dm-mu28zhhs-im8d",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我回看了当前账号和最近的业务记录，主要有三点：1. 9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足；2. 其中 3 条首触发生在用户活跃窗口之后，错过了用户刚提问的上下文；3. 首触内容没有引用用户原话，且没有优先处理‘价格 + 到店’这类强信号。所以当前问题更像是业务链路中间的承接损耗，不是单纯数据量不够。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu28zgk5-i0kn",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T05:45:05.104Z"
+  },
+  {
+    "id": "dm-mu28zhq8-8tvq",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "后面要怎么解决？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T05:45:05.408Z"
+  },
+  {
+    "id": "dm-mu28zinv-z30t",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我建议先处理承接链路：9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足。我可以把首触时间窗由“24 小时内”调整为“2 小时内”；触达优先级由“按采集时间顺序”调整为“价格 + 到店信号优先”；首次触达批次由“4 位”调整为“8 位”。这只是待确认配置，还没有影响真实任务；你确认后我再让它生效，可以吗？",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu28zhq8-8tvq",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "pending",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T05:45:06.619Z"
+  },
+  {
+    "id": "dm-mu28ziw8-4t47",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "可以",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T05:45:06.920Z"
+  },
+  {
+    "id": "dm-mu28zjtz-iwq2",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "好的，配置“优化获客后的首触承接”已生效。首触时间窗现在是“2 小时内”；触达优先级现在是“价格 + 到店信号优先”；首次触达批次现在是“8 位”。后续任务会按新配置执行。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu28ziw8-4t47",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "applied",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "demoConfigApplied": {
+        "touchWindow": "2 小时内",
+        "priorityRule": "价格 + 到店信号优先",
+        "firstTouchBatch": "8 位"
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T05:45:08.135Z"
+  },
+  {
+    "id": "dm-mu2au4n1-g9ui",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "昨天的数据怎么样？转化了多少线索？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T06:36:54.397Z"
+  },
+  {
+    "id": "dm-mu2au5ko-v7l1",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我记得昨天处理的是臻选新能源·上海。共读取 4,286 条互动，去重后找到 138 位用户，完成首触 4 位，收到回复 2 位，新增转化线索 0 位，转化率为 0%。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2au4n1-g9ui",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T06:36:55.608Z"
+  },
+  {
+    "id": "dm-mu2au5t2-p62y",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "为什么转化率低？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T06:36:55.910Z"
+  },
+  {
+    "id": "dm-mu2au6qp-03mo",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我回看了当前账号和最近的业务记录，主要有三点：1. 9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足；2. 其中 3 条首触发生在用户活跃窗口之后，错过了用户刚提问的上下文；3. 首触内容没有引用用户原话，且没有优先处理‘价格 + 到店’这类强信号。所以当前问题更像是业务链路中间的承接损耗，不是单纯数据量不够。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2au5t2-p62y",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T06:36:57.121Z"
+  },
+  {
+    "id": "dm-mu2au6z4-lsav",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "后面要怎么解决？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T06:36:57.424Z"
+  },
+  {
+    "id": "dm-mu2au7wo-8ab3",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我建议先处理承接链路：9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足。我可以把首触时间窗由“24 小时内”调整为“2 小时内”；触达优先级由“按采集时间顺序”调整为“价格 + 到店信号优先”；首次触达批次由“4 位”调整为“8 位”。这只是待确认配置，还没有影响真实任务；你确认后我再让它生效，可以吗？",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2au6z4-lsav",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "pending",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T06:36:58.632Z"
+  },
+  {
+    "id": "dm-mu2au852-mvmh",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "可以",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T06:36:58.934Z"
+  },
+  {
+    "id": "dm-mu2au92q-waar",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "好的，配置“优化获客后的首触承接”已生效。首触时间窗现在是“2 小时内”；触达优先级现在是“价格 + 到店信号优先”；首次触达批次现在是“8 位”。后续任务会按新配置执行。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2au852-mvmh",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "applied",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "demoConfigApplied": {
+        "touchWindow": "2 小时内",
+        "priorityRule": "价格 + 到店信号优先",
+        "firstTouchBatch": "8 位"
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T06:37:00.146Z"
+  },
+  {
+    "id": "dm-mu2c8pgv-a0rb",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "昨天的数据怎么样？转化了多少线索？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T07:16:14.191Z"
+  },
+  {
+    "id": "dm-mu2c8qel-8oxg",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我记得昨天处理的是臻选新能源·上海。共读取 4,286 条互动，去重后找到 138 位用户，完成首触 4 位，收到回复 2 位，新增转化线索 0 位，转化率为 0%。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2c8pgv-a0rb",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T07:16:15.405Z"
+  },
+  {
+    "id": "dm-mu2c8qmx-1wez",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "为什么转化率低？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T07:16:15.705Z"
+  },
+  {
+    "id": "dm-mu2c8rkg-4ra7",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我回看了当前账号和最近的业务记录，主要有三点：1. 9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足；2. 其中 3 条首触发生在用户活跃窗口之后，错过了用户刚提问的上下文；3. 首触内容没有引用用户原话，且没有优先处理‘价格 + 到店’这类强信号。所以当前问题更像是业务链路中间的承接损耗，不是单纯数据量不够。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2c8qmx-1wez",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T07:16:16.912Z"
+  },
+  {
+    "id": "dm-mu2c8rsv-8ddt",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "后面要怎么解决？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T07:16:17.215Z"
+  },
+  {
+    "id": "dm-mu2c8sqf-blmz",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我建议先处理承接链路：9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足。我可以把首触时间窗由“24 小时内”调整为“2 小时内”；触达优先级由“按采集时间顺序”调整为“价格 + 到店信号优先”；首次触达批次由“4 位”调整为“8 位”。这只是待确认配置，还没有影响真实任务；你确认后我再让它生效，可以吗？",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2c8rsv-8ddt",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "pending",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T07:16:18.423Z"
+  },
+  {
+    "id": "dm-mu2c8syr-1yep",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "可以",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T07:16:18.723Z"
+  },
+  {
+    "id": "dm-mu2c8twe-zibl",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "好的，配置“优化获客后的首触承接”已生效。首触时间窗现在是“2 小时内”；触达优先级现在是“价格 + 到店信号优先”；首次触达批次现在是“8 位”。后续任务会按新配置执行。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2c8syr-1yep",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "applied",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "demoConfigApplied": {
+        "touchWindow": "2 小时内",
+        "priorityRule": "价格 + 到店信号优先",
+        "firstTouchBatch": "8 位"
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T07:16:19.934Z"
+  },
+  {
+    "id": "dm-mu2cis17-bozm",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "昨天的数据怎么样？转化了多少线索？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T07:24:04.075Z"
+  },
+  {
+    "id": "dm-mu2ciszc-7d4a",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我记得昨天处理的是臻选新能源·上海。共读取 4,286 条互动，去重后找到 138 位用户，完成首触 4 位，收到回复 2 位，新增转化线索 0 位，转化率为 0%。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2cis17-bozm",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T07:24:05.304Z"
+  },
+  {
+    "id": "dm-mu2cit80-ydi7",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "为什么转化率低？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T07:24:05.616Z"
+  },
+  {
+    "id": "dm-mu2ciu5x-0x39",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我回看了当前账号和最近的业务记录，主要有三点：1. 9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足；2. 其中 3 条首触发生在用户活跃窗口之后，错过了用户刚提问的上下文；3. 首触内容没有引用用户原话，且没有优先处理‘价格 + 到店’这类强信号。所以当前问题更像是业务链路中间的承接损耗，不是单纯数据量不够。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2cit80-ydi7",
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T07:24:06.837Z"
+  },
+  {
+    "id": "dm-mu2ciuec-ze41",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "后面要怎么解决？",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T07:24:07.140Z"
+  },
+  {
+    "id": "dm-mu2civc6-y59c",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "我建议先处理承接链路：9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足。我可以把首触时间窗由“24 小时内”调整为“2 小时内”；触达优先级由“按采集时间顺序”调整为“价格 + 到店信号优先”；首次触达批次由“4 位”调整为“8 位”。这只是待确认配置，还没有影响真实任务；你确认后我再让它生效，可以吗？",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2ciuec-ze41",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "pending",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T07:24:08.358Z"
+  },
+  {
+    "id": "dm-mu2civkq-9yh0",
+    "agentType": "mkt-comment-acquisition",
+    "from": "user",
+    "fromName": "我",
+    "text": "可以",
+    "conversationId": "investor-memory-flow",
+    "createdAt": "2026-09-15T07:24:08.666Z"
+  },
+  {
+    "id": "dm-mu2ciwiu-69g4",
+    "agentType": "mkt-comment-acquisition",
+    "from": "mkt-comment-acquisition",
+    "fromName": "抖音获客管家",
+    "text": "好的，配置“优化获客后的首触承接”已生效。首触时间窗现在是“2 小时内”；触达优先级现在是“价格 + 到店信号优先”；首次触达批次现在是“8 位”。后续任务会按新配置执行。",
+    "conversationId": "investor-memory-flow",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2civkq-9yh0",
+      "demoProposal": {
+        "id": "demo-proposal-mkt-comment-acquisition",
+        "title": "优化获客后的首触承接",
+        "status": "applied",
+        "changes": [
+          {
+            "field": "touchWindow",
+            "label": "首触时间窗",
+            "to": "2 小时内",
+            "from": "24 小时内"
+          },
+          {
+            "field": "priorityRule",
+            "label": "触达优先级",
+            "to": "价格 + 到店信号优先",
+            "from": "按采集时间顺序"
+          },
+          {
+            "field": "firstTouchBatch",
+            "label": "首次触达批次",
+            "to": "8 位",
+            "from": "4 位"
+          }
+        ]
+      },
+      "demoConfigApplied": {
+        "touchWindow": "2 小时内",
+        "priorityRule": "价格 + 到店信号优先",
+        "firstTouchBatch": "8 位"
+      },
+      "conversationId": "investor-memory-flow"
+    },
+    "createdAt": "2026-09-15T07:24:09.894Z"
   }
 ]

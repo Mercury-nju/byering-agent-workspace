@@ -79,7 +79,7 @@ export function normalizeResultSourceScope(value) {
   if (["authorized_account_interactions", "own_account_interactions", "own_interactions", "self_interactions"].includes(scope)) return RESULT_SOURCE_SCOPES.OWN_INTERACTIONS;
   if (["authorized_account_inbox", "own_inbox", "inbox", "private_inbox"].includes(scope)) return RESULT_SOURCE_SCOPES.OWN_INBOX;
   if (["public_search", "public_content_search", "finder", "douyin_finder"].includes(scope)) return RESULT_SOURCE_SCOPES.PUBLIC_SEARCH;
-  if (["public_content", "other_comments", "other_live", "public_comments", "comment_filter"].includes(scope)) return RESULT_SOURCE_SCOPES.PUBLIC_CONTENT;
+  if (["public_content", "public_work_link", "public_work_analysis", "viral_work", "other_comments", "other_live", "public_comments", "comment_filter"].includes(scope)) return RESULT_SOURCE_SCOPES.PUBLIC_CONTENT;
   if (["user_direct", "direct", "direct_touch", "user_specified"].includes(scope)) return RESULT_SOURCE_SCOPES.USER_DIRECT;
   return RESULT_SOURCE_SCOPES.UNKNOWN;
 }
@@ -92,7 +92,7 @@ export function resultSourceScope({ agentId = "", agentName = "", source = "", s
   if (agentId === "mkt-live-lead-miner" || /直播间互动|直播间弹幕|直播找人/.test(`${source} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_LIVE;
   if (agentId === "mkt-comment-acquisition") return RESULT_SOURCE_SCOPES.OWN_ALL_SIGNALS;
   if (/已授权账号|自有账号|我的账号/.test(`${source} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_INTERACTIONS;
-  if (agentId === "mkt-dm-inbox" || /私信承接|私信回复|收件箱/.test(`${source} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_INBOX;
+  if (["mkt-dm-inbox", "mkt-gold-customer-service"].includes(agentId) || /私信承接|私信回复|收件箱|金牌客服/.test(`${source} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_INBOX;
   if (agentId === "mkt-lead-miner" || agentId === "lead_miner" || /潜客挖掘|找客户|线索猎人/.test(`${agentId} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_COMMENTS;
   if (agentId === "mkt-comment-filter" || /商品作品评论区|账号主页与粉丝列表/.test(`${source}`)) return RESULT_SOURCE_SCOPES.PUBLIC_CONTENT;
   if (agentId === "mkt-cold-writer" || resultType === "触达记录") return RESULT_SOURCE_SCOPES.USER_DIRECT;
@@ -238,6 +238,7 @@ function resultTypeFor({ agentId, agentName, resultSnapshot = {}, sourceContext 
   }
   if (agentId === "mkt-intent-analyst") return "潜客";
   if (agentId === "mkt-user-research" || /用户调研|问卷/.test(haystack)) return "用户调研";
+  if (agentId === "mkt-viral-work-analysis" && ["completed", "partial"].includes(String(resultSnapshot?.status || "").toLowerCase())) return "研究简报";
   if (agentId === "mkt-research-expert" && ["completed", "partial"].includes(resultSnapshot?.status)) return "研究简报";
   if (hasPayload && /comment|评论|筛选|filter/.test(haystack)) return "评论筛选";
   if (hasPayload && (Array.isArray(resultSnapshot?.leads) || /lead|prospect|潜客/.test(haystack))) return "潜客";
@@ -257,6 +258,7 @@ function resultTitleFor(type, { agentId, agentName, resultSnapshot = {} } = {}) 
   if (type === "抖音找人") return `${text(resultSnapshot?.goal || resultSnapshot?.query, "抖音候选账号")} · 找人结果`;
   if (type === "互动用户") return "账号互动用户汇总";
   if (agentId === "mkt-intent-analyst") return "客户分析结果";
+  if (agentId === "mkt-viral-work-analysis") return "爆款作品分析报告";
   return {
     潜客: "潜客意向表单",
     互动用户: "账号互动用户汇总",

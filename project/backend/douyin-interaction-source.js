@@ -324,6 +324,8 @@ export function createDouyinInteractionSource({
     tenantId = null,
     cursor,
     goal,
+    analysisMode = "intent",
+    liveSignals = [],
     profiles = {},
     limit = 100,
     requestId,
@@ -380,7 +382,21 @@ export function createDouyinInteractionSource({
       const response = check(await service.pullLiveMessages({ cursor: nextCursor.live, limit, waitMs: 0 }));
       const raw = liveItems(response);
       if (["stopped", "ended", "error"].includes(String(response.live_polling || "").toLowerCase()) || response.terminal_reason) liveSessions.delete(scopeKey);
-      signals.push(...raw.map(item => normalizeDouyinInteractionNotification({ ...item, notification_type: item.notification_type || item.event_type || "live_chat" })).filter(Boolean));
+      const selectedLiveSignals = new Set((Array.isArray(liveSignals) ? liveSignals : [])
+        .map(value => String(value || "").trim().toLowerCase())
+        .filter(Boolean));
+      const normalizedLiveSignals = raw
+        .map(item => normalizeDouyinInteractionNotification({
+          ...item,
+          notification_type: item.notification_type || item.event_type || "live_chat"
+        }))
+        .filter(Boolean)
+        .filter(signal => !selectedLiveSignals.size || selectedLiveSignals.has(
+          signal.source?.type === "live_chat" ? "danmaku"
+            : signal.source?.type === "join" ? "joins"
+              : signal.source?.type
+        ));
+      signals.push(...normalizedLiveSignals);
       nextCursor.live = response.next_cursor ?? response.nextCursor ?? response.data?.next_cursor ?? nextCursor.live;
       sources.live = { state: raw.length ? "receiving" : "waiting", count: raw.length };
       }
@@ -424,7 +440,8 @@ export function createDouyinInteractionSource({
       analysisAccount = accountContext.account;
       sources.account = accountContext.summary;
     }
-    const analysis = enrichedCandidates.length ? await analyzer.analyze({
+    const shouldAnalyze = analysisMode !== "collect";
+    const analysis = shouldAnalyze && enrichedCandidates.length ? await analyzer.analyze({
       mode: "intent", goal, account: analysisAccount,
       comments: enrichedCandidates.map((lead, index) => ({
         index, text: lead.evidence.map(e => `${e.type}: ${e.quote || "[行为记录，无用户原话]"}`).join("\n"),
@@ -435,8 +452,16 @@ export function createDouyinInteractionSource({
         observedAt: lead.source?.observedAt
       }))
     }) : { source: "none", items: [] };
+    const accountContext = includeAccountContext
+      ? {
+          mode: "automatic",
+          accountPositioning: "derived_from_authorized_profile_and_recent_works",
+          serviceUsers: "derived_from_account_context_and_new_interactions",
+          sourceState: sources.account?.state || "unavailable"
+        }
+      : null;
     const byIndex = new Map((analysis.items || []).map(item => [item.index, item]));
-    const leads = enrichedCandidates.map((lead, index) => {
+    const leads = shouldAnalyze ? enrichedCandidates.map((lead, index) => {
       const item = byIndex.get(index) || { score: 0, tier: "low", confidence: 0, reason: "模型未提供有效判断" };
       // Likes/follows alone do not establish buying intent, even if a model over-scores them.
       const hasWords = lead.evidence.some(e => ["comment", "live_chat"].includes(e.type) && e.quote);
@@ -455,8 +480,20 @@ export function createDouyinInteractionSource({
       };
       updatedProfiles[keyOf(lead)] = result;
       return result;
-    });
-    return { ok: true, leads, profiles: updatedProfiles, nextCursor, snapshot: { source: "douyin_interactions", sources, analysis, counts: { signals: signals.length, candidates: leads.length } } };
+    }) : enrichedCandidates;
+    return {
+      ok: true,
+      leads,
+      profiles: updatedProfiles,
+      nextCursor,
+      snapshot: {
+        source: "douyin_interactions",
+        sources,
+        ...(accountContext ? { accountContext } : {}),
+        analysis,
+        counts: { signals: signals.length, candidates: leads.length }
+      }
+    };
   }
   async function stop({ agentId, accountId = null, accountIdentity = null, tenantId = null, listenerKey = null, stopLive = true } = {}) {
     const cloudScope = { accountId, accountIdentity, tenantId };

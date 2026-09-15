@@ -6,6 +6,8 @@ export const OFFICE_START_ACTIONS = Object.freeze([
   { agentId: "mkt-intent-analyst", label: "分析候选人", detail: "整理证据、意向和下一步" },
   { agentId: "mkt-cold-writer", label: "准备私信触达", detail: "确认名单和内容后发送私信" },
   { agentId: "mkt-dm-inbox", label: "帮我接待私信", detail: "沿用账号的接待方式" },
+  { agentId: "mkt-gold-customer-service", label: "使用金牌客服", detail: "用更简单的流程承接客户咨询" },
+  { agentId: "mkt-live-danmaku-outreach", label: "触达直播间观众", detail: "有人发弹幕就自动发送私信" },
 ]);
 
 const AUTHORIZATION_ERROR_CODES = new Set([
@@ -105,6 +107,8 @@ export function officeAgentStartLabel(agentId) {
     "mkt-find-people": "开始找人",
     "mkt-intent-analyst": "分析候选人",
     "mkt-cold-writer": "准备触达",
-    "mkt-dm-inbox": "设置私信接待"
+    "mkt-dm-inbox": "设置私信接待",
+    "mkt-gold-customer-service": "设置金牌客服",
+    "mkt-live-danmaku-outreach": "触达直播间观众"
   }[agentId] || "开始使用";
 }

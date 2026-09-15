@@ -248,7 +248,7 @@ test("inbox realtime work renders a funnel and three-column conversation workben
   assert.match(source, /sb-rw-inbox-shell/);
   assert.match(source, /全部会话/);
   assert.match(source, /客户详情/);
-  assert.match(source, /selected\.id === "mkt-dm-inbox"/);
+  assert.match(source, /\["mkt-dm-inbox", GOLD_CUSTOMER_SERVICE_AGENT_ID\]\.includes\(selected\.id\)/);
   assert.match(source, /inboxMessages/);
   assert.match(source, /inboxDrafts/);
 });

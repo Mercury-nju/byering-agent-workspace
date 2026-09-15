@@ -5,7 +5,7 @@ import { runInNewContext } from "node:vm";
 import { el } from "../src/salebuddy/ui/pages.js";
 import { mountTaskChoices, makeTaskSettings, TASK_CHOICES } from "../src/salebuddy/ui/task-choices.js";
 import { mountPersonAvatar } from "../src/salebuddy/ui/person-avatar.js";
-import { getMarketplaceAgent, isDouyinAcquisitionChildAgent } from "../src/salebuddy/agents/marketplace.js";
+import { DOUYIN_ACQUISITION_COMPLETE_AGENT_ID, GOLD_CUSTOMER_SERVICE_AGENT_ID, getMarketplaceAgent, isDouyinAcquisitionChildAgent } from "../src/salebuddy/agents/marketplace.js";
 import { normalizeAnalysisAccounts, buildAccountAnalysisResumeFlow, ACCOUNT_ANALYSIS_LIMIT } from "../src/salebuddy/agents/account-analysis-contract.js";
 import { COMMENT_ACQUISITION_DEFAULTS, validateLiveLeadSetup, validateCommentAcquisitionSetup } from "../src/salebuddy/ui/comment-acquisition-config.js";
 import { validateLeadMinerSetup, normalizeRecentWorkCount, parseCommentSource, parseCommentSources, workScopeLabel } from "../src/salebuddy/ui/lead-scope.js";
@@ -14,7 +14,7 @@ import { normalizeReception, receptionGoalObjective, receptionResponseStyle, REC
 import { commentAcquisitionCapabilityState } from "../src/salebuddy/ui/comment-acquisition-results.js";
 import { isDouyinProfileUrl, publicFinderNeedsBusinessAccount, validatePublicFinderBusinessAccount } from "../src/salebuddy/agents/public-finder-contract.js";
 import { PRIVATE_OUTREACH_MODES, isAlreadyContactedRecord, isPrivateOutreachRecordCandidate, normalizePrivateOutreachMode } from "../src/salebuddy/agents/private-outreach-contract.js";
-import { DOUYIN_ACQUISITION_DISCOVERY_GOAL, DOUYIN_ACQUISITION_FIRST_TOUCH_RULE, DOUYIN_ACQUISITION_HANDOFF_RULES, DOUYIN_ACQUISITION_OBJECTIVE, DOUYIN_ACQUISITION_REPLY_TONE, DOUYIN_ACQUISITION_SYSTEM_PROMPT } from "../src/salebuddy/agents/douyin-acquisition-prompt.js";
+import { DOUYIN_AUTO_AUDIENCE_GOAL } from "../src/salebuddy/agents/acquisition-contract.js";
 
 class Element {
   constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.dataset = {}; this.style = {}; this.attributes = {}; this.listeners = {}; this.value = ""; this.className = ""; }
@@ -42,7 +42,7 @@ class Element {
   focus() {}
 }
 const source = readFileSync(new URL("../src/salebuddy/ui/agent-square.js", import.meta.url), "utf8");
-const names = ["taskPersonAvatar", "acquisitionAccountControl", "appendLabeledField", "managerAdvancedSettingsForFlow", "renderManagerAdvancedSettings", "douyinFinderScopeError", "isCompositeFinderAgent", "isFinderListenerFlow", "finderOwnDataSelections", "finderListenerSourceScope", "finderListenerSourceLabel", "isInboxAgent", "isInboxIntakeFlow", "selectedChoiceLabels", "publicFinderTargetText", "hasPublicFinderTarget", "publicFinderNeedsBusinessAccount", "publicFinderBusinessAccountError", "publicFinderCanStart", "syncPublicFinderAccountPresentation", "publicFinderReferenceUrls", "publicFinderAccountName", "resolvePublicFinderBusinessAccount", "renderPublicFinderBrief", "renderPublicFinderFilters", "publicFinderFilterSummary", "syncCompositeFinderFlow", "renderCompositeFinderSetup", "renderDouyinFinderSetup", "renderCommentLeadMinerSetup", "renderLiveLeadSetup", "renderCommentAcquisitionSetup", "renderCommentAcquisitionRunning", "renderUserResearchSetup", "renderAccountAnalysisSetup", "renderStandaloneUserAnalysisSetup", "leadRecipientId", "awaitingIntentAnalysis", "privateOutreachRecords", "privateOutreachMode", "privateOutreachRecordMatchesSender", "privateOutreachContactedRecords", "privateOutreachDefaultMessage", "privateOutreachEntryFromProspect", "prefillPrivateOutreachFromProspects", "prefillInboxFromTouchedProspects", "intentCandidateFromRecord", "finderEntriesForAnalysis", "intentCandidateFromFinderEntry", "latestFinderRunForAnalysis", "intentCandidatesFromStore", "renderIntentAnalystModeChooser", "renderIntentAnalystSetup", "renderIntentAnalystRunning", "startIntentAnalyst", "isAccountScopedAcquisitionSetup", "restoreAccountScopedAcquisitionDraft", "persistAccountSetupDraft", "renderInboxSetup", "renderPrivateOutreachSetup", "renderPrivateOutreachReview", "validateInboxSetup"];
+const names = ["taskPersonAvatar", "acquisitionAccountControl", "appendLabeledField", "douyinFinderScopeError", "isCompositeFinderAgent", "isFinderListenerFlow", "finderOwnDataSelections", "finderListenerSourceScope", "finderListenerSourceLabel", "isInboxAgent", "isInboxIntakeFlow", "selectedChoiceLabels", "publicFinderTargetText", "hasPublicFinderTarget", "publicFinderNeedsBusinessAccount", "publicFinderBusinessAccountError", "publicFinderCanStart", "syncPublicFinderAccountPresentation", "publicFinderReferenceUrls", "publicFinderAccountName", "resolvePublicFinderBusinessAccount", "renderPublicFinderBrief", "renderPublicFinderFilters", "publicFinderFilterSummary", "syncCompositeFinderFlow", "renderCompositeFinderSetup", "renderDouyinFinderSetup", "renderCommentLeadMinerSetup", "renderLiveLeadSetup", "renderCommentAcquisitionSetup", "renderCommentAcquisitionRunning", "renderUserResearchSetup", "renderAccountAnalysisSetup", "renderStandaloneUserAnalysisSetup", "leadRecipientId", "awaitingIntentAnalysis", "privateOutreachRecords", "privateOutreachMode", "privateOutreachRecordMatchesSender", "privateOutreachContactedRecords", "privateOutreachDefaultMessage", "privateOutreachEntryFromProspect", "prefillPrivateOutreachFromProspects", "prefillInboxFromTouchedProspects", "intentCandidateFromRecord", "finderEntriesForAnalysis", "intentCandidateFromFinderEntry", "latestFinderRunForAnalysis", "intentCandidatesFromStore", "renderIntentAnalystModeChooser", "renderIntentAnalystSetup", "renderIntentAnalystRunning", "startIntentAnalyst", "isAccountScopedAcquisitionSetup", "restoreAccountScopedAcquisitionDraft", "persistAccountSetupDraft", "appendGoalFirstComposer", "renderGoldCustomerServiceSetup", "renderManagerInboxSetup", "renderInboxSetup", "renderPrivateOutreachSetup", "renderPrivateOutreachReview", "validateInboxSetup"];
 names.push("receptionAccountId");
 function extract(name) {
   const start = Math.max(source.indexOf(`  function ${name}(`), source.indexOf(`  async function ${name}(`));
@@ -70,13 +70,12 @@ function harness(t, id, { prospectStore = null } = {}) {
   };
   const panel = new Element("div");
   const context = {
-    document, window: { setTimeout }, structuredClone, el, mountTaskChoices, makeTaskSettings, TASK_CHOICES, mountPersonAvatar, getMarketplaceAgent, RECEPTION_ROLES, RECEPTION_GOALS, receptionGoalObjective, receptionResponseStyle,
-    DOUYIN_ACQUISITION_DISCOVERY_GOAL, DOUYIN_ACQUISITION_FIRST_TOUCH_RULE, DOUYIN_ACQUISITION_HANDOFF_RULES, DOUYIN_ACQUISITION_OBJECTIVE, DOUYIN_ACQUISITION_REPLY_TONE, DOUYIN_ACQUISITION_SYSTEM_PROMPT,
+    document, window: { setTimeout }, structuredClone, el, mountTaskChoices, makeTaskSettings, TASK_CHOICES, mountPersonAvatar, mountGrokBotAvatar: (container) => { container.classList.add("sb-grok-avatar"); container.dataset.sbGrokAvatar = "1"; container.dataset.sbGrokShape = "cloud"; container.dataset.sbGrokColor = "cyan"; }, getMarketplaceAgent, GOLD_CUSTOMER_SERVICE_AGENT_ID, DOUYIN_ACQUISITION_COMPLETE_AGENT_ID, INBOX_AGENT_IDS: new Set(["mkt-dm-inbox", GOLD_CUSTOMER_SERVICE_AGENT_ID]), DOUYIN_AUTO_AUDIENCE_GOAL, RECEPTION_ROLES, RECEPTION_GOALS, receptionGoalObjective, receptionResponseStyle,
     isDouyinProfileUrl, needsPublicFinderBusinessAccount: publicFinderNeedsBusinessAccount, validatePublicFinderBusinessAccount,
     loadAccountReception: async () => {},
     openAccountReceptionPage: ({ embeddedContainer }) => { embeddedContainer?.appendChild(new Element("div")); return { close() {} }; },
     normalizeAnalysisAccounts, buildAccountAnalysisResumeFlow, ACCOUNT_ANALYSIS_LIMIT,
-    COMMENT_ACQUISITION_DEFAULTS, validateLiveLeadSetup, validateCommentAcquisitionSetup, validateLeadMinerSetup, normalizeRecentWorkCount, validateUserResearchSetup, parseCommentSource, parseCommentSources, workScopeLabel, commentAcquisitionCapabilityState,
+    COMMENT_ACQUISITION_DEFAULTS, DOUYIN_AUTO_AUDIENCE_GOAL, validateLiveLeadSetup, validateCommentAcquisitionSetup, validateLeadMinerSetup, normalizeRecentWorkCount, validateUserResearchSetup, parseCommentSource, parseCommentSources, workScopeLabel, commentAcquisitionCapabilityState,
     state: { useId: id }, root: panel, concreteAccountName: (...values) => values.find(Boolean),
     isCommentLeadMiner: agent => agent.id === "mkt-lead-miner", isCompositeFinderAgent: agent => agent?.id === "mkt-find-people", isCommentAcquisitionAgent: agent => agent?.id === "mkt-comment-acquisition", isCommentFilterAgent: agent => agent.id === "mkt-comment-filter", isDouyinAcquisitionChildAgent,
     authorizationAgentId: value => value?.executionAgentId || value?.agentId || "mkt-dm-inbox",
@@ -172,12 +171,17 @@ const scenarios = [
   ["mkt-lead-miner", "renderCommentLeadMinerSetup", "price", "product"],
   ["mkt-comment-filter", "renderCommentLeadMinerSetup", "complaints", "product"],
   ["mkt-live-lead-miner", "renderLiveLeadSetup", "purchase", "product"],
+  ["mkt-comment-acquisition", "renderCommentAcquisitionSetup", null, null],
   ["mkt-user-research", "renderUserResearchSetup", "consumers", "finderGoal"],
   ["mkt-research-expert", "renderAccountAnalysisSetup", "needs", "analysisGoal"],
 ];
 for (const [id, renderer, preset, field] of scenarios) test(`${id} starts from a choice without typing a requirement`, t => {
   const { panel, flow, calls, renderers } = harness(t, id);
   renderers[renderer](panel, flow, getMarketplaceAgent(id));
+  if (id === "mkt-comment-acquisition") {
+    assert.doesNotMatch(panel.textContent, /你想找什么样的人|补充说明（选填）|首次怎么联系/);
+    return;
+  }
   const input = panel.all().find(node => node.tagName === "INPUT" && node.value === preset);
   assert.ok(input, preset); input.checked = true; input.trigger("change");
   assert.ok(flow[field].length > 10);
@@ -486,68 +490,6 @@ test("outreach specialist supports all-found outreach while excluding contacted 
   assert.doesNotMatch(panel.textContent, /已经触达用户|触达中用户/);
 });
 
-test("comprehensive acquisition keeps optional advanced settings collapsed before authorization", t => {
-  const { panel, flow, calls, renderers } = harness(t, "mkt-comment-acquisition");
-  flow.authorizedAccounts = []; flow.accountId = "";
-  renderers.renderCommentAcquisitionSetup(panel, flow);
-  const advanced = panel.all().find(node => node.tagName === "DETAILS" && node.className.includes("sb-as-manager-advanced-settings"));
-  assert.ok(advanced);
-  assert.notEqual(advanced.open, true);
-  assert.ok(advanced.all().find(node => node.attributes["aria-label"] === "想找什么样的人（可选）"));
-  assert.ok(advanced.all().find(node => node.attributes["aria-label"] === "首次怎么联系（可选）"));
-  assert.equal(panel.all().filter(node => ["price", "compare", "help"].includes(node.value)).length, 0);
-  assert.equal(calls.length, 0);
-  panel.all().find(node => node.tagName === "BUTTON" && node.textContent === "开始找客户").trigger("click");
-  assert.deepEqual(calls, [{ type: "authorize" }]);
-});
-
-test("comprehensive acquisition forwards edits from the collapsed advanced settings", t => {
-  const { panel, flow, renderers } = harness(t, "mkt-comment-acquisition");
-  flow.mode = "inbox";
-  flow.managerCombinedStart = true;
-  renderers.renderInboxSetup(panel, flow);
-
-  const advanced = panel.all().find(node => node.tagName === "DETAILS" && node.className.includes("sb-as-manager-advanced-settings"));
-  assert.ok(advanced);
-  assert.notEqual(advanced.open, true);
-  const audience = advanced.all().find(node => node.attributes["aria-label"] === "想找什么样的人（可选）");
-  const touchObjective = advanced.all().find(node => node.attributes["aria-label"] === "触达目的（可选）");
-  assert.ok(audience && touchObjective);
-
-  audience.value = "明确询价且准备预约的人";
-  audience.trigger("input");
-  touchObjective.value = "获取联系方式并推进预约";
-  touchObjective.trigger("input");
-
-  assert.equal(flow.managerAdvancedSettingsEnabled, true);
-  assert.equal(flow.managerAdvancedSettings.audienceGoal, "明确询价且准备预约的人");
-  assert.equal(flow.managerAdvancedSettings.touchObjective, "获取联系方式并推进预约");
-});
-
-test("comprehensive acquisition rerender preserves legacy draft data in optional settings", t => {
-  const { panel, flow, renderers } = harness(t, "mkt-comment-acquisition");
-  flow.product = "旧目标人群";
-  flow.requirements = "旧筛选条件";
-  renderers.renderCommentAcquisitionSetup(panel, flow);
-  flow.message = "";
-  const next = new Element("div"); renderers.renderCommentAcquisitionSetup(next, flow);
-  assert.equal(flow.message, "");
-  assert.equal(flow.product, "旧目标人群");
-  assert.equal(flow.requirements, "旧筛选条件");
-  assert.equal(next.all().some(node => node.value === "旧目标人群"), true);
-  assert.equal(next.all().some(node => node.value === "旧筛选条件"), true);
-});
-
-test("comprehensive acquisition explains its fixed autonomous operating contract", t => {
-  const { panel, flow, calls, renderers } = harness(t, "mkt-comment-acquisition");
-  renderers.renderCommentAcquisitionSetup(panel, flow);
-  assert.match(panel.textContent, /自动识别账号定位和服务对象/);
-  assert.match(panel.textContent, /获客并获得可跟进线索/);
-  assert.match(panel.textContent, /高级设置（可选）/);
-  assert.match(panel.textContent, /默认无需填写/);
-  assert.equal(calls.length, 0);
-});
-
 test("inbox entry uses its own product account, keeps shared conversation settings, and has one launch action", t => {
   const { panel, flow, calls, renderers } = harness(t, "mkt-dm-inbox");
   renderers.renderInboxSetup(panel, flow);
@@ -562,6 +504,36 @@ test("inbox entry uses its own product account, keeps shared conversation settin
   assert.equal(start.disabled, false);
   start.trigger("click");
   assert.equal(calls[0].type, "start");
+});
+
+test("gold customer service opens a goal-first objective composer", t => {
+  const setup = harness(t, GOLD_CUSTOMER_SERVICE_AGENT_ID);
+  setup.flow.replyObjective = "";
+  setup.flow.replyRule = "";
+  setup.flow.replyTone = "";
+  setup.flow.handoffRules = "";
+  setup.flow.businessKnowledge = "";
+  setup.flow.reception = undefined;
+
+  setup.renderers.renderInboxSetup(setup.panel, setup.flow);
+
+  assert.match(setup.panel.textContent, /我来帮你接住私信/);
+  assert.match(setup.panel.textContent, /你想让我帮你达成什么/);
+  const heroMark = setup.panel.all().find((node) => node.className.split(" ").includes("sb-as-gold-hero-mark"));
+  assert.equal(heroMark.dataset.sbGrokAvatar, "1");
+  assert.equal(heroMark.dataset.sbGrokShape, "cloud");
+  assert.equal(heroMark.dataset.sbGrokColor, "cyan");
+  assert.doesNotMatch(setup.panel.textContent, /接下来由 AI 自动完成|先告诉我你的目标|理解意图|设计回复|识别转人工/);
+  assert.doesNotMatch(setup.panel.textContent, /1\. 登录你的抖音账号|2\. 告诉我|3\. AI 自动|4\. 开始使用/);
+  assert.doesNotMatch(setup.panel.textContent, /告诉我怎么回复|回复人设/);
+  const objective = setup.panel.all().find((node) => node.tagName === "TEXTAREA" && node.attributes["aria-label"] === "私信对话目标");
+  assert.ok(objective);
+  assert.equal(objective.className, "sb-as-gold-composer-input");
+  assert.ok(setup.panel.all().some((node) => node.className.split(" ").includes("sb-as-gold-composer")));
+  objective.value = "引导客户预约试驾";
+  objective.trigger("input");
+  assert.equal(setup.flow.replyObjective, "引导客户预约试驾");
+  assert.deepEqual(Object.keys(setup.renderers.validateInboxSetup(setup.flow)), []);
 });
 
 test("inbox entry never inherits a complete-agent account relationship", t => {
@@ -723,18 +695,32 @@ test("analysis completion stores the real result snapshot on its live work", () 
   assert.doesNotMatch(implementation, /analysisScope: flow\.analysisScope/);
 });
 
-test("获客管家在同一个页面展示账号授权和固定获客策略", t => {
+test("获客专家在同一个页面完成自动识别和接待策略", t => {
   const { panel, flow, renderers } = harness(t, "mkt-comment-acquisition");
   flow.mode = "inbox";
   flow.managerCombinedStart = true;
   renderers.renderInboxSetup(panel, flow);
-  assert.match(panel.textContent, /1\. 登录你的抖音账号/);
-  assert.match(panel.textContent, /2\. 自动识别账号定位与潜客/);
+  assert.match(panel.textContent, /我来帮你把获客做起来/);
+  assert.doesNotMatch(panel.textContent, /抖音获客管家我来帮你把获客做起来/);
+  assert.match(panel.textContent, /我会自动完成/);
+  assert.match(panel.textContent, /识别潜客/);
+  assert.match(panel.textContent, /完成首触/);
+  assert.match(panel.textContent, /持续承接/);
+  assert.doesNotMatch(panel.textContent, /你想找什么样的人|补充说明（选填）|首次怎么联系/);
   assert.doesNotMatch(panel.textContent, /监听方式|持续监听新的作品评论、直播互动和账号互动通知，不回扫历史内容/);
-  assert.match(panel.textContent, /3\. 按获客目标自动执行/);
-  assert.match(panel.textContent, /4\. 启动完整获客任务/);
-  assert.match(panel.textContent, /启动获客管家/);
-  assert.doesNotMatch(panel.textContent, /配置接待方式（必填）/);
+  assert.match(panel.textContent, /你想让我帮你达成什么/);
+  assert.doesNotMatch(panel.textContent, /你想让我先帮你达成什么/);
+  assert.doesNotMatch(panel.textContent, /我希望抖音获客管家达成/);
+  assert.match(panel.textContent, /启动抖音获客管家/);
+  assert.doesNotMatch(panel.textContent, /1\. 登录你的抖音账号|2\. 后台自动识别账号定位和潜客|3\. 告诉我怎么回复|4\. 启动完整获客任务/);
+  assert.doesNotMatch(panel.textContent, /对外身份|接待时段|业务资料|人工交接|配置接待方式（必填）/);
+  const objective = panel.all().find((node) => node.tagName === "TEXTAREA" && node.attributes["aria-label"] === "私信对话目标");
+  assert.ok(objective);
+  assert.equal(objective.className, "sb-as-gold-composer-input");
+  assert.equal(panel.all().some((node) => node.className.split(" ").includes("sb-as-gold-composer")), true);
+  objective.value = "回答问题并引导客户预约";
+  objective.trigger("input");
+  assert.equal(flow.replyObjective, "回答问题并引导客户预约");
 });
 
 test("获客专家在当前配置页展示启动前置校验错误", t => {
@@ -749,7 +735,7 @@ test("获客专家在当前配置页展示启动前置校验错误", t => {
   assert.match(panel.textContent, /当前账号的接待方式尚未同步完成，请稍后重试。/);
 });
 
-test("获客专家按账号恢复已保存的监听配置", t => {
+test("获客专家按账号恢复时忽略旧版目标和首触达草稿", t => {
   const { flow, renderers } = harness(t, "mkt-comment-acquisition");
   flow.mode = "inbox";
   flow.managerCombinedStart = true;
@@ -776,28 +762,28 @@ test("获客专家按账号恢复已保存的监听配置", t => {
   });
 
   assert.equal(restored, true);
-  assert.equal(flow.product, "近期准备购买家居产品的人");
-  assert.equal(flow.requirements, "仅关注上海地区");
-  assert.deepEqual(Array.from(flow.audienceTypes), ["问价格", "准备下单"]);
-  assert.deepEqual(structuredClone(flow.taskChoices), { audience: { selected: ["price", "buying"], extra: "仅关注上海地区" } });
-  assert.equal(flow.touchStrategy, "先确认具体需求，再邀请进一步沟通。");
+  assert.equal(flow.product, "");
+  assert.equal(flow.requirements, "");
+  assert.deepEqual(Array.from(flow.audienceTypes), []);
+  assert.deepEqual(structuredClone(flow.taskChoices), {});
+  assert.equal(flow.touchStrategy, "");
   assert.equal(flow.contactTiming, undefined);
   assert.equal(flow.workSchedule, undefined);
-  assert.equal(flow.maxTouchesPerDay, 18);
-  assert.equal(flow.minIntervalMinutes, 20);
+  assert.equal(flow.maxTouchesPerDay, COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay);
+  assert.equal(flow.minIntervalMinutes, COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes);
 });
 
-test("获客管家提供折叠的账号维度高级配置", t => {
+test("获客专家配置页不再提供目标或首触达输入", t => {
   const { panel, flow, calls, renderers } = harness(t, "mkt-comment-acquisition");
   flow.mode = "inbox";
   flow.managerCombinedStart = true;
   flow.accountWorkKey = "douyin:owner";
   renderers.renderInboxSetup(panel, flow);
 
-  const advanced = panel.all().find(node => node.tagName === "DETAILS" && node.className.includes("sb-as-manager-advanced-settings"));
-  assert.ok(advanced);
-  assert.notEqual(advanced.open, true);
-  assert.equal(calls.length, 0);
+  assert.equal(panel.all().some(node => node.tagName === "INPUT" && node.value === "price"), false);
+  assert.equal(panel.all().some(node => node.tagName === "TEXTAREA" && node.attributes["aria-label"] === "补充说明"), false);
+  assert.doesNotMatch(panel.textContent, /首次怎么联系/);
+  assert.equal(calls.some(call => call.type === "persist"), false);
 });
 
 test("获客专家识别账号后先恢复草稿再写回账号绑定", () => {
@@ -808,35 +794,40 @@ test("获客专家识别账号后先恢复草稿再写回账号绑定", () => {
   assert.match(implementation, /accountWorkKey = douyinAccountWorkKey\(initialIdentity, state\.useFlow\.accountId\);\s*restoreAccountScopedAcquisitionDraft\(state\.useFlow\);[\s\S]*?persistCloudTask\(state\.useFlow,/);
 });
 
-test("获客管家不因缺少前端业务资料而阻止启动", t => {
+test("获客专家只需要一个对话目标即可启动", t => {
   const { panel, flow, renderers } = harness(t, "mkt-comment-acquisition");
   flow.mode = "inbox";
   flow.managerCombinedStart = true;
-  flow.product = "近期准备购买家居产品的人";
   flow.businessKnowledge = "";
   flow.knowledgeEntries = [];
+  flow.replyObjective = "回答问题";
   renderers.renderInboxSetup(panel, flow);
 
-  const start = panel.all().find(node => node.tagName === "BUTTON" && node.textContent === "启动获客管家");
+  const start = panel.all().find(node => node.tagName === "BUTTON" && node.textContent === "启动抖音获客管家");
   assert.ok(start);
   assert.equal(start.disabled, false);
+  assert.match(panel.textContent, /启动后会在后台持续运行/);
   assert.doesNotMatch(panel.textContent, /待补资料|先补充业务资料/);
-  assert.equal(Object.keys(renderers.validateInboxSetup(flow)).length, 0);
+  assert.equal(renderers.validateInboxSetup(flow).businessKnowledge, undefined);
 });
 
-test("获客管家同时缺少旧目标和业务资料时仍只要求账号授权", t => {
+test("获客专家没有目标描述时不能启动", t => {
   const { panel, flow, renderers } = harness(t, "mkt-comment-acquisition");
   flow.mode = "inbox";
   flow.managerCombinedStart = true;
   flow.product = "";
   flow.requirements = "";
-  flow.businessKnowledge = "";
+  flow.businessKnowledge = "已保存的账号业务资料";
   flow.knowledgeEntries = [];
   renderers.renderInboxSetup(panel, flow);
 
-  const start = panel.all().find(node => node.tagName === "BUTTON" && node.textContent === "启动获客管家");
+  const start = panel.all().find(node => node.tagName === "BUTTON" && node.textContent === "启动抖音获客管家");
   assert.ok(start);
-  assert.equal(start.disabled, false);
-  assert.doesNotMatch(panel.textContent, /先选择需要持续关注的潜客|先补充业务资料/);
-  assert.equal(Object.keys(renderers.validateInboxSetup(flow)).length, 0);
+  assert.equal(start.disabled, true);
+  const objective = panel.all().find(node => node.tagName === "TEXTAREA" && node.attributes["aria-label"] === "私信对话目标");
+  assert.ok(objective);
+  assert.equal(objective.value, "");
+  assert.match(renderers.validateInboxSetup(flow).replyObjective, /请说明希望通过私信达成什么目标/);
+  assert.equal(renderers.validateInboxSetup(flow).product, undefined);
+  assert.equal(renderers.validateInboxSetup(flow).businessKnowledge, undefined);
 });

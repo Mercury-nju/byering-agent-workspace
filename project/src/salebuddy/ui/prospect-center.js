@@ -1,6 +1,7 @@
 import { openPage, el } from "./pages.js";
 import { contactabilityFor, isContactableRecord, isManualOutreachReady, prospectStore, PROSPECT_STATUSES } from "./prospect-store.js";
 import { openAccountAnalysis, renderAccountAnalysisOverview, renderAccountAnalysisReports } from "./account-analysis.js";
+import { renderViralWorkAnalysisDetails, renderViralWorkAnalysisOverview } from "./viral-work-analysis.js";
 import { buildAccountAnalysisBatch, buildAccountAnalysisResumeFlow, ACCOUNT_ANALYSIS_LIMIT } from "../agents/account-analysis-contract.js";
 import { mountPersonAvatar, personAvatarUrl } from "./person-avatar.js";
 import { listWorks, subscribeWork } from "../agents/work-live.js";
@@ -2944,6 +2945,48 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       const empty = el("div", "sb-prospect-detail-empty");
       empty.append(el("strong", null, "选择一项成果"), el("span", null, "查看 Agent 的交付内容、处理指标和下一步动作"));
       container.appendChild(empty);
+      return;
+    }
+    if (run.agentId === "mkt-viral-work-analysis") {
+      const result = {
+        ...(run.resultSnapshot || {}),
+        taskId: run.taskId,
+        taskRunId: run.taskRunId,
+        agentId: run.agentId,
+        agentName: run.agentName,
+        status: run.status,
+        sourceUrl: run.resultSnapshot?.sourceUrl || run.inputs?.workUrl || "",
+        summary: run.summary || run.resultSnapshot?.summary || ""
+      };
+      renderViralWorkAnalysisOverview(container, result);
+      renderViralWorkAnalysisDetails(container, result);
+      const actions = el("div", "sb-result-detail-actions");
+      const reportFile = [...(Array.isArray(run.artifacts) ? run.artifacts : []), ...(Array.isArray(result.artifacts) ? result.artifacts : [])]
+        .find((artifact) => artifact?.id && ["doc", "html"].includes(artifact.type));
+      if (reportFile) {
+        const file = el("button", null, "打开完整报告");
+        file.type = "button";
+        file.addEventListener("click", () => openFileCenter(reportFile.id, reportFile));
+        actions.appendChild(file);
+      }
+      const conversation = el("button", null, "打开 Agent 对话");
+      conversation.type = "button";
+      conversation.disabled = !(run.agentId && run.taskId);
+      conversation.addEventListener("click", () => openAgentConversation(run));
+      actions.appendChild(conversation);
+      const again = el("button", "primary", "再次分析");
+      again.type = "button";
+      again.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openAgentSquare?.({
+        initialAgentId: "mkt-viral-work-analysis",
+        resumeFlow: {
+          agentId: "mkt-viral-work-analysis",
+          step: "setup",
+          workUrl: result.sourceUrl || run.inputs?.workUrl || "",
+          viralWorkGoal: result.goal || run.inputs?.goal || ""
+        }
+      })));
+      actions.appendChild(again);
+      container.appendChild(actions);
       return;
     }
     if (run.agentId === "mkt-research-expert") {

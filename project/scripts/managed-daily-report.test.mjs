@@ -33,7 +33,7 @@ function continuousConfigFor(agentId) {
       workWindow: { schedule: "09:00-21:00" }
     };
   }
-  if (["mkt-comment-acquisition", "mkt-dm-inbox", "chief_of_staff"].includes(agentId)) {
+  if (["mkt-comment-acquisition", "mkt-dm-inbox", "mkt-gold-customer-service", "chief_of_staff"].includes(agentId)) {
     return { longRunning: true };
   }
   return {};
@@ -75,7 +75,7 @@ function buildReport({ agentId = "mkt-find-people", events = [] } = {}) {
     scope: {
       agentId,
       combined: false,
-      continuous: ["mkt-comment-acquisition", "mkt-find-people", "mkt-dm-inbox", "chief_of_staff"].includes(agentId),
+      continuous: ["mkt-comment-acquisition", "mkt-find-people", "mkt-dm-inbox", "mkt-gold-customer-service", "chief_of_staff"].includes(agentId),
       participantIds: [agentId]
     }
   });
@@ -200,6 +200,28 @@ test("inbox daily report leads with replies and conversation records", () => {
   assert.match(artifact.content, /周末下午方便试驾吗？/);
   assert.match(artifact.content, /我已回复：<\/span>可以的，我先帮您留出周六下午的试驾时间。/);
   assert.match(artifact.content, /今天无需你处理/);
+});
+
+test("gold customer service daily report uses its own role label and handoff language", () => {
+  const artifact = buildReport({
+    agentId: "mkt-gold-customer-service",
+    events: [
+      {
+        type: "lead.replied",
+        agentId: "mkt-gold-customer-service",
+        payload: {
+          count: 1,
+          text: "收到 1 位用户的私信回复",
+          lead: { leadId: "lead-nanjing", nickname: "南京徐女士", source: { type: "direct_message" } },
+          content: "可以发一下现车颜色吗？"
+        }
+      }
+    ]
+  });
+
+  assert.match(artifact.content, /金牌客服日报/);
+  assert.match(artifact.content, /南京徐女士/);
+  assert.match(artifact.content, /人工接管|下一步/);
 });
 
 test("full acquisition daily report keeps finding, outreach, and conversation receipts in one file", () => {

@@ -21,17 +21,18 @@ export const RECEPTION_ROLE_DETAILS = {
   personal: "像可信赖的个人助理一样安排沟通",
   custom: "用你填写的身份和表达方式接待"
 };
-export const RECEPTION_GOALS = { contact: "留下联系方式", appointment: "预约到店", survey: "填写问卷" };
+export const RECEPTION_GOALS = { answer: "回答问题", contact: "留下联系方式", appointment: "预约到店", survey: "填写问卷" };
 export const RECEPTION_GOAL_GUIDANCE = {
+  answer: "以解决对方当前问题为终点，给出准确、有依据的回答；问题解决后不主动引导留资、预约或继续追问",
   contact: "在自然解答和确认需求后，经对方同意引导留下电话、微信或其他联系方式；拒绝后不再追问",
   appointment: "在解答和确认需求后，引导完成到店、咨询或体验预约；不虚构可预约时间或服务承诺",
   survey: "在对方愿意时引导填写问卷或登记表；没有有效链接时先询问，不虚构链接"
 };
-const LEGACY_CONVERSATION_STAGES = new Set(["answer", "understand"]);
+const LEGACY_CONVERSATION_STAGES = new Set(["understand"]);
 const fail = message => { throw Object.assign(new Error(message), { code: "RECEPTION_INVALID", statusCode: 400 }); };
 const text = (value, limit = 1000) => String(value ?? "").trim().slice(0, limit);
 const pick = (value, values, fallback) => value == null ? fallback : values.includes(value) ? value : fail("接待设置包含不支持的选项");
-const goal = value => LEGACY_CONVERSATION_STAGES.has(value) ? "contact" : pick(value, Object.keys(RECEPTION_GOALS), "contact");
+const goal = value => LEGACY_CONVERSATION_STAGES.has(value) ? "answer" : pick(value, Object.keys(RECEPTION_GOALS), "contact");
 const minutes = value => {
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) fail("接待时间格式不正确");
   const [h, m] = value.split(":").map(Number); return h * 60 + m;
@@ -109,8 +110,14 @@ export function receptionPrompt(settings) {
     "人设只用于表达方式，不虚构真人经历、资质或亲身使用经验；被问及自动回复时如实回答。",
     `表达方式：${receptionResponseStyle(settings)}。使用自然、清晰且尊重的称呼；${settings.emoji ? "可以少量使用表情" : "不要使用表情"}。`,
     `回复长度：${{ short: "简短，通常1至2句话", balanced: "适中，先回答重点", detailed: "需要时详细解释，但不堆砌内容" }[settings.length]}。`,
-    `最终转化目标：${receptionGoalObjective(settings)}`,
-    "结合双方历史，不重复打招呼或询问已确认信息；先回答，再问一个关键问题。目标已达成时不重复邀请。对方不回复时不要自行发送追问。",
+    `对话目标：${receptionGoalObjective(settings)}`,
+    receptionGoalBehavior(settings),
     settings.answerRules
   ].join("\n");
+}
+
+export function receptionGoalBehavior(settings = {}) {
+  const selectedGoal = goal(settings.goal);
+  if (selectedGoal === "answer") return "当前目标是回答问题：先给出准确、有依据的回答；问题解决后不主动引导留资、预约或继续追问。";
+  return "先回答对方当前问题，再围绕对话目标推进一个关键动作；只推进与目标直接相关的内容，不强行销售。目标已达成时不重复邀请。对方不回复时不要自行发送追问。";
 }

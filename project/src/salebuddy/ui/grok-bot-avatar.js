@@ -127,6 +127,9 @@ export const GROK_AVATAR_CATALOG = Object.freeze({
   "mkt-lead-miner": Object.freeze({ shape: "wedge", color: "magenta" }),
   "mkt-research-expert": Object.freeze({ shape: "hex", color: "violet" }),
   "mkt-dm-inbox": Object.freeze({ shape: "cloud", color: "orange" }),
+  "mkt-gold-customer-service": Object.freeze({ shape: "cloud", color: "cyan" }),
+  "mkt-live-danmaku-analysis": Object.freeze({ color: "violet" }),
+  "mkt-viral-work-analysis": Object.freeze({ shape: "dome", color: "gray" }),
   "mkt-comment-filter": Object.freeze({ shape: "blob", color: "orange" }),
   "mkt-live-lead-miner": Object.freeze({ shape: "blob", color: "yellow" }),
   "mkt-douyin-finder": Object.freeze({ shape: "teardrop", color: "brown" }),
@@ -152,7 +155,7 @@ export const GROK_AVATAR_RUNTIME_SOURCE = Object.freeze({
 
 export const GROK_AVATAR_ARCHITECTURE = Object.freeze({
   top: Object.freeze(["main", "mkt-comment-acquisition"]),
-  middle: Object.freeze(["mkt-lead-miner", "mkt-research-expert", "mkt-dm-inbox"]),
+  middle: Object.freeze(["mkt-lead-miner", "mkt-research-expert", "mkt-dm-inbox", "mkt-gold-customer-service"]),
   extensions: Object.freeze([
     "mkt-comment-filter", "mkt-douyin-finder", "mkt-find-people", "mkt-user-research", "mkt-cold-writer",
     "mkt-live-lead-miner", "mkt-audience-search", "mkt-network-miner", "mkt-trend-insight",

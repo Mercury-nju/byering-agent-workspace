@@ -19,6 +19,10 @@ export const CLOUD_STATES = Object.freeze({
 
 export const APPROVAL_MODES = Object.freeze({ MANUAL: "manual", BATCH: "batch", AUTO: "auto" });
 
+// Comprehensive Douyin acquisition derives the audience from account context
+// and fresh interaction evidence instead of a user-authored target brief.
+export const DOUYIN_AUTO_AUDIENCE_GOAL = "根据授权账号定位、近期作品和新互动自动识别服务对象与高意向潜客";
+
 export const TOUCH_STATES = Object.freeze({
   DRAFT: "draft",
   PENDING_APPROVAL: "pending_approval",

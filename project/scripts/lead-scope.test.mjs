@@ -113,6 +113,11 @@ test("single work links bypass stale account identity and recent-work limits", (
   });
   assert.equal(parseCommentSource("https://www.douyin.com/note/123456789").kind, "video");
   assert.equal(parseCommentSource("https://www.douyin.com/?modal_id=123456789").kind, "video");
+  assert.deepEqual(parseCommentSource("https://www.douyin.com/jingxuan?modal_id=123456789"), {
+    kind: "video",
+    url: "https://www.douyin.com/video/123456789",
+    videoId: "123456789"
+  });
 });
 test("profile source stays scoped to its author and unsupported links fail clearly", () => {
   assert.equal(commentSourcePayload({ accountRef: "https://www.douyin.com/user/test", workScope: "最近10条作品" }).videoLimit, 10);

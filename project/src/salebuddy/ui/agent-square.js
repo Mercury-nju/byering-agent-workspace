@@ -22,9 +22,12 @@ import { agentActivityJournal, recordAgentActivity } from "../agents/agent-activ
 import { agentResultRecorder } from "../agents/agent-result-recorder.js";
 import { addFile } from "../agents/file-store.js";
 import { accountAnalysisReportConversationMessage, accountAnalysisReportFile } from "../agents/account-analysis-report.js";
+import { viralWorkAnalysisReportConversationMessage, viralWorkAnalysisReportFile } from "../agents/viral-work-analysis-report.js";
 import { bindAcquisitionCardAction, getAcquisitionCardViewModel } from "./acquisition-card-controller.js";
-import { COMMENT_ACQUISITION_DEFAULTS, buildCommentAcquisitionTaskPayload, buildFinderListenerTaskPayload, buildLiveLeadTaskPayload, validateFinderListenerSetup, validateLiveLeadSetup, normalizeCommentAcquisitionConfig, validateCommentAcquisitionSetup } from "./comment-acquisition-config.js";
-import { buildLiveDanmakuAnalysisTaskPayload, validateLiveDanmakuAnalysisSetup } from "./live-danmaku-analysis-config.js";
+import { COMMENT_ACQUISITION_DEFAULTS, DOUYIN_AUTO_AUDIENCE_GOAL, buildCommentAcquisitionTaskPayload, buildFinderListenerTaskPayload, buildLiveLeadTaskPayload, validateFinderListenerSetup, validateLiveLeadSetup, normalizeCommentAcquisitionConfig, validateCommentAcquisitionSetup } from "./comment-acquisition-config.js";
+import { DEFAULT_LIVE_SIGNALS, buildLiveDanmakuAnalysisTaskPayload, validateLiveDanmakuAnalysisSetup } from "./live-danmaku-analysis-config.js";
+import { buildLiveDanmakuOutreachTaskPayload, validateLiveDanmakuOutreachSetup } from "./live-danmaku-outreach-config.js";
+import { VIRAL_WORK_ANALYSIS_DEFAULT_GOAL, buildViralWorkAnalysisTaskPayload, validateViralWorkAnalysisSetup } from "./viral-work-analysis-config.js";
 import { openAccountReceptionPage } from "./account-reception-page.js?v=20260914-grid-alignment-1";
 import { buildCommentAcquisitionResultRecord, commentAcquisitionCapabilityState } from "./comment-acquisition-results.js";
 import { mergePrivateOutreachUrls, readPrivateOutreachFile } from "./private-outreach.js";
@@ -34,18 +37,11 @@ import { buildSurveyInvitation, buildSurveyOutreachTargets, validateUserResearch
 import { normalizeAnalysisAccounts, buildAccountAnalysisBatch, ACCOUNT_ANALYSIS_LIMIT, buildAccountAnalysisResumeFlow } from "../agents/account-analysis-contract.js";
 import { isDouyinProfileUrl, publicFinderNeedsBusinessAccount as needsPublicFinderBusinessAccount, validatePublicFinderBusinessAccount } from "../agents/public-finder-contract.js";
 import { openAccountAnalysis, renderAccountAnalysisOverview, renderAccountAnalysisReports } from "./account-analysis.js";
+import { renderViralWorkAnalysisDetails, renderViralWorkAnalysisOverview } from "./viral-work-analysis.js";
 import { mountTaskChoices, makeTaskSettings, TASK_CHOICES, TASK_ENTRY_TITLES, TASK_FLOW_CSS } from "./task-choices.js?v=20260910-composite-finder-1";
 import { mountPersonAvatar } from "./person-avatar.js";
 import { receptionBaseUrl, receptionRequest } from "../bridge/account-reception-client.js";
 import { receptionGoalObjective, receptionResponseStyle } from "../agents/account-reception.js";
-import {
-  DOUYIN_ACQUISITION_DISCOVERY_GOAL,
-  DOUYIN_ACQUISITION_FIRST_TOUCH_RULE,
-  DOUYIN_ACQUISITION_HANDOFF_RULES,
-  DOUYIN_ACQUISITION_OBJECTIVE,
-  DOUYIN_ACQUISITION_REPLY_TONE,
-  DOUYIN_ACQUISITION_SYSTEM_PROMPT,
-} from "../agents/douyin-acquisition-prompt.js";
 import {
   MARKETPLACE_AGENTS,
   MARKETPLACE_CATEGORIES,
@@ -58,6 +54,7 @@ import {
   listHiredAgents,
   sortMarketplaceAgentsForDisplay,
   DOUYIN_ACQUISITION_COMPLETE_AGENT_ID,
+  GOLD_CUSTOMER_SERVICE_AGENT_ID,
   hasDouyinAcquisitionManagerBindingConflict,
   isDouyinAcquisitionManagerBoundAccount,
   isDouyinAcquisitionSingleCapabilityAgent
@@ -142,6 +139,110 @@ const CSS = `
 .sb-as-inbox-policy{min-width:0}.sb-as-inbox-policy-empty{margin-top:17px;color:#8a939d;font-size:12px;line-height:1.7}.sb-as-inbox-policy .sb-reception{max-width:none;margin:10px 0 0;padding:0;font-size:13px}.sb-as-inbox-policy .sb-reception-summary{padding:12px 0 16px}.sb-as-inbox-policy .sb-reception-section{padding:8px 0 13px}.sb-as-inbox-policy .sb-reception-section>summary{min-height:52px}.sb-as-inbox-policy .sb-reception-fields{padding:14px 0}.sb-as-inbox-policy .sb-reception-save{padding:18px 0 0}.sb-as-inbox-policy .sb-reception-notice{margin:12px 0}
 .sb-as-inbox-launch{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:25px 0 0}.sb-as-inbox-launch-copy{display:grid;gap:4px}.sb-as-inbox-launch-copy strong{color:#1f2329;font-size:17px;font-weight:700}.sb-as-inbox-launch-copy span{max-width:460px;color:#818b96;font-size:12px;line-height:1.6}.sb-as-inbox-launch button{height:44px;flex:none;padding:0 18px;border:1px solid #1f2329;border-radius:8px;background:#1f2329;color:#fff;font:inherit;font-size:12px;font-weight:700;cursor:pointer}.sb-as-inbox-launch button:disabled{opacity:.48;cursor:not-allowed}.sb-as-inbox-error{margin-top:16px}
 @media(max-width:640px){.sb-as-use:has(.sb-as-inbox-setup){padding:22px 16px 36px}.sb-as-inbox-section-head,.sb-as-inbox-launch{align-items:flex-start;flex-direction:column;gap:10px}.sb-as-inbox-account{align-items:flex-start;flex-wrap:wrap}.sb-as-inbox-account-select{width:100%;max-width:none;order:3}.sb-as-inbox-reauthorize{margin-left:auto}.sb-as-inbox-launch button{width:100%}}
+.sb-as-use:has(.sb-as-gold-customer-service-setup){max-width:940px;padding:34px 38px 48px}
+.sb-as-use:has(.sb-as-gold-customer-service-setup) .sb-as-use-panel{padding:0;border:0;border-radius:0;background:transparent}
+.sb-as-gold-customer-service-setup{display:block}
+.sb-as-gold-shell{display:grid;gap:0}
+.sb-as-gold-hero{display:flex;align-items:flex-start;gap:16px;padding:8px 0 28px}
+.sb-as-gold-hero-mark{display:grid;place-items:center;width:48px;height:48px;flex:none;border-radius:15px;background:#1f2329;color:#fff;font-size:13px;font-weight:700;letter-spacing:.08em;box-shadow:0 7px 18px rgba(31,35,41,.12)}
+.sb-as-gold-hero-mark.sb-grok-avatar{border-radius:0;overflow:visible;background:transparent!important;box-shadow:none!important}
+.sb-as-gold-hero-mark .sb-grok-avatar-svg{display:block;width:100%;height:100%;overflow:visible}
+.sb-as-gold-hero-copy{min-width:0}
+.sb-as-gold-eyebrow{color:#4267a5;font-size:11px;font-weight:700;letter-spacing:.08em}
+.sb-as-gold-title{margin:6px 0 0;color:#1f2329;font-size:30px;line-height:1.22;letter-spacing:0;font-weight:750}
+.sb-as-gold-subtitle{max-width:650px;margin:9px 0 0;color:#7b8490;font-size:14px;line-height:1.7}
+.sb-as-gold-account{display:flex;align-items:center;gap:14px;min-width:0;padding:15px 16px;border:1px solid #e1e8f1;border-radius:13px;background:#f7faff}
+.sb-as-gold-account.is-empty{align-items:flex-start}
+.sb-as-gold-account-avatar{width:44px;height:44px;flex:none;overflow:hidden;border-radius:12px;background:#e9eef5}
+.sb-as-gold-account-avatar .sb-task-person-avatar{width:100%;height:100%;border-radius:0}
+.sb-as-gold-account-copy{display:grid;gap:3px;min-width:0;flex:1}
+.sb-as-gold-account-label{color:#4267a5;font-size:10px;font-weight:700;letter-spacing:.05em}
+.sb-as-gold-account-copy strong{overflow:hidden;color:#303842;font-size:14px;text-overflow:ellipsis;white-space:nowrap}
+.sb-as-gold-account-copy span{overflow:hidden;color:#89929d;font-size:11px;text-overflow:ellipsis;white-space:nowrap}
+.sb-as-gold-account-state{display:inline-flex;align-items:center;gap:6px;flex:none;color:#299266;font-size:11px;white-space:nowrap}
+.sb-as-gold-account-state i{width:7px;height:7px;border-radius:50%;background:#2dac76}
+.sb-as-gold-account-state.is-pending{color:#9a6a35}.sb-as-gold-account-state.is-pending i{background:#e8a33d}
+.sb-as-gold-account-select{height:34px;max-width:190px;padding:0 9px;border:1px solid #d5dfeb;border-radius:8px;background:#fff;color:#45515d;font:inherit;font-size:11px}
+.sb-as-gold-account-reauthorize{height:34px;padding:0 11px;border:1px solid #cbd9eb;border-radius:8px;background:#fff;color:#4267a5;font:inherit;font-size:11px;font-weight:650;cursor:pointer}
+.sb-as-gold-account-reauthorize:hover{border-color:#4267a5;background:#f3f7fe}
+.sb-as-gold-account-login{display:grid;gap:4px;min-width:0;flex:1}.sb-as-gold-account-login strong{color:#303842;font-size:14px}.sb-as-gold-account-login span{color:#7b8490;font-size:11px;line-height:1.55}
+.sb-as-gold-account-action{height:36px;flex:none;padding:0 13px;border:1px solid #1f2329;border-radius:8px;background:#1f2329;color:#fff;font:inherit;font-size:11px;font-weight:700;cursor:pointer}.sb-as-gold-account-action:disabled,.sb-as-gold-account-reauthorize:disabled{opacity:.55;cursor:not-allowed}
+.sb-as-gold-composer{margin-top:24px;padding:24px 26px 22px;border:1px solid #dce5ef;border-radius:16px;background:#fff;box-shadow:0 10px 28px rgba(45,61,80,.08)}
+.sb-as-gold-composer-kicker{color:#4267a5;font-size:12px;font-weight:700;line-height:1.5}
+.sb-as-gold-composer-input{display:block;width:100%;min-height:148px;margin-top:8px;box-sizing:border-box;resize:vertical;border:0;border-bottom:1px solid #e8edf2;padding:8px 0 15px;background:transparent;color:#1f2329;outline:none;font:inherit;font-size:18px;line-height:1.6}
+.sb-as-gold-composer-input::placeholder{color:#a1aab4;opacity:1}
+.sb-as-gold-composer-input:focus{border-bottom-color:#4267a5}
+.sb-as-gold-composer-help{display:block;margin-top:11px;color:#8a929d;font-size:11px;line-height:1.55}
+.sb-as-gold-suggestions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:18px}.sb-as-gold-suggestions-label{margin-right:2px;color:#8a929d;font-size:11px}.sb-as-gold-suggestion{min-height:30px;padding:0 10px;border:1px solid #dfe7f1;border-radius:999px;background:#f8faff;color:#4267a5;font:inherit;font-size:11px;cursor:pointer}.sb-as-gold-suggestion:hover{border-color:#a9bfdc;background:#f1f6fd}
+.sb-as-gold-launch{display:flex;align-items:center;justify-content:flex-end;gap:18px;margin-top:23px}.sb-as-gold-launch-button{height:46px;flex:none;padding:0 20px;border:1px solid #1f2329;border-radius:9px;background:#1f2329;color:#fff;font:inherit;font-size:12px;font-weight:700;cursor:pointer}.sb-as-gold-launch-button:hover{background:#343941}.sb-as-gold-launch-button:disabled{opacity:.48;cursor:not-allowed}.sb-as-gold-error{margin-top:16px}
+@media(max-width:640px){.sb-as-use:has(.sb-as-gold-customer-service-setup){padding:24px 16px 36px}.sb-as-gold-hero{padding-top:0}.sb-as-gold-title{font-size:25px}.sb-as-gold-subtitle{font-size:13px}.sb-as-gold-account{align-items:flex-start;flex-wrap:wrap}.sb-as-gold-account-state{margin-left:auto}.sb-as-gold-account-select{width:100%;max-width:none;order:4}.sb-as-gold-account-reauthorize{margin-left:auto}.sb-as-gold-account-action{width:100%;margin-top:5px}.sb-as-gold-composer{padding:20px 18px 18px}.sb-as-gold-composer-input{min-height:135px;font-size:16px}.sb-as-gold-launch{align-items:stretch;flex-direction:column}.sb-as-gold-launch-button{width:100%}}
+.sb-as-use:has(.sb-as-manager-inbox-setup){max-width:940px;padding:34px 38px 48px}
+.sb-as-use:has(.sb-as-manager-inbox-setup) .sb-as-use-panel{padding:0;border:0;border-radius:0;background:transparent}
+.sb-as-manager-inbox-setup{display:block}
+.sb-as-manager-automation{margin-top:22px;padding:20px 0 19px;border-top:1px solid #edf0f3;border-bottom:1px solid #edf0f3}
+.sb-as-manager-automation-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.sb-as-manager-automation-head>span{color:#8a929d;font-size:11px;line-height:1.5}
+.sb-as-manager-automation-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:14px}
+.sb-as-manager-automation-item{display:grid;grid-template-columns:8px minmax(0,1fr);gap:9px;align-items:start}
+.sb-as-manager-automation-item>i{width:8px;height:8px;margin-top:5px;border-radius:50%;background:#4267a5;box-shadow:0 0 0 4px #eef3fa}
+.sb-as-manager-automation-item strong,.sb-as-manager-automation-item span{display:block}
+.sb-as-manager-automation-item strong{color:#303842;font-size:12px;line-height:1.45}
+.sb-as-manager-automation-item span{margin-top:4px;color:#89929d;font-size:11px;line-height:1.55}
+.sb-as-manager-launch{align-items:flex-end;justify-content:space-between}
+.sb-as-manager-launch-copy{display:grid;gap:4px;min-width:0}
+.sb-as-manager-launch-copy strong{color:#303842;font-size:14px;line-height:1.45}
+.sb-as-manager-launch-copy span{max-width:540px;color:#89929d;font-size:11px;line-height:1.55}
+@media(max-width:640px){.sb-as-use:has(.sb-as-manager-inbox-setup){padding:24px 16px 36px}.sb-as-manager-automation{margin-top:20px;padding:18px 0}.sb-as-manager-automation-head{align-items:flex-start;flex-direction:column;gap:5px}.sb-as-manager-automation-list{grid-template-columns:1fr;gap:12px}.sb-as-manager-launch{align-items:stretch}.sb-as-manager-launch-copy span{max-width:none}}
+.sb-as-use:has(.sb-as-live-danmaku-analysis-setup){max-width:940px;padding:34px 38px 48px}
+.sb-as-use:has(.sb-as-live-danmaku-analysis-setup) .sb-as-use-panel{padding:0;border:0;border-radius:0;background:transparent}
+.sb-as-live-danmaku-analysis-setup{display:block}
+.sb-as-live-shell{display:grid;gap:0}
+.sb-as-live-account{margin:0;border-color:#e1e8f1;background:#f7faff}
+.sb-as-live-account .sb-task-account-selector{max-width:none;padding:0;border:0;border-radius:0;background:transparent}
+.sb-as-live-account .sb-task-account-selector>:first-child{width:44px;height:44px;border-radius:12px}
+.sb-as-live-account .sb-task-account-caption{color:#4267a5;font-size:10px;font-weight:700;letter-spacing:.05em}
+.sb-as-live-account .sb-task-account-picker select{min-height:24px;border:0;background:transparent;color:#303842;font-size:14px;font-weight:650;outline:none}
+.sb-as-live-account .sb-task-settings>summary{padding:6px 8px;border-radius:7px}
+.sb-as-live-account .sb-task-settings>summary:hover{background:#edf3fb}
+.sb-as-live-account .sb-task-settings button,.sb-as-live-account>button{height:36px!important;padding:0 13px!important;border:1px solid #1f2329!important;border-radius:8px!important;background:#1f2329!important;color:#fff!important;font:inherit!important;font-size:11px!important;font-weight:700!important;white-space:nowrap;cursor:pointer}
+.sb-as-live-account .sb-task-settings button:disabled,.sb-as-live-account>button:disabled{opacity:.55;cursor:not-allowed}
+.sb-as-live-composer{margin-top:24px}
+.sb-as-live-scope{display:flex;align-items:flex-start;gap:9px;margin-top:18px;padding-top:15px;border-top:1px solid #edf0f3;color:#8a929d;font-size:11px;line-height:1.55}
+.sb-as-live-scope i{width:17px;height:17px;display:grid;place-items:center;flex:none;border-radius:50%;background:#eaf3ed;color:#299266;font-style:normal;font-size:10px;font-weight:700}
+.sb-as-live-scope-copy{display:grid;gap:3px;min-width:0}
+.sb-as-live-scope-copy strong{color:#303842;font-size:11px;font-weight:700}
+.sb-as-live-scope-copy span{color:#8a929d}
+.sb-as-live-launch{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:23px}
+.sb-as-live-launch-copy{display:grid;gap:3px;min-width:0}
+.sb-as-live-launch-copy strong{color:#1f2329;font-size:15px;font-weight:700}
+.sb-as-live-launch-copy span{color:#8a929d;font-size:11px;line-height:1.5}
+.sb-as-live-launch-button{height:46px;flex:none;padding:0 20px;border:1px solid #1f2329;border-radius:9px;background:#1f2329;color:#fff;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.sb-as-live-launch-button:hover{background:#343941}
+.sb-as-live-launch-button:disabled{opacity:.48;cursor:not-allowed}
+.sb-as-live-error{margin-top:16px}
+@media(max-width:640px){.sb-as-use:has(.sb-as-live-danmaku-analysis-setup){padding:24px 16px 36px}.sb-as-live-account{align-items:flex-start;flex-wrap:wrap}.sb-as-live-account .sb-task-account-selector{flex-basis:100%}.sb-as-live-account .sb-task-settings{margin-left:auto}.sb-as-live-account .sb-task-settings button,.sb-as-live-account>button{width:100%!important}.sb-as-live-composer{padding:20px 18px 18px}.sb-as-live-launch{align-items:stretch;flex-direction:column}.sb-as-live-launch-button{width:100%}}
+.sb-as-use:has(.sb-as-viral-work-analysis-setup),.sb-as-use:has(.sb-as-viral-work-analysis-running){max-width:940px;padding:34px 38px 48px}
+.sb-as-use:has(.sb-as-viral-work-analysis-setup) .sb-as-use-panel,.sb-as-use:has(.sb-as-viral-work-analysis-running) .sb-as-use-panel{padding:0;border:0;border-radius:0;background:transparent}
+.sb-as-viral-work-analysis-setup,.sb-as-viral-work-analysis-running{display:block}
+.sb-as-viral-shell{display:grid;gap:0}
+.sb-as-viral-source{margin-top:24px;padding:24px 26px 22px;border:1px solid #dce5ef;border-radius:16px;background:#fff;box-shadow:0 10px 28px rgba(45,61,80,.08)}
+.sb-as-viral-source-kicker{color:#4267a5;font-size:12px;font-weight:700;line-height:1.5}
+.sb-as-viral-url-row{display:flex;align-items:center;gap:10px;margin-top:12px;padding:0 0 14px;border-bottom:1px solid #e8edf2}
+.sb-as-viral-url-row:focus-within{border-bottom-color:#4267a5}
+.sb-as-viral-url-icon{display:grid;place-items:center;width:25px;height:25px;flex:none;border-radius:7px;background:#f1f5fb;color:#4267a5;font-size:12px;font-weight:700}
+.sb-as-viral-url-input{display:block;width:100%;min-width:0;height:31px;border:0;padding:0;background:transparent;color:#1f2329;outline:none;font:inherit;font-size:16px;line-height:1.5}
+.sb-as-viral-url-input::placeholder{color:#a1aab4;opacity:1}
+.sb-as-viral-source-help{display:block;margin-top:11px;color:#8a929d;font-size:11px;line-height:1.55}
+.sb-as-viral-focus{margin-top:19px;padding-top:18px;border-top:1px solid #edf0f3}
+.sb-as-viral-focus-label{color:#4267a5;font-size:12px;font-weight:700;line-height:1.5}
+.sb-as-viral-focus-input{display:block;width:100%;min-height:92px;margin-top:8px;box-sizing:border-box;resize:vertical;border:0;border-bottom:1px solid #e8edf2;padding:8px 0 14px;background:transparent;color:#1f2329;outline:none;font:inherit;font-size:15px;line-height:1.6}
+.sb-as-viral-focus-input::placeholder{color:#a1aab4;opacity:1}
+.sb-as-viral-focus-input:focus{border-bottom-color:#4267a5}
+.sb-as-viral-suggestions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:16px}.sb-as-viral-suggestions-label{margin-right:2px;color:#8a929d;font-size:11px}.sb-as-viral-suggestion{min-height:30px;padding:0 10px;border:1px solid #dfe7f1;border-radius:999px;background:#f8faff;color:#4267a5;font:inherit;font-size:11px;cursor:pointer}.sb-as-viral-suggestion:hover{border-color:#a9bfdc;background:#f1f6fd}
+.sb-as-viral-note{display:flex;align-items:flex-start;gap:8px;margin-top:15px;color:#8a929d;font-size:11px;line-height:1.6}.sb-as-viral-note i{width:17px;height:17px;display:grid;place-items:center;flex:none;border-radius:50%;background:#eef3fa;color:#4267a5;font-style:normal;font-size:10px;font-weight:700}
+.sb-as-viral-launch{display:flex;align-items:center;justify-content:flex-end;gap:18px;margin-top:23px}.sb-as-viral-launch-button{height:46px;flex:none;padding:0 20px;border:1px solid #1f2329;border-radius:9px;background:#1f2329;color:#fff;font:inherit;font-size:12px;font-weight:700;cursor:pointer}.sb-as-viral-launch-button:hover{background:#343941}.sb-as-viral-launch-button:disabled{opacity:.48;cursor:not-allowed}.sb-as-viral-error{margin-top:16px}
+.sb-as-viral-running-body{margin-top:24px}.sb-as-viral-running-body>.sb-as-use-notice:first-child{margin-top:0}.sb-as-viral-running-body .sb-as-use-actions{margin-top:23px}
+@media(max-width:640px){.sb-as-use:has(.sb-as-viral-work-analysis-setup),.sb-as-use:has(.sb-as-viral-work-analysis-running){padding:24px 16px 36px}.sb-as-viral-source{padding:20px 18px 18px}.sb-as-viral-url-input{font-size:14px}.sb-as-viral-focus-input{font-size:14px}.sb-as-viral-launch{align-items:stretch;flex-direction:column}.sb-as-viral-launch-button{width:100%}}
 .sb-as{min-height:100%;padding-bottom:28px}
 .sb-as-toolbar{display:flex;flex-direction:column;gap:8px;padding:28px 28px 10px}
 .sb-as-cta{display:grid;gap:8px;max-width:760px;margin:0}
@@ -162,10 +263,9 @@ const CSS = `
 .sb-as-category-section+.sb-as-category-section{padding-top:8px}
 .sb-as-category-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
 .sb-as-category-icon{width:22px;height:22px;display:block;flex:none;margin-top:1px;fill:currentColor}
-.sb-as-category-copy{display:grid;gap:3px;min-width:0}
+.sb-as-category-copy{min-width:0}
 .sb-as-category-title{display:flex;align-items:baseline;gap:8px;color:#1F2329;font-size:17px;font-weight:700;line-height:1.35}
 .sb-as-category-count{color:#9aa2ad;font-size:11px;font-weight:500}
-.sb-as-category-description{color:#8a929d;font-size:11px;line-height:1.5}
 .sb-as-sec-title{font-size:14px;font-weight:600;color:#1F2329;display:flex;align-items:baseline;gap:8px;padding:20px 28px 10px}
 .sb-as-sec-sub{font-size:11px;color:#B0B4BB;font-weight:400}
 
@@ -200,6 +300,9 @@ const CSS = `
 .sb-as-tag{font-size:12px;color:#646A73;background:#F3F4F6;border-radius:999px;padding:5px 11px;white-space:nowrap}
 .sb-as-tag-skill{font-weight:500;padding:2px 9px;border-radius:999px}
 .sb-as-card .sb-as-tag-skill{color:var(--sb-as-card-accent,#536273)!important;background:var(--sb-as-card-accent-soft,#F1F3F6)!important;border:1px solid var(--sb-as-card-accent-border,#DCE2EA)!important}
+.sb-as-card[data-sb-agent-id="mkt-live-danmaku-analysis"] .sb-as-hire{border-color:#d6c9fa;background:#f0ebff;color:#6b4bb4}
+.sb-as-card[data-sb-agent-id="mkt-live-danmaku-analysis"] .sb-as-hire:hover{border-color:#bda9ef;background:#e5dcff;color:#5c3fa8}
+.sb-as-card[data-sb-agent-id="mkt-live-danmaku-analysis"] .sb-as-hire:disabled,.sb-as-card[data-sb-agent-id="mkt-live-danmaku-analysis"] .sb-as-hire.sb-disabled{border-color:#e1e3e6;background:#f1f2f3;color:#9aa0a8}
 .sb-as-foot{width:100%;margin-top:auto;padding-top:18px}
 .sb-as-foot-meta{display:flex;justify-content:center;align-items:center;gap:5px;min-height:18px;margin-bottom:10px;font-size:11.5px;color:#8A8F99;text-align:center}
 .sb-as-rate{font-size:11.5px;color:#8A8F99}
@@ -342,17 +445,6 @@ const CSS = `
 .sb-as-task-options>summary strong{font-size:12px;font-weight:650}.sb-as-task-options>summary span{color:#9299a3;font-size:10px}
 .sb-as-task-option-fields{padding:4px 13px 15px}
 .sb-as-task-options>.sb-as-lead-card{padding:5px 13px 16px}.sb-as-task-options>.sb-as-lead-card+.sb-as-lead-card{margin-top:0;padding-top:16px;border-top:1px solid #edf0f3}
-.sb-as-manager-advanced-settings{margin-top:14px;border:1px solid #e5e8ec;border-radius:8px;background:rgba(255,255,255,.72)}
-.sb-as-manager-advanced-settings>summary{position:relative;display:flex;align-items:center;gap:12px;min-height:46px;box-sizing:border-box;padding:10px 13px;color:#1F2329;cursor:pointer;list-style:none}
-.sb-as-manager-advanced-settings>summary::-webkit-details-marker{display:none}
-.sb-as-manager-advanced-settings>summary:after{content:"+";display:grid;place-items:center;width:22px;height:22px;margin-left:auto;border-radius:50%;background:#f0f2f5;color:#7c8590;font-size:14px}
-.sb-as-manager-advanced-settings[open]>summary:after{content:"−"}
-.sb-as-manager-advanced-settings>summary strong{font-size:12px;font-weight:650}.sb-as-manager-advanced-settings>summary span{color:#9299a3;font-size:10px}
-.sb-as-manager-advanced-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:4px 13px 15px;border-top:1px solid #edf0f3}
-.sb-as-manager-advanced-fields .sb-as-use-field.full{grid-column:1/-1}
-.sb-as-manager-advanced-fields input,.sb-as-manager-advanced-fields textarea{width:100%;box-sizing:border-box}
-.sb-as-manager-advanced-fields textarea{min-height:66px;resize:vertical}
-.sb-as-manager-advanced-fields input[type=number]{max-width:180px}
 .sb-as-task-mode{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;padding:4px;border-radius:8px;background:#f1f3f5}
 .sb-as-task-mode-option{height:36px;border:0;border-radius:6px;background:transparent;color:#747d88;font:inherit;font-size:11px;cursor:pointer}
 .sb-as-task-mode-option.is-selected{background:#fff;color:#1F2329;font-weight:650;box-shadow:0 2px 7px rgba(31,35,41,.08)}
@@ -365,7 +457,6 @@ const CSS = `
 @media(max-width:640px){.sb-as-morgan-title{font-size:26px}.sb-as-morgan-section-head{align-items:flex-start;flex-direction:column;gap:4px}.sb-as-morgan-account-row>div{display:grid!important;grid-template-columns:1fr}.sb-as-morgan-account-row button{width:100%}.sb-as-morgan-prompt textarea{min-height:140px}.sb-as-morgan-start{align-items:stretch;flex-direction:column}.sb-as-morgan-start button{width:100%}}
 @media(max-width:900px){.sb-as-use:not(:has(.sb-as-lead-setup)){padding:24px 24px 44px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-intro{grid-template-columns:1fr}}
 @media(max-width:640px){.sb-as-use:not(:has(.sb-as-lead-setup)){padding:22px 16px 36px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-title{font-size:25px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-panel{padding:22px 18px 18px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-steps{grid-template-columns:1fr}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-step{padding:9px 11px}.sb-as-use:has(.sb-as-private-review) .sb-as-use-panel{padding:22px 18px 18px}.sb-as-private-review-top{align-items:flex-start;flex-direction:column;gap:10px}.sb-as-private-summary{grid-template-columns:1fr;grid-template-areas:"sender" "boundary" "target" "message"}.sb-as-private-actions{flex-direction:column-reverse;align-items:stretch}.sb-as-private-actions button{width:100%}.sb-as-use.is-task-compose.is-task-compose{padding:42px 17px 36px}.sb-as-use.is-task-compose.is-task-compose .sb-as-use-panel.sb-as-task-compose-panel{padding:0}.sb-as-task-compose-panel .sb-as-use-panel-title{font-size:25px}.sb-as-task-compose-panel .sb-as-finder-goal{min-height:160px;padding:16px;font-size:15px}.sb-as-task-compose-panel .sb-as-finder-actions{justify-content:stretch}.sb-as-task-compose-panel .sb-as-finder-actions button.primary{width:100%}.sb-as-task-options>summary{align-items:flex-start;flex-wrap:wrap;padding-right:45px}.sb-as-task-options>summary:after{position:absolute;top:11px;right:13px}.sb-as-task-options>summary span{flex-basis:100%}}
-@media(max-width:640px){.sb-as-manager-advanced-settings>summary{align-items:flex-start;flex-wrap:wrap;padding-right:45px}.sb-as-manager-advanced-settings>summary:after{position:absolute;top:11px;right:13px}.sb-as-manager-advanced-settings>summary span{flex-basis:100%}.sb-as-manager-advanced-fields{grid-template-columns:1fr}.sb-as-manager-advanced-fields .sb-as-use-field.full{grid-column:auto}.sb-as-manager-advanced-fields input[type=number]{max-width:none}}
 @media(max-width:640px){.sb-as-private-source-head{flex-direction:column}.sb-as-private-source-tools{width:100%}.sb-as-private-source-tool{flex:1}.sb-as-private-mode-options{grid-template-columns:1fr}.sb-as-private-running-summary{grid-template-columns:1fr}.sb-as-private-target{grid-template-columns:25px minmax(0,1fr);}.sb-as-private-target-status{grid-column:2}.sb-as-private-review-target{align-items:flex-start;flex-direction:column;gap:3px}.sb-as-private-mock-flow{grid-template-columns:1fr}}
 .sb-as-finder-consumer{padding:14px 26px 34px}.sb-as-finder-promise{display:grid;gap:4px;margin:2px 0 18px;padding:13px 15px;border:1px solid #dce6f5;border-radius:11px;background:#f7faff}.sb-as-finder-promise strong{color:#294a7e;font-size:12px;line-height:1.45}.sb-as-finder-promise span{color:#718096;font-size:10.5px;line-height:1.55}.sb-as-finder-consumer .sb-task-choices legend{font-size:18px;line-height:1.35;margin-bottom:14px;color:#2d343b}.sb-as-finder-consumer .sb-task-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.sb-as-finder-consumer .sb-task-choice{min-height:102px;align-items:flex-start;padding:15px 15px 14px;border-radius:10px;transition:background .15s,border-color .15s,box-shadow .15s,transform .15s ease}.sb-as-finder-consumer .sb-task-choice:hover{background:#fbfdff}.sb-as-finder-consumer .sb-task-choice.is-selected{background:#f8fbff}.sb-as-finder-consumer .sb-task-choice.is-selected .sb-task-choice-copy strong{color:#245ea9}.sb-as-finder-consumer .sb-task-choice.is-selected:hover{transform:translateY(-1px)}.sb-as-finder-consumer .sb-task-choice-copy{gap:5px}.sb-as-finder-consumer .sb-task-choice-eyebrow{color:#7f9bc0;font-size:10px;font-weight:650;line-height:1.2}.sb-as-finder-consumer .sb-task-choice strong{font-size:14px;line-height:1.35}.sb-as-finder-consumer .sb-task-choice small{font-size:11px;line-height:1.5}.sb-task-selection-note{display:flex;align-items:baseline;gap:8px;min-height:24px;margin:12px 1px 0;color:#7d8791;font-size:10.5px;line-height:1.45}.sb-task-selection-note strong{color:#42566d;font-size:11px;font-weight:650}.sb-task-selection-note small{color:#929ca7}.sb-task-filter-section{margin-top:12px;padding-top:12px;border-top:1px solid #edf0f3}.sb-task-filter-header{display:flex;align-items:baseline;gap:8px}.sb-task-filter-header strong{color:#5b6773;font-size:11px;font-weight:650}.sb-task-filter-header span{color:#9aa3ad;font-size:10px}.sb-task-filter-section .sb-task-filter-row{margin-top:8px}.sb-task-choice{transition:background .15s,border-color .15s,box-shadow .15s,transform .15s ease}
  .sb-as-finder-consumer .sb-task-specific-goal{display:none;gap:7px;margin:13px 0 0;padding:13px 14px;border:1px solid #d9e3f1;border-radius:10px;background:#f8fbff}.sb-as-finder-consumer .sb-task-specific-goal.is-visible{display:grid}.sb-as-finder-consumer .sb-task-specific-goal label{color:#536b86;font-size:11px;font-weight:650}.sb-as-finder-consumer .sb-task-specific-goal textarea{width:100%;box-sizing:border-box;min-height:64px;padding:10px 11px;border:1px solid #d8e0ea;border-radius:8px;background:#fff;color:#30363c;font:inherit;font-size:12px;line-height:1.55;resize:vertical;outline:none}.sb-as-finder-consumer .sb-task-specific-goal textarea:focus{border-color:#8ca9d1;box-shadow:0 0 0 3px rgba(66,103,165,.1)}
@@ -428,29 +519,31 @@ function ensureStyle() {
 }
 
 
-const AGENT_WORKFLOW_CATEGORIES = Object.freeze([...MARKETPLACE_CATEGORIES]);
-const AGENT_WORKFLOW_DISPLAY_ORDER = Object.freeze(["找人", "分析", "触达", "私信对话"]);
+const DEVELOPER_MODE_AGENT_IDS = new Set([
+  "mkt-find-people",
+  "mkt-intent-analyst",
+  "mkt-cold-writer",
+  "mkt-dm-inbox"
+]);
+const INBOX_AGENT_IDS = new Set(["mkt-dm-inbox", GOLD_CUSTOMER_SERVICE_AGENT_ID]);
+const AGENT_WORKFLOW_CATEGORIES = Object.freeze(["开发者模式", ...MARKETPLACE_CATEGORIES]);
+const AGENT_WORKFLOW_DISPLAY_ORDER = Object.freeze(["找人", "分析", "触达", "私信对话", "开发者模式"]);
 const AGENT_SQUARE_FILTER_ORDER = Object.freeze(["全部", ...AGENT_WORKFLOW_DISPLAY_ORDER]);
 const AGENT_STAGE_ICONS = Object.freeze({
   全部: { filledIcon: "agent-grid", color: "#536273" },
-  找人: { filledIcon: "people-search", color: "#278AF0" },
+  开发者模式: { filledIcon: "developer", color: "#536273" },
+  找人: { filledIcon: "user-search", color: "#278AF0" },
   触达: { filledIcon: "paper-plane", color: "#7C45F7" },
   私信对话: { filledIcon: "chat-bubble", color: "#E28A2B" },
-  分析: { filledIcon: "growth-chart", color: "#5CB85C" }
+  分析: { filledIcon: "analysis-chart", color: "#5CB85C" }
 });
-const AGENT_STAGE_DESCRIPTIONS = Object.freeze({
-  找人: "先把可能有需求的人找出来",
-  分析: "把找到的互动和账号，变成可判断的线索",
-  触达: "准备并执行合适的首次联系",
-  私信对话: "承接已经发生的私信，继续推进"
-});
-
 const FILLED_STAGE_ICON_MARKUP = Object.freeze({
   "agent-grid": '<path fill="currentColor" d="M4 3h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm10 0h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM4 13h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1Zm10 0h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1Z"/>',
-  "people-search": '<path fill="currentColor" d="M9.25 3.25a4.25 4.25 0 1 0 0 8.5 4.25 4.25 0 0 0 0-8.5Zm0 2.4a1.85 1.85 0 1 1 0 3.7 1.85 1.85 0 0 1 0-3.7Z"/><path fill="currentColor" d="M2.9 19.4c.45-3.28 2.4-5.15 6.35-5.15 1.65 0 2.95.32 3.93.97a6.2 6.2 0 0 0-1.45 2.18H5.72c-.31.55-.5 1.2-.6 2H2.9Z"/><path fill="currentColor" d="m15.6 14.1 1.85 1.85 1.32-1.32a1.2 1.2 0 1 1 1.7 1.7l-1.32 1.32L21 19.5a1.2 1.2 0 1 1-1.7 1.7l-1.85-1.85-1.32 1.32a1.2 1.2 0 1 1-1.7-1.7l1.32-1.32-1.85-1.85a1.2 1.2 0 1 1 1.7-1.7Z"/>',
+  developer: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m8 7-4 5 4 5m8-10 4 5-4 5M14 4l-4 16"/>',
+  "user-search": '<circle cx="9" cy="8.5" r="4.8" fill="none" stroke="currentColor" stroke-width="2.3"/><path fill="currentColor" d="M3.6 20.4c.38-3.45 2.2-5.45 5.4-5.45 1.9 0 3.4.52 4.4 1.57l-1.6 1.6c-.67-.48-1.6-.72-2.8-.72-1.35 0-2.25.48-2.7 1.44-.16.34-.27.86-.33 1.56H3.6Z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.3" d="m12.6 12.1 6.1 6.1"/>',
   "paper-plane": '<path fill="currentColor" d="m2.3 3.55 19.1 7.58a1 1 0 0 1 0 1.86L2.3 20.57a1 1 0 0 1-1.34-1.17l2.1-6.73 8.22-.62a.8.8 0 0 0 0-1.6l-8.22-.62-2.1-6.73A1 1 0 0 1 2.3 3.55Z"/>',
   "chat-bubble": '<path fill="currentColor" d="M12 2.5c5.52 0 10 3.58 10 8s-4.48 8-10 8c-1.02 0-2-.12-2.9-.36L4.1 21l.56-3.3C2.42 16.28 2 13.55 2 10.5c0-4.42 4.48-8 10-8Zm-4.35 7.2a1.45 1.45 0 1 0 0 2.9 1.45 1.45 0 0 0 0-2.9Zm4.35 0a1.45 1.45 0 1 0 0 2.9 1.45 1.45 0 0 0 0-2.9Zm4.35 0a1.45 1.45 0 1 0 0 2.9 1.45 1.45 0 0 0 0-2.9Z"/>',
-  "growth-chart": '<path fill="currentColor" d="M3 18.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm5-4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm5-4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm5-6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"/><path fill="currentColor" d="M3.75 19.1 8.5 15l5  -4 4.6-5.45 1.83 1.54-4.75 5.62-5 4-4.76 4.1-1.67-1.7Z"/><path fill="currentColor" d="m16.3 3.2 5.2.06-.7 5.15-2.06-2.03-2.44 2.9-1.83-1.54 2.43-2.9-2.63-.02 2.03-1.62Z"/>'
+  "analysis-chart": '<path fill="currentColor" d="M3.2 18.2h3.35v3H3.2v-3Zm5.1-5.45h3.35V21.2H8.3v-8.45Zm5.1-4.25h3.35V21.2H13.4V8.5Z"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m3.5 15.8 4.8-4.25 3.65 2.1 6.25-7.1"/><path fill="currentColor" d="m15.9 6.05 5.1.1-.68 5.05-1.75-2.02-2.67 3.05-1.65-1.45 2.67-3.05-2.12-.04 1.1-1.64Z"/>'
 });
 
 function createFilledStageIcon(stage, color) {
@@ -474,8 +567,11 @@ const MARKETPLACE_WORKFLOW_STAGE = Object.freeze({
   "mkt-trend-insight": "分析",
   "mkt-intent-analyst": "分析",
   "mkt-live-danmaku-analysis": "分析",
+  "mkt-live-danmaku-outreach": "触达",
+  "mkt-viral-work-analysis": "分析",
   "mkt-cold-writer": "触达",
   "mkt-dm-inbox": "私信对话",
+  [GOLD_CUSTOMER_SERVICE_AGENT_ID]: "私信对话",
   "mkt-follow-up": "触达",
   "mkt-phone-sdr": "触达",
   "mkt-copywriter": "触达"
@@ -490,6 +586,7 @@ const LEAD_AUDIENCE_TYPE_OPTIONS = Object.freeze([
 
 function workflowCategory(agent) {
   if (agent?.id === DOUYIN_ACQUISITION_COMPLETE_AGENT_ID) return null;
+  if (DEVELOPER_MODE_AGENT_IDS.has(agent?.id)) return "开发者模式";
   const category = normalizeMarketplaceCapability(MARKETPLACE_WORKFLOW_STAGE[agent?.id] || agent?.category);
   return AGENT_WORKFLOW_CATEGORIES.includes(category) ? category : "触达";
 }
@@ -540,6 +637,14 @@ const CATEGORY_ACCENTS = Object.freeze({
 
 function categoryAccent(category) {
   return CATEGORY_ACCENTS[category] || ["#536273", "#F1F3F6", "#DCE2EA"];
+}
+
+const LIVE_DANMAKU_ANALYSIS_ACCENT = Object.freeze(["#7357C8", "#F3F0FF", "#DDD5F5"]);
+
+function marketplaceCardAccent(agent, category = agent?.category) {
+  return agent?.id === "mkt-live-danmaku-analysis"
+    ? LIVE_DANMAKU_ANALYSIS_ACCENT
+    : categoryAccent(category);
 }
 
 const TEAM_CARD_META = Object.freeze({
@@ -946,6 +1051,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       || isPrivateOutreachAgent(agent)
       || isInboxIntakeFlow(agent, flow)
       || isLiveDanmakuAnalysisAgent(agent)
+      || isLiveDanmakuOutreachAgent(agent)
     );
   }
 
@@ -1030,11 +1136,16 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       return;
     }
     const mockPrivateOutreach = isPrivateOutreachAgent(agent) && Boolean(privateOutreachMockData);
+    const goldCustomerService = agent.id === GOLD_CUSTOMER_SERVICE_AGENT_ID;
+    const objectiveFirstInbox = goldCustomerService || isCommentAcquisitionAgent(agent);
     const authorizedAccounts = mockPrivateOutreach ? [structuredClone(privateOutreachMockData.account)] : [];
     const saved = resumeFlow && resumeFlow.agentId === agent.id ? resumeFlow : null;
     const savedFinderListener = isFinderListenerFlow(agent, saved || {});
     const savedLongRunning = isLongRunningAcquisitionAgent(agent) || savedFinderListener;
     const savedLiveDanmakuAnalysis = isLiveDanmakuAnalysisAgent(agent) || saved?.analysisKind === "live_danmaku";
+    const savedLiveDanmakuOutreach = isLiveDanmakuOutreachAgent(agent) || saved?.analysisKind === "live_danmaku_outreach";
+    const savedViralWorkAnalysis = isViralWorkAnalysisAgent(agent) || saved?.analysisKind === "viral_work";
+    const savedOneOffAnalysis = savedViralWorkAnalysis && Boolean(saved?.analysisResult || saved?.resultSnapshot);
     const legacyPreview = isCommentAcquisitionAgent(agent) && ["preview", "previewing"].includes(saved?.step);
     // The complete acquisition Agent owns one continuous setup flow. It
     // configures the account listener and the account-scoped reception policy
@@ -1043,7 +1154,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       && !legacyPreview
       && (!saved || saved?.managerCombinedStart === true || !saved?.taskKey);
     const inboxIntake = isInboxAgent(agent) || managerSetup || isInboxIntakeFlow(agent, saved);
-    const isDurableTask = inboxIntake || savedLongRunning || savedLiveDanmakuAnalysis;
+    const isDurableTask = inboxIntake || savedLongRunning || savedLiveDanmakuAnalysis || savedLiveDanmakuOutreach;
     const configuredStrategy = inboxIntake ? inboxStrategyStore.get(agent.id, { accountId: saved?.accountId || "" }) : null;
     const savedConfiguration = saved?.configuration && typeof saved.configuration === "object"
       ? saved.configuration
@@ -1064,7 +1175,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     state.view = "use";
     state.useId = agent.id;
     state.useFlow = {
-      step: legacyPreview || managerSetup ? "setup" : saved?.managerAcquisitionStartFailed === true ? "running" : saved?.step || ((savedLongRunning || savedLiveDanmakuAnalysis) && saved?.taskKey && saved?.phase === "running" ? "running" : "setup"),
+      step: legacyPreview || managerSetup ? "setup" : saved?.managerAcquisitionStartFailed === true ? "running" : saved?.step || (savedOneOffAnalysis ? "running" : ((savedLongRunning || savedLiveDanmakuAnalysis || savedLiveDanmakuOutreach) && saved?.taskKey && saved?.phase === "running" ? "running" : "setup")),
       agentId: agent.id,
       taskId: legacyPreview ? "" : saved?.taskId || "",
       taskRunId: legacyPreview ? "" : saved?.taskRunId || "",
@@ -1094,7 +1205,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       accountResolveTimer: null,
       accountResolveRequestId: 0,
       authorizedAccounts,
-      source: inboxIntake ? "抖音私信" : isPrivateOutreachAgent(agent) ? "成果中心潜客" : isUserResearchAgent(agent) ? "用户调研" : isCommentAcquisitionAgent(agent) ? "已授权账号作品评论" : isLiveDanmakuAnalysisAgent(agent) ? "已授权账号直播间" : "商品作品评论区",
+      source: inboxIntake ? "抖音私信" : isPrivateOutreachAgent(agent) ? "成果中心潜客" : isUserResearchAgent(agent) ? "用户调研" : isCommentAcquisitionAgent(agent) ? "已授权账号作品评论" : isLiveDanmakuAnalysisAgent(agent) || isLiveDanmakuOutreachAgent(agent) ? "已授权账号直播间弹幕" : isViralWorkAnalysisAgent(agent) ? "抖音公开作品链接" : "商品作品评论区",
       finderGoal: saved?.finderGoal || "",
       compositeFinderStep: saved?.compositeFinderStep || "source",
       compositeFinderSource: saved?.compositeFinderSource || "",
@@ -1109,7 +1220,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       finderAccountContext: saved?.finderAccountContext
         ? structuredClone(saved.finderAccountContext)
         : { businessAccountUrl: "", referenceAccountUrls: [] },
-      taskChoices: saved?.taskChoices ? structuredClone(saved.taskChoices) : {},
+      taskChoices: isCommentAcquisitionAgent(agent) ? {} : saved?.taskChoices ? structuredClone(saved.taskChoices) : {},
       finderInputs: saved?.finderInputs || "",
       finderFileName: saved?.finderFileName || "",
       finderFileUrls: Array.isArray(saved?.finderFileUrls) ? [...saved.finderFileUrls] : [],
@@ -1128,14 +1239,19 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       surveySelectedIds: Array.isArray(saved?.surveySelectedIds) ? [...saved.surveySelectedIds] : [],
       researchPhase: saved?.researchPhase || "setup",
       analysisMode: saved?.analysisMode || (saved?.analysisKind === "account_report" ? "account_report" : ""),
-      analysisKind: saved?.analysisKind || (isLiveDanmakuAnalysisAgent(agent) ? "live_danmaku" : ""),
+      analysisKind: saved?.analysisKind || (isLiveDanmakuAnalysisAgent(agent) ? "live_danmaku" : isLiveDanmakuOutreachAgent(agent) ? "live_danmaku_outreach" : isViralWorkAnalysisAgent(agent) ? "viral_work" : ""),
       liveDanmakuGoal: saved?.liveDanmakuGoal || "梳理直播间高频问题、用户需求、购买意向和反对点。",
-      liveDanmakuSignals: Array.isArray(saved?.liveDanmakuSignals) && saved.liveDanmakuSignals.length ? [...saved.liveDanmakuSignals] : ["danmaku", "likes", "gifts"],
+      liveDanmakuSignals: savedLiveDanmakuOutreach ? ["danmaku"] : [...DEFAULT_LIVE_SIGNALS],
       liveDanmakuAnalysis: saved?.liveDanmakuAnalysis ? structuredClone(saved.liveDanmakuAnalysis) : null,
+      workUrl: saved?.workUrl || saved?.inputs?.workUrl || saved?.resultSnapshot?.sourceUrl || "",
+      viralWorkGoal: saved?.viralWorkGoal || saved?.inputs?.goal || VIRAL_WORK_ANALYSIS_DEFAULT_GOAL,
+      viralWorkFresh: saved?.viralWorkFresh === true,
+      commentLimit: saved?.commentLimit || saved?.inputs?.commentLimit || 100,
+      viralWorkAnalysis: saved?.viralWorkAnalysis ? structuredClone(saved.viralWorkAnalysis) : saved?.analysisResult ? structuredClone(saved.analysisResult) : saved?.resultSnapshot ? structuredClone(saved.resultSnapshot) : null,
       analysisAccounts: normalizeAnalysisAccounts(saved?.analysisAccounts || []),
       analysisGoal: saved?.analysisGoal || "了解账号主要做什么、有哪些需求，以及哪些信息还需要确认。",
       analysisUrls: saved?.analysisUrls || "",
-      analysisResult: null,
+      analysisResult: saved?.analysisResult ? structuredClone(saved.analysisResult) : null,
       intentCandidates: Array.isArray(saved?.intentCandidates) ? structuredClone(saved.intentCandidates) : [],
       intentSelectedIds: Array.isArray(saved?.intentSelectedIds) ? [...saved.intentSelectedIds] : [],
       intentGoal: saved?.intentGoal || "判断这些已找到的用户是否值得继续跟进，并给出可回查的依据和下一步建议。",
@@ -1148,22 +1264,24 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       sourceTaskGoal: saved?.sourceTaskGoal || "",
       sourceResultType: saved?.sourceResultType || "",
       sourceScope: saved?.sourceScope || "",
-      executionAgentId: String(saved?.executionAgentId || (isUserResearchAgent(agent) ? "mkt-cold-writer" : isLiveDanmakuAnalysisAgent(agent) ? "mkt-comment-acquisition" : "")).trim(),
-      product: savedLongRunning
+      executionAgentId: String(saved?.executionAgentId || (isUserResearchAgent(agent) ? "mkt-cold-writer" : isLiveDanmakuAnalysisAgent(agent) || isLiveDanmakuOutreachAgent(agent) ? "mkt-comment-acquisition" : isViralWorkAnalysisAgent(agent) ? "mkt-viral-work-analysis" : "")).trim(),
+      product: isCommentAcquisitionAgent(agent)
+        ? ""
+        : savedLongRunning
         ? saved?.product ?? savedFindingStrategy.audienceGoal ?? ""
         : saved?.product ?? savedFindingStrategy.audienceGoal ?? (isCommentScreeningAgent(agent) ? "" : "保温杯"),
-      requirements: saved?.requirements || savedFindingStrategy.requirements || "",
+      requirements: isCommentAcquisitionAgent(agent) ? "" : saved?.requirements || savedFindingStrategy.requirements || "",
       rules: saved?.rules || "排除同行、抽奖和无关互动",
       workScope: savedLongRunning ? "" : saved?.workScope || (isCommentScreeningAgent(agent) ? "最近30条作品" : ""),
       workCount: savedLongRunning ? 0 : saved?.workCount || 30,
       audienceTypes: Array.isArray(saved?.audienceTypes) && saved.audienceTypes.length ? [...saved.audienceTypes] : (isCommentFilterAgent(agent) ? [] : ["近期准备下单"]),
       includeReplies: saved?.includeReplies ?? true,
-      replyObjective: saved?.replyObjective || configuredStrategy?.replyObjective || "先解决用户当前问题，再确认需求并推进到下一步，不强行销售。",
-      replyTone: saved?.replyTone || configuredStrategy?.replyTone || "专业、简短、自然，像一个懂业务的人在回复。",
-      businessKnowledge: saved?.businessKnowledge || "",
+      replyObjective: saved?.replyObjective || configuredStrategy?.replyObjective || (objectiveFirstInbox ? "" : "先解决用户当前问题，再确认需求并推进到下一步，不强行销售。"),
+      replyTone: objectiveFirstInbox ? "" : saved?.replyTone || configuredStrategy?.replyTone || "专业、简短、自然，像一个懂业务的人在回复。",
+      businessKnowledge: objectiveFirstInbox ? "" : saved?.businessKnowledge || "",
       knowledgeContext: "",
       knowledgeEntries: [],
-      knowledgeLoading: inboxIntake,
+      knowledgeLoading: inboxIntake && !objectiveFirstInbox,
       knowledgeError: null,
       knowledgeLoadedAt: null,
       fieldErrors: {},
@@ -1179,8 +1297,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       workAccepted: false,
       inboxStatusFailures: 0,
       statusSyncWarning: "",
-      replyRule: saved?.replyRule || configuredStrategy?.replyRule || "优先回答产品功能、使用方法和服务范围；没有把握的内容不要猜。",
-      handoffRules: saved?.handoffRules || configuredStrategy?.handoffRules || "价格谈判、投诉、退款、合同、效果承诺和无法确认的事实，交给人工。",
+      replyRule: objectiveFirstInbox ? "" : saved?.replyRule || configuredStrategy?.replyRule || "优先回答产品功能、使用方法和服务范围；没有把握的内容不要猜。",
+      handoffRules: objectiveFirstInbox ? "" : saved?.handoffRules || configuredStrategy?.handoffRules || "价格谈判、投诉、退款、合同、效果承诺和无法确认的事实，交给人工。",
       threshold: saved?.threshold && saved.threshold !== "高 + 中意向" ? saved.threshold : "全部候选",
       targetProfileUrl: saved?.targetProfileUrl || "",
       targetProfileUrls: Array.isArray(saved?.targetProfileUrls) ? [...saved.targetProfileUrls] : [],
@@ -1205,21 +1323,15 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       commentWorkInput: saved?.commentWorkInput || (parseCommentSource(saved?.accountRef || "").kind === "video" ? saved?.accountRef || "" : ""),
       targetResolveStatus: "idle",
       targetResolveError: null,
-      message: saved?.message || savedTouchContent.message || savedTouchContent.strategy || "",
-      touchStrategy: saved?.touchStrategy || savedTouchContent.strategy || savedTouchContent.message || COMMENT_ACQUISITION_DEFAULTS.touchStrategy,
+      message: isCommentAcquisitionAgent(agent) ? "" : saved?.message || savedTouchContent.message || savedTouchContent.strategy || "",
+      touchStrategy: isCommentAcquisitionAgent(agent) ? "" : saved?.touchStrategy || savedTouchContent.strategy || savedTouchContent.message || COMMENT_ACQUISITION_DEFAULTS.touchStrategy,
       replyStyle: saved?.replyStyle || savedTouchContent.replyStyle || COMMENT_ACQUISITION_DEFAULTS.replyStyle,
       handoffBoundary: saved?.handoffBoundary || savedTouchContent.handoffBoundary || COMMENT_ACQUISITION_DEFAULTS.handoffBoundary,
       conversionGoal: saved?.conversionGoal || "",
-      managerAdvancedSettingsEnabled: saved?.managerAdvancedSettingsEnabled === true || savedConfiguration?.managerAdvancedSettingsEnabled === true,
-      managerAdvancedSettings: saved?.managerAdvancedSettings
-        ? structuredClone(saved.managerAdvancedSettings)
-        : savedConfiguration?.managerAdvancedSettings
-          ? structuredClone(savedConfiguration.managerAdvancedSettings)
-          : null,
       approvalMode: isCommentAcquisitionAgent(agent) ? "auto" : (saved?.approvalMode === "batch" ? "manual" : saved?.approvalMode || "auto"),
       touchChannel: saved?.touchChannel || "private_message",
-      maxTouchesPerDay: saved?.maxTouchesPerDay || savedFrequency.maxTouchesPerDay || COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay,
-      minIntervalMinutes: saved?.minIntervalMinutes || savedFrequency.minIntervalMinutes || COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes,
+      maxTouchesPerDay: isCommentAcquisitionAgent(agent) ? COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay : saved?.maxTouchesPerDay || savedFrequency.maxTouchesPerDay || COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay,
+      minIntervalMinutes: isCommentAcquisitionAgent(agent) ? COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes : saved?.minIntervalMinutes || savedFrequency.minIntervalMinutes || COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes,
       stopConditions: saved?.stopConditions || savedConfiguration?.stopConditions || { ...COMMENT_ACQUISITION_DEFAULTS.stopConditions },
       configuration: savedConfiguration ? structuredClone(savedConfiguration) : null,
       longRunning: isDurableTask,
@@ -1231,7 +1343,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       // Account discovery is advisory and must never block task setup. The
       // user can open the cloud authorization flow immediately while the MCP
       // status check runs in the background.
-      loadingAccounts: !mockPrivateOutreach && (inboxIntake || isPrivateOutreachAgent(agent) || isLongRunningAcquisitionAgent(agent) || isLiveDanmakuAnalysisAgent(agent) || isUserResearchAgent(agent) || isCommentScreeningAgent(agent) || isCompositeFinderAgent(agent)),
+      loadingAccounts: !mockPrivateOutreach && !savedViralWorkAnalysis && (inboxIntake || isPrivateOutreachAgent(agent) || isLongRunningAcquisitionAgent(agent) || isLiveDanmakuAnalysisAgent(agent) || isLiveDanmakuOutreachAgent(agent) || isUserResearchAgent(agent) || isCommentScreeningAgent(agent) || isCompositeFinderAgent(agent)),
       authorizing: false,
       authPhase: "idle",
       authAttemptId: 0,
@@ -1268,7 +1380,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     }
     // Both acquisition and own-account finder modes are incremental listeners.
     // A legacy task snapshot must never turn either one into a historical scan.
-    if (savedLongRunning) stripListenerHistoricalFields(state.useFlow);
+    if (savedLongRunning || savedLiveDanmakuAnalysis || savedLiveDanmakuOutreach) stripListenerHistoricalFields(state.useFlow);
     render();
     page.body.scrollTop = 0;
     const loadAuthorizedAccounts = async () => {
@@ -1312,15 +1424,16 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       }
       if (isInboxIntakeFlow(agent, state.useFlow)
         && !isCommentAcquisitionAgent(agent)
+        && agent.id !== GOLD_CUSTOMER_SERVICE_AGENT_ID
         && state.useFlow.accountId
         && !state.useFlow.accountUnavailable) await loadAccountReception(state.useFlow);
       render();
     };
-    if (inboxIntake || isPrivateOutreachAgent(agent) || isLongRunningAcquisitionAgent(agent) || isLiveDanmakuAnalysisAgent(agent) || isUserResearchAgent(agent) || isCommentScreeningAgent(agent) || isCompositeFinderAgent(agent)) {
-      if (!mockPrivateOutreach) {
+    if (inboxIntake || isPrivateOutreachAgent(agent) || isLongRunningAcquisitionAgent(agent) || isLiveDanmakuAnalysisAgent(agent) || isLiveDanmakuOutreachAgent(agent) || isUserResearchAgent(agent) || isCommentScreeningAgent(agent) || isCompositeFinderAgent(agent)) {
+      if (!savedViralWorkAnalysis && !mockPrivateOutreach) {
         loadAuthorizedAccounts();
         if (!isUserResearchAgent(agent)) restoreSavedAuthorization(state.useFlow);
-        if ((isLongRunningAcquisitionAgent(agent) || isLiveDanmakuAnalysisAgent(agent) || isFinderListenerFlow(agent, state.useFlow)) && state.useFlow.taskKey && state.useFlow.step === "running") pollCommentAcquisitionTask(agent, state.useFlow);
+        if ((isLongRunningAcquisitionAgent(agent) || isLiveDanmakuAnalysisAgent(agent) || isLiveDanmakuOutreachAgent(agent) || isFinderListenerFlow(agent, state.useFlow)) && state.useFlow.taskKey && state.useFlow.step === "running") pollCommentAcquisitionTask(agent, state.useFlow);
       }
     }
   }
@@ -1354,7 +1467,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   function cloudResumeFlow(flow) {
     const agent = { id: flow?.agentId };
     const finderListener = isFinderListenerFlow(agent, flow);
-    const liveDanmakuAnalysis = isLiveDanmakuAnalysisAgent(agent) || flow?.analysisKind === "live_danmaku";
+    const liveDanmakuAnalysis = isLiveDanmakuAnalysisFlow(agent, flow);
+    const liveDanmakuOutreach = isLiveDanmakuOutreachFlow(agent, flow);
     const longRunningAcquisition = isLongRunningAcquisitionAgent(agent) || finderListener;
     const privateReceiptPending = isPrivateOutreachAgent(agent) && flow?.receiptPending === true;
     const privateRunning = isPrivateOutreachAgent(agent)
@@ -1362,7 +1476,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       && flow?.requesting === true
       && !privateReceiptPending;
     const inboxIntake = isInboxIntakeFlow(agent, flow);
-    const isDurableTask = inboxIntake || longRunningAcquisition || liveDanmakuAnalysis;
+    const isDurableTask = inboxIntake || longRunningAcquisition || liveDanmakuAnalysis || liveDanmakuOutreach;
     const inboxRunning = inboxIntake && flow?.running === true;
     const resume = {
       agentId: flow.agentId,
@@ -1378,12 +1492,12 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         ? "running"
         : inboxRunning
           ? "running"
-          : (longRunningAcquisition || liveDanmakuAnalysis) && flow.taskKey && flow.running !== false ? "running" : "setup",
+          : (longRunningAcquisition || liveDanmakuAnalysis || liveDanmakuOutreach) && flow.taskKey && flow.running !== false ? "running" : "setup",
       step: privateReceiptPending || privateRunning
         ? "running"
         : inboxRunning
           ? "running"
-        : (longRunningAcquisition || liveDanmakuAnalysis) && flow.taskKey && flow.running !== false ? "running" : "setup",
+        : (longRunningAcquisition || liveDanmakuAnalysis || liveDanmakuOutreach) && flow.taskKey && flow.running !== false ? "running" : "setup",
       accountMode: flow.accountMode,
       accountId: flow.accountId,
       accountWorkKey: flow.accountWorkKey || douyinAccountWorkKey(flow.accountIdentity, flow.accountId),
@@ -1404,8 +1518,6 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       businessKnowledge: flow.businessKnowledge,
       replyRule: flow.replyRule,
       handoffRules: flow.handoffRules,
-      managerAdvancedSettingsEnabled: flow.managerAdvancedSettingsEnabled === true,
-      managerAdvancedSettings: flow.managerAdvancedSettings ? structuredClone(flow.managerAdvancedSettings) : null,
       threshold: flow.threshold,
       targetProfileUrl: flow.targetProfileUrl || "",
       targetProfileUrls: Array.isArray(flow.targetProfileUrls) ? [...flow.targetProfileUrls] : [],
@@ -1436,12 +1548,12 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       sourceTaskGoal: flow.sourceTaskGoal || "",
       sourceResultType: flow.sourceResultType || "",
       sourceScope: flow.sourceScope || "",
-      analysisKind: flow.analysisKind || (liveDanmakuAnalysis ? "live_danmaku" : ""),
+      analysisKind: flow.analysisKind || (liveDanmakuAnalysis ? "live_danmaku" : liveDanmakuOutreach ? "live_danmaku_outreach" : ""),
       liveDanmakuGoal: flow.liveDanmakuGoal || "梳理直播间高频问题、用户需求、购买意向和反对点。",
-      liveDanmakuSignals: Array.isArray(flow.liveDanmakuSignals) ? [...flow.liveDanmakuSignals] : ["danmaku", "likes", "gifts"],
+      liveDanmakuSignals: liveDanmakuOutreach ? ["danmaku"] : [...DEFAULT_LIVE_SIGNALS],
       liveDanmakuAnalysis: flow.liveDanmakuAnalysis ? structuredClone(flow.liveDanmakuAnalysis) : null,
       message: flow.message || "",
-      touchStrategy: flow.touchStrategy || flow.message || "",
+      touchStrategy: isCommentAcquisitionAgent(agent) ? "" : flow.touchStrategy || flow.message || "",
       replyStyle: flow.replyStyle || COMMENT_ACQUISITION_DEFAULTS.replyStyle,
       handoffBoundary: flow.handoffBoundary || COMMENT_ACQUISITION_DEFAULTS.handoffBoundary,
       conversionGoal: flow.conversionGoal || "",
@@ -1455,10 +1567,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       inboxTaskRunId: flow.inboxTaskRunId || "",
       inboxConversationId: flow.inboxConversationId || "",
       taskChoices: flow.taskChoices ? structuredClone(flow.taskChoices) : {},
-      approvalMode: isCommentAcquisitionAgent({ id: flow.agentId }) ? "auto" : (flow.approvalMode === "batch" ? "manual" : flow.approvalMode || "auto"),
+      approvalMode: isCommentAcquisitionAgent({ id: flow.agentId }) || liveDanmakuOutreach ? "auto" : (flow.approvalMode === "batch" ? "manual" : flow.approvalMode || "auto"),
       touchChannel: flow.touchChannel || "private_message",
-      maxTouchesPerDay: flow.maxTouchesPerDay || 30,
-      minIntervalMinutes: flow.minIntervalMinutes || 15,
+      maxTouchesPerDay: isCommentAcquisitionAgent(agent) ? COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay : flow.maxTouchesPerDay || 30,
+      minIntervalMinutes: isCommentAcquisitionAgent(agent) ? COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes : flow.minIntervalMinutes || 15,
       stopConditions: flow.stopConditions ? structuredClone(flow.stopConditions) : { ...COMMENT_ACQUISITION_DEFAULTS.stopConditions },
       receiptPending: flow.receiptPending === true,
       receiptPendingAt: flow.receiptPendingAt || null,
@@ -1468,7 +1580,18 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
     // Resume state is persisted across product versions. Keep all listener
     // variants forward-looking even when an old snapshot carries scan fields.
-    if (longRunningAcquisition || liveDanmakuAnalysis) stripListenerHistoricalFields(resume);
+    if (longRunningAcquisition || liveDanmakuAnalysis || liveDanmakuOutreach) stripListenerHistoricalFields(resume);
+
+    if (isCommentAcquisitionAgent(agent)) {
+      resume.product = "";
+      resume.requirements = "";
+      resume.audienceTypes = [];
+      resume.taskChoices = {};
+      resume.message = "";
+      resume.touchStrategy = "";
+      resume.maxTouchesPerDay = COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay;
+      resume.minIntervalMinutes = COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes;
+    }
 
     if (finderListener) {
       // A finder listener only owns future discovery. Do not persist generic
@@ -1505,11 +1628,27 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       ]) delete resume[field];
     }
 
+    if (liveDanmakuOutreach) {
+      resume.sourceScope = "authorized_account_live";
+      resume.analysisKind = "live_danmaku_outreach";
+      resume.approvalMode = "auto";
+      resume.touchChannel = "private_message";
+      resume.longRunning = true;
+      resume.liveDanmakuSignals = ["danmaku"];
+      resume.message = "看到你刚才在直播间留言了，方便说说你想了解什么吗？";
+      resume.touchStrategy = resume.message;
+      for (const field of [
+        "window", "workScope", "workCount", "replyObjective", "replyTone", "businessKnowledge",
+        "replyRule", "handoffRules", "contactTiming", "replyStyle", "handoffBoundary", "conversionGoal",
+        "stopConditions", "workSchedule", "schedule", "workWindow"
+      ]) delete resume[field];
+    }
+
     return resume;
   }
 
   function persistCloudTask(flow, patch = {}) {
-    if (!flow || (!isInboxIntakeFlow({ id: flow.agentId }, flow) && !isPrivateOutreachAgent({ id: flow.agentId }) && !isLongRunningAcquisitionAgent({ id: flow.agentId }) && !isLiveDanmakuAnalysisAgent({ id: flow.agentId }) && !isFinderListenerFlow({ id: flow.agentId }, flow))) return null;
+    if (!flow || (!isInboxIntakeFlow({ id: flow.agentId }, flow) && !isPrivateOutreachAgent({ id: flow.agentId }) && !isLongRunningAcquisitionAgent({ id: flow.agentId }) && !isLiveDanmakuAnalysisFlow({ id: flow.agentId }, flow) && !isLiveDanmakuOutreachFlow({ id: flow.agentId }, flow) && !isFinderListenerFlow({ id: flow.agentId }, flow))) return null;
     const base = { resumeFlow: cloudResumeFlow(flow) };
     if (flow.authStartedAt) base.startedAt = new Date(flow.authStartedAt).toISOString();
     return douyinCloudTaskStore.saveFor(cloudTaskStoreAgentId(flow), cloudTaskStoreScope(flow), { ...base, ...patch });
@@ -1544,54 +1683,32 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       flow.requirements = "";
       flow.audienceTypes = [];
       flow.taskChoices = {};
-      flow.touchStrategy = COMMENT_ACQUISITION_DEFAULTS.touchStrategy;
+      flow.message = "";
+      flow.touchStrategy = "";
       delete flow.contactTiming;
       delete flow.workSchedule;
       flow.maxTouchesPerDay = COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay;
       flow.minIntervalMinutes = COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes;
-      flow.managerAdvancedSettingsEnabled = false;
-      flow.managerAdvancedSettings = {};
     }
 
     const task = storedTask === undefined ? readCloudTask(flow) : storedTask;
     const saved = task?.resumeFlow;
     if (!saved || saved.agentId !== flow.agentId) return false;
 
-    const savedAudience = saved.taskChoices?.audience || {};
-    const hasAudienceDraft = Boolean(
-      String(saved.product || "").trim()
-      || String(saved.requirements || "").trim()
-      || String(savedAudience.extra || "").trim()
-      || (Array.isArray(saved.audienceTypes) && saved.audienceTypes.length)
-      || (Array.isArray(savedAudience.selected) && savedAudience.selected.length)
-    );
-    if (!task.accountSetupSavedAt && !hasAudienceDraft) return false;
+    if (!task.accountSetupSavedAt) return false;
 
-    flow.product = String(saved.product || "");
-    flow.requirements = String(saved.requirements || "");
-    flow.audienceTypes = Array.isArray(saved.audienceTypes) ? [...saved.audienceTypes] : [];
-    flow.taskChoices = saved.taskChoices ? structuredClone(saved.taskChoices) : {};
-    flow.touchStrategy = String(saved.touchStrategy || COMMENT_ACQUISITION_DEFAULTS.touchStrategy);
+    // Audience and first-message fields are backend-managed. Keep legacy drafts
+    // from reappearing when an existing account-scoped task is reopened.
+    flow.product = "";
+    flow.requirements = "";
+    flow.audienceTypes = [];
+    flow.taskChoices = {};
+    flow.message = "";
+    flow.touchStrategy = "";
     delete flow.contactTiming;
     delete flow.workSchedule;
-    flow.maxTouchesPerDay = Number(saved.maxTouchesPerDay) || COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay;
-    flow.minIntervalMinutes = Number(saved.minIntervalMinutes) || COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes;
-    const savedAdvanced = saved.managerAdvancedSettings && typeof saved.managerAdvancedSettings === "object"
-      ? saved.managerAdvancedSettings
-      : {};
-    flow.managerAdvancedSettings = {
-      audienceGoal: String(savedAdvanced.audienceGoal || saved.product || ""),
-      requirements: String(savedAdvanced.requirements || saved.requirements || ""),
-      firstTouch: String(savedAdvanced.firstTouch || saved.touchStrategy || saved.message || ""),
-      replyStyle: String(savedAdvanced.replyStyle || saved.replyStyle || ""),
-      touchObjective: String(savedAdvanced.touchObjective || saved.conversionGoal || ""),
-      dialogueObjective: String(savedAdvanced.dialogueObjective || saved.replyObjective || ""),
-      handoffBoundary: String(savedAdvanced.handoffBoundary || saved.handoffBoundary || ""),
-      maxTouchesPerDay: Number(savedAdvanced.maxTouchesPerDay || saved.maxTouchesPerDay) || null,
-      minIntervalMinutes: Number(savedAdvanced.minIntervalMinutes || saved.minIntervalMinutes) || null
-    };
-    flow.managerAdvancedSettingsEnabled = saved.managerAdvancedSettingsEnabled === true
-      || Object.values(flow.managerAdvancedSettings).some((value) => value !== "" && value !== null);
+    flow.maxTouchesPerDay = COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay;
+    flow.minIntervalMinutes = COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes;
     flow.setupError = null;
     invalidateInboxPlan(flow);
     return true;
@@ -2474,7 +2591,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         description: agent.desc,
         tags: agent.skills || []
       };
-      const [accent, accentSoft, accentBorder] = categoryAccent(agent.category);
+      const [accent, accentSoft, accentBorder] = marketplaceCardAccent(agent);
       const card = buildStandardCard({
         id: agent.id,
         name,
@@ -2533,7 +2650,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         description: agent.desc,
         tags: agent.skills || []
       };
-      const [accent, accentSoft, accentBorder] = categoryAccent(agent.category);
+      const [accent, accentSoft, accentBorder] = marketplaceCardAccent(agent);
       const card = buildStandardCard({
         id: agent.id,
         name,
@@ -2843,6 +2960,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   }
   function isAccountAnalysisFlow(agent, flow = {}) { return agent?.id === "mkt-research-expert" || flow?.analysisKind === "account_report"; }
   function isIntentAnalystAgent(agent) { return agent?.id === "mkt-intent-analyst"; }
+  function isViralWorkAnalysisAgent(agent) { return agent?.id === "mkt-viral-work-analysis"; }
+  function isViralWorkAnalysisFlow(agent, flow = {}) { return isViralWorkAnalysisAgent(agent) || flow?.analysisKind === "viral_work"; }
 
   function accountAnalysisPrefillUrl(account) {
     if (account?.profileUrl) return account.profileUrl;
@@ -2854,6 +2973,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   function isLiveDanmakuAnalysisAgent(agent) { return agent?.id === "mkt-live-danmaku-analysis"; }
   function isLiveDanmakuAnalysisFlow(agent, flow = {}) {
     return isLiveDanmakuAnalysisAgent(agent) || flow?.analysisKind === "live_danmaku";
+  }
+  function isLiveDanmakuOutreachAgent(agent) { return agent?.id === "mkt-live-danmaku-outreach"; }
+  function isLiveDanmakuOutreachFlow(agent, flow = {}) {
+    return isLiveDanmakuOutreachAgent(agent) || flow?.analysisKind === "live_danmaku_outreach";
   }
   function isLongRunningAcquisitionAgent(agent) { return isCommentAcquisitionAgent(agent); }
 
@@ -2893,7 +3016,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   }
 
   function isInboxAgent(agent) {
-    return agent?.id === "mkt-dm-inbox";
+    return INBOX_AGENT_IDS.has(agent?.id);
   }
 
   function isInboxIntakeFlow(agent, flow = null) {
@@ -2970,32 +3093,25 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   }
 
   function inboxConfiguration(flow) {
-    const autonomousAcquisition = isCommentAcquisitionAgent({ id: flow.agentId }) && flow.managerCombinedStart === true;
-    if (autonomousAcquisition) {
-      const acquisitionConfig = normalizeCommentAcquisitionConfig(flow);
-      return {
-        agentId: authorizationAgentId(flow),
-        accountId: flow.accountId || "",
-        accountName: flow.account || flow.accountIdentity?.accountName || flow.accountIdentity?.nickname || "",
-        accountIdentity: flow.accountIdentity || null,
-        autoReply: true,
-        autonomousLeadAcquisition: true,
-        systemPrompt: acquisitionConfig.systemPrompt,
-        replyRule: acquisitionConfig.contentPolicy.template,
-        replyObjective: acquisitionConfig.contentPolicy.dialogueObjective,
-        replyTone: acquisitionConfig.contentPolicy.replyStyle,
-        businessKnowledge: "",
-        handoffRules: acquisitionConfig.contentPolicy.handoffBoundary,
-        managerAdvancedSettingsEnabled: acquisitionConfig.managerAdvancedSettingsEnabled,
-        managerAdvancedSettings: acquisitionConfig.managerAdvancedSettings
-      };
-    }
-    return {
-      agentId: authorizationAgentId(flow),
+    const isGoldCustomerService = flow.agentId === GOLD_CUSTOMER_SERVICE_AGENT_ID;
+    const isCompleteAcquisition = flow.agentId === DOUYIN_ACQUISITION_COMPLETE_AGENT_ID;
+    const base = {
+      agentId: isGoldCustomerService ? GOLD_CUSTOMER_SERVICE_AGENT_ID : authorizationAgentId(flow),
       accountId: flow.accountId || "",
       accountName: flow.account || flow.accountIdentity?.accountName || flow.accountIdentity?.nickname || "",
       accountIdentity: flow.accountIdentity || null,
-      autoReply: true,
+      autoReply: true
+    };
+    if (isGoldCustomerService || isCompleteAcquisition) {
+      return {
+        ...base,
+        strategyMode: isGoldCustomerService ? "gold_customer_service" : "objective_first",
+        replyObjective: String(flow.replyObjective || "").trim(),
+        strategyPlan: flow.inboxPlan && typeof flow.inboxPlan === "object" ? flow.inboxPlan : null
+      };
+    }
+    return {
+      ...base,
       replyRule: String(flow.replyRule || "").trim(),
       replyObjective: String(flow.replyObjective || "").trim(),
       replyTone: String(flow.replyTone || "").trim(),
@@ -3049,13 +3165,13 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
   function validateInboxSetup(flow) {
     const errors = {};
-    if (flow.managerCombinedStart === true) {
-      if (!flow.accountId) errors.accountId = "请先连接并选择一个抖音账号。";
+    if (!flow.accountId) errors.accountId = "请先连接并选择一个抖音账号。";
+    if (flow.agentId === GOLD_CUSTOMER_SERVICE_AGENT_ID || flow.agentId === DOUYIN_ACQUISITION_COMPLETE_AGENT_ID) {
+      if (!String(flow.replyObjective || "").trim()) errors.replyObjective = "请说明希望通过私信达成什么目标。";
       return errors;
     }
     const hasBusinessKnowledge = Boolean(flow.knowledgeEntries?.length || String(flow.businessKnowledge || "").trim());
     if (flow.reception !== undefined && !flow.reception?.revision) errors.reception = "先保存这个账号的接待方式";
-    if (!flow.accountId) errors.accountId = "请先连接并选择一个抖音账号。";
     if (!String(flow.replyRule || "").trim()) errors.replyRule = "请说明哪些问题可以直接回答。";
     if (!String(flow.replyObjective || "").trim()) errors.replyObjective = "请说明希望通过对话达成什么转化结果。";
     if (!String(flow.replyTone || "").trim()) errors.replyTone = "请说明希望 Agent 使用什么语气回复。";
@@ -3094,7 +3210,15 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   }
 
   function saveInboxStrategy(flow) {
-    if (flow.managerCombinedStart === true) return;
+    if (flow.agentId === GOLD_CUSTOMER_SERVICE_AGENT_ID || flow.agentId === DOUYIN_ACQUISITION_COMPLETE_AGENT_ID) {
+      inboxStrategyStore.save(flow.agentId, {
+        replyObjective: flow.replyObjective
+      }, {
+        accountId: flow.accountId,
+        accountName: flow.account || flow.accountIdentity?.accountName || flow.accountIdentity?.nickname || ""
+      });
+      return;
+    }
     inboxStrategyStore.save(flow.agentId || "mkt-dm-inbox", {
       replyObjective: flow.replyObjective,
       replyTone: flow.replyTone,
@@ -3117,15 +3241,6 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       render();
       focusFirstInboxError(flow);
       return false;
-    }
-    if (flow.managerCombinedStart === true) {
-      flow.inboxPlan = { source: "autonomous_lead_acquisition", summary: DOUYIN_ACQUISITION_OBJECTIVE };
-      flow.planToken = "";
-      flow.planRevision = "autonomous-v1";
-      flow.planConfirmable = true;
-      flow.planError = null;
-      flow.planLoading = false;
-      return true;
     }
     saveInboxStrategy(flow);
     flow.planLoading = true;
@@ -3163,7 +3278,376 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     }
   }
 
+  function appendGoalFirstComposer(container, flow, kicker = "你想让我帮你达成什么？") {
+    const composer = el("section", "sb-as-gold-composer");
+    composer.appendChild(el("div", "sb-as-gold-composer-kicker", kicker));
+    const objective = document.createElement("textarea");
+    objective.rows = 4;
+    objective.className = "sb-as-gold-composer-input";
+    objective.setAttribute("aria-label", "私信对话目标");
+    objective.value = flow.replyObjective || "";
+    objective.placeholder = "例如：回答客户咨询，并在客户有明确需求时帮助我获取联系方式。";
+    objective.addEventListener("input", () => {
+      flow.replyObjective = objective.value;
+      flow.fieldErrors = { ...(flow.fieldErrors || {}), replyObjective: "" };
+      invalidateInboxPlan(flow);
+      render();
+    });
+    composer.appendChild(objective);
+    const suggestions = el("div", "sb-as-gold-suggestions");
+    suggestions.appendChild(el("span", "sb-as-gold-suggestions-label", "你也可以直接选一个目标"));
+    [
+      ["解答客户咨询", "回答客户在私信中的问题，必要时澄清解决问题所必需的信息。"],
+      ["获取客户线索", "在解答问题后识别真实需求，适时收集可跟进的客户信息。"],
+      ["引导预约或成交", "围绕客户需求沟通，合适时引导预约、到店或完成下一步转化。"]
+    ].forEach(([label, value]) => {
+      const suggestion = el("button", "sb-as-gold-suggestion", label);
+      suggestion.type = "button";
+      suggestion.addEventListener("click", () => {
+        flow.replyObjective = value;
+        flow.fieldErrors = { ...(flow.fieldErrors || {}), replyObjective: "" };
+        invalidateInboxPlan(flow);
+        render();
+      });
+      suggestions.appendChild(suggestion);
+    });
+    composer.appendChild(suggestions);
+    if (flow.fieldErrors?.replyObjective) composer.appendChild(el("div", "sb-as-use-notice is-error sb-as-gold-error", flow.fieldErrors.replyObjective));
+    container.appendChild(composer);
+    return composer;
+  }
+
+  function appendLiveDanmakuGoalComposer(container, flow) {
+    const composer = el("section", "sb-as-gold-composer sb-as-live-composer");
+    composer.appendChild(el("div", "sb-as-gold-composer-kicker", "这场直播，你想让我重点看什么？"));
+    const goal = document.createElement("textarea");
+    goal.rows = 4;
+    goal.className = "sb-as-gold-composer-input";
+    goal.setAttribute("aria-label", "直播间弹幕分析目标");
+    goal.value = flow.liveDanmakuGoal || "";
+    goal.placeholder = "例如：找出价格异议、库存问题和明确想购买的人";
+    goal.addEventListener("input", () => {
+      flow.liveDanmakuGoal = goal.value;
+      flow.setupError = null;
+    });
+    composer.appendChild(goal);
+
+    const suggestions = el("div", "sb-as-gold-suggestions");
+    suggestions.appendChild(el("span", "sb-as-gold-suggestions-label", "你也可以直接选一个重点"));
+    [
+      ["高频问题", "梳理直播间反复出现的问题，找出最需要回应的内容。"],
+      ["价格与优惠", "重点分析价格、优惠、库存和购买门槛相关的讨论。"],
+      ["明确购买意向", "找出已经表达购买、下单或希望进一步了解的观众。"]
+    ].forEach(([label, value]) => {
+      const suggestion = el("button", "sb-as-gold-suggestion", label);
+      suggestion.type = "button";
+      suggestion.addEventListener("click", () => {
+        flow.liveDanmakuGoal = value;
+        flow.setupError = null;
+        render();
+      });
+      suggestions.appendChild(suggestion);
+    });
+    composer.appendChild(suggestions);
+
+    const scope = el("div", "sb-as-live-scope");
+    const scopeCopy = el("div", "sb-as-live-scope-copy");
+    scopeCopy.append(
+      el("strong", null, "我只分析当前直播间的新弹幕"),
+      el("span", null, "不会读取点赞、送礼、关注或进场等其他互动，也不回扫历史直播。")
+    );
+    scope.append(el("i", null, "✓"), scopeCopy);
+    composer.appendChild(scope);
+    container.appendChild(composer);
+    return composer;
+  }
+
+  function renderGoldCustomerServiceSetup(panel, flow) {
+    panel.classList.add("sb-as-inbox-setup", "sb-as-gold-customer-service-setup");
+    const accounts = flow.authorizedAccounts || [];
+    const accountId = receptionAccountId(flow);
+    const accountUnavailable = flow.accountUnavailable === true;
+    const hasAccount = Boolean(accountId) && !accountUnavailable;
+    const hasObjective = Boolean(String(flow.replyObjective || "").trim());
+    const loading = Boolean(flow.loadingAccounts || flow.planLoading || flow.authorizing || flow.starting);
+    const shell = el("div", "sb-as-gold-shell");
+
+    const hero = el("header", "sb-as-gold-hero");
+    const heroMark = el("div", "sb-as-gold-hero-mark");
+    mountGrokBotAvatar(heroMark, GOLD_CUSTOMER_SERVICE_AGENT_ID, { alt: "金牌客服", state: "idle", trackPointer: false, mode: "agent-square" });
+    const heroCopy = el("div", "sb-as-gold-hero-copy");
+    heroCopy.append(
+      el("h1", "sb-as-gold-title", "我来帮你接住私信"),
+      el("p", "sb-as-gold-subtitle", "连接账号后，我会按你的目标接待新私信，先帮用户解决问题，再判断下一步怎么推进。")
+    );
+    hero.append(heroMark, heroCopy);
+    shell.appendChild(hero);
+
+    const accountSection = el("section", `sb-as-gold-account ${hasAccount ? "" : "is-empty"}`.trim());
+
+    if (hasAccount) {
+      const selected = accounts.find((account) => account.id === flow.accountId)
+        || accounts.find((account) => receptionAccountId({ accountIdentity: account.identity, accountId: account.id }) === accountId)
+        || { id: flow.accountId, name: flow.account, identity: flow.accountIdentity };
+      const avatar = el("div", "sb-as-gold-account-avatar");
+      avatar.appendChild(taskPersonAvatar(selected.identity || flow.accountIdentity, selected.name || flow.account));
+      const copy = el("div", "sb-as-gold-account-copy");
+      const identity = selected.identity || flow.accountIdentity || {};
+      const handle = String(identity.uniqueId || identity.unique_id || flow.accountHandle || "").trim();
+      copy.append(
+        el("span", "sb-as-gold-account-label", "工作账号"),
+        el("strong", null, concreteAccountName(selected.name, identity.accountName, identity.account_name, identity.nickname, identity.nick_name) || "已登录抖音账号"),
+        el("span", null, handle ? (handle.startsWith("@") ? handle : `@${handle}`) : "已完成授权")
+      );
+      accountSection.append(avatar, copy);
+      const accountStatus = el("span", "sb-as-gold-account-state");
+      accountStatus.append(el("i"), el("span", null, "已连接"));
+      accountSection.appendChild(accountStatus);
+      if (accounts.length > 1) {
+        const select = document.createElement("select");
+        select.className = "sb-as-gold-account-select";
+        select.setAttribute("aria-label", "选择抖音账号");
+        accounts.forEach((account) => {
+          const option = el("option", null, concreteAccountName(account.name, account.identity?.accountName, account.identity?.account_name, account.identity?.nickname, account.identity?.nick_name) || "已登录抖音账号");
+          option.value = account.id;
+          select.appendChild(option);
+        });
+        select.value = selected.id || flow.accountId;
+        select.disabled = loading;
+        select.addEventListener("change", () => {
+          const next = accounts.find((account) => account.id === select.value);
+          flow.accountId = next?.id || "";
+          flow.account = next?.name || "";
+          flow.accountIdentity = next?.identity || null;
+          flow.executionAgentId = next?.agentId || flow.agentId;
+          flow.accountWorkKey = douyinAccountWorkKey(flow.accountIdentity, flow.accountId);
+          flow.accountUnavailable = false;
+          flow.inboxTaskId = "";
+          flow.inboxTaskRunId = "";
+          flow.inboxConversationId = "";
+          flow.startRequestId = "";
+          flow.inboxTakeoverOwnerAgentId = "";
+          invalidateInboxPlan(flow);
+          render();
+        });
+        accountSection.appendChild(select);
+      }
+      const reauthorize = el("button", "sb-as-gold-account-reauthorize", flow.authorizing ? "正在打开登录…" : "重新授权");
+      reauthorize.type = "button";
+      reauthorize.disabled = Boolean(flow.authorizing);
+      reauthorize.addEventListener("click", () => startMcpAuthorization(flow));
+      accountSection.appendChild(reauthorize);
+    } else {
+      const loginCopy = el("div", "sb-as-gold-account-login");
+      loginCopy.append(
+        el("strong", null, "连接一个抖音账号"),
+        el("span", null, flow.loadingAccounts
+          ? "正在查看已登录的抖音账号。"
+          : accountUnavailable
+            ? "之前绑定的抖音账号当前不可用。重新连接原账号后才能继续。"
+            : "我只会在你选择的账号里读取和回复私信。")
+      );
+      const login = el("button", "sb-as-gold-account-action", flow.authorizing ? "正在打开登录…" : accountUnavailable ? "重新连接原账号" : "连接抖音账号");
+      login.type = "button";
+      login.disabled = Boolean(flow.authorizing);
+      login.addEventListener("click", () => startMcpAuthorization(flow));
+      accountSection.append(loginCopy, login);
+    }
+    shell.appendChild(accountSection);
+    if (flow.authorizing || ["starting", "opening", "waiting_login"].includes(flow.authPhase)) shell.appendChild(buildCloudAuthorizationStatus(flow));
+    if (flow.authError) shell.appendChild(el("div", "sb-as-use-notice is-error sb-as-gold-error", flow.authError));
+
+    appendGoalFirstComposer(shell, flow, "你想让我帮你达成什么？");
+
+    const launch = el("footer", "sb-as-gold-launch");
+    const start = el("button", "sb-as-gold-launch-button", flow.starting || flow.planLoading ? "正在启动…" : "开始使用金牌客服");
+    start.type = "button";
+    start.disabled = !hasAccount || !hasObjective || loading;
+    start.addEventListener("click", () => {
+      const activeAgent = getMarketplaceAgent(state.useId);
+      if (isInboxIntakeFlow(activeAgent, flow)) {
+        void Promise.resolve(startInboxIntake(activeAgent, flow)).catch((error) => {
+          if (state.view !== "use" || state.useFlow !== flow) return;
+          flow.starting = false;
+          flow.planLoading = false;
+          flow.step = "setup";
+          flow.startError = error?.message || "启动金牌客服失败，请稍后重试。";
+          render();
+        });
+      }
+    });
+    launch.appendChild(start);
+    shell.appendChild(launch);
+    if (flow.setupError || flow.planError || flow.startError) {
+      shell.appendChild(el("div", "sb-as-use-notice is-error sb-as-gold-error", flow.setupError || flow.planError || flow.startError));
+    }
+    panel.appendChild(shell);
+  }
+
+  function renderManagerInboxSetup(panel, flow) {
+    panel.classList.add("sb-as-inbox-setup", "sb-as-manager-inbox-setup");
+    const accounts = flow.authorizedAccounts || [];
+    const accountId = receptionAccountId(flow);
+    const accountUnavailable = flow.accountUnavailable === true;
+    const hasAccount = Boolean(accountId) && !accountUnavailable;
+    const hasObjective = Boolean(String(flow.replyObjective || "").trim());
+    const blockingPlan = Boolean(flow.planError && flow.inboxPlan && !flow.planConfirmable);
+    const loading = Boolean(flow.loadingAccounts || flow.planLoading || flow.authorizing || flow.starting);
+    const shell = el("div", "sb-as-gold-shell");
+
+    const hero = el("header", "sb-as-gold-hero");
+    const heroMark = el("div", "sb-as-gold-hero-mark");
+    mountGrokBotAvatar(heroMark, flow.agentId, { alt: "抖音获客管家", state: "idle", trackPointer: false, mode: "agent-square" });
+    const heroCopy = el("div", "sb-as-gold-hero-copy");
+    heroCopy.append(
+      el("h1", "sb-as-gold-title", "我来帮你把获客做起来"),
+      el("p", "sb-as-gold-subtitle", "连接账号后，我会从评论、直播和账号互动里，帮你找出值得跟进的人，完成首次私信，再继续承接后续对话。")
+    );
+    hero.append(heroMark, heroCopy);
+    shell.appendChild(hero);
+
+    const accountSection = el("section", `sb-as-gold-account ${hasAccount ? "" : "is-empty"}`.trim());
+    if (hasAccount) {
+      const selected = accounts.find((account) => account.id === flow.accountId)
+        || accounts.find((account) => receptionAccountId({ accountIdentity: account.identity, accountId: account.id }) === accountId)
+        || { id: flow.accountId, name: flow.account, identity: flow.accountIdentity };
+      const avatar = el("div", "sb-as-gold-account-avatar");
+      avatar.appendChild(taskPersonAvatar(selected.identity || flow.accountIdentity, selected.name || flow.account));
+      const copy = el("div", "sb-as-gold-account-copy");
+      const identity = selected.identity || flow.accountIdentity || {};
+      const handle = String(identity.uniqueId || identity.unique_id || flow.accountHandle || "").trim();
+      copy.append(
+        el("span", "sb-as-gold-account-label", "工作账号"),
+        el("strong", null, concreteAccountName(selected.name, identity.accountName, identity.account_name, identity.nickname, identity.nick_name) || "已登录抖音账号"),
+        el("span", null, handle ? (handle.startsWith("@") ? handle : `@${handle}`) : "已完成授权")
+      );
+      accountSection.append(avatar, copy);
+      const accountStatus = el("span", "sb-as-gold-account-state");
+      accountStatus.append(el("i"), el("span", null, "已连接"));
+      accountSection.appendChild(accountStatus);
+      if (accounts.length > 1) {
+        const select = document.createElement("select");
+        select.className = "sb-as-gold-account-select";
+        select.setAttribute("aria-label", "选择抖音账号");
+        accounts.forEach((account) => {
+          const option = el("option", null, concreteAccountName(account.name, account.identity?.accountName, account.identity?.account_name, account.identity?.nickname, account.identity?.nick_name) || "已登录抖音账号");
+          option.value = account.id;
+          select.appendChild(option);
+        });
+        select.value = selected.id || flow.accountId;
+        select.disabled = loading;
+        select.addEventListener("change", () => {
+          const next = accounts.find((account) => account.id === select.value);
+          flow.accountId = next?.id || "";
+          flow.account = next?.name || "";
+          flow.accountIdentity = next?.identity || null;
+          flow.executionAgentId = next?.agentId || flow.agentId;
+          flow.accountWorkKey = douyinAccountWorkKey(flow.accountIdentity, flow.accountId);
+          flow.accountUnavailable = false;
+          flow.inboxTaskId = "";
+          flow.inboxTaskRunId = "";
+          flow.inboxConversationId = "";
+          flow.startRequestId = "";
+          flow.inboxTakeoverOwnerAgentId = "";
+          flow.reception = undefined;
+          restoreAccountScopedAcquisitionDraft(flow, undefined, { reset: true });
+          invalidateInboxPlan(flow);
+          render();
+        });
+        accountSection.appendChild(select);
+      }
+      const reauthorize = el("button", "sb-as-gold-account-reauthorize", flow.authorizing ? "正在打开登录…" : "重新授权");
+      reauthorize.type = "button";
+      reauthorize.disabled = Boolean(flow.authorizing);
+      reauthorize.addEventListener("click", () => startMcpAuthorization(flow));
+      accountSection.appendChild(reauthorize);
+    } else {
+      const loginCopy = el("div", "sb-as-gold-account-login");
+      loginCopy.append(
+        el("strong", null, "连接一个抖音账号"),
+        el("span", null, flow.loadingAccounts
+          ? "正在查看已登录的抖音账号。"
+          : accountUnavailable
+            ? "之前绑定的抖音账号当前不可用。重新连接原账号后才能继续。"
+            : "我会从这个账号的评论、直播和账号互动里识别值得跟进的人。")
+      );
+      const login = el("button", "sb-as-gold-account-action", flow.authorizing ? "正在打开登录…" : accountUnavailable ? "重新连接原账号" : "连接抖音账号");
+      login.type = "button";
+      login.disabled = Boolean(flow.authorizing);
+      login.addEventListener("click", () => startMcpAuthorization(flow));
+      accountSection.append(loginCopy, login);
+    }
+    shell.appendChild(accountSection);
+    if (flow.authorizing || ["starting", "opening", "waiting_login"].includes(flow.authPhase)) shell.appendChild(buildCloudAuthorizationStatus(flow));
+    if (flow.authError) shell.appendChild(el("div", "sb-as-use-notice is-error sb-as-gold-error", flow.authError));
+
+    const automation = el("section", "sb-as-manager-automation");
+    const automationHead = el("div", "sb-as-manager-automation-head");
+    automationHead.append(
+      el("div", "sb-as-gold-composer-kicker", "我会自动完成"),
+      el("span", null, "你只需要告诉我，这次希望通过私信达成什么")
+    );
+    const automationList = el("div", "sb-as-manager-automation-list");
+    [
+      ["识别潜客", "从评论、直播和账号互动里，找出值得跟进的人"],
+      ["完成首触", "根据每条互动证据生成自然、有依据的首次私信"],
+      ["持续承接", "围绕你的目标推进对话，复杂情况及时交给人工"]
+    ].forEach(([title, description]) => {
+      const item = el("div", "sb-as-manager-automation-item");
+      const itemCopy = el("div");
+      itemCopy.append(el("strong", null, title), el("span", null, description));
+      item.append(el("i"), itemCopy);
+      automationList.appendChild(item);
+    });
+    automation.append(automationHead, automationList);
+    shell.appendChild(automation);
+
+    appendGoalFirstComposer(shell, flow, "你想让我帮你达成什么？");
+
+    const launch = el("footer", "sb-as-gold-launch sb-as-manager-launch");
+    const launchCopy = el("div", "sb-as-manager-launch-copy");
+    launchCopy.append(
+      el("strong", null, "准备开始获客"),
+      el("span", null, hasAccount
+        ? "启动后会在后台持续运行，你可以随时回来查看进展或调整目标。"
+        : "连接账号并告诉我目标后，才可以开始托管。")
+    );
+    const start = el("button", "sb-as-gold-launch-button", flow.starting || flow.planLoading
+      ? "正在启动…"
+      : flow.inboxTakeoverOwnerAgentId
+        ? "确认切换并启动"
+        : "启动抖音获客管家");
+    start.type = "button";
+    start.disabled = !hasAccount || !hasObjective || loading || blockingPlan;
+    start.addEventListener("click", () => {
+      const activeAgent = getMarketplaceAgent(state.useId);
+      if (!isInboxIntakeFlow(activeAgent, flow)) return;
+      void Promise.resolve(startInboxIntake(activeAgent, flow, { takeover: Boolean(flow.inboxTakeoverOwnerAgentId) })).catch((error) => {
+        if (state.view !== "use" || state.useFlow !== flow) return;
+        flow.starting = false;
+        flow.planLoading = false;
+        flow.step = "setup";
+        flow.startError = error?.message || "启动抖音获客管家失败，请稍后重试。";
+        render();
+      });
+    });
+    launch.append(launchCopy, start);
+    shell.appendChild(launch);
+    if (flow.setupError || flow.planError || flow.startError) {
+      shell.appendChild(el("div", "sb-as-use-notice is-error sb-as-gold-error", flow.setupError || flow.planError || flow.startError));
+    }
+    panel.appendChild(shell);
+  }
+
   function renderInboxSetup(panel, flow) {
+    if (flow.agentId === GOLD_CUSTOMER_SERVICE_AGENT_ID) {
+      renderGoldCustomerServiceSetup(panel, flow);
+      return;
+    }
+    if (isCommentAcquisitionAgent({ id: flow.agentId })) {
+      renderManagerInboxSetup(panel, flow);
+      return;
+    }
     panel.classList.add("sb-as-inbox-setup");
     const managerInbox = isCommentAcquisitionAgent({ id: flow.agentId });
     if (!managerInbox) prefillInboxFromTouchedProspects(flow);
@@ -3172,10 +3656,11 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const accountId = receptionAccountId(flow);
     const accountUnavailable = flow.accountUnavailable === true;
     const hasAccount = Boolean(accountId) && !accountUnavailable;
+    const hasObjective = Boolean(String(flow.replyObjective || "").trim());
     const hasReception = Boolean(flow.reception?.revision);
     const hasBusinessKnowledge = Boolean(flow.knowledgeEntries?.length || String(flow.businessKnowledge || "").trim());
     const businessKnowledgePending = Boolean(flow.knowledgeLoading);
-    const strategyReady = hasReception && hasBusinessKnowledge && !businessKnowledgePending;
+    const strategyReady = managerInbox ? hasObjective : hasReception && hasBusinessKnowledge && !businessKnowledgePending;
     const blockingPlan = Boolean(flow.planError && flow.inboxPlan && !flow.planConfirmable);
     const loading = Boolean(flow.loadingAccounts || flow.receptionLoading || flow.planLoading || flow.authorizing || flow.starting);
 
@@ -3231,10 +3716,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           flow.inboxConversationId = "";
           flow.startRequestId = "";
           flow.inboxTakeoverOwnerAgentId = "";
-          flow.reception = null;
+          flow.reception = managerInbox ? undefined : null;
           restoreAccountScopedAcquisitionDraft(flow, undefined, { reset: true });
           invalidateInboxPlan(flow);
-          if (!isCommentAcquisitionAgent({ id: flow.agentId })) void loadAccountReception(flow);
+          if (!managerInbox) void loadAccountReception(flow);
         });
         accountRow.appendChild(select);
       }
@@ -3274,30 +3759,39 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     }
 
     if (managerInbox) {
-      const targetSection = el("section", "sb-as-inbox-section sb-as-inbox-target");
-      const targetHead = el("div", "sb-as-inbox-section-head");
-      const targetTitle = el("div", "sb-as-inbox-section-title");
-      targetTitle.append(
-        el("strong", null, "2. 自动识别账号定位与潜客"),
-        el("span", null, "系统会从账号主页、作品、评论、直播互动和账号通知中识别服务对象与真实需求，无需额外填写筛选条件。")
+      const automationSection = el("section", "sb-as-inbox-section sb-as-inbox-auto-context");
+      const automationHead = el("div", "sb-as-inbox-section-head");
+      const automationTitle = el("div", "sb-as-inbox-section-title");
+      automationTitle.append(
+        el("strong", null, "2. 后台自动识别账号定位和潜客"),
+        el("span", null, "无需填写目标人群或首条话术，后台会根据账号资料和新互动实时判断。")
       );
-      const targetStatus = el("span", "sb-as-inbox-section-status is-ready");
-      targetStatus.append(el("i"), el("span", null, "后台自动判断"));
-      targetHead.append(targetTitle, targetStatus);
-      targetSection.appendChild(targetHead);
-      targetSection.appendChild(el("div", "sb-as-inbox-policy-summary", `获客目标：${DOUYIN_ACQUISITION_OBJECTIVE}。系统会自动完成找人、分析、首次私信触达和后续对话承接。`));
-      targetSection.appendChild(el("div", "sb-as-inbox-policy-summary", "默认无需填写任何偏好；需要时可展开高级设置，作为本次任务的可选约束。"));
-      targetSection.appendChild(renderManagerAdvancedSettings(flow));
-      flowRoot.appendChild(targetSection);
+      const automationStatus = el("span", "sb-as-inbox-section-status is-ready");
+      automationStatus.append(el("i"), el("span", null, "后台托管"));
+      automationHead.append(automationTitle, automationStatus);
+      automationSection.appendChild(automationHead);
+      automationSection.appendChild(el("p", "sb-as-inbox-auto-context-copy", `${DOUYIN_AUTO_AUDIENCE_GOAL}。分析时会结合每条评论、直播互动和账号互动证据，自动生成有依据的首次私信。`));
+      flowRoot.appendChild(automationSection);
     }
 
     const policySection = el("section", "sb-as-inbox-section sb-as-inbox-policy");
     const policyHead = el("div", "sb-as-inbox-section-head");
     const policyTitle = el("div", "sb-as-inbox-section-title");
-    policyTitle.append(el("strong", null, managerInbox ? "3. 按获客目标自动执行" : "2. 告诉我怎么回复"), el("span", null, managerInbox ? "首次触达和后续私信会使用后台固定的获客提示词与安全边界。" : "这里保存的内容会同步到“对话策略”，以后都可以在那里查看和调整。"));
-    const policyStatus = el("span", `sb-as-inbox-section-status ${managerInbox || strategyReady ? "is-ready" : ""}`);
-    policyStatus.append(el("i"), el("span", null, managerInbox ? "已固定" :
-      flow.receptionLoading || businessKnowledgePending
+    policyTitle.append(
+      el("strong", null, managerInbox ? "3. 告诉我怎么回复" : "2. 告诉我怎么回复"),
+      el("span", null, managerInbox
+        ? "只需填写希望通过私信达成的目标，回复方式、提问顺序、推进节奏和人工边界由 AI 自动设计。"
+        : "这里保存的内容会同步到“对话策略”，以后都可以在那里查看和调整。")
+    );
+    const policyStatus = el("span", `sb-as-inbox-section-status ${strategyReady ? "is-ready" : ""}`);
+    policyStatus.append(el("i"), el("span", null,
+      managerInbox
+        ? flow.planLoading
+          ? "正在设计"
+          : hasObjective
+            ? "已填写"
+            : hasAccount ? "待填写" : "等待登录"
+        : flow.receptionLoading || businessKnowledgePending
         ? "正在读取"
         : !hasReception
           ? hasAccount ? "待设置" : "等待登录"
@@ -3307,12 +3801,12 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     ));
     policyHead.append(policyTitle, policyStatus);
     policySection.appendChild(policyHead);
-    if (managerInbox) {
-      policySection.appendChild(el("div", "sb-as-inbox-policy-summary", `AI 目标：${DOUYIN_ACQUISITION_OBJECTIVE}`));
-      policySection.appendChild(el("div", "sb-as-inbox-policy-summary", `识别范围：${DOUYIN_ACQUISITION_DISCOVERY_GOAL}`));
-      policySection.appendChild(el("div", "sb-as-inbox-policy-summary", `触达方式：${DOUYIN_ACQUISITION_FIRST_TOUCH_RULE}`));
-    } else if (!hasAccount) {
-      policySection.appendChild(el("p", "sb-as-inbox-policy-empty", "登录账号后，就可以在这里设置回复的人设、目标、业务资料和需要交给你的情况。"));
+    if (!hasAccount) {
+      policySection.appendChild(el("p", "sb-as-inbox-policy-empty", managerInbox
+        ? "登录账号后，只需填写希望通过私信达成的目标。"
+        : "登录账号后，就可以在这里设置回复的人设、目标、业务资料和需要交给你的情况。"));
+    } else if (managerInbox) {
+      appendGoalFirstComposer(policySection, flow, "你想让我帮你达成什么？");
     } else {
       flow.receptionEditor?.page?.close?.();
       const host = el("div", "sb-as-inbox-policy-editor");
@@ -3360,26 +3854,24 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         ? "正在启动，确认后会自动进入实时工作。"
         : !hasAccount
           ? accountUnavailable ? "请重新连接原账号后再继续，避免任务错误地使用其他账号。" : "先登录抖音账号，再开始托管。"
-        : managerInbox
-          ? startsCompleteManager
-            ? "会同时启动持续监听、首次触达与后续私信承接。"
-            : "会自动识别账号定位和互动需求，持续寻找并承接可跟进线索。"
-          : !hasReception
-              ? "先保存回复的人设、目标和人工接管边界。"
-              : businessKnowledgePending
-                ? "正在读取业务资料，读取完成后才能启动。"
-                : !hasBusinessKnowledge
-                  ? "先补充业务资料，避免自动回复不准确或无法确认的信息。"
-                  : flow.inboxTakeoverOwnerAgentId
-                    ? `该账号正在由${displayAgentName(getMarketplaceAgent(flow.inboxTakeoverOwnerAgentId) || { id: flow.inboxTakeoverOwnerAgentId, name: "另一个 Agent" })}承接。确认后会停止原承接并切换到当前 Agent。`
-                    : startsCompleteManager
-                      ? "会同时启动持续监听、首次触达与后续私信承接。"
-                      : "启动后，我会持续接待新私信；你可以随时暂停或调整设置。";
+        : managerInbox && !hasObjective
+          ? "填写一个目标，AI 会自动设计后续对话。"
+          : !managerInbox && !hasReception
+            ? "先保存回复的人设、转化结果和人工接管边界。"
+            : !managerInbox && businessKnowledgePending
+              ? "正在读取业务资料，读取完成后才能启动。"
+              : !managerInbox && !hasBusinessKnowledge
+                ? "先补充业务资料，避免自动回复不准确或无法确认的信息。"
+                : flow.inboxTakeoverOwnerAgentId
+                  ? `该账号正在由${displayAgentName(getMarketplaceAgent(flow.inboxTakeoverOwnerAgentId) || { id: flow.inboxTakeoverOwnerAgentId, name: "另一个 Agent" })}承接。确认后会停止原承接并切换到当前 Agent。`
+                  : startsCompleteManager
+                    ? "会同时启动持续监听、首次触达与后续私信承接。"
+                    : "启动后，我会持续接待新私信；你可以随时暂停或调整设置。";
     launchCopy.append(el("strong", null, managerInbox ? "4. 启动完整获客任务" : "3. 开始托管"), el("span", null, launchDescription));
-    const start = el("button", null, flow.starting || flow.planLoading ? "正在启动…" : flow.inboxTakeoverOwnerAgentId ? "确认切换并启动" : startsCompleteManager ? "启动获客管家" : managerInbox ? "开始获客" : "立即启动托管");
+    const start = el("button", null, flow.starting || flow.planLoading ? "正在启动…" : flow.inboxTakeoverOwnerAgentId ? "确认切换并启动" : startsCompleteManager ? "启动获客专家" : managerInbox ? "开始私信承接" : "立即启动托管");
     start.type = "button";
-    start.disabled = !hasAccount || (managerInbox ? false : !strategyReady) || loading || blockingPlan;
-    if (!hasBusinessKnowledge && hasReception) start.title = "请先补充业务资料，避免自动回复不准确";
+    start.disabled = !hasAccount || !strategyReady || loading || blockingPlan;
+    if (!managerInbox && !hasBusinessKnowledge && hasReception) start.title = "请先补充业务资料，避免自动回复不准确";
     start.addEventListener("click", () => {
       const activeAgent = getMarketplaceAgent(state.useId);
       if (isInboxIntakeFlow(activeAgent, flow)) {
@@ -4306,88 +4798,6 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     return node;
   }
 
-  function managerAdvancedSettingsForFlow(flow = {}) {
-    const current = flow.managerAdvancedSettings && typeof flow.managerAdvancedSettings === "object"
-      ? flow.managerAdvancedSettings
-      : {};
-    const firstText = (...values) => values.map(value => String(value ?? "").trim()).find(Boolean) || "";
-    const legacyReplyStyle = flow.replyStyle && ![
-      COMMENT_ACQUISITION_DEFAULTS.replyStyle,
-      "专业、简短、自然，像一个懂业务的人在回复。"
-    ].includes(String(flow.replyStyle).trim()) ? flow.replyStyle : "";
-    const legacyDialogueObjective = flow.replyObjective && String(flow.replyObjective).trim() !== "先解决用户当前问题，再确认需求并推进到下一步，不强行销售。"
-      ? flow.replyObjective
-      : "";
-    const legacyHandoffBoundary = flow.handoffBoundary && ![
-      COMMENT_ACQUISITION_DEFAULTS.handoffBoundary,
-      "价格谈判、投诉、退款、合同、效果承诺和无法确认的事实，交给人工。"
-    ].includes(String(flow.handoffBoundary).trim()) ? flow.handoffBoundary : "";
-    const settings = {
-      audienceGoal: firstText(current.audienceGoal, flow.product),
-      requirements: firstText(current.requirements, flow.requirements),
-      firstTouch: firstText(current.firstTouch, flow.touchStrategy !== COMMENT_ACQUISITION_DEFAULTS.touchStrategy ? flow.touchStrategy : "", flow.message),
-      replyStyle: firstText(current.replyStyle, legacyReplyStyle),
-      touchObjective: firstText(current.touchObjective, flow.conversionGoal),
-      dialogueObjective: firstText(current.dialogueObjective, legacyDialogueObjective),
-      handoffBoundary: firstText(current.handoffBoundary, legacyHandoffBoundary),
-      maxTouchesPerDay: Number(current.maxTouchesPerDay ?? (Number(flow.maxTouchesPerDay) === COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay ? null : flow.maxTouchesPerDay)) || null,
-      minIntervalMinutes: Number(current.minIntervalMinutes ?? (Number(flow.minIntervalMinutes) === COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes ? null : flow.minIntervalMinutes)) || null
-    };
-    flow.managerAdvancedSettings = settings;
-    if (flow.managerAdvancedSettingsEnabled !== true
-      && Object.values(settings).some((value) => value !== "" && value !== null)) {
-      flow.managerAdvancedSettingsEnabled = true;
-    }
-    return settings;
-  }
-
-  function renderManagerAdvancedSettings(flow) {
-    const settings = managerAdvancedSettingsForFlow(flow);
-    const details = el("details", "sb-as-manager-advanced-settings");
-    details.open = flow.managerAdvancedOpen === true;
-    details.addEventListener("toggle", () => { flow.managerAdvancedOpen = details.open === true; });
-    const summary = el("summary");
-    summary.append(
-      el("strong", null, "高级设置（可选）"),
-      el("span", null, "默认无需填写，展开后可补充本次任务偏好")
-    );
-    details.appendChild(summary);
-    const fields = el("div", "sb-as-manager-advanced-fields");
-    const update = (key, control, numeric = false) => {
-      settings[key] = numeric ? Number(control.value) || null : control.value;
-      flow.managerAdvancedSettingsEnabled = true;
-      flow.setupError = null;
-      flow.planError = null;
-      invalidateInboxPlan(flow);
-      persistAccountSetupDraft(flow);
-    };
-    const addField = (label, key, { multiline = false, numeric = false, placeholder = "" } = {}) => {
-      const control = document.createElement(multiline ? "textarea" : "input");
-      control.value = settings[key] ?? "";
-      control.placeholder = placeholder;
-      control.setAttribute("aria-label", label);
-      if (numeric) {
-        control.type = "number";
-        control.min = key === "maxTouchesPerDay" ? "1" : "15";
-        control.max = key === "maxTouchesPerDay" ? "30" : "1440";
-        control.step = "1";
-      }
-      control.addEventListener("input", () => update(key, control, numeric));
-      appendLabeledField(fields, label, control, multiline || numeric);
-    };
-    addField("想找什么样的人（可选）", "audienceGoal", { multiline: true, placeholder: "例如：明确询价并准备预约的人" });
-    addField("补充说明（可选）", "requirements", { multiline: true, placeholder: "例如：排除同行、抽奖和无关互动" });
-    addField("首次怎么联系（可选）", "firstTouch", { multiline: true, placeholder: "例如：先回应对方刚才的问题，再确认具体需求" });
-    addField("话术风格（可选）", "replyStyle", { placeholder: "例如：克制、专业、像账号本人" });
-    addField("触达目的（可选）", "touchObjective", { multiline: true, placeholder: "例如：获取联系方式并推进预约" });
-    addField("对话目标（可选）", "dialogueObjective", { multiline: true, placeholder: "例如：确认需求和预约时间" });
-    addField("人工边界补充（可选）", "handoffBoundary", { multiline: true, placeholder: "例如：涉及定制方案时交给人工" });
-    addField("每天最多联系几位（可选）", "maxTouchesPerDay", { numeric: true, placeholder: "默认 30" });
-    addField("两次联系至少间隔多久（分钟，可选）", "minIntervalMinutes", { numeric: true, placeholder: "默认 15" });
-    details.appendChild(fields);
-    return details;
-  }
-
   function scheduleLeadMinerAccountResolve(flow, value) {
     if (flow.accountResolveTimer) window.clearTimeout(flow.accountResolveTimer);
     flow.accountResolveRequestId = (flow.accountResolveRequestId || 0) + 1;
@@ -5006,7 +5416,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     return avatar;
   }
 
-  function acquisitionAccountControl(flow, onAccountChange = null) {
+  function acquisitionAccountControl(flow, onAccountChange = null, options = {}) {
     const accounts = flow.authorizedAccounts || [];
     const account = document.createElement("select");
     (accounts.length ? accounts : [{ id: "", name: flow.loadingAccounts ? "正在读取已授权账号…" : "尚未授权抖音账号" }]).forEach((value) => {
@@ -5027,7 +5437,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       mountPersonAvatar(avatar, flow.accountIdentity || {}, { name: flow.account });
       onAccountChange?.(selected);
     });
-    const control = el("div", "sb-task-account sb-task-account-picker");
+    const control = el("div", `sb-task-account sb-task-account-picker${options.className ? ` ${options.className}` : ""}`);
     const selected = accounts.find(value => value.id === account.value) || accounts[0];
     const avatar = taskPersonAvatar(selected?.identity || flow.accountIdentity, selected?.name || flow.account);
     const requiresReauthorization = flow.authErrorCode === "DOUYIN_CLOUD_START_STUCK";
@@ -5038,7 +5448,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     authorize.style.cssText = "height:38px;padding:0 12px;border:1px solid #4267A5;border-radius:9px;background:#eff3fa;color:#34578f;font:inherit;font-size:11px;font-weight:650;white-space:nowrap;cursor:pointer";
     authorize.addEventListener("click", () => requiresReauthorization ? reauthorizeMcp(flow) : startMcpAuthorization(flow, { restart: canRestart }));
     const selector = el("label", "sb-task-account-selector");
-    const caption = el("span", "sb-task-account-caption", "使用这个抖音账号");
+    const caption = el("span", "sb-task-account-caption", options.caption || "使用这个抖音账号");
     selector.append(avatar, caption, account); control.appendChild(selector);
     if (accounts.length && !flow.authError) {
       const settings = makeTaskSettings("账号设置"); settings.appendChild(authorize); control.appendChild(settings);
@@ -5289,60 +5699,35 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
   function renderLiveDanmakuAnalysisSetup(panel, flow) {
     panel.classList.add("sb-as-live-danmaku-analysis-setup");
-    panel.append(
-      el("div", "sb-as-use-panel-title", "配置直播间弹幕分析"),
-      el("div", "sb-as-use-panel-copy", "读取当前授权账号的直播间互动，分别分析弹幕、点赞和送礼，提炼高频问题、需求和购买意向。点赞和送礼不会单独被判定为购买意向。")
+    flow.liveDanmakuSignals = [...DEFAULT_LIVE_SIGNALS];
+    const accounts = flow.authorizedAccounts || [];
+    const shell = el("div", "sb-as-gold-shell sb-as-live-shell");
+    const hero = el("header", "sb-as-gold-hero");
+    const heroMark = el("div", "sb-as-gold-hero-mark");
+    mountGrokBotAvatar(heroMark, "mkt-live-danmaku-analysis", { alt: "直播间弹幕分析", state: "idle", trackPointer: false, mode: "agent-square" });
+    const heroCopy = el("div", "sb-as-gold-hero-copy");
+    heroCopy.append(
+      el("h1", "sb-as-gold-title", "我来帮你看懂这场直播"),
+      el("p", "sb-as-gold-subtitle", "连接账号后，我会持续读懂新弹幕，把观众反复问什么、在意什么和准备购买什么整理出来。")
     );
-    panel.appendChild(acquisitionAccountControl(flow, () => render()));
+    hero.append(heroMark, heroCopy);
+    shell.appendChild(hero);
 
-    const goal = document.createElement("textarea");
-    goal.rows = 3;
-    goal.value = flow.liveDanmakuGoal || "";
-    goal.placeholder = "例如：重点分析价格异议、库存问题和明确想购买的人";
-    goal.setAttribute("aria-label", "直播间弹幕分析目标");
-    goal.addEventListener("input", () => {
-      flow.liveDanmakuGoal = goal.value;
-      flow.setupError = null;
-    });
-    const goalField = el("label", "sb-as-use-field full", "这次重点分析什么");
-    goalField.appendChild(goal);
-    const fields = el("div", "sb-as-use-fields");
-    fields.appendChild(goalField);
+    const account = acquisitionAccountControl(flow, () => render(), { className: "sb-as-live-account", caption: "工作账号" });
+    shell.appendChild(account);
+    if (flow.authorizing || ["starting", "opening", "waiting_login"].includes(flow.authPhase)) shell.appendChild(buildCloudAuthorizationStatus(flow));
+    if (flow.authError) shell.appendChild(el("div", "sb-as-use-notice is-error sb-as-live-error", flow.authError));
 
-    const signalOptions = [
-      ["danmaku", "弹幕", "分析用户原话、问题、需求和异议"],
-      ["likes", "点赞", "统计互动强度，不单独判断购买意向"],
-      ["gifts", "送礼", "统计互动强度，不单独判断购买意向"],
-      ["follows", "关注", "作为用户兴趣信号辅助分析"],
-      ["joins", "进场", "作为直播间活跃度信号辅助分析"]
-    ];
-    const selected = new Set(Array.isArray(flow.liveDanmakuSignals) && flow.liveDanmakuSignals.length ? flow.liveDanmakuSignals : ["danmaku", "likes", "gifts"]);
-    const signalGroup = el("div", "sb-as-use-field full");
-    signalGroup.appendChild(el("span", null, "读取哪些互动信号"));
-    const signalList = el("div", "sb-as-use-checklist");
-    signalOptions.forEach(([value, label, description]) => {
-      const row = el("label", "sb-as-use-check");
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = selected.has(value);
-      checkbox.addEventListener("change", () => {
-        flow.liveDanmakuSignals = checkbox.checked
-          ? [...new Set([...(flow.liveDanmakuSignals || []), value])]
-          : (flow.liveDanmakuSignals || []).filter((item) => item !== value);
-        flow.setupError = null;
-      });
-      row.append(checkbox, el("span", null, `${label}：${description}`));
-      signalList.appendChild(row);
-    });
-    signalGroup.appendChild(signalList);
-    fields.appendChild(signalGroup);
-    panel.appendChild(fields);
+    appendLiveDanmakuGoalComposer(shell, flow);
 
-    panel.appendChild(el("div", "sb-as-use-notice", "分析只读取当前直播间的新互动，不回扫历史直播，也不会自动发送私信。直播结束或账号离线时，任务会保留已收到的证据。"));
-    if (flow.authorizing || ["starting", "opening", "waiting_login"].includes(flow.authPhase)) panel.appendChild(buildCloudAuthorizationStatus(flow));
-    if (flow.authError || flow.setupError) panel.appendChild(el("div", "sb-as-use-notice is-error", flow.setupError || flow.authError));
-    const actions = el("div", "sb-as-use-actions");
-    const start = el("button", "primary", flow.authorizing ? "正在连接账号…" : "开始分析弹幕");
+    if (flow.setupError) shell.appendChild(el("div", "sb-as-use-notice is-error sb-as-live-error", flow.setupError));
+    const launch = el("footer", "sb-as-live-launch");
+    const launchCopy = el("div", "sb-as-live-launch-copy");
+    launchCopy.append(
+      el("strong", null, accounts.length ? "账号已连接，我可以开始分析" : "连接账号，我就开始分析"),
+      el("span", null, "我会把分析结果保留在任务记录中，直播结束或账号离线时也不会丢失。")
+    );
+    const start = el("button", "sb-as-live-launch-button", flow.authorizing ? "正在连接账号…" : "开始分析弹幕");
     start.type = "button";
     start.disabled = Boolean(flow.authorizing || flow.requesting);
     start.addEventListener("click", () => {
@@ -5351,19 +5736,30 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       if (error) { flow.setupError = error; render(); return; }
       startUse(getMarketplaceAgent(state.useId));
     });
-    actions.appendChild(start);
-    panel.appendChild(actions);
+    launch.append(launchCopy, start);
+    shell.appendChild(launch);
+    panel.appendChild(shell);
   }
 
   function renderCommentAcquisitionSetup(panel, flow) {
     flow.approvalMode = "auto";
     panel.appendChild(acquisitionAccountControl(flow, () => render()));
-    panel.appendChild(el("div", "sb-as-use-notice", `系统会自动识别账号定位和服务对象，从评论、互动和直播弹幕中判断潜客，完成首次私信触达并承接后续对话。获客目标：${DOUYIN_ACQUISITION_OBJECTIVE}。`));
-    panel.appendChild(el("div", "sb-as-use-notice", "默认无需填写任何偏好；需要时可展开高级设置，作为本次任务的可选约束。"));
-    panel.appendChild(renderManagerAdvancedSettings(flow));
+    panel.appendChild(el("div", "sb-as-use-notice", `${DOUYIN_AUTO_AUDIENCE_GOAL}，并根据每条互动证据自动生成首次私信。后续对话按已保存的接待方式承接。`));
     if (flow.authorizing || ["starting", "opening", "waiting_login"].includes(flow.authPhase)) panel.appendChild(buildCloudAuthorizationStatus(flow));
     if (flow.setupError || flow.authError) panel.appendChild(el("div", "sb-as-use-notice is-error", flow.setupError || flow.authError));
     const actions = el("div", "sb-as-use-actions");
+    const inbox = el("button", null, "配置接待方式（必填）");
+    inbox.type = "button";
+    inbox.disabled = Boolean(flow.authorizing);
+    inbox.addEventListener("click", () => {
+      flow.mode = "inbox";
+      flow.managerCombinedStart = true;
+      flow.step = "setup";
+      flow.setupError = null;
+      flow.error = null;
+      if (flow.accountId) void loadAccountReception(flow);
+      render();
+    });
     const start = el("button", "primary", flow.authorizing ? "正在连接账号…" : "开始找客户"); start.type = "button"; start.disabled = Boolean(flow.authorizing || flow.requesting);
     start.addEventListener("click", () => {
       if (!flow.authorizedAccounts?.length) { startMcpAuthorization(flow); return; }
@@ -5371,7 +5767,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       if (error) { flow.setupError = error; render(); return; }
       flow.setupError = null; startUse(getMarketplaceAgent(state.useId));
     });
-    actions.append(start); panel.appendChild(actions);
+    actions.append(inbox, start); panel.appendChild(actions);
   }
 
   function renderCommentAcquisitionRunning(panel, flow) {
@@ -5457,6 +5853,34 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     panel.appendChild(actions);
   }
 
+  function renderLiveDanmakuOutreachSetup(panel, flow) {
+    panel.classList.add("sb-as-live-danmaku-outreach-setup");
+    flow.analysisKind = "live_danmaku_outreach";
+    flow.liveDanmakuSignals = ["danmaku"];
+    flow.approvalMode = "auto";
+    flow.touchChannel = "private_message";
+    panel.append(
+      el("div", "sb-as-use-panel-title", "配置电商直播间未成交客户触达"),
+      el("div", "sb-as-use-panel-copy", "监听已授权账号的当前直播间；弹幕出现即进入首次私信触达，不判断成交状态或购买意向。")
+    );
+    panel.appendChild(acquisitionAccountControl(flow, () => render()));
+    panel.appendChild(el("div", "sb-as-use-notice", "开始后会持续监听新弹幕，每位用户只触达一次。无法确认用户身份、明确拒绝联系、投诉或退款的情况会停止自动发送，交给人工处理。"));
+    if (flow.authorizing || ["starting", "opening", "waiting_login"].includes(flow.authPhase)) panel.appendChild(buildCloudAuthorizationStatus(flow));
+    if (flow.authError || flow.setupError) panel.appendChild(el("div", "sb-as-use-notice is-error", flow.setupError || flow.authError));
+    const actions = el("div", "sb-as-use-actions");
+    const start = el("button", "primary", flow.authorizing ? "正在连接账号…" : "开始监听并触达");
+    start.type = "button";
+    start.disabled = Boolean(flow.authorizing || flow.requesting);
+    start.addEventListener("click", () => {
+      if (!flow.authorizedAccounts?.length) { startMcpAuthorization(flow); return; }
+      const error = validateLiveDanmakuOutreachSetup(flow);
+      if (error) { flow.setupError = error; render(); return; }
+      startUse(getMarketplaceAgent(state.useId));
+    });
+    actions.appendChild(start);
+    panel.appendChild(actions);
+  }
+
   function renderLiveDanmakuAnalysisRunning(panel, flow) {
     const taskState = String(flow.taskState || "running").toLowerCase();
     const failed = taskState === "error" || Boolean(flow.error);
@@ -5472,7 +5896,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       ? taskError?.message || "直播间弹幕分析任务运行失败"
       : requiresAuthorization
         ? resumeBlocked.message || "账号重新连接后，会从上次进度继续。"
-        : `监听账号：${flow.account || "已授权账号"} · 当前直播间持续接收新互动`;
+        : `监听账号：${flow.account || "已授权账号"} · 当前直播间持续接收新弹幕`;
     panel.append(el("div", "sb-as-use-panel-title", title), el("div", "sb-as-use-panel-copy", copy));
     if (flow.liveDanmakuGoal) panel.appendChild(el("div", "sb-as-use-notice", `分析目标：${flow.liveDanmakuGoal}`));
     if (taskError && !failed) panel.appendChild(el("div", "sb-as-use-notice is-error", taskError.message || "部分数据源暂不可用"));
@@ -5491,7 +5915,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const checks = el("div", "sb-as-use-checklist");
     const sourceStates = flow.taskSnapshot?.lastScan?.sources || flow.resultSnapshot?.sources || {};
     const hasLiveSource = sourceStates.live?.state === "available" || sourceStates.live?.state === "ready" || sourceStates.live?.state === "received";
-    [["已连接授权账号", Boolean(flow.accountId) && !requiresAuthorization], ["接收直播间弹幕和互动", Boolean(analysis) || hasLiveSource || (!failed && !stopped)], ["归纳弹幕主题和高频问题", Boolean(analysis?.topics?.length)], ["分开展示点赞和送礼信号", Boolean(analysis?.counts && (analysis.counts.likes != null || analysis.counts.gifts != null))]].forEach(([label, done]) => {
+    [["已连接授权账号", Boolean(flow.accountId) && !requiresAuthorization], ["接收直播间新弹幕", Boolean(analysis) || hasLiveSource || (!failed && !stopped)], ["归纳弹幕主题和高频问题", Boolean(analysis?.topics?.length)], ["识别弹幕中的用户意向", Boolean(analysis?.users?.length)]].forEach(([label, done]) => {
       const row = el("div", `sb-as-use-check${done ? " is-done" : " is-active"}`);
       row.append(el("i", null, done ? "✓" : "·"), el("span", null, label));
       checks.appendChild(row);
@@ -5500,7 +5924,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
     if (Object.keys(counts).length) {
       const result = el("div", "sb-as-use-result sb-as-live-danmaku-result");
-      [[counts.danmaku ?? 0, "弹幕", "accent"], [counts.likes ?? 0, "点赞", ""], [counts.gifts ?? 0, "送礼", ""], [counts.highIntent ?? 0, "明确需求", "accent"]].forEach(([value, label, className]) => {
+      [[counts.danmaku ?? 0, "新弹幕", "accent"], [counts.questions ?? 0, "待回应问题", ""], [counts.highIntent ?? 0, "明确需求", "accent"]].forEach(([value, label, className]) => {
         const item = el("div");
         item.append(el("strong", className, String(value)), el("span", null, label));
         result.appendChild(item);
@@ -5527,13 +5951,13 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         const evidence = (user.evidence || []).filter((item) => item.quote).slice(-2).map((item) => item.quote).join("；");
         row.append(
           el("strong", null, `${user.nickname || "抖音用户"} · ${user.intentTier || "待分析"}`),
-          el("div", null, `弹幕 ${user.danmakuCount || 0} · 点赞 ${user.likeCount || 0} · 送礼 ${user.giftCount || 0}${evidence ? ` · ${evidence}` : ""}`)
+          el("div", null, `弹幕 ${user.danmakuCount || 0}${evidence ? ` · ${evidence}` : ""}`)
         );
         userSection.appendChild(row);
       });
       panel.appendChild(userSection);
     }
-    panel.appendChild(el("div", "sb-as-use-notice", "点赞、送礼、关注和进场只用于衡量互动强度；只有能回查到弹幕原话的用户，才会进入意向判断，不会自动私信。"));
+    panel.appendChild(el("div", "sb-as-use-notice", "本 Agent 只分析当前直播间的新弹幕，不读取点赞、送礼、关注或进场信号；分析只读不触达，不会自动私信。"));
 
     const actions = el("div", "sb-as-use-actions");
     if (failed) {
@@ -5555,6 +5979,392 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     resultButton.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openProspects?.()));
     actions.append(realtimeButton, resultButton);
     panel.appendChild(actions);
+  }
+
+  function renderLiveDanmakuOutreachRunning(panel, flow) {
+    const taskState = String(flow.taskState || "running").toLowerCase();
+    const failed = taskState === "error" || Boolean(flow.error);
+    const paused = taskState === "paused";
+    const stopped = taskState === "stopped";
+    const resumeBlocked = flow.taskSnapshot?.resumeBlocked;
+    const requiresAuthorization = resumeBlocked?.reason === "authorization_required";
+    const taskError = flow.error || flow.taskSnapshot?.lastError || null;
+    const snapshot = flow.taskSnapshot || {};
+    const counts = snapshot.counts || flow.resultSnapshot?.counts || {};
+    const sources = snapshot.lastScan?.sources || flow.resultSnapshot?.sources || {};
+    const hasLiveSource = ["available", "ready", "received", "receiving", "waiting"].includes(String(sources.live?.state || "").toLowerCase());
+    const queue = Array.isArray(flow.approvalQueue) ? flow.approvalQueue : [];
+    const touched = Number(counts.sent ?? counts.delivered ?? snapshot.counters?.sent ?? 0);
+    const candidates = Number(counts.candidates ?? counts.matched ?? counts.signals ?? snapshot.counters?.candidates ?? 0);
+    const pending = Number(counts.pending ?? snapshot.counters?.pending ?? queue.length ?? 0);
+    const title = stopped
+      ? "直播间未成交客户触达已关闭"
+      : failed
+        ? "直播间未成交客户触达异常"
+        : requiresAuthorization
+          ? "需要重新连接抖音账号"
+          : paused
+            ? "直播间未成交客户触达已暂停"
+            : "直播间未成交客户触达中";
+    const copy = failed
+      ? taskError?.message || "直播间未成交客户触达任务运行失败"
+      : requiresAuthorization
+        ? resumeBlocked.message || "账号重新连接后，会从上次进度继续。"
+        : `监听账号：${flow.account || "已授权账号"} · 当前直播间新弹幕会直接进入首次私信触达`;
+    panel.append(el("div", "sb-as-use-panel-title", title), el("div", "sb-as-use-panel-copy", copy));
+    if (taskError && !failed) panel.appendChild(el("div", "sb-as-use-notice is-error", taskError.message || "部分数据源暂不可用"));
+    if (failed) panel.appendChild(el("div", "sb-as-use-notice is-error", `${taskError?.message || "任务异常"}${taskError?.code ? `（${taskError.code}）` : ""}`));
+    if (requiresAuthorization) panel.appendChild(el("div", "sb-as-use-notice", resumeBlocked.message || "账号重新连接后，会从上次进度继续。"));
+
+    if (!failed && !stopped) {
+      const progress = el("div", "sb-as-use-progress is-live is-indeterminate");
+      progress.appendChild(el("i"));
+      panel.appendChild(progress);
+      const meta = el("div", "sb-as-use-progress-meta");
+      meta.append(el("span", null, paused ? "任务已暂停" : "等待直播间新弹幕"), el("span", null, flow.taskState || "running"));
+      panel.appendChild(meta);
+    }
+
+    const checks = el("div", "sb-as-use-checklist");
+    [
+      ["已连接授权账号", Boolean(flow.accountId) && !requiresAuthorization],
+      ["持续接收直播间新弹幕", hasLiveSource || (!failed && !stopped)],
+      ["弹幕用户进入触达队列", candidates > 0 || pending > 0 || (!failed && !stopped)],
+      ["发送私信并记录回执", touched > 0 || (!failed && !stopped && snapshot.counters?.sent != null)]
+    ].forEach(([label, done]) => {
+      const row = el("div", `sb-as-use-check${done ? " is-done" : " is-active"}`);
+      row.append(el("i", null, done ? "✓" : "·"), el("span", null, label));
+      checks.appendChild(row);
+    });
+    panel.appendChild(checks);
+
+    if (candidates || touched || pending) {
+      const result = el("div", "sb-as-use-result sb-as-live-danmaku-outreach-result");
+      [[candidates, "弹幕用户", "accent"], [touched, "已发送私信", "accent"], [pending, "待处理", ""]].forEach(([value, label, className]) => {
+        const item = el("div");
+        item.append(el("strong", className, String(value)), el("span", null, label));
+        result.appendChild(item);
+      });
+      panel.appendChild(result);
+    }
+    panel.appendChild(el("div", "sb-as-use-notice", "每条新弹幕只作为触达触发条件，不做成交、购买意向或用户价值判断；具体发送结果会保留在成果中心。"));
+
+    const actions = el("div", "sb-as-use-actions");
+    if (failed) {
+      const retry = el("button", "primary", flow.taskKey ? "重试任务" : "重新启动任务");
+      retry.type = "button";
+      retry.addEventListener("click", () => flow.taskKey ? void controlCommentAcquisitionTask(flow, "retry", retry).catch(() => {}) : void startLiveDanmakuOutreach(getMarketplaceAgent(flow.agentId || state.useId), flow));
+      actions.appendChild(retry);
+    } else if (requiresAuthorization) {
+      const reconnect = el("button", "primary", "重新连接账号");
+      reconnect.type = "button";
+      reconnect.addEventListener("click", () => startMcpAuthorization(flow));
+      actions.appendChild(reconnect);
+    }
+    const realtimeButton = el("button", null, "查看实时工作");
+    realtimeButton.type = "button";
+    realtimeButton.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({ selectedAgentId: flow.agentId, taskId: flow.taskId || null, taskRunId: flow.taskRunId || null, accountId: flow.accountId || null })));
+    const resultButton = el("button", null, "查看触达结果");
+    resultButton.type = "button";
+    resultButton.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openProspects?.()));
+    actions.append(realtimeButton, resultButton);
+    panel.appendChild(actions);
+  }
+
+  function appendViralWorkAnalysisHero(shell, title, subtitle) {
+    const hero = el("header", "sb-as-gold-hero");
+    const heroMark = el("div", "sb-as-gold-hero-mark");
+    mountGrokBotAvatar(heroMark, "mkt-viral-work-analysis", { alt: "爆款作品分析", state: "idle", trackPointer: false, mode: "agent-square" });
+    const heroCopy = el("div", "sb-as-gold-hero-copy");
+    heroCopy.append(
+      el("h1", "sb-as-gold-title", title),
+      el("p", "sb-as-gold-subtitle", subtitle)
+    );
+    hero.append(heroMark, heroCopy);
+    shell.appendChild(hero);
+  }
+
+  function renderViralWorkAnalysisSetup(panel, flow) {
+    panel.classList.add("sb-as-viral-work-analysis-setup");
+    const shell = el("div", "sb-as-gold-shell sb-as-viral-shell");
+    appendViralWorkAnalysisHero(
+      shell,
+      "我来帮你拆解这条爆款作品",
+      "把作品链接发给我，我会先真正理解视频内容、画面和结构，再判断它为什么可能获得流量，最后给你下一轮可以验证的创作打法。"
+    );
+
+    const composer = el("section", "sb-as-viral-source");
+    composer.appendChild(el("div", "sb-as-viral-source-kicker", "把你想研究的作品发给我"));
+    const urlRow = el("div", "sb-as-viral-url-row");
+    urlRow.appendChild(el("span", "sb-as-viral-url-icon", "↗"));
+    const workUrl = document.createElement("input");
+    workUrl.type = "url";
+    workUrl.className = "sb-as-viral-url-input";
+    workUrl.value = flow.workUrl || "";
+    workUrl.placeholder = "把抖音作品链接粘贴给我（支持 /video/ 或 /jingxuan?modal_id=...）";
+    workUrl.autocomplete = "url";
+    workUrl.setAttribute("aria-label", "抖音作品链接");
+    workUrl.addEventListener("input", () => {
+      flow.workUrl = workUrl.value;
+      flow.setupError = null;
+    });
+    urlRow.appendChild(workUrl);
+    composer.appendChild(urlRow);
+    composer.appendChild(el("span", "sb-as-viral-source-help", "这是公开作品，我会直接解析视频本身和可见评论，不需要登录抖音账号，也不会发送私信。"));
+
+    const focus = el("div", "sb-as-viral-focus");
+    focus.appendChild(el("div", "sb-as-viral-focus-label", "你想让我重点拆解什么？（可选）"));
+    const goal = document.createElement("textarea");
+    goal.rows = 3;
+    goal.className = "sb-as-viral-focus-input";
+    goal.value = flow.viralWorkGoal || VIRAL_WORK_ANALYSIS_DEFAULT_GOAL;
+    goal.placeholder = "例如：重点拆解前 3 秒的流量抓手、信息密度和下一条怎么测试";
+    goal.setAttribute("aria-label", "爆款作品分析目标");
+    goal.addEventListener("input", () => {
+      flow.viralWorkGoal = goal.value;
+      flow.setupError = null;
+    });
+    focus.appendChild(goal);
+
+    const suggestions = el("div", "sb-as-viral-suggestions");
+    suggestions.appendChild(el("span", "sb-as-viral-suggestions-label", "你也可以直接选一个重点"));
+    [
+      ["开头抓手", "重点拆解前 3 秒如何让用户停下来。"],
+      ["内容结构", "重点拆解内容推进、转折和信息密度。"],
+      ["流量机制", "重点判断这条作品可能获得传播的关键原因。"],
+      ["可复用打法", "重点提炼下一条可以直接验证的创作方案。"]
+    ].forEach(([label, value]) => {
+      const suggestion = el("button", "sb-as-viral-suggestion", label);
+      suggestion.type = "button";
+      suggestion.addEventListener("click", () => {
+        flow.viralWorkGoal = value;
+        flow.setupError = null;
+        render();
+      });
+      suggestions.appendChild(suggestion);
+    });
+    focus.appendChild(suggestions);
+    composer.appendChild(focus);
+
+    const note = el("div", "sb-as-viral-note");
+    note.append(el("i", null, "i"), el("span", null, "我会区分视频事实、数据事实、流量机制判断和下一轮创作测试，避免把推测当成结论。"));
+    composer.appendChild(note);
+    if (flow.setupError) composer.appendChild(el("div", "sb-as-use-notice is-error sb-as-viral-error", flow.setupError));
+    shell.appendChild(composer);
+
+    const launch = el("footer", "sb-as-viral-launch");
+    const start = el("button", "sb-as-viral-launch-button", flow.requesting ? "正在分析…" : "开始分析作品");
+    start.type = "button";
+    start.disabled = Boolean(flow.requesting);
+    start.addEventListener("click", () => startUse(getMarketplaceAgent(state.useId)));
+    launch.appendChild(start);
+    shell.appendChild(launch);
+    panel.appendChild(shell);
+  }
+
+  function renderViralWorkAnalysisRunning(panel, flow) {
+    panel.classList.add("sb-as-viral-work-analysis-running");
+    const result = flow.viralWorkAnalysis || flow.resultSnapshot || null;
+    const failed = flow.status === "failed" || Boolean(flow.error);
+    const title = failed ? "爆款作品分析异常" : result ? "爆款作品分析结果" : "爆款作品分析中";
+    const copy = failed
+      ? flow.error?.message || "这条作品暂时没有完成分析"
+      : result
+        ? "视频事实、流量信号和下一轮创作测试已经整理完成。"
+        : "正在读取视频并解析画面、口播、字幕和内容节奏。";
+    const shell = el("div", "sb-as-gold-shell sb-as-viral-shell");
+    appendViralWorkAnalysisHero(shell, title, copy);
+    const body = el("div", "sb-as-viral-running-body");
+    if (flow.workUrl) {
+      const source = el("div", "sb-as-use-notice");
+      source.append(document.createTextNode("分析作品："));
+      const link = el("a", null, flow.workUrl);
+      link.href = flow.workUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      source.appendChild(link);
+      body.appendChild(source);
+    }
+    if (flow.viralWorkGoal) body.appendChild(el("div", "sb-as-use-notice", `分析目标：${flow.viralWorkGoal}`));
+
+    if (!result && !failed) {
+      const progress = el("div", "sb-as-use-progress");
+      const bar = el("i");
+      bar.style.width = `${Math.max(12, Math.min(90, Number(flow.progress) || 18))}%`;
+      progress.appendChild(bar);
+      body.appendChild(progress);
+      const meta = el("div", "sb-as-use-progress-meta");
+      meta.append(el("span", null, "读取公开作品数据"), el("span", null, `${Math.max(12, Number(flow.progress) || 18)}%`));
+      body.appendChild(meta);
+      const checks = el("div", "sb-as-use-checklist");
+      ["校验作品链接", "读取视频内容", "整理评论需求", "生成分析报告"].forEach((label, index) => {
+        const row = el("div", `sb-as-use-check${index === 0 ? " is-done" : " is-active"}`);
+        row.append(el("i", null, index === 0 ? "✓" : "·"), el("span", null, label));
+        checks.appendChild(row);
+      });
+      body.appendChild(checks);
+    }
+
+    if (result) {
+      renderViralWorkAnalysisOverview(body, result);
+      renderViralWorkAnalysisDetails(body, result);
+    }
+    if (failed) body.appendChild(el("div", "sb-as-use-notice is-error", `${flow.error?.message || "分析失败"}${flow.error?.code ? `（${flow.error.code}）` : ""}`));
+
+    const actions = el("div", "sb-as-use-actions");
+    const edit = el("button", null, result ? "再次分析" : "返回修改");
+    edit.type = "button";
+    edit.addEventListener("click", () => {
+      flow.step = "setup";
+      flow.requesting = false;
+      flow.error = null;
+      flow.setupError = null;
+      flow.status = "";
+      flow.progress = 0;
+      flow.taskId = "";
+      flow.taskRunId = "";
+      flow.viralWorkAnalysis = null;
+      flow.resultSnapshot = null;
+      flow.analysisResult = null;
+      render();
+    });
+    actions.appendChild(edit);
+    if (result) {
+      const results = el("button", "primary", "查看成果中心");
+      results.type = "button";
+      results.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openProspects?.()));
+      actions.appendChild(results);
+    } else if (failed) {
+      const retry = el("button", "primary", "重新分析");
+      retry.type = "button";
+      retry.addEventListener("click", () => startUse(getMarketplaceAgent(state.useId)));
+      actions.appendChild(retry);
+    }
+    body.appendChild(actions);
+    shell.appendChild(body);
+    panel.appendChild(shell);
+  }
+
+  async function startViralWorkAnalysis(agent, flow) {
+    if (!flow || flow.requesting) return;
+    const validation = validateViralWorkAnalysisSetup(flow);
+    if (validation) {
+      flow.setupError = validation;
+      flow.step = "setup";
+      render();
+      return;
+    }
+
+    const payload = buildViralWorkAnalysisTaskPayload({
+      ...flow,
+      taskId: flow.taskId || newTaskId("viral-work-analysis"),
+      taskRunId: newTaskId("run"),
+      conversationId: `agent-square-${flow.taskId || "viral-work-analysis"}`
+    });
+    flow.step = "running";
+    flow.requesting = true;
+    flow.status = "running";
+    flow.error = null;
+    flow.setupError = null;
+    flow.progress = 18;
+    flow.taskId = payload.taskId;
+    flow.taskRunId = payload.taskRunId;
+    flow.analysisKind = "viral_work";
+    flow.sourceScope = "public_work_link";
+    flow.source = "抖音公开作品链接";
+    flow.executionAgentId = agent.id;
+    flow.configuration = structuredClone(payload.config);
+    beginWork(agent.id, {
+      task: payload.goal,
+      phase: "读取抖音作品详情",
+      progress: flow.progress,
+      projectId: null,
+      metadata: {
+        progressSource: "none",
+        publicDataTask: true,
+        analysisKind: "viral_work",
+        sourceScope: "public_work_link",
+        taskId: flow.taskId,
+        taskRunId: flow.taskRunId
+      }
+    });
+    updateWork(agent.id, { progress: flow.progress, phase: "解析视频内容", metadata: { analysisKind: "viral_work", taskId: flow.taskId, taskRunId: flow.taskRunId } });
+    pushActivity(agent.id, "已收到作品链接，正在解析视频画面、口播、字幕和内容结构。");
+    render();
+
+    try {
+      const started = await executeCoreAgent({ ...payload, agentId: agent.id, executionAgentId: agent.id }, 300000);
+      const result = started?.resultSnapshot || started?.result || started?.snapshot || null;
+      if (!result || result.analysisKind !== "viral_work") {
+        throw Object.assign(new Error("分析服务没有返回有效的作品分析结果"), { code: "VIRAL_WORK_ANALYSIS_RESULT_INVALID" });
+      }
+      const reportFile = viralWorkAnalysisReportFile({ ...result, taskId: flow.taskId, taskRunId: flow.taskRunId, sourceUrl: result.sourceUrl || flow.workUrl }, { createdBy: agent.name });
+      const fileId = addFile({ ...reportFile, taskId: flow.taskId, taskRunId: flow.taskRunId, agentId: agent.id });
+      const artifact = {
+        id: fileId,
+        name: reportFile.name,
+        type: reportFile.type,
+        projectName: reportFile.projectName,
+        summary: "可在文件中心预览完整分析报告",
+        sourceTaskTitle: reportFile.sourceTaskTitle
+      };
+      const conversation = viralWorkAnalysisReportConversationMessage({ ...reportFile, ...artifact });
+      recordAgentActivity(agent.id, {
+        type: "completed",
+        taskId: flow.taskId,
+        taskRunId: flow.taskRunId,
+        activityKey: `viral-work-analysis-report:${flow.taskId}`,
+        metadata: { deliverToConversation: true }
+      }, {
+        journal: agentActivityJournal,
+        fromName: agent.name,
+        text: conversation.text,
+        artifact: conversation.artifact
+      });
+
+      flow.viralWorkAnalysis = { ...result, taskId: flow.taskId, taskRunId: flow.taskRunId, artifacts: [...(Array.isArray(result.artifacts) ? result.artifacts : []), artifact] };
+      flow.resultSnapshot = flow.viralWorkAnalysis;
+      flow.analysisResult = flow.viralWorkAnalysis;
+      flow.status = String(result.status || started.status || "completed").toLowerCase();
+      flow.progress = 100;
+      agentResultRecorder.record({
+        ...flow.viralWorkAnalysis,
+        agentId: agent.id,
+        agentName: agent.name,
+        taskId: flow.taskId,
+        taskRunId: flow.taskRunId,
+        title: flow.viralWorkAnalysis.title || "爆款作品分析报告",
+        summary: flow.viralWorkAnalysis.summary,
+        source: "抖音公开作品链接",
+        status: flow.status === "partial" ? "partial" : "completed",
+        metrics: flow.viralWorkAnalysis.metrics,
+        items: [],
+        artifacts: [artifact],
+        sourceScope: "public_work_link",
+        inputs: {
+          ...(flow.viralWorkAnalysis.inputs || {}),
+          goal: flow.viralWorkGoal,
+          sourceScope: "public_work_link",
+          workUrl: flow.workUrl
+        }
+      });
+      updateWork(agent.id, {
+        progress: 100,
+        phase: flow.status === "partial" ? "部分报告已生成" : "分析报告已生成",
+        metadata: { status: flow.status, analysisKind: "viral_work", taskId: flow.taskId, taskRunId: flow.taskRunId }
+      });
+      finishWork(agent.id, flow.viralWorkAnalysis.summary || "爆款作品分析报告", { taskId: flow.taskId, taskRunId: flow.taskRunId });
+      pushActivity(agent.id, flow.status === "partial" ? "作品数据已读取，评论数据部分可用，报告已生成。" : "爆款作品分析已完成，报告已同步到成果中心和文件中心。");
+    } catch (error) {
+      flow.status = "failed";
+      flow.progress = 0;
+      flow.error = { code: error?.code || "VIRAL_WORK_ANALYSIS_FAILED", message: error?.message || "爆款作品分析失败" };
+      updateWork(agent.id, { progress: 0, phase: "执行失败", metadata: { status: "failed", analysisKind: "viral_work", taskId: flow.taskId, taskRunId: flow.taskRunId } });
+      reportWorkError(agent.id, `爆款作品分析未完成：${flow.error.message}`, { taskId: flow.taskId, taskRunId: flow.taskRunId });
+    } finally {
+      flow.requesting = false;
+      if (!disposed && state.useFlow === flow) render();
+    }
   }
 
   function finderAccountLabel(account) {
@@ -7108,7 +7918,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const { name } = presentationOf(agent);
     setPageHeaderVisible(true);
     const inboxIntake = isInboxIntakeFlow(agent, flow);
-    if (flow.step === "review" && (inboxIntake || isCommentAcquisitionAgent(agent) || isCommentScreeningAgent(agent) || isLiveLeadAgent(agent) || isLiveDanmakuAnalysisAgent(agent))) flow.step = "setup";
+    if (flow.step === "review" && (inboxIntake || isCommentAcquisitionAgent(agent) || isCommentScreeningAgent(agent) || isLiveLeadAgent(agent) || isLiveDanmakuAnalysisAgent(agent) || isLiveDanmakuOutreachAgent(agent) || isViralWorkAnalysisAgent(agent))) flow.step = "setup";
     if (flow.step === "starting" && inboxIntake) flow.step = "setup";
     const taskCompose = flow.step === "setup" && isCommentAcquisitionAgent(agent) && !inboxIntake;
     page.setTitle(name);
@@ -7133,6 +7943,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       }
       else if (isIntentAnalystAgent(agent)) renderIntentAnalystSetup(panel, flow);
       else if (isLiveDanmakuAnalysisAgent(agent)) renderLiveDanmakuAnalysisSetup(panel, flow);
+      else if (isLiveDanmakuOutreachAgent(agent)) renderLiveDanmakuOutreachSetup(panel, flow);
+      else if (isViralWorkAnalysisAgent(agent)) renderViralWorkAnalysisSetup(panel, flow);
       else if (isCommentAcquisitionAgent(agent)) renderCommentAcquisitionSetup(panel, flow);
       else if (isCommentScreeningAgent(agent)) renderCommentLeadMinerSetup(panel, flow, agent);
       else if (isPrivateOutreachAgent(agent)) renderPrivateOutreachSetup(panel, flow);
@@ -7167,6 +7979,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       else if (isAccountAnalysisFlow(agent, flow)) renderAccountAnalysisRunning(panel, flow);
       else if (isIntentAnalystAgent(agent)) renderAnalysisSpecialistWorksite(panel, flow);
       else if (isLiveDanmakuAnalysisAgent(agent)) renderLiveDanmakuAnalysisRunning(panel, flow);
+      else if (isLiveDanmakuOutreachAgent(agent)) renderLiveDanmakuOutreachRunning(panel, flow);
+      else if (isViralWorkAnalysisAgent(agent)) renderViralWorkAnalysisRunning(panel, flow);
       else if (isCommentFilterAgent(agent)) renderCommentFilterRunning(panel, flow);
       else if (isCompositeFinderAgent(agent) && isFinderListenerFlow(agent, flow)) renderCommentAcquisitionRunning(panel, flow);
       else if (isCompositeFinderAgent(agent)) renderFinderSpecialistWorksite(panel, flow);
@@ -7186,7 +8000,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         }
       }
     }
-    if (flow.step === "running" && !isAccountAnalysisFlow(agent, flow) && !isIntentAnalystAgent(agent) && !isLiveDanmakuAnalysisAgent(agent)) {
+    if (flow.step === "running" && !isAccountAnalysisFlow(agent, flow) && !isIntentAnalystAgent(agent) && !isLiveDanmakuAnalysisAgent(agent) && !isLiveDanmakuOutreachAgent(agent) && !isViralWorkAnalysisAgent(agent)) {
       const run = { ...(flow.taskSnapshot || {}), ...(flow.resultSnapshot || {}), agentId: agent.id, taskId: flow.taskId };
       if (buildAccountAnalysisResumeFlow({ run }).analysisAccounts.length) {
         const analyze = el("button", null, "分析这些账号"); analyze.type = "button";
@@ -7215,6 +8029,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     if (isAccountAnalysisFlow(agent, flow)) { startAccountAnalysis(agent, flow); return; }
     if (isIntentAnalystAgent(agent)) { startIntentAnalyst(agent, flow); return; }
     if (isLiveDanmakuAnalysisAgent(agent)) { void startLiveDanmakuAnalysis(agent, flow); return; }
+    if (isLiveDanmakuOutreachAgent(agent)) { void startLiveDanmakuOutreach(agent, flow); return; }
+    if (isViralWorkAnalysisAgent(agent)) { void startViralWorkAnalysis(agent, flow); return; }
     if (isUserResearchAgent(agent)) {
       if (flow.researchPhase === "outreach") startPrivateOutreach(agent, flow);
       else startUserResearchFinder(agent, flow);
@@ -7446,7 +8262,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       status,
       counts,
       topics: (analysis.topics || []).map((topic) => [topic.key, topic.count]),
-      users: items.map((user) => [user.userId, user.intentTier, user.danmakuCount, user.likeCount, user.giftCount])
+      users: items.map((user) => [user.userId, user.intentTier, user.danmakuCount])
     });
     if (signature === flow.lastRecordedLiveDanmakuSignature) return null;
     flow.lastRecordedLiveDanmakuSignature = signature;
@@ -7465,12 +8281,107 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       inputs: {
         goal: flow.liveDanmakuGoal || analysis.goal || "",
         sourceScope: "authorized_account_live",
-        signals: Array.isArray(flow.liveDanmakuSignals) ? [...flow.liveDanmakuSignals] : ["danmaku", "likes", "gifts"],
+        signals: [...DEFAULT_LIVE_SIGNALS],
         accountId: flow.accountId || snapshot.context?.accountId || "",
         accountName: flow.account || ""
       },
       artifacts: [{ type: "live-danmaku-analysis", name: "直播间弹幕分析记录", status }]
     });
+  }
+
+  async function startLiveDanmakuOutreach(agent, flow, { authorizedAccount = null } = {}) {
+    if (!flow || flow.requesting) return;
+    const validation = validateLiveDanmakuOutreachSetup(flow);
+    if (validation) {
+      flow.step = "setup";
+      flow.setupError = validation;
+      render();
+      return;
+    }
+    const agentId = agent.id;
+    const executionAgentId = "mkt-comment-acquisition";
+    flow.sourceScope = "authorized_account_live";
+    flow.analysisKind = "live_danmaku_outreach";
+    flow.liveDanmakuSignals = ["danmaku"];
+    flow.executionAgentId = executionAgentId;
+    flow.requesting = true;
+    flow.starting = true;
+    flow.step = "running";
+    flow.running = true;
+    flow.error = null;
+    flow.setupError = null;
+    flow.taskState = "configuring";
+    flow.taskId ||= newTaskId("live-danmaku-outreach");
+    flow.taskRunId ||= newTaskId("run");
+    let account = authorizedAccount;
+    try {
+      if (!account) account = await verifyAcquisitionAuthorization(executionAgentId);
+      flow.accountId = account?.id || flow.accountId;
+      flow.account = account?.name || flow.account;
+      flow.accountIdentity = account?.identity || flow.accountIdentity;
+      flow.accountWorkKey = douyinAccountWorkKey(flow.accountIdentity, flow.accountId);
+      flow.accountRef = account?.identity?.profileUrl || account?.identity?.uniqueId || flow.accountRef || "";
+      const payload = buildLiveDanmakuOutreachTaskPayload({ ...flow, conversationId: `agent-square-${flow.taskId}` });
+      flow.configuration = structuredClone(payload.config);
+      beginWork(agentId, {
+        task: "持续触达直播间每一位发弹幕的用户",
+        phase: "创建直播间弹幕触达任务",
+        projectId: null,
+        metadata: {
+          progressSource: "none",
+          taskId: flow.taskId,
+          taskRunId: flow.taskRunId,
+          accountId: flow.accountId || null,
+          accountKey: flow.accountWorkKey || flow.accountId || null,
+          accountLabel: flow.account || account?.name || null,
+          longRunning: true,
+          sourceScope: "authorized_account_live",
+          analysisKind: "live_danmaku_outreach",
+          liveSignals: ["danmaku"],
+          configuration: payload.config
+        }
+      });
+      pushActivity(agentId, "正在接入授权账号的当前直播间；每条新弹幕都会进入首次私信触达，不做成交或意向判断。 ");
+      persistCloudTask(flow, { phase: "creating", taskId: flow.taskId, taskRunId: flow.taskRunId, taskState: "configuring", longRunning: true, sourceScope: "authorized_account_live", analysisKind: "live_danmaku_outreach" });
+      render();
+      const started = await executeCoreAgent({
+        ...payload,
+        agentId,
+        executionAgentId,
+        accountName: flow.account || account?.name || "",
+        accountKey: flow.accountWorkKey || flow.accountId,
+        goal: "直播间出现弹幕的用户都进入首次私信触达，不判断成交状态或购买意向。",
+        config: payload.config
+      }, 300000);
+      const snapshot = started?.resultSnapshot || {};
+      flow.taskKey = snapshot.key || flow.taskKey;
+      if (!flow.taskKey) throw Object.assign(new Error("核心执行端未返回直播间弹幕触达任务编号"), { code: "CORE_AGENT_TASK_KEY_MISSING" });
+      flow.taskState = String(snapshot.state || started?.status || "running").toLowerCase();
+      flow.taskSnapshot = { ...snapshot, taskState: flow.taskState, configuration: payload.config };
+      flow.configuration = started?.configuration && typeof started.configuration === "object" ? structuredClone(started.configuration) : structuredClone(payload.config);
+      flow.resultSnapshot = snapshot.resultSnapshot || snapshot.result || flow.resultSnapshot || null;
+      flow.requesting = false;
+      flow.starting = false;
+      flow.running = ["running", "degraded"].includes(flow.taskState);
+      flow.step = "running";
+      flow.duplicateTask = snapshot.existing === true;
+      persistCloudTask(flow, { phase: "running", taskKey: flow.taskKey, taskId: flow.taskId, taskRunId: flow.taskRunId, taskState: flow.taskState, duplicateOfExistingTask: flow.duplicateTask, longRunning: true, sourceScope: "authorized_account_live", analysisKind: "live_danmaku_outreach" });
+      updateWork(agentId, { phase: flow.duplicateTask ? "已切换到现有触达任务" : "直播间弹幕触达中", metadata: { progressSource: "none", taskId: flow.taskId, taskRunId: flow.taskRunId, taskKey: flow.taskKey, taskState: flow.taskState, longRunning: true, sourceScope: "authorized_account_live", analysisKind: "live_danmaku_outreach", liveSignals: ["danmaku"], configuration: payload.config } });
+      pushActivity(agentId, flow.duplicateTask ? "检测到同一账号已有直播间弹幕触达任务，已切换到现有任务。" : "直播间弹幕触达任务已启动，每条新弹幕会进入首次私信触达。 ");
+      pollCommentAcquisitionTask(agent, flow);
+      render();
+      void globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({ selectedAgentId: agentId, taskId: flow.taskId, taskRunId: flow.taskRunId, accountId: flow.accountId || null, accountKey: flow.accountWorkKey || flow.accountId || null }));
+    } catch (error) {
+      flow.requesting = false;
+      flow.starting = false;
+      flow.running = false;
+      flow.taskState = "error";
+      flow.error = { code: error?.code || "LIVE_DANMAKU_OUTREACH_START_FAILED", message: error?.message || "直播间弹幕触达启动失败" };
+      persistCloudTask(flow, { phase: "error", errorCode: flow.error.code, errorMessage: flow.error.message, taskState: "error", failedAt: new Date().toISOString(), sourceScope: "authorized_account_live", analysisKind: "live_danmaku_outreach" });
+      updateWork(agentId, { phase: "直播间弹幕触达启动失败", metadata: { progressSource: "none", taskState: "error", errorCode: flow.error.code, analysisKind: "live_danmaku_outreach" } });
+      reportWorkError(agentId, `直播间弹幕触达未启动：${flow.error.message}`);
+      render();
+    }
   }
 
   async function startLiveDanmakuAnalysis(agent, flow, { authorizedAccount = null } = {}) {
@@ -7507,7 +8418,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       const payload = buildLiveDanmakuAnalysisTaskPayload({ ...flow, conversationId: `agent-square-${flow.taskId}` });
       flow.configuration = structuredClone(payload.config);
       beginWork(agentId, {
-        task: "持续分析直播间弹幕和互动信号",
+        task: "持续分析直播间新弹幕",
         phase: "创建直播弹幕分析任务",
         projectId: null,
         metadata: {
@@ -7523,7 +8434,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           configuration: payload.config
         }
       });
-      pushActivity(agentId, "正在接入授权账号的当前直播间，收集弹幕、点赞和送礼信号。点赞和送礼只作互动强度参考，不会自动私信。 ");
+      pushActivity(agentId, "正在接入授权账号的当前直播间，持续分析新弹幕；不会读取点赞或送礼。 ");
       persistCloudTask(flow, { phase: "creating", taskId: flow.taskId, taskRunId: flow.taskRunId, taskState: "configuring", longRunning: true, sourceScope: "authorized_account_live", analysisKind: "live_danmaku" });
       render();
       const started = await executeCoreAgent({
@@ -7650,7 +8561,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         accountKey: flow.accountWorkKey || douyinAccountWorkKey(flow.accountIdentity, flow.accountId) || flow.accountId,
         goal: finderListener
           ? `持续监听授权账号${finderListenerSourceLabel(sourceScope)}里的新信号，筛选潜在客户并保留原始证据，不触达用户`
-          : "持续监听授权账号的新评论、直播互动和账号互动，判断潜客并按策略推进",
+          : flow.replyObjective || "持续监听授权账号的新评论、直播互动和账号互动，判断潜客并按策略推进",
         config: payload.config
       }, 300000);
       const snapshot = started?.resultSnapshot || {};
@@ -7712,10 +8623,19 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     flow.approvalQueue = Array.isArray(result.approvalQueue) ? result.approvalQueue : flow.approvalQueue || [];
     flow.events = Array.isArray(result.events) ? result.events : flow.events || [];
     flow.resultSnapshot = result.resultSnapshot || result.snapshot || flow.resultSnapshot || null;
-    if (isLiveDanmakuAnalysisFlow({ id: flow.agentId }, flow)) {
+    const liveDanmakuAnalysis = isLiveDanmakuAnalysisFlow({ id: flow.agentId }, flow);
+    const liveDanmakuOutreach = isLiveDanmakuOutreachFlow({ id: flow.agentId }, flow);
+    if (liveDanmakuAnalysis) {
       flow.analysisKind = "live_danmaku";
       flow.sourceScope = "authorized_account_live";
+      flow.liveDanmakuSignals = [...DEFAULT_LIVE_SIGNALS];
       flow.liveDanmakuAnalysis = flow.resultSnapshot?.danmakuAnalysis || result.danmakuAnalysis || flow.liveDanmakuAnalysis || null;
+    } else if (liveDanmakuOutreach) {
+      flow.analysisKind = "live_danmaku_outreach";
+      flow.sourceScope = "authorized_account_live";
+      flow.liveDanmakuSignals = ["danmaku"];
+      flow.approvalMode = "auto";
+      flow.touchChannel = "private_message";
     }
     if (["error", "stopped"].includes(flow.taskState)) flow.running = false;
     flow.error = flow.taskState === "error" ? (result.error || result.lastError || { code: "ACQUISITION_TASK_ERROR", message: "长期任务运行异常" }) : null;
@@ -7728,10 +8648,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         sourceScope: flow.sourceScope
       });
     }
-    if (isLiveDanmakuAnalysisFlow({ id: flow.agentId }, flow)) recordLiveDanmakuAnalysisResult(flow, result);
+    if (liveDanmakuAnalysis) recordLiveDanmakuAnalysisResult(flow, result);
     else recordCommentAcquisitionResult(flow, result);
     updateWork(flow.agentId, {
-      phase: flow.taskState === "stopped" ? (isLiveDanmakuAnalysisFlow({ id: flow.agentId }, flow) ? "直播弹幕分析已关闭" : isFinderListenerFlow({ id: flow.agentId }, flow) ? "找客已关闭" : "获客已关闭") : result.resumeBlocked?.reason === "authorization_required" ? "等待账号重新连接" : flow.taskState === "paused" && result.systemPause?.reason === "system_duplicate_consolidation" ? "已保留最新任务" : flow.taskState === "paused" ? "长期任务已暂停" : flow.taskState === "error" ? "长期任务异常" : flow.taskState === "degraded" ? "等待数据源恢复" : isLiveDanmakuAnalysisFlow({ id: flow.agentId }, flow) ? "直播弹幕分析中" : isFinderListenerFlow({ id: flow.agentId }, flow) ? "持续找客中" : "持续获客中",
+      phase: flow.taskState === "stopped" ? (liveDanmakuAnalysis ? "直播弹幕分析已关闭" : liveDanmakuOutreach ? "直播间弹幕触达已关闭" : isFinderListenerFlow({ id: flow.agentId }, flow) ? "找客已关闭" : "获客已关闭") : result.resumeBlocked?.reason === "authorization_required" ? "等待账号重新连接" : flow.taskState === "paused" && result.systemPause?.reason === "system_duplicate_consolidation" ? "已保留最新任务" : flow.taskState === "paused" ? "长期任务已暂停" : flow.taskState === "error" ? "长期任务异常" : flow.taskState === "degraded" ? "等待数据源恢复" : liveDanmakuAnalysis ? "直播弹幕分析中" : liveDanmakuOutreach ? "直播间弹幕触达中" : isFinderListenerFlow({ id: flow.agentId }, flow) ? "持续找客中" : "持续获客中",
       metadata: {
         progressSource: "none",
         taskId: flow.taskId,
@@ -7783,7 +8703,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         if (!persistedTaskId) throw Object.assign(new Error("找不到需要恢复的任务标识，请刷新后重试"), { code: "ACQUISITION_TASK_ID_REQUIRED" });
         const finderListener = isFinderListenerFlow({ id: flow.agentId }, flow);
         const liveDanmakuAnalysis = isLiveDanmakuAnalysisFlow({ id: flow.agentId }, flow);
-        const sourceScope = liveDanmakuAnalysis
+        const liveDanmakuOutreach = isLiveDanmakuOutreachFlow({ id: flow.agentId }, flow);
+        const sourceScope = liveDanmakuAnalysis || liveDanmakuOutreach
           ? "authorized_account_live"
           : finderListener
           ? finderListenerSourceScope(flow)
@@ -7804,7 +8725,9 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           accountKey: flow.accountWorkKey || douyinAccountWorkKey(flow.accountIdentity, flow.accountId) || flow.accountId,
           accountName: flow.account || "",
           accountIdentity: flow.accountIdentity || flow.taskSnapshot?.accountIdentity || null,
-          goal: liveDanmakuAnalysis
+          goal: liveDanmakuOutreach
+            ? "直播间出现弹幕的用户都进入首次私信触达，不判断成交状态或购买意向。"
+            : liveDanmakuAnalysis
             ? flow.liveDanmakuGoal || "梳理直播间高频问题、用户需求、购买意向和反对点。"
             : finderListener
             ? `持续监听授权账号${finderListenerSourceLabel(sourceScope)}的新信号，筛选潜在客户并保留原始证据，不发送私信`
@@ -7815,8 +8738,25 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
               ...(configuration.sourceScope && typeof configuration.sourceScope === "object" ? configuration.sourceScope : {}),
               kind: sourceScope
             },
-            ...(liveDanmakuAnalysis
-              ? { discoveryOnly: true, analysisOnly: true, analysisKind: "live_danmaku", liveSignals: flow.liveDanmakuSignals || ["danmaku", "likes", "gifts"], approvalMode: "manual", autoStartCloud: false }
+            ...(liveDanmakuOutreach
+              ? {
+                discoveryOnly: false,
+                analysisOnly: false,
+                analysisKind: "live_danmaku_outreach",
+                liveDanmakuOutreach: true,
+                touchEveryLiveDanmaku: true,
+                liveSignals: ["danmaku"],
+                touchChannel: "private_message",
+                approvalMode: "auto",
+                contentPolicy: {
+                  quoteComment: false,
+                  maxLength: 120,
+                  template: "看到你刚才在直播间留言了，方便说说你想了解什么吗？",
+                  strategy: "看到你刚才在直播间留言了，方便说说你想了解什么吗？"
+                }
+              }
+              : liveDanmakuAnalysis
+              ? { discoveryOnly: true, analysisOnly: true, analysisKind: "live_danmaku", liveSignals: [...DEFAULT_LIVE_SIGNALS], approvalMode: "manual", autoStartCloud: false }
               : finderListener ? { discoveryOnly: true, approvalMode: "manual" } : {})
           }
         }, 300000);
@@ -7832,8 +8772,11 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       applyCommentAcquisitionStatus(flow, result);
       flow.running = ["running", "degraded"].includes(String(flow.taskState || "").toLowerCase());
       const finderListener = isFinderListenerFlow({ id: flow.agentId }, flow);
+      const liveDanmakuOutreach = isLiveDanmakuOutreachFlow({ id: flow.agentId }, flow);
       pushActivity(flow.agentId, finderListener
         ? (action === "stop" ? "找客监听已停止，候选名单和原始证据保留。" : action === "pause" ? "已暂停找客监听，现有候选保留。" : action === "retry" ? "已读取已保存的找人条件，继续监听新信号。" : "已恢复找客监听。")
+        : liveDanmakuOutreach
+        ? (action === "stop" ? "直播间弹幕触达已停止，已记录的触达结果保留。" : action === "pause" ? "已暂停直播间弹幕触达，现有记录保留。" : action === "retry" ? "已读取直播间弹幕触达配置，继续监听新弹幕。" : "已恢复直播间弹幕触达。")
         : action === "stop" ? "已关闭自动获客，现有记录保留。" : action === "pause" ? "已暂停综合获客，现有记录保留。" : action === "retry" ? "获客配置已读取，正在继续自动获客。" : "已恢复综合获客。");
       persistCloudTask(flow, { phase: action === "stop" ? "stopped" : action === "pause" ? "paused" : "running", taskState: flow.taskState });
       if (["resume", "retry"].includes(action)) pollCommentAcquisitionTask(getMarketplaceAgent(flow.agentId), flow);
@@ -8542,7 +9485,9 @@ async function startPrivateOutreachMock(agent, flow, targets) {
         accountKey: flow.accountWorkKey || douyinAccountWorkKey(flow.accountIdentity, flow.accountId) || flow.accountId || null,
         accountName: flow.account || "",
         accountIdentity: flow.accountIdentity || null,
-        goal: "持续承接抖音新私信并按已确认策略回复",
+        goal: flow.agentId === GOLD_CUSTOMER_SERVICE_AGENT_ID || flow.agentId === DOUYIN_ACQUISITION_COMPLETE_AGENT_ID
+          ? flow.replyObjective || "按目标承接抖音新私信"
+          : "持续承接抖音新私信并按已确认策略回复",
         takeover: takeover === true,
         idempotencyKey: flow.startRequestId,
         config: {
@@ -8646,7 +9591,7 @@ async function startPrivateOutreachMock(agent, flow, targets) {
       }
     }
     if (eventStream.length) {
-      const saved = readCloudTask(flow) || douyinCloudTaskStore.get("mkt-dm-inbox");
+      const saved = readCloudTask(flow) || douyinCloudTaskStore.get(flow.agentId || "mkt-dm-inbox");
       const keys = new Set([...(Array.isArray(saved?.inboxActivityKeys) ? saved.inboxActivityKeys : []), ...(Array.isArray(flow.inboxActivityKeys) ? flow.inboxActivityKeys : [])]);
       for (const event of eventStream) {
         const key = [event?.type || "unknown", event?.messageId || event?.message_id || "", event?.at || event?.createdAt || "", event?.error?.code || ""].join("|");
@@ -8981,7 +9926,7 @@ async function startPrivateOutreachMock(agent, flow, targets) {
   function buildCard(agent) {
     const { name, title } = presentationOf(agent);
     const category = displayedCategory(agent);
-    const [accent, accentSoft, accentBorder] = categoryAccent(category);
+    const [accent, accentSoft, accentBorder] = marketplaceCardAccent(agent, category);
     const enabled = isFirstReleaseAgent(agent);
     const acquisitionGate = getAcquisitionCardViewModel(agent);
     return buildStandardCard({
@@ -9084,6 +10029,7 @@ async function startPrivateOutreachMock(agent, flow, targets) {
       allAgentsGrid.appendChild(allCard);
       if (category && agentsByCategory.has(category)) agentsByCategory.get(category).push(agent);
     }
+      removeDeveloperModeCards(allAgentsGrid);
 
     for (const category of AGENT_WORKFLOW_DISPLAY_ORDER) {
       const agents = sortMarketplaceAgentsForDisplay(agentsByCategory.get(category), { isReady: isFirstReleaseAgent });
@@ -9116,7 +10062,12 @@ async function startPrivateOutreachMock(agent, flow, targets) {
       return card;
     }
 
-    function buildCategorySection(category, grid, { description = AGENT_STAGE_DESCRIPTIONS[category] || "" } = {}) {
+    function removeDeveloperModeCards(row) {
+      const developerModeCards = [...row.children].filter((card) => DEVELOPER_MODE_AGENT_IDS.has(card.dataset.sbAgentId));
+      for (const card of developerModeCards) row.removeChild(card);
+    }
+
+    function buildCategorySection(category, grid) {
       const section = el("section", `sb-as-category-section${category === "全部" ? " is-all" : ""}`);
       if (category === "全部") {
         section.appendChild(grid);
@@ -9133,7 +10084,7 @@ async function startPrivateOutreachMock(agent, flow, targets) {
       const copy = el("div", "sb-as-category-copy");
       const title = el("div", "sb-as-category-title");
       title.append(el("span", null, category === "全部" ? "全部 Agent" : category), el("span", "sb-as-category-count", `${grid.children.length} 位`));
-      copy.append(title, el("span", "sb-as-category-description", description));
+      copy.appendChild(title);
       head.appendChild(copy);
       section.append(head, grid);
       return section;

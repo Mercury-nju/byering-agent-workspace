@@ -4,6 +4,7 @@ import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createDouyinInboxAgentService } from "../backend/douyin-inbox-agent-service.js";
+import { createAccountReceptionStore } from "../backend/account-reception-store.js";
 
 function fakeMcp() {
   const calls = [];
@@ -48,6 +49,16 @@ function completeModelPlan(overrides = {}) {
   };
 }
 
+function goldCustomerServiceInput(overrides = {}) {
+  return {
+    accountId: "account-1",
+    accountName: "测试账号",
+    replyObjective: "引导客户预约试驾",
+    autoReply: true,
+    ...overrides
+  };
+}
+
 test("managed replies give the model both sides of the previous conversation", async t => {
   const directory = await mkdtemp(join(tmpdir(), "byering-inbox-history-"));
   const mcp = fakeMcp();
@@ -75,6 +86,7 @@ async function startWithConfirmedPlan(service, overrides = {}, startRequestId = 
 test("inbox preflight rejects incomplete setup without starting the MCP runtime", async () => {
   const mcp = fakeMcp();
   const service = createDouyinInboxAgentService({
+    agentId: "mkt-dm-inbox",
     douyinMcpService: mcp,
     env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
     planGenerator: async () => completeModelPlan()
@@ -88,6 +100,162 @@ test("inbox preflight rejects incomplete setup without starting the MCP runtime"
     return true;
   });
   assert.deepEqual(mcp.calls, []);
+});
+
+test("gold customer service accepts only the conversation objective and lets AI design the rest", async () => {
+  const requests = [];
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-gold-customer-service",
+    douyinMcpService: fakeMcp(),
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    knowledgeProvider: async () => ({
+      context: "账号资料：提供新能源车试驾预约",
+      entries: [{ id: "account-knowledge", title: "账号资料", text: "账号资料：提供新能源车试驾预约" }]
+    }),
+    planGenerator: async (input) => {
+      requests.push(input);
+      return completeModelPlan({
+        conversationObjective: "引导客户预约试驾",
+        allowedFacts: [],
+        handoffRules: ["价格承诺", "投诉", "无法确认的事实"]
+      });
+    }
+  });
+
+  const result = await service.plan(goldCustomerServiceInput());
+
+  assert.equal(result.confirmable, true);
+  assert.equal(requests[0].configuration.strategyMode, "gold_customer_service");
+  assert.equal(requests[0].configuration.replyObjective, "引导客户预约试驾");
+  assert.ok(requests[0].configuration.replyRule);
+  assert.deepEqual(requests[0].knowledge.sources.map((source) => source.id), ["account-knowledge"]);
+});
+
+test("complete acquisition inbox accepts only the conversation objective without saved reception strategy", async () => {
+  const requests = [];
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-comment-acquisition",
+    douyinMcpService: fakeMcp(),
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    planGenerator: async (input) => {
+      requests.push(input);
+      return completeModelPlan({ conversationObjective: "回答问题", allowedFacts: [] });
+    }
+  });
+
+  const result = await service.plan({
+    accountId: "account-1",
+    accountName: "测试账号",
+    replyObjective: "回答问题",
+    strategyMode: "objective_first"
+  });
+
+  assert.equal(result.confirmable, true);
+  assert.equal(requests[0].configuration.strategyMode, "objective_first");
+  assert.ok(requests[0].configuration.replyRule);
+  assert.deepEqual(requests[0].knowledge.sources, []);
+});
+
+test("gold customer service planner treats answer-only and lead-capture goals differently", async () => {
+  const requests = [];
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-gold-customer-service",
+    douyinMcpService: fakeMcp(),
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    fetchImpl: async (_url, options) => {
+      requests.push(JSON.parse(options.body));
+      return new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(completeModelPlan({ conversationObjective: "回答问题", allowedFacts: [] })) } }] }), { status: 200 });
+    }
+  });
+
+  const result = await service.plan(goldCustomerServiceInput({ replyObjective: "回答问题" }));
+
+  assert.equal(result.confirmable, true);
+  assert.match(requests[0].messages[0].content, /回答问题.*解决当前问题为终点/);
+  assert.match(requests[0].messages[0].content, /留资、预约或填问卷.*先回答问题，再自然推进/);
+});
+
+test("gold customer service reuses the saved account reception strategy", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-gold-shared-reception-"));
+  const receptionStore = createAccountReceptionStore({ stateFile: join(directory, "reception.json") });
+  const accountIdentity = { uid: "account-1", nickname: "测试账号" };
+  receptionStore.save({ tenantId: "tenant-1", account: accountIdentity }, {
+    persona: { role: "adviser" },
+    goal: "appointment",
+    goalDetails: "确认预算后引导预约到店",
+    knowledge: "仅介绍已确认的门店、车型和预约规则",
+    answerRules: "只回答已确认事实，无法确认时交给人工。",
+    handoff: { price: true },
+    schedule: { mode: "always", timezone: "Asia/Shanghai" }
+  }, 0);
+
+  const requests = [];
+  let knowledgeProviderCalls = 0;
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-gold-customer-service",
+    douyinMcpService: fakeMcp(),
+    receptionStore,
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    knowledgeProvider: async () => {
+      knowledgeProviderCalls += 1;
+      throw new Error("不应绕过账号接待配置读取知识");
+    },
+    planGenerator: async (input) => {
+      requests.push(input);
+      return completeModelPlan({ conversationObjective: "确认预算后引导预约到店", allowedFacts: [] });
+    }
+  });
+
+  await service.plan(goldCustomerServiceInput({
+    tenantId: "tenant-1",
+    accountIdentity,
+    replyObjective: "客户端伪造目标"
+  }));
+
+  assert.equal(knowledgeProviderCalls, 0);
+  assert.equal(requests[0].configuration.replyObjective, "客户端伪造目标");
+  assert.equal(requests[0].configuration.replyRule, "只回答已确认事实，无法确认时交给人工。");
+  assert.equal(requests[0].configuration.replyTone, "专业顾问：逻辑清晰，讲明功能、差异和选择");
+  assert.equal(requests[0].knowledge.sources[0].content, "仅介绍已确认的门店、车型和预约规则");
+});
+
+test("gold customer service applies the generated strategy to runtime replies", async t => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-gold-runtime-"));
+  const mcp = fakeMcp();
+  const requests = [];
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-gold-customer-service",
+    douyinMcpService: mcp,
+    stateFile: join(directory, "inbox.json"),
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    planGenerator: async () => completeModelPlan({
+      conversationObjective: "引导客户预约试驾",
+      responseTone: "温和、专业、主动",
+      responsePriorities: ["先回答当前问题", "推进预约试驾"],
+      handoffRules: ["价格承诺"],
+      allowedFacts: []
+    }),
+    fetchImpl: async (_url, options) => {
+      requests.push(JSON.parse(options.body));
+      return new Response(JSON.stringify({ choices: [{ message: { content: "收到，我先了解一下你的需求。" } }] }), { status: 200 });
+    }
+  });
+  t.after(() => service.stop());
+
+  const input = goldCustomerServiceInput();
+  const planned = await service.plan(input);
+  await service.start({ ...input, planToken: planned.planToken, startRequestId: "gold-runtime-start", startPolling: false });
+  const polled = await service.pollOnce({ waitMs: 0 });
+
+  assert.equal(polled.outcomes[0].status, "sent");
+  assert.equal(requests.length, 1);
+  const prompt = requests[0].messages[0].content;
+  assert.match(prompt, /你是金牌客服/);
+  assert.match(prompt, /承接目标：引导客户预约试驾/);
+  assert.match(prompt, /回复风格：温和、专业、主动/);
+  assert.match(prompt, /优先确认的问题：先回答当前问题、推进预约试驾/);
+  assert.match(prompt, /必须转人工的情况：价格承诺/);
+  assert.match(prompt, /先回应客户当前问题，再根据承接目标决定是否继续追问、提供方案、获取线索或推进下一步/);
 });
 
 test("managed inbox startup runs the real auto-reply runtime without a second user confirmation", async () => {
@@ -193,6 +361,7 @@ test("inbox preflight repairs one invalid model plan before returning a signed p
   ];
   const attempts = [];
   const service = createDouyinInboxAgentService({
+    agentId: "mkt-dm-inbox",
     douyinMcpService: fakeMcp(),
     env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
     planGenerator: async (input) => {
@@ -245,6 +414,7 @@ test("inbox preflight falls back to a signed baseline when the plan provider tim
 
 test("client knowledgeContext cannot bypass required business knowledge", async () => {
   const service = createDouyinInboxAgentService({
+    agentId: "mkt-dm-inbox",
     douyinMcpService: fakeMcp(),
     env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
     planGenerator: async () => completeModelPlan()

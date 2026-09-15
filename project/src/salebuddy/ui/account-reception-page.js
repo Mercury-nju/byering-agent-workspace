@@ -93,8 +93,9 @@ function isNetworkError(error) {
 }
 
 function legacyReceptionSettings(accountId) {
-  const legacy = inboxStrategyStore.get("mkt-comment-acquisition", { accountId })
-    || inboxStrategyStore.get("mkt-dm-inbox", { accountId });
+    const legacy = inboxStrategyStore.get("mkt-comment-acquisition", { accountId })
+    || inboxStrategyStore.get("mkt-dm-inbox", { accountId })
+    || inboxStrategyStore.get("mkt-gold-customer-service", { accountId });
   return normalizeReception({
     goalDetails: legacy?.replyObjective,
     answerRules: [legacy?.replyRule, legacy?.handoffRules].filter(Boolean).join("\n")
@@ -480,9 +481,10 @@ export function openAccountReceptionPage({ getAccounts, onClose, initialAccountI
       options(time, "休息时收到消息", { queue: "上班后再回复", away: "先留一句话" }, s.schedule.outside, value => redraw(() => { s.schedule.outside = value; }));
       if (s.schedule.outside === "away") input(time, "休息留言", s.schedule.awayMessage, value => { s.schedule.awayMessage = value; changed(); }, { rows: 2 });
     }
-    const chat = section(settingsGrid, "chat", "转化目标");
+    const chat = section(settingsGrid, "chat", "对话目标");
     options(chat, "希望对方最终完成什么", RECEPTION_GOALS, s.goal, value => redraw(() => { s.goal = value; }));
-    input(chat, "补充转化要求或链接（选填）", s.goalDetails, value => { s.goalDetails = value; changed(); }, { rows: 2 });
+    chat.appendChild(el("p", null, "先解决对方当前问题，再按目标决定是否继续推进；选择“回答问题”时，不主动引导留资或预约。"));
+    input(chat, "补充目标要求或链接（选填）", s.goalDetails, value => { s.goalDetails = value; changed(); }, { rows: 2 });
     const handoff = section(settingsGrid, "handoff", "人工交接");
     toggle(handoff, "价格问题先交给我", s.handoff.price, value => { s.handoff.price = value; changed(); });
     handoff.appendChild(el("p", null, "对方要求人工、投诉退款或问题没有可靠依据时，停止自动接话。"));

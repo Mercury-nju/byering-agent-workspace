@@ -93,7 +93,7 @@ test("reception page loads server data, saves a revisioned persona and previews 
   assert.match(body.textContent, /对外身份/);
   assert.match(body.textContent, /热情店长.*专业客服.*金牌销售.*耐心小助手.*合作经理.*自定义人设/);
   assert.match(body.textContent, /希望对方最终完成什么/);
-  assert.match(body.textContent, /留下联系方式.*预约到店.*填写问卷/);
+  assert.match(body.textContent, /回答问题.*留下联系方式.*预约到店.*填写问卷/);
   assert.doesNotMatch(body.textContent, /希望聊到哪一步|先解答问题|征求联系方式/);
   assert.doesNotMatch(body.textContent, /说话感觉|怎么称呼对方/);
   assert.doesNotMatch(body.textContent, /人设决定对外呈现的角色感和表达方式/);
@@ -185,7 +185,7 @@ test("reception page renders direct flat setting panels without accordion contro
   assert.match(body.textContent, /当前接待账号/);
   assert.match(body.textContent, /对外身份/);
   assert.match(body.textContent, /接待时段/);
-  assert.match(body.textContent, /转化目标/);
+  assert.match(body.textContent, /对话目标/);
   assert.match(body.textContent, /人工交接/);
   assert.doesNotMatch(body.textContent, /按账号独立保存/);
   assert.doesNotMatch(body.textContent, /对外称呼|代表的店铺或品牌/);
@@ -194,7 +194,7 @@ test("reception page renders direct flat setting panels without accordion contro
   assert.match(source, /grid-template-areas:"account \." "main trial"/);
   assert.match(source, /sb-reception-settings-grid/);
   assert.match(source, /section\(settingsGrid, "time", "接待时段"\)/);
-  assert.match(source, /section\(settingsGrid, "chat", "转化目标"\)/);
+  assert.match(source, /section\(settingsGrid, "chat", "对话目标"\)/);
   assert.match(source, /section\(settingsGrid, "reply", "回复方式"\)/);
   assert.doesNotMatch(source, /sb-reception-settings-column/);
   assert.doesNotMatch(source, /sb-reception-strategy-hero/);

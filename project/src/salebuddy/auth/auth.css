@@ -63,9 +63,6 @@ html[data-byering-auth="1"] body { min-width: 320px; overflow: hidden; }
 .sb-auth-login-subtitle { margin: 0 0 6px; color: var(--sb-auth-muted); font-size: 13px; }
 .sb-auth-entry-note { margin: 0 0 22px; color: #8a958e; font-size: 11px; line-height: 1.5; }
 
-.sb-auth-method-tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 4px; margin-bottom: 24px; border-radius: 11px; background: var(--sb-auth-soft); }
-.sb-auth-method-tab { height: 38px; border: 0; border-radius: 8px; background: transparent; color: var(--sb-auth-muted); font: inherit; font-size: 13px; cursor: pointer; }
-.sb-auth-method-tab.is-active { background: #fff; color: var(--sb-auth-ink); box-shadow: 0 2px 8px rgba(24, 42, 31, 0.07); font-weight: 680; }
 .sb-auth-form-fields { display: grid; gap: 15px; }
 .sb-auth-field { display: grid; gap: 8px; }
 .sb-auth-field > span { color: #637168; font-size: 12px; font-weight: 650; }
@@ -132,9 +129,9 @@ html[data-byering-auth="1"], html[data-byering-auth="1"] body {
 }
 
 .sb-auth-login-card {
-  height: min(760px, calc(100vh - 48px));
   width: min(520px, calc(100vw - 40px));
   display: block;
+  height: auto;
   border: 1px solid rgba(255, 255, 255, 0.72);
   background: rgba(255, 255, 255, 0.62);
   box-shadow: 0 30px 90px rgba(37, 83, 145, 0.2), 0 2px 12px rgba(31, 85, 142, 0.08);
@@ -159,7 +156,9 @@ html[data-byering-auth="1"], html[data-byering-auth="1"] body {
 }
 
 .sb-auth-login-panel {
-  height: 100%;
+  height: auto;
+  box-sizing: border-box;
+  padding: clamp(40px, 6vh, 64px) 0 36px;
   background: rgba(255, 255, 255, 0.9);
 }
 
@@ -168,7 +167,7 @@ html[data-byering-auth="1"], html[data-byering-auth="1"] body {
 }
 
 .sb-auth-login-inner h1 {
-  margin-top: 32px;
+  margin-top: 26px;
   font-family: Didot, "Bodoni 72", "Iowan Old Style", "Songti SC", "STSong", serif;
   font-size: 48px;
   font-weight: 400;
@@ -184,15 +183,6 @@ html[data-byering-auth="1"], html[data-byering-auth="1"] body {
 .sb-auth-form-status,
 .sb-auth-footer-copy {
   color: #8192ad;
-}
-
-.sb-auth-method-tabs {
-  background: rgba(224, 239, 255, 0.8);
-}
-
-.sb-auth-method-tab.is-active {
-  color: var(--sb-auth-ink);
-  box-shadow: 0 3px 10px rgba(43, 94, 165, 0.12);
 }
 
 .sb-auth-field > span {
@@ -239,12 +229,7 @@ html[data-byering-auth="1"], html[data-byering-auth="1"] body {
   }
 
   .sb-auth-login-panel {
+    padding: 36px 0 30px;
     background: rgba(255, 255, 255, 0.92);
-  }
-}
-
-@media (max-height: 760px) and (min-width: 821px) {
-  .sb-auth-login-card {
-    height: calc(100vh - 48px);
   }
 }

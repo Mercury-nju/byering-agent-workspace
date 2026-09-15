@@ -21,6 +21,7 @@ import { createDouyinInboxAgentService } from "./douyin-inbox-agent-service.js";
 import { createDouyinAgentCloudRegistry } from "./douyin-agent-cloud-registry.js";
 import { createDouyinAcquisitionService } from "./douyin-acquisition-service.js";
 import { createAccountAnalysisService } from "./account-analysis-service.js";
+import { createViralWorkAnalysisService } from "./viral-work-analysis-service.js";
 import { createAccountReceptionStore, receptionAccountKeys } from "./account-reception-store.js";
 import { createProspectRecordStore } from "./prospect-record-store.js";
 import { applyReceptionStrategyUpdate, receptionStrategySavedConfirmation } from "./account-reception-conversation.js";
@@ -71,21 +72,26 @@ const COMPREHENSIVE_ACQUISITION_LOCKED_AGENT_NAMES = Object.freeze({
 const ACTIVE_COMPREHENSIVE_TASK_STATES = new Set(["configuring", "running", "paused", "degraded"]);
 const INBOX_CAPABLE_AGENT_IDS = Object.freeze([
   COMPREHENSIVE_ACQUISITION_AGENT_ID,
-  "mkt-dm-inbox"
+  "mkt-dm-inbox",
+  "mkt-gold-customer-service"
 ]);
 const INBOX_CAPABLE_AGENT_ID_SET = new Set(INBOX_CAPABLE_AGENT_IDS);
 const RECEPTION_STRATEGY_AGENT_IDS = new Set(INBOX_CAPABLE_AGENT_IDS);
 const RECEPTION_STRATEGY_AGENT_NAMES = Object.freeze({
   "mkt-comment-acquisition": "获客专家",
-  "mkt-dm-inbox": "私信客服"
+  "mkt-dm-inbox": "私信客服",
+  "mkt-gold-customer-service": "金牌客服"
 });
 const CORE_EXECUTION_AGENT_IDS = new Set([
   "mkt-comment-acquisition",
   "mkt-find-people",
   "mkt-intent-analyst",
   "mkt-live-danmaku-analysis",
+  "mkt-live-danmaku-outreach",
+  "mkt-viral-work-analysis",
   "mkt-cold-writer",
-  "mkt-dm-inbox"
+  "mkt-dm-inbox",
+  "mkt-gold-customer-service"
 ]);
 const ACCOUNT_SCOPED_DIRECT_MESSAGE_AGENT_IDS = new Set(CORE_EXECUTION_AGENT_IDS);
 const ACCOUNT_ANALYSIS_AGENT_ID = "mkt-research-expert";
@@ -435,6 +441,7 @@ export function createControlPlaneHttpServer({
   prospectExecutor = null,
   taskDispatcher = null,
   coreAgentExecutionService = null,
+  viralWorkAnalysisService = null,
   employmentStore = null,
   prospectRuns = new Map(),
   douyinFinderRuns = new Map(),
@@ -504,6 +511,10 @@ export function createControlPlaneHttpServer({
         })
         : null;
     })();
+  const authoritativeViralWorkAnalysisService = viralWorkAnalysisService || createViralWorkAnalysisService({
+    dataClient: profileDataClient,
+    publicDiscoveryService: authoritativeProspectService
+  });
   const inboxAgentServices = new Map();
   const inboxRuntimeOwners = new Map();
   const privateMessageInFlight = new Map();
@@ -676,6 +687,7 @@ export function createControlPlaneHttpServer({
   const authoritativeCoreAgentExecutionService = coreAgentExecutionService || createCoreAgentExecutionService({
     douyinAcquisitionService: authoritativeDouyinAcquisitionService,
     intentAnalysisService: authoritativeIntentAnalysisService,
+    viralWorkAnalysisService: authoritativeViralWorkAnalysisService,
     getInboxAgentService: getDouyinInboxAgentService,
     inboxExecutor: async ({ request, input }) => {
       const cloudScope = {
@@ -792,7 +804,7 @@ export function createControlPlaneHttpServer({
   };
   const preflightCoreExecution = async (request = {}, principal = null) => {
     const agentId = optionalText(request.agentId);
-    if (!CORE_EXECUTION_AGENT_IDS.has(agentId) || agentId === "mkt-intent-analyst") return request;
+    if (!CORE_EXECUTION_AGENT_IDS.has(agentId) || ["mkt-intent-analyst", "mkt-viral-work-analysis"].includes(agentId)) return request;
     const cloudScope = douyinCloudScope(null, request, principal || anonymousPrincipal());
     const mcp = getDouyinMcpService(agentId, cloudScope);
     assertDouyinMcpConfigured(mcp, "执行 Agent 任务");
@@ -821,6 +833,7 @@ export function createControlPlaneHttpServer({
     const durableRuntimeAgentIds = new Set([
       COMPREHENSIVE_ACQUISITION_AGENT_ID,
       "mkt-find-people",
+      "mkt-live-danmaku-outreach",
       ...INBOX_CAPABLE_AGENT_IDS
     ]);
     const sources = [{
@@ -4237,6 +4250,8 @@ function inboxConfigurationFromBody(body = {}) {
   return {
     accountId: optionalText(body.accountId ?? body.account_id),
     accountName: optionalText(body.accountName ?? body.account_name),
+    strategyMode: optionalText(body.strategyMode ?? body.strategy_mode),
+    strategyPlan: body.strategyPlan && typeof body.strategyPlan === "object" ? body.strategyPlan : null,
     autoReply: Boolean(body.autoReply ?? body.auto_reply),
     replyRule: optionalText(body.replyRule ?? body.reply_rule),
     replyObjective: optionalText(body.replyObjective ?? body.reply_objective),
@@ -4639,17 +4654,26 @@ function setCorsHeaders(response, requestOrigin, allowedOrigins) {
   response.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
 }
 
-function defaultAllowedOrigins() {
-  const configured = process.env.BYERING_CONTROL_PLANE_ORIGINS;
-  if (configured) return configured.split(",").map((origin) => origin.trim()).filter(Boolean);
-  return [
+export function defaultAllowedOrigins({
+  configuredOrigins = process.env.BYERING_CONTROL_PLANE_ORIGINS,
+  rendererPort = Number(process.env.BYERING_RENDERER_PORT || process.env.MARVIS_PORT || 0)
+} = {}) {
+  if (configuredOrigins) return configuredOrigins.split(",").map((origin) => origin.trim()).filter(Boolean);
+  const origins = [
     "http://127.0.0.1:6680",
     "http://localhost:6680",
     "http://127.0.0.1:8888",
     "http://localhost:8888",
+    "http://127.0.0.1:8889",
+    "http://localhost:8889",
     "http://127.0.0.1:18888",
     "http://localhost:18888"
   ];
+  const port = Number(rendererPort);
+  if (Number.isInteger(port) && port > 0 && port <= 65535) {
+    origins.push(`http://127.0.0.1:${port}`, `http://localhost:${port}`);
+  }
+  return [...new Set(origins)];
 }
 
 function sendJson(response, statusCode, payload) {
@@ -4785,8 +4809,10 @@ const CORE_EXECUTION_DEFAULT_GOALS = Object.freeze({
   "mkt-find-people": "从已授权抖音直播与互动中寻找潜客",
   "mkt-intent-analyst": "分析候选客户并输出可跟进的潜客判断",
   "mkt-live-danmaku-analysis": "分析授权账号当前直播间的弹幕与互动信号",
+  "mkt-live-danmaku-outreach": "触达授权账号当前直播间每一位发弹幕的用户",
   "mkt-cold-writer": "向已核验潜客发送首轮私信",
-  "mkt-dm-inbox": "持续承接抖音新私信并按已确认策略回复"
+  "mkt-dm-inbox": "持续承接抖音新私信并按已确认策略回复",
+  "mkt-gold-customer-service": "使用金牌客服流程持续承接抖音新私信并推进下一步"
 });
 
 function requireActiveCoreAgentEmployment(employmentStore, principal, agentId) {

@@ -92,7 +92,7 @@ test("style preview is explicit and seeds the acquisition work surface", () => {
   assert.equal(realtimeWork.commentAcquisitionDetailModel(energyQuestion).evidence.quote, "这是电还是油？");
 });
 
-test("realtime fallback roster only uses the five active product agents", () => {
+test("realtime fallback roster only uses active product agents", () => {
   const start = realtimeWorkSource.indexOf("function createAgentsForMatch");
   const end = realtimeWorkSource.indexOf("const CSS =", start);
   assert.ok(start >= 0 && end > start);

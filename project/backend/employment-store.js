@@ -8,8 +8,11 @@ const CORE_AGENT_IDS = new Set([
   "mkt-find-people",
   "mkt-intent-analyst",
   "mkt-live-danmaku-analysis",
+  "mkt-live-danmaku-outreach",
+  "mkt-viral-work-analysis",
   "mkt-cold-writer",
-  "mkt-dm-inbox"
+  "mkt-dm-inbox",
+  "mkt-gold-customer-service"
 ]);
 
 function clone(value) {

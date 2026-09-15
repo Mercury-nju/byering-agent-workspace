@@ -1,5 +1,5 @@
-const DEFAULT_LIVE_SIGNALS = Object.freeze(["danmaku"]);
-const DEFAULT_LIVE_DANMAKU_GOAL = "梳理直播间高频问题、用户需求、购买意向和反对点。";
+const LIVE_DANMAKU_OUTREACH_GOAL = "直播间出现弹幕的用户都进入触达流程，不判断成交状态或购买意向。";
+const LIVE_DANMAKU_OUTREACH_MESSAGE = "看到你刚才在直播间留言了，方便说说你想了解什么吗？";
 
 function text(value) {
   return String(value ?? "").trim();
@@ -14,10 +14,10 @@ function firstText(...values) {
 }
 
 function accountIdentity(flow = {}) {
-  const source = flow.accountIdentity && typeof flow.accountIdentity === "object"
+  const identity = flow.accountIdentity && typeof flow.accountIdentity === "object"
     ? flow.accountIdentity
     : {};
-  return Object.keys(source).length ? { ...source } : null;
+  return Object.keys(identity).length ? { ...identity } : null;
 }
 
 function accountReference(flow = {}, identity = accountIdentity(flow)) {
@@ -36,25 +36,16 @@ function accountReference(flow = {}, identity = accountIdentity(flow)) {
   ) || null;
 }
 
-function normalizeSignals() {
-  return [...DEFAULT_LIVE_SIGNALS];
-}
-
-export function validateLiveDanmakuAnalysisSetup(flow = {}) {
+export function validateLiveDanmakuOutreachSetup(flow = {}) {
   if (!text(flow.accountId) && !(Array.isArray(flow.authorizedAccounts) && flow.authorizedAccounts.length)) {
-    return "请先完成直播间弹幕分析的抖音账号授权";
-  }
-  if (!text(flow.liveDanmakuGoal) && !text(flow.requirements)) {
-    return "请告诉我这次想重点分析什么";
+    return "请先完成直播间未成交客户触达的抖音账号授权";
   }
   return null;
 }
 
-export function buildLiveDanmakuAnalysisTaskPayload(flow = {}) {
+export function buildLiveDanmakuOutreachTaskPayload(flow = {}) {
   const identity = accountIdentity(flow);
   const accountRef = accountReference(flow, identity);
-  const goal = firstText(flow.liveDanmakuGoal, flow.requirements, DEFAULT_LIVE_DANMAKU_GOAL);
-  const signals = normalizeSignals(flow.liveDanmakuSignals);
   const taskId = text(flow.taskId);
   const config = {
     sourceScope: {
@@ -67,22 +58,36 @@ export function buildLiveDanmakuAnalysisTaskPayload(flow = {}) {
     accountRef,
     accountIdentity: identity,
     audienceRules: {
-      goal,
-      requirements: text(flow.requirements),
+      goal: LIVE_DANMAKU_OUTREACH_GOAL,
+      requirements: "",
       minScore: 0
     },
-    discoveryOnly: true,
-    analysisOnly: true,
-    analysisKind: "live_danmaku",
-    liveSignals: signals,
-    approvalMode: "manual",
+    discoveryOnly: false,
+    analysisOnly: false,
+    analysisKind: "live_danmaku_outreach",
+    liveDanmakuOutreach: true,
+    touchEveryLiveDanmaku: true,
+    liveSignals: ["danmaku"],
+    touchChannel: "private_message",
+    approvalMode: "auto",
+    contentPolicy: {
+      quoteComment: false,
+      maxLength: 120,
+      template: LIVE_DANMAKU_OUTREACH_MESSAGE,
+      strategy: LIVE_DANMAKU_OUTREACH_MESSAGE
+    },
+    caps: {
+      dailyMax: 50,
+      sendIntervalMs: 0,
+      cooldownMs: 0
+    },
     autoStartCloud: false
   };
   return {
     taskId,
     taskRunId: text(flow.taskRunId),
     conversationId: text(flow.conversationId) || `agent-square-${taskId}`,
-    agentId: "mkt-live-danmaku-analysis",
+    agentId: "mkt-live-danmaku-outreach",
     executionAgentId: "mkt-comment-acquisition",
     accountId: text(flow.accountId),
     accountRef,
@@ -91,4 +96,4 @@ export function buildLiveDanmakuAnalysisTaskPayload(flow = {}) {
   };
 }
 
-export { DEFAULT_LIVE_SIGNALS, DEFAULT_LIVE_DANMAKU_GOAL };
+export { LIVE_DANMAKU_OUTREACH_GOAL, LIVE_DANMAKU_OUTREACH_MESSAGE };

@@ -38,7 +38,8 @@ await run("mock conversation: current Douyin Agents respond like role-specific t
     ["mkt-find-people", "开始找人，先看直播和评论"],
     ["mkt-intent-analyst", "分析这批用户，筛出高意向潜客并给报告"],
     ["mkt-cold-writer", "确认发送，先联系待触达潜客"],
-    ["mkt-dm-inbox", "有人发私信了，帮我继续承接对话"]
+    ["mkt-dm-inbox", "有人发私信了，帮我继续承接对话"],
+    ["mkt-gold-customer-service", "用金牌客服接待新私信，先回答问题再推进下一步"]
   ];
   for (const [agentType, text] of cases) {
     const reply = mockConversationReply(agentType, text);
@@ -51,6 +52,7 @@ await run("mock conversation: current Douyin Agents respond like role-specific t
   assert(/确认|发送/.test(mockConversationReply("mkt-cold-writer", "确认发送")), "潜客触达专员没有确认回复");
   assert(!/已经发出|发送成功/.test(mockConversationReply("mkt-cold-writer", "确认发送")), "潜客触达专员不应提前宣称发送成功");
   assert(/会话|私信|回复/.test(mockConversationReply("mkt-dm-inbox", "当前进展怎么样了")), "私信客服没有进展回复");
+  assert(/金牌客服|下一步|人工/.test(mockConversationReply("mkt-gold-customer-service", "当前进展怎么样了")), "金牌客服没有独立回复");
 });
 
 await run("mock conversation: chief routes status, guidance, and capability questions as messages", () => {

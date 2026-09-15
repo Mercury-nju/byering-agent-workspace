@@ -6080,5 +6080,197 @@
       "conversationId": "mock-conversation-1"
     },
     "createdAt": "2026-09-14T10:46:17.582Z"
+  },
+  {
+    "id": "dm-mu2589vc-cdcd",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T03:59:56.665Z"
+  },
+  {
+    "id": "dm-mu258aty-g3ce",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2589vc-cdcd",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T03:59:57.910Z"
+  },
+  {
+    "id": "dm-mu25ivj5-xg2d",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T04:08:11.297Z"
+  },
+  {
+    "id": "dm-mu25iwgr-unrr",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu25ivj5-xg2d",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T04:08:12.507Z"
+  },
+  {
+    "id": "dm-mu25tn8g-ik4u",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T04:16:33.760Z"
+  },
+  {
+    "id": "dm-mu25to62-ntzv",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu25tn8g-ik4u",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T04:16:34.970Z"
+  },
+  {
+    "id": "dm-mu26jy7g-jxjk",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T04:37:01.036Z"
+  },
+  {
+    "id": "dm-mu26jz54-9wog",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu26jy7g-jxjk",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T04:37:02.248Z"
+  },
+  {
+    "id": "dm-mu28ze7s-a9vq",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T05:45:00.856Z"
+  },
+  {
+    "id": "dm-mu28zf5l-ffpf",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu28ze7s-a9vq",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T05:45:02.073Z"
+  },
+  {
+    "id": "dm-mu2au3gz-ptxa",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T06:36:52.883Z"
+  },
+  {
+    "id": "dm-mu2au4eo-518f",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2au3gz-ptxa",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T06:36:54.096Z"
+  },
+  {
+    "id": "dm-mu2c8oav-s77h",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T07:16:12.679Z"
+  },
+  {
+    "id": "dm-mu2c8p8i-obww",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2c8oav-s77h",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T07:16:13.890Z"
+  },
+  {
+    "id": "dm-mu2ciqtw-v6an",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T07:24:02.517Z"
+  },
+  {
+    "id": "dm-mu2cirrs-ko8y",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2ciqtw-v6an",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T07:24:03.736Z"
   }
 ]

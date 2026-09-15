@@ -11,6 +11,7 @@ const CHARACTERS = Object.freeze({
   "mkt-intent-analyst": ["冷静、重证据", "把候选人的公开内容和互动拆开看，给出潜客判断、依据和还需要确认的地方。"],
   "mkt-cold-writer": ["简洁、有分寸", "把第一条私信发得清楚得体，收到发送结果才报成功。"],
   "mkt-dm-inbox": ["温和、有耐心", "把对话接下去，不自说自话；需要你决定的事，会讲明白。"],
+  "mkt-gold-customer-service": ["温和、反应快", "先回应客户当前问题，再根据用户设定的目标推进对话；需要人工决定的事会讲明白。"],
   "mkt-research-expert": ["冷静、会解释", "帮你看懂账号背后的信息，把已知、推测和还不知道的分开说。"]
 });
 export const COMPANION_SETTINGS = Object.freeze({

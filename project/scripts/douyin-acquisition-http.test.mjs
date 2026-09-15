@@ -336,7 +336,7 @@ test("live danmaku analysis passes through the HTTP core execution gateway", asy
         analysisOnly: true,
         discoveryOnly: true,
         analysisKind: "live_danmaku",
-        liveSignals: ["danmaku", "likes", "gifts"]
+        liveSignals: ["likes", "gifts"]
       }
     }))
   });

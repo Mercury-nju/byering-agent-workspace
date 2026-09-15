@@ -217,6 +217,7 @@ if (!isElectronRuntime) {
       "mkt-market-scout": { name: "小探", title: "市场情报员", skills: ["行业研究", "竞品监控", "标讯订阅"] },
       "mkt-cold-writer": { name: "私信触达专员", title: "私信触达专员", skills: ["目标用户解析", "私信内容编排", "云电脑发送"] },
       "mkt-dm-inbox": { name: "私信承接 / 自动回复专员", title: "私信承接 / 自动回复专员", skills: ["私信监听", "会话理解", "自动回复"] },
+      "mkt-gold-customer-service": { name: "金牌客服", title: "金牌客服", skills: ["快速接待私信", "回答客户问题", "推进下一步"] },
       "mkt-follow-up": { name: "跟跟", title: "跟进管家", skills: ["跟进排期", "丢单预警", "节奏设计"] },
       "mkt-phone-sdr": { name: "声声", title: "电销专员", skills: ["外呼脚本", "异议应答", "意向分级"] },
       "mkt-copywriter": { name: "笔笔", title: "内容写手", skills: ["公众号", "朋友圈文案", "案例包装"] },

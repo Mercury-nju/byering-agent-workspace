@@ -1,3 +1,5 @@
+import { GOLD_CUSTOMER_SERVICE_AGENT_ID } from "./marketplace.js";
+
 export const CHIEF_INTENTS = Object.freeze({
   CONVERSATION: "conversation",
   TASK: "task",
@@ -44,18 +46,20 @@ const PRODUCT_AGENT_SELECTIONS = Object.freeze([
   Object.freeze({ agentId: "mkt-find-people", labels: Object.freeze(["找客专员", "抖音找人管家"]) }),
   Object.freeze({ agentId: "mkt-intent-analyst", labels: Object.freeze(["客户分析员", "客户研究员", "抖音分析助手"]) }),
   Object.freeze({ agentId: "mkt-cold-writer", labels: Object.freeze(["潜客触达专员", "潜客激活专员", "私信运营", "抖音触达助手"]) }),
-  Object.freeze({ agentId: "mkt-dm-inbox", labels: Object.freeze(["私信客服", "私信自动回复", "抖音对话助手"]) })
+  Object.freeze({ agentId: "mkt-dm-inbox", labels: Object.freeze(["私信客服", "私信自动回复", "抖音对话助手"]) }),
+  Object.freeze({ agentId: GOLD_CUSTOMER_SERVICE_AGENT_ID, labels: Object.freeze(["金牌客服", "快速接待客服"]) })
 ]);
 const PRODUCT_AGENT_IDS = new Set(PRODUCT_AGENT_SELECTIONS.map(({ agentId }) => agentId));
 const PRODUCT_AGENT_CAPABILITIES = Object.freeze({
   "mkt-find-people": Object.freeze(["douyin_account_discovery"]),
   "mkt-intent-analyst": Object.freeze(["douyin_comment_analysis"]),
   "mkt-cold-writer": Object.freeze(["douyin_private_outreach", "douyin_public_reply"]),
-  "mkt-dm-inbox": Object.freeze(["douyin_inbox_reply"])
+  "mkt-dm-inbox": Object.freeze(["douyin_inbox_reply"]),
+  [GOLD_CUSTOMER_SERVICE_AGENT_ID]: Object.freeze(["douyin_inbox_reply"])
 });
 const PRODUCT_CAPABILITY_QUESTION_PATTERNS = [
-  /(?:获客专家|找客专员|客户分析员|客户研究员|潜客触达专员|潜客激活专员|私信运营|私信客服|抖音获客管家|抖音找人管家|抖音分析助手|抖音触达助手|私信自动回复|抖音对话助手).{0,12}(?:能|可以|会).{0,12}(?:做什么|帮我做什么|怎么帮我|提供什么)/u,
-  /(?:获客专家|找客专员|客户分析员|客户研究员|潜客触达专员|潜客激活专员|私信运营|私信客服|抖音获客管家|抖音找人管家|抖音分析助手|抖音触达助手|私信自动回复|抖音对话助手).{0,12}(?:有什么能力|职责是什么|负责什么)/u
+  /(?:获客专家|找客专员|客户分析员|客户研究员|潜客触达专员|潜客激活专员|私信运营|私信客服|金牌客服|快速接待客服|抖音获客管家|抖音找人管家|抖音分析助手|抖音触达助手|私信自动回复|抖音对话助手).{0,12}(?:能|可以|会).{0,12}(?:做什么|帮我做什么|怎么帮我|提供什么)/u,
+  /(?:获客专家|找客专员|客户分析员|客户研究员|潜客触达专员|潜客激活专员|私信运营|私信客服|金牌客服|快速接待客服|抖音获客管家|抖音找人管家|抖音分析助手|抖音触达助手|私信自动回复|抖音对话助手).{0,12}(?:有什么能力|职责是什么|负责什么)/u
 ];
 const CONVERSATION_ONLY_PATTERNS = [
   /(?:不要|不需要|无需|不得|不).{0,12}(?:启动|创建|执行|安排|推进).{0,8}(?:任务|工作)/u,

@@ -12,7 +12,7 @@ import { createTeamLive } from "./agents/live.js";
 import { createDouyinInboxActivityMonitor } from "./agents/douyin-inbox-activity-monitor.js";
 import { createDouyinCloudActivityMonitor } from "./agents/douyin-cloud-activity-monitor.js";
 import { getUiRoot, mountPanel } from "./ui/mount.js";
-import { ACCOUNT_EVENT, mountNavFramework } from "./ui/nav-framework.js?v=20260914-grid-alignment-1";
+import { ACCOUNT_EVENT, mountNavFramework } from "./ui/nav-framework.js?v=20260915-live-danmaku-only-1";
 import { mountWordmark, releaseWordmarkEarlyGuard } from "./ui/wordmark.js";
 import { mountKanbanNav } from "./ui/kanban.js";
 import { mountAgentCardChat } from "./ui/agent-card-chat.js";

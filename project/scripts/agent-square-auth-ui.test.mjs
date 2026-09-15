@@ -27,16 +27,20 @@ test("Agent Square categories are grouped into a vertical workflow", () => {
   assert.doesNotMatch(source, /\.sb-as-category-section\+\.sb-as-category-section\{[^}]*border-top:1px solid/);
   assert.match(source, /\.sb-as-category-grid\{display:grid;grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
   assert.match(source, /const AGENT_STAGE_ICONS = Object\.freeze\(\{/);
-  assert.match(source, /const AGENT_STAGE_DESCRIPTIONS = Object\.freeze\(\{/);
+  assert.doesNotMatch(source, /const AGENT_STAGE_DESCRIPTIONS/);
+  assert.doesNotMatch(source, /sb-as-category-description/);
   assert.match(source, /const AGENT_SQUARE_FILTER_ORDER = Object\.freeze\(\["全部", \.\.\.AGENT_WORKFLOW_DISPLAY_ORDER\]\)/);
-  assert.match(source, /const AGENT_WORKFLOW_DISPLAY_ORDER = Object\.freeze\(\["找人", "分析", "触达", "私信对话"\]\)/);
+  assert.match(source, /const AGENT_WORKFLOW_DISPLAY_ORDER = Object\.freeze\(\["找人", "分析", "触达", "私信对话", "开发者模式"\]\)/);
   assert.match(source, /categoryNav: "全部"/);
   assert.match(source, /全部: \{ filledIcon: "agent-grid", color: "#536273" \}/);
   assert.doesNotMatch(source, /filledIcon: "sparkles"/);
-  assert.match(source, /找人: \{ filledIcon: "people-search", color: "#278AF0" \}/);
+  assert.match(source, /找人: \{ filledIcon: "user-search", color: "#278AF0" \}/);
   assert.match(source, /触达: \{ filledIcon: "paper-plane", color: "#7C45F7" \}/);
   assert.match(source, /私信对话: \{ filledIcon: "chat-bubble", color: "#E28A2B" \}/);
-  assert.match(source, /分析: \{ filledIcon: "growth-chart", color: "#5CB85C" \}/);
+  assert.match(source, /分析: \{ filledIcon: "analysis-chart", color: "#5CB85C" \}/);
+  assert.doesNotMatch(source, /people-search|growth-chart/);
+  assert.match(source, /"user-search": '[^']*<circle[^']*stroke="currentColor"/);
+  assert.match(source, /"analysis-chart": '[^']*<path[^']*stroke="currentColor"/);
   assert.match(source, /const sections = el\("div", "sb-as-category-list"\)/);
   assert.match(source, /const mainFilterRow = el\("div", "sb-as-filter-row sb-as-filter-main"\)/);
   assert.match(source, /for \(const stage of AGENT_SQUARE_FILTER_ORDER\) \{/);
@@ -54,11 +58,40 @@ test("Agent Square categories are grouped into a vertical workflow", () => {
   assert.match(source, /for \(const category of AGENT_WORKFLOW_DISPLAY_ORDER\) \{/);
   assert.match(source, /categoryRows\.get\(category\)\?\.appendChild/);
   assert.match(source, /buildCategorySection\(category, grid\)/);
+  assert.match(source, /copy\.appendChild\(title\)/);
   assert.match(source, /el\("strong", null, "找到能直接帮你做事的 Agent"\)/);
   assert.match(source, /el\("span", null, "这些 Agent 覆盖找客户、分析账号、首次触达和私信接待，选一个就能开始"\)/);
   assert.doesNotMatch(source, /sb-as-search-row|sb-as-search|搜索成员、技能|搜索过滤/);
   assert.doesNotMatch(source, /sb-as-filter-label/);
   assert.doesNotMatch(source, /mainFilterRow\.appendChild\(el\("span", [^\n]*"能力"\)\)/);
+});
+
+test("Agent Center places the core capability Agents in Developer Mode", () => {
+  assert.match(source, /const DEVELOPER_MODE_AGENT_IDS = new Set\(\[\s*"mkt-find-people",\s*"mkt-intent-analyst",\s*"mkt-cold-writer",\s*"mkt-dm-inbox"\s*\]\)/);
+  assert.match(source, /开发者模式: \{ filledIcon: "developer", color: "#536273" \}/);
+  assert.match(source, /if \(DEVELOPER_MODE_AGENT_IDS\.has\(agent\?\.id\)\) return "开发者模式";/);
+  assert.doesNotMatch(source, /DEVELOPER_MODE_AGENT_IDS\.add/);
+
+  const homeStart = source.indexOf("function renderHome()");
+  const homeEnd = source.indexOf("\n  function render()", homeStart);
+  assert.ok(homeStart >= 0 && homeEnd > homeStart);
+  const homeSource = source.slice(homeStart, homeEnd);
+  assert.match(homeSource, /for \(const category of AGENT_WORKFLOW_DISPLAY_ORDER\) \{/);
+  assert.match(homeSource, /sectionByCategory\.set\(category, section\)/);
+  assert.match(source, /const AGENT_SQUARE_FILTER_ORDER = Object\.freeze\(\["全部", \.\.\.AGENT_WORKFLOW_DISPLAY_ORDER\]\)/);
+});
+
+test("Agent Center excludes Developer Mode cards from the all-agents view", () => {
+  const homeStart = source.indexOf("function renderHome()");
+  const homeEnd = source.indexOf("\n  function render()", homeStart);
+  assert.ok(homeStart >= 0 && homeEnd > homeStart);
+  const homeSource = source.slice(homeStart, homeEnd);
+
+  assert.match(homeSource, /function removeDeveloperModeCards\(row\)/);
+  assert.match(homeSource, /const developerModeCards = \[\.\.\.row\.children\]\.filter\(\(card\) => DEVELOPER_MODE_AGENT_IDS\.has\(card\.dataset\.sbAgentId\)\)/);
+  assert.match(homeSource, /for \(const card of developerModeCards\) row\.removeChild\(card\)/);
+  assert.match(homeSource, /removeDeveloperModeCards\(allAgentsGrid\)/);
+  assert.match(homeSource, /targetRows: categoryRows/);
 });
 
 test("Agent Square keeps the complete acquisition Agent in the all-agents section", () => {
@@ -106,7 +139,7 @@ test("Agent summary descriptions stay concise without losing the core outcome", 
   );
 });
 
-test("获客管家在一个启动流中完成账号授权并使用固定策略", () => {
+test("获客专家在一个启动流中完成账号和接待策略配置", () => {
   assert.match(source, /function isInboxIntakeFlow\(agent, flow = null\)/);
   const flowStart = source.indexOf("function openUseFlow");
   const flowEnd = source.indexOf("function clearAuthFeedback", flowStart);
@@ -118,9 +151,11 @@ test("获客管家在一个启动流中完成账号授权并使用固定策略",
   const setupStart = source.indexOf("function renderInboxSetup");
   const setupEnd = source.indexOf("function renderInboxStarting", setupStart);
   const setup = source.slice(setupStart, setupEnd);
-  assert.match(setup, /自动识别账号定位与潜客/);
+  assert.match(setup, /后台自动识别账号定位和潜客/);
+  assert.match(setup, /DOUYIN_AUTO_AUDIENCE_GOAL/);
+  assert.doesNotMatch(setup, /你想找什么样的人|补充说明（选填）|首次怎么联系/);
   assert.doesNotMatch(setup, /监听方式|持续监听新的作品评论、直播互动和账号互动通知，不回扫历史内容/);
-  assert.match(setup, /按获客目标自动执行/);
+  assert.match(setup, /告诉我怎么回复/);
   assert.match(setup, /启动完整获客任务/);
   assert.doesNotMatch(setup, /配置接待方式（必填）/);
   assert.match(source, /if \(isInboxIntakeFlow\(agent, flow\)\) \{\s*startInboxIntake\(agent, flow/);
@@ -142,7 +177,7 @@ test("listener startup never restores a historical work scope", () => {
   assert.match(flow, /const savedLongRunning = isLongRunningAcquisitionAgent\(agent\) \|\| savedFinderListener;/);
   assert.match(flow, /workScope:\s*savedLongRunning\s*\?\s*""\s*:/);
   assert.doesNotMatch(flow, /workScope:\s*saved\?\.workScope\s*\|\|\s*"最近30条作品"/);
-  assert.match(flow, /if \(savedLongRunning\) stripListenerHistoricalFields\(state\.useFlow\);/);
+  assert.match(flow, /if \(savedLongRunning \|\| savedLiveDanmakuAnalysis \|\| savedLiveDanmakuOutreach\) stripListenerHistoricalFields\(state\.useFlow\);/);
 });
 
 test("only durable agents are marked long-running in setup and resume state", () => {
@@ -151,7 +186,7 @@ test("only durable agents are marked long-running in setup and resume state", ()
   assert.ok(flowStart >= 0 && flowEnd > flowStart);
   const flow = source.slice(flowStart, flowEnd);
 
-  assert.match(flow, /const isDurableTask = inboxIntake \|\| savedLongRunning \|\| savedLiveDanmakuAnalysis;/);
+  assert.match(flow, /const isDurableTask = inboxIntake \|\| savedLongRunning \|\| savedLiveDanmakuAnalysis \|\| savedLiveDanmakuOutreach;/);
   assert.match(flow, /longRunning: isDurableTask,/);
   assert.doesNotMatch(flow, /longRunning: true,/);
 
@@ -160,7 +195,7 @@ test("only durable agents are marked long-running in setup and resume state", ()
   assert.ok(resumeStart >= 0 && resumeEnd > resumeStart);
   const resume = source.slice(resumeStart, resumeEnd);
 
-  assert.match(resume, /const isDurableTask = inboxIntake \|\| longRunningAcquisition \|\| liveDanmakuAnalysis;/);
+  assert.match(resume, /const isDurableTask = inboxIntake \|\| longRunningAcquisition \|\| liveDanmakuAnalysis \|\| liveDanmakuOutreach;/);
   assert.match(resume, /longRunning: isDurableTask/);
   assert.doesNotMatch(resume, /longRunning: true/);
 });
@@ -180,7 +215,7 @@ test("所有监听任务恢复时都会清理旧版本遗留的历史回看字�
   assert.match(helper, /strip\(flow\.taskSnapshot\?\.config\);/);
   assert.match(helper, /strip\(flow\.taskSnapshot\?\.configuration\);/);
   assert.doesNotMatch(helper, /preserveSchedule|timeWindow\.schedule/);
-  assert.match(source, /if \(longRunningAcquisition \|\| liveDanmakuAnalysis\) stripListenerHistoricalFields\(resume\);/);
+  assert.match(source, /if \(longRunningAcquisition \|\| liveDanmakuAnalysis \|\| liveDanmakuOutreach\) stripListenerHistoricalFields\(resume\);/);
 });
 
 test("监听任务在迁移旧快照前会复制快照，避免修改已保存的原始任务", () => {
@@ -263,7 +298,7 @@ test("finder listener resumes as a durable discovery task without outreach resid
 
   assert.match(resume, /const finderListener = isFinderListenerFlow\(agent, flow\);/);
   assert.match(resume, /const longRunningAcquisition = isLongRunningAcquisitionAgent\(agent\) \|\| finderListener;/);
-  assert.match(resume, /\(longRunningAcquisition \|\| liveDanmakuAnalysis\) && flow\.taskKey && flow\.running !== false \? "running" : "setup"/);
+  assert.match(resume, /\(longRunningAcquisition \|\| liveDanmakuAnalysis \|\| liveDanmakuOutreach\) && flow\.taskKey && flow\.running !== false \? "running" : "setup"/);
   assert.match(resume, /resume\.compositeFinderSource = "own";/);
   assert.match(resume, /resume\.finderGoal = flow\.finderGoal \|\| flow\.product \|\| "";/);
   assert.match(resume, /"window", "workScope", "workCount"/);
@@ -543,18 +578,19 @@ test("cloud account labels use the remote nickname and refresh stale placeholder
   assert.doesNotMatch(source.slice(privateStart, privateEnd), /已授权抖音账号/);
 });
 
-test("comment acquisition uses the unified setup without user-configured targeting", () => {
-  const start = source.indexOf("function renderInboxSetup");
-  const end = source.indexOf("function renderInboxStarting", start);
+test("comment acquisition uses the unified setup without a review gate", () => {
+  const start = source.indexOf("function renderManagerInboxSetup");
+  const end = source.indexOf("function renderInboxSetup", start);
   const setup = source.slice(start, end);
-  assert.match(setup, /startsCompleteManager/);
-  assert.match(setup, /启动获客管家/);
+  assert.match(setup, /我会自动完成/);
+  assert.match(setup, /启动抖音获客管家/);
   assert.match(setup, /startInboxIntake\(activeAgent, flow/);
   assert.doesNotMatch(setup, /先找一批机会|previewCommentAcquisition|不会先发消息/);
+  assert.match(setup, /从评论、直播和账号互动里，帮你找出值得跟进的人/);
   assert.doesNotMatch(setup, /group:\s*"audience",\s*field:\s*"product"/);
+  assert.doesNotMatch(setup, /补充说明（选填）|首次怎么联系/);
   assert.doesNotMatch(setup, /目标人群与意向信号|首次触达与私信接待规则/);
   assert.doesNotMatch(setup, /触达策略/);
-  assert.match(setup, /openAccountReceptionPage/);
   assert.doesNotMatch(setup, /flow\.step = "review"/);
 });
 
@@ -1118,6 +1154,9 @@ test("comment screening setup is task-first and starts without a redundant revie
   const end = source.indexOf("function renderCommentLeadMinerReview", start);
   assert.ok(start >= 0 && end > start);
   const setup = source.slice(start, end);
+  const composerStart = source.indexOf("function appendGoalFirstComposer");
+  const composerEnd = source.indexOf("function renderGoldCustomerServiceSetup", composerStart);
+  const composer = source.slice(composerStart, composerEnd);
   const sourceIndex = setup.indexOf('const sourceCard = el("section", "sb-as-lead-card")');
   const audienceIndex = setup.indexOf('mountTaskChoices(targetCard, { flow, group: filterMode ? "comments" : "audience", field: "product", initialText })');
   assert.ok(sourceIndex >= 0, "comment screening must render its source step");
@@ -1152,7 +1191,6 @@ test("inbox setup reuses the account-scoped conversation strategy and stays cons
   const end = source.indexOf("function renderInboxStarting", start);
   assert.ok(start >= 0 && end > start);
   const setup = source.slice(start, end);
-  assert.match(setup, /openAccountReceptionPage/);
   assert.match(setup, /会同步到“对话策略”/);
   assert.match(setup, /登录后会自动识别当前账号/);
   assert.match(setup, /登录抖音账号/);
@@ -1160,22 +1198,69 @@ test("inbox setup reuses the account-scoped conversation strategy and stays cons
   assert.doesNotMatch(setup, /acquisitionAccountControl\(flow|makeTaskSettings\("回复设置"\)|group: "conversion"|预览回复方式/);
 });
 
-test("comment acquisition does not expose reception or targeting settings", () => {
-  const start = source.indexOf("function renderInboxSetup");
-  const end = source.indexOf("function renderInboxStarting", start);
+test("comment acquisition keeps the conversation objective in the same setup page", () => {
+  const start = source.indexOf("function renderManagerInboxSetup");
+  const end = source.indexOf("function renderInboxSetup", start);
   assert.ok(start >= 0 && end > start);
   const setup = source.slice(start, end);
-  assert.match(setup, /1\. 登录你的抖音账号/);
-  assert.match(setup, /2\. 自动识别账号定位与潜客/);
-  assert.match(setup, /3\. 按获客目标自动执行/);
-  assert.match(setup, /4\. 启动完整获客任务/);
+  const composerStart = source.indexOf("function appendGoalFirstComposer");
+  const composerEnd = source.indexOf("function renderGoldCustomerServiceSetup", composerStart);
+  const composer = source.slice(composerStart, composerEnd);
+  assert.match(setup, /我来帮你把获客做起来/);
+  assert.doesNotMatch(setup, /el\("div", "sb-as-gold-eyebrow", "抖音获客管家"\)/);
+  assert.match(setup, /我会自动完成/);
+  assert.match(setup, /识别潜客/);
+  assert.match(setup, /完成首触/);
+  assert.match(setup, /持续承接/);
+  assert.doesNotMatch(setup, /你想找什么样的人|补充说明（选填）|首次怎么联系/);
   assert.doesNotMatch(setup, /监听方式|持续监听新的作品评论、直播互动和账号互动通知，不回扫历史内容/);
-  assert.match(setup, /const strategyReady = hasReception && hasBusinessKnowledge && !businessKnowledgePending;/);
-  assert.match(setup, /start\.disabled = !hasAccount \|\| \(managerInbox \? false : !strategyReady\)/);
+  assert.match(composer, /你想让我帮你达成什么/);
+  assert.doesNotMatch(composer, /我希望通过私信达成/);
+  assert.match(setup, /appendGoalFirstComposer\(shell, flow, "你想让我帮你达成什么？"\)/);
+  assert.doesNotMatch(setup, /appendGoalFirstComposer\(shell, flow, "你想让我先帮你达成什么？"\)/);
+  assert.doesNotMatch(setup, /appendGoalFirstComposer\(shell, flow, "我希望抖音获客管家达成…"\)/);
+  assert.match(setup, /const hasObjective = Boolean\(String\(flow\.replyObjective \|\| ""\)\.trim\(\)\)/);
+  assert.match(setup, /start\.disabled = !hasAccount \|\| !hasObjective \|\| loading \|\| blockingPlan/);
+  assert.doesNotMatch(composer, /对外身份|接待时段|业务资料|人工交接/);
   assert.doesNotMatch(source, /updatePreviewTaskStrategy|updatePreviewTaskTarget|fromPreview|previewCommentAcquisition/);
   assert.doesNotMatch(setup, /flow\.step = "review"/);
   assert.doesNotMatch(source, /renderCommentAcquisitionReview|确认并启动长期任务/);
   assert.doesNotMatch(setup, /配置接待方式（必填）/);
+});
+
+test("gold customer service setup speaks as the Agent", () => {
+  const setupStart = source.indexOf("function renderGoldCustomerServiceSetup");
+  const setupEnd = source.indexOf("function renderManagerInboxSetup", setupStart);
+  assert.ok(setupStart >= 0 && setupEnd > setupStart);
+  const setup = source.slice(setupStart, setupEnd);
+
+  assert.doesNotMatch(setup, /sb-as-gold-eyebrow.*金牌客服/);
+  assert.match(setup, /我来帮你接住私信/);
+  assert.match(setup, /连接账号后，我会按你的目标接待新私信/);
+  assert.match(setup, /appendGoalFirstComposer\(shell, flow, "你想让我帮你达成什么？"\)/);
+  assert.doesNotMatch(setup, /把私信交给金牌客服/);
+  assert.doesNotMatch(setup, /告诉我希望通过私信达成什么/);
+});
+
+test("viral work analysis setup speaks as the Agent before asking for a link", () => {
+  const setupStart = source.indexOf("function renderViralWorkAnalysisSetup");
+  const setupEnd = source.indexOf("function renderViralWorkAnalysisRunning", setupStart);
+  assert.ok(setupStart >= 0 && setupEnd > setupStart);
+  const setup = source.slice(setupStart, setupEnd);
+
+  assert.doesNotMatch(setup, /sb-as-gold-eyebrow.*爆款作品分析/);
+  assert.match(setup, /我来帮你拆解这条爆款作品/);
+  assert.match(setup, /把作品链接发给我，我会先真正理解视频内容/);
+  assert.match(setup, /把你想研究的作品发给我/);
+  assert.match(setup, /把抖音作品链接粘贴给我/);
+  assert.match(setup, /这是公开作品，我会直接解析视频本身和可见评论/);
+  assert.match(setup, /你想让我重点拆解什么？（可选）/);
+  assert.match(setup, /你也可以直接选一个重点/);
+  assert.match(setup, /我会区分视频事实、数据事实、流量机制判断和下一轮创作测试/);
+  assert.doesNotMatch(setup, /把一条爆款作品拆开看/);
+  assert.doesNotMatch(setup, /先给我一条公开作品/);
+  assert.doesNotMatch(setup, /这次更想看什么（可选）/);
+  assert.doesNotMatch(setup, /也可以直接选择/);
 });
 
 test("comment acquisition task brief has dedicated responsive consumer styling", () => {
@@ -1315,20 +1400,66 @@ test("Agent Center keeps each marketplace category in its own workflow section",
   assert.doesNotMatch(homeSource, /filteredAgents|stageCount|refreshGrid/);
 });
 
-test("live danmaku analysis has a dedicated account-scoped setup and signal selection", () => {
+test("live danmaku analysis has a dedicated account-scoped setup with a danmaku-only scope", () => {
   assert.match(source, /function renderLiveDanmakuAnalysisSetup\(panel, flow\)/);
   const setupStart = source.indexOf("function renderLiveDanmakuAnalysisSetup");
   const setupEnd = source.indexOf("function renderLiveDanmakuAnalysisRunning", setupStart);
   assert.ok(setupStart >= 0 && setupEnd > setupStart);
   const setup = source.slice(setupStart, setupEnd);
-  assert.match(setup, /直播间弹幕分析目标/);
+  assert.match(source, /function appendLiveDanmakuGoalComposer\(container, flow\)/);
+  assert.match(source, /直播间弹幕分析目标/);
   assert.match(setup, /直播弹幕/);
-  assert.match(setup, /点赞/);
-  assert.match(setup, /送礼/);
-  assert.match(setup, /点赞和送礼不会单独被判定为购买意向/);
+  assert.match(source, /我只分析当前直播间的新弹幕/);
+  assert.match(source, /不会读取点赞、送礼、关注或进场/);
+  assert.match(source, /本 Agent 只分析当前直播间的新弹幕/);
+  assert.match(setup, /sb-as-live-shell/);
+  assert.match(setup, /sb-as-gold-hero/);
+  assert.match(source, /sb-as-gold-composer/);
+  assert.match(source, /你也可以直接选一个重点/);
+  assert.match(source, /sb-as-live-scope/);
+  assert.match(source, /flow\.liveDanmakuSignals = \[\.\.\.DEFAULT_LIVE_SIGNALS\]/);
+  const setupBody = setup.slice(0, 2600);
+  assert.doesNotMatch(setupBody, /signalOptions|读取哪些互动信号|checkbox\.type|sb-as-use-check/);
+  assert.doesNotMatch(setupBody, /sb-as-use-fields|sb-as-use-field full/);
   assert.match(source, /buildLiveDanmakuAnalysisTaskPayload/);
   assert.match(source, /isLiveDanmakuAnalysisAgent\(agent\)\) renderLiveDanmakuAnalysisSetup\(panel, flow\)/);
   assert.match(source, /isLiveDanmakuAnalysisAgent\(agent\)\) renderLiveDanmakuAnalysisRunning\(panel, flow\)/);
+});
+
+test("live danmaku analysis speaks as an Agent throughout setup", () => {
+  const setupStart = source.indexOf("function renderLiveDanmakuAnalysisSetup");
+  const setupEnd = source.indexOf("function renderLiveDanmakuAnalysisRunning", setupStart);
+  assert.ok(setupStart >= 0 && setupEnd > setupStart);
+  const setup = source.slice(setupStart, setupEnd);
+
+  assert.doesNotMatch(setup, /sb-as-gold-eyebrow.*直播间弹幕分析/);
+  assert.match(setup, /我来帮你看懂这场直播/);
+  assert.match(setup, /连接账号后，我会持续读懂新弹幕/);
+  assert.match(source, /这场直播，你想让我重点看什么？/);
+  assert.doesNotMatch(source, /告诉我，这场直播最想看什么/);
+  assert.match(source, /你也可以直接选一个重点/);
+  assert.doesNotMatch(source, /也可以直接选择一个重点/);
+  assert.match(source, /我只分析当前直播间的新弹幕/);
+  assert.doesNotMatch(source, /系统只分析：当前直播间的新弹幕/);
+  assert.match(setup, /账号已连接，我可以开始分析/);
+  assert.match(setup, /我会把分析结果保留在任务记录中/);
+});
+
+test("live danmaku outreach has a dedicated no-analysis setup and durable running state", () => {
+  assert.match(source, /buildLiveDanmakuOutreachTaskPayload/);
+  assert.match(source, /validateLiveDanmakuOutreachSetup/);
+  assert.match(source, /function isLiveDanmakuOutreachAgent\(agent\)/);
+  assert.match(source, /function renderLiveDanmakuOutreachSetup\(panel, flow\)/);
+  assert.match(source, /function renderLiveDanmakuOutreachRunning\(panel, flow\)/);
+  assert.match(source, /isLiveDanmakuOutreachAgent\(agent\)\) renderLiveDanmakuOutreachSetup\(panel, flow\)/);
+  assert.match(source, /isLiveDanmakuOutreachAgent\(agent\)\) renderLiveDanmakuOutreachRunning\(panel, flow\)/);
+  assert.match(source, /if \(isLiveDanmakuOutreachAgent\(agent\)\) \{\s*void startLiveDanmakuOutreach\(agent, flow\);/);
+  assert.match(source, /async function startLiveDanmakuOutreach\(agent, flow/);
+  assert.match(source, /flow\.analysisKind = "live_danmaku_outreach"/);
+  assert.match(source, /flow\.liveDanmakuSignals = \["danmaku"\]/);
+  assert.match(source, /弹幕出现即进入首次私信触达，不判断成交状态或购买意向/);
+  assert.match(source, /每位用户只触达一次/);
+  assert.doesNotMatch(source, /isLiveDanmakuOutreachAgent\(agent\)[\s\S]{0,200}分析这些账号/);
 });
 
 test("抖音获客管家首次使用会先落正式雇佣合同，再进入配置", () => {

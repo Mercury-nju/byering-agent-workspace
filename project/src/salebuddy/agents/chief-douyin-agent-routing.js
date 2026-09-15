@@ -1,11 +1,13 @@
 import {
   DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
   DOUYIN_ACQUISITION_COMPLETE_AGENT_ID,
+  GOLD_CUSTOMER_SERVICE_AGENT_ID,
   getMarketplaceAgent
 } from "./marketplace.js";
 
 const STAGE_ORDER = Object.freeze(["find", "analyze", "outreach", "conversation"]);
 const CHIEF_ORCHESTRATOR_AGENT_ID = "chief_of_staff";
+const INBOX_AGENT_IDS = new Set(["mkt-dm-inbox", GOLD_CUSTOMER_SERVICE_AGENT_ID]);
 
 const CAPABILITY_DEFINITIONS = Object.freeze({
   douyin_account_discovery: Object.freeze({ agentId: "mkt-find-people", stage: "find", requiresAccess: false }),
@@ -100,9 +102,12 @@ function routeRequestedProductAgent({ requestedId, capabilities, available }) {
     };
   }
 
-  const incompatibleCapabilities = capabilities.filter(
-    (capability) => CAPABILITY_DEFINITIONS[capability].agentId !== requestedId
-  );
+  const incompatibleCapabilities = capabilities.filter((capability) => {
+    const owner = CAPABILITY_DEFINITIONS[capability].agentId;
+    return capability === "douyin_inbox_reply" && INBOX_AGENT_IDS.has(requestedId)
+      ? false
+      : owner !== requestedId;
+  });
   if (incompatibleCapabilities.length) {
     return {
       assignments: [],

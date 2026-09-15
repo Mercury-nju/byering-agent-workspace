@@ -79,3 +79,15 @@ test("the chief remains the orchestrator while the selected product owns executi
   assert.deepEqual(route.assignments.map((assignment) => assignment.agentId), ["mkt-find-people"]);
   assert.equal(route.assignments[0].executionRole, "product_agent");
 });
+
+test("explicit gold customer service requests keep inbox execution on the independent Agent", () => {
+  const route = routeChiefDouyinTask({
+    requiredCapabilities: ["douyin_inbox_reply"],
+    requestedAgentId: "mkt-gold-customer-service"
+  });
+
+  assert.equal(route.applicable, true);
+  assert.equal(route.blocked, false);
+  assert.equal(route.mode, "single_capability");
+  assert.deepEqual(route.assignments.map((assignment) => assignment.agentId), ["mkt-gold-customer-service"]);
+});

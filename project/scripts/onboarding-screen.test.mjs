@@ -17,7 +17,7 @@ test("onboarding renders the real Agent task selector instead of the retired bus
 
 test("first-task choices point to executable Agent Square capabilities", () => {
   assert.match(taskSelection, /getMarketplaceAgent/);
-  assert.equal(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.length, 5);
+  assert.equal(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.length, 7);
   assert.deepEqual(
     FIRST_TASK_OPTIONS.map((option) => option.agentId),
     ["mkt-comment-acquisition", "mkt-find-people", "mkt-dm-inbox"]

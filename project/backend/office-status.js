@@ -6,7 +6,7 @@ const rank = { working: 0, listening: 1, attention: 2, unknown: 3, paused: 4, id
 const instant = value => typeof value === "number" ? value : Date.parse(value) || 0;
 const AUTHORIZATION_ERROR_CODES = new Set(["ACCOUNT_OFFLINE", "AUTHORIZATION_REQUIRED", "DOUYIN_AUTH_EXPIRED", "DOUYIN_CLOUD_OFFLINE", "LOGIN_EXPIRED"]);
 const ACQUISITION_AGENT_IDS = new Set(OFFICE_AGENT_IDS);
-const CONTINUOUS_LISTENER_AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-people"]);
+const CONTINUOUS_LISTENER_AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-people", "mkt-live-danmaku-outreach"]);
 const CONFIGURATION_FIELDS = Object.freeze({
   findingStrategy: ["sourceScope", "audienceGoal", "requirements", "intentSignals", "minScore", "filters", "scopeExpansion", "expandScope"],
   touchContent: ["channel", "message", "text", "template", "strategy", "replyStyle", "handoffBoundary", "approvalMode", "conversionGoal"],

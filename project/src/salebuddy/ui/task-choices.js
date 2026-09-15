@@ -221,7 +221,8 @@ export const TASK_ENTRY_TITLES = Object.freeze({
   "mkt-user-research": "帮你找到合适的人填问卷",
   "mkt-research-expert": "一起看看这些账号",
   "mkt-cold-writer": "这次想联系谁？",
-  "mkt-dm-inbox": "有人来问，我帮你接待"
+  "mkt-dm-inbox": "有人来问，我帮你接待",
+  "mkt-gold-customer-service": "用金牌客服接待客户"
 });
 
 export const TASK_FLOW_CSS = `

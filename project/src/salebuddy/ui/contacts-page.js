@@ -202,7 +202,10 @@ const CSS = `
 .sb-chead-friend{display:flex;align-items:center;gap:10px;text-align:left;padding:12px 18px 10px}
 .sb-chead-friend .sb-chead-avatar{width:44px;height:44px;margin:0;font-size:19px;flex:none}
 .sb-chead-text{min-width:0;flex:1}.sb-chead-friend .sb-chead-name{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-chead-friend .sb-chead-status{justify-content:flex-start;margin-top:3px}
-.sb-cactions-friend{justify-content:flex-start;gap:7px;padding:8px 18px 9px}
+.sb-cdetail-topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 18px 10px}
+.sb-cdetail-topbar .sb-chead-friend{padding:0;min-width:0;flex:1}
+.sb-cdetail-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex:none;min-width:0}
+.sb-cactions-friend{justify-content:flex-start;gap:7px;padding:0}
 .sb-cactions-friend .sb-caction{flex:0 0 auto;flex-direction:row;gap:6px;width:auto;min-width:0;padding:7px 11px;border-radius:8px}.sb-cactions-friend .sb-caction svg{width:15px;height:15px}
 
 .sb-chat-list2{flex:1;overflow-y:auto;padding:16px 24px;display:flex;flex-direction:column;gap:12px}
@@ -262,6 +265,7 @@ const CSS = `
 .sb-dm-cloud-copy{margin-top:5px;color:#6E7D91}
 .sb-dm-cloud-bubble button{margin-top:9px;height:30px;padding:0 10px;border:1px solid #4267A5;border-radius:7px;background:#fff;color:#34578F;font:inherit;font-size:11px;font-weight:650;cursor:pointer}
 .sb-dm-cloud-bubble button:hover{background:#EEF4FF}
+@media(max-width:760px){.sb-cdetail-topbar{align-items:flex-start;flex-direction:column;gap:8px}.sb-cdetail-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}.sb-cdetail-topbar .sb-chead-friend{width:100%}}
 
 .sb-pane{flex:1;overflow-y:auto;padding:18px 28px}
 .sb-pane-title{font-size:12px;font-weight:600;color:#8A8F99;letter-spacing:.4px;margin:14px 0 8px}
@@ -385,7 +389,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   let disposeCompanion = () => {};
   let disposed = false;
   const cloudNoticeInFlight = new Set();
-  const DOUYIN_AGENT_IDS = new Set(["mkt-dm-inbox", "mkt-cold-writer"]);
+  const DOUYIN_AGENT_IDS = new Set(["mkt-dm-inbox", "mkt-gold-customer-service", "mkt-cold-writer"]);
 
   try {
     await refreshEmploymentContracts();
@@ -739,6 +743,16 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     return btn;
   }
 
+  function companionRequestForAgent(agentType) {
+    const conversationContext = isChiefAgentType(agentType)
+      ? {}
+      : acquisitionContextFor(agentType, { task: taskForAgent(agentType, initialConversationContext || {}), work: getWork(agentType) });
+    return (method, path, payload = {}) => companionRequest(method, path, {
+      ...payload,
+      ...(conversationContext.accountId ? { accountId: conversationContext.accountId } : {})
+    });
+  }
+
   function proactiveGuidance(agentType, profile, status) {
     const responsibilities = profile.role?.responsibilities?.filter(Boolean)?.slice(0, 2) || [];
     const guidance = PROACTIVE_GUIDANCE[agentType] || {
@@ -907,27 +921,23 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     if (ownedProspects.length) statusLine.append(el("span", null, ` · 负责 ${ownedProspects.length} 位潜客`));
     headText.appendChild(statusLine);
     head.appendChild(headText);
-    detailCol.appendChild(head);
-
+    const topbar = el("div", "sb-cdetail-topbar");
+    topbar.appendChild(head);
+    const actionGroup = el("div", "sb-cdetail-actions");
     const actions = el("div", "sb-cactions sb-cactions-friend");
     actions.append(
-      buildActionButton({ key: "chat", label: "发消息", icon: ICONS.chat, onClick: () => { state.tab = "chat"; renderFriendDetail(agentType); } }),
       buildActionButton({ key: "cloud", label: "云电脑", icon: ICONS.cloud, onClick: () => { state.tab = "cloud"; renderFriendDetail(agentType); } }),
       buildActionButton({ key: "settings", label: "配置", icon: ICONS.settings, onClick: () => { state.tab = "settings"; renderFriendDetail(agentType); } })
     );
-    if (isAcquisitionMember(agentType)) {
-      const acquisitionActions = el("div", "sb-proactive-actions");
-      acquisitionActions.style.cssText = "width:100%;padding:0 18px 9px;";
-      for (const item of acquisitionMemberActions()) {
-        const button = el("button", "sb-proactive-action", item.label);
-        button.type = "button";
-        button.disabled = item.disabled;
-        button.addEventListener("click", () => void runAcquisitionAction(agentType, item.action).catch(() => {}));
-        acquisitionActions.appendChild(button);
-      }
-      detailCol.appendChild(acquisitionActions);
+    if (companionPersona(agentType)) {
+      const preferences = el("button", "sb-caction sb-caction-companion", "相处方式");
+      preferences.type = "button";
+      preferences.addEventListener("click", () => openCompanionPreferences({ agentId: agentType, request: companionRequestForAgent(agentType) }));
+      actions.appendChild(preferences);
     }
-    detailCol.appendChild(actions);
+    actionGroup.appendChild(actions);
+    topbar.appendChild(actionGroup);
+    detailCol.appendChild(topbar);
 
     const content = el("div", "sb-ccontent");
     detailCol.appendChild(content);
@@ -1032,15 +1042,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       ? {}
       : acquisitionContextFor(agentType, { task: taskForAgent(agentType, initialConversationContext || {}), work: getWork(agentType) });
     const dmPayload = (extra = {}) => dmPayloadFor(agentType, { ...conversationContext, ...extra });
-    const companionRequestForConversation = (method, path, payload = {}) => companionRequest(method, path, {
-      ...payload,
-      ...(conversationContext.accountId ? { accountId: conversationContext.accountId } : {})
-    });
-    if (hasCompanion) {
-      const preferences = el("button", "sb-companion-command", "相处方式"); preferences.type = "button";
-      preferences.addEventListener("click", () => openCompanionPreferences({ agentId: agentType, request: companionRequestForConversation }));
-      inputWrap.appendChild(preferences);
-    }
+    const companionRequestForConversation = companionRequestForAgent(agentType);
 
     const rememberLocalMessage = (message) => {
       if (!message?.id) return;

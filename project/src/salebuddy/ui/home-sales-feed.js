@@ -7,7 +7,7 @@
  */
 import { BRAND } from "../brand.js";
 import { mountAgentAvatar } from "./agent-avatar.js";
-import { openAgentSquarePage } from "./agent-square.js?v=20260913-inbox-start-gate-1";
+import { openAgentSquarePage } from "./agent-square.js?v=20260915-live-danmaku-only-1";
 import { NAV_EVENT } from "./nav-framework.js";
 import { CUSTOMER_DOMAIN_LABELS } from "../business/customer-domains.js";
 

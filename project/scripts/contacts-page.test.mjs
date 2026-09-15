@@ -50,6 +50,28 @@ test("member rows use a dedicated DMG state-driven avatar adapter", () => {
   assert.match(contactsSource, /mode:\s*"members"/);
 });
 
+test("member top toolbar keeps cloud, settings, and companion actions", () => {
+  const friendStart = contactsSource.indexOf("function renderFriendDetail");
+  const friendEnd = contactsSource.indexOf("function renderProspectDetail", friendStart);
+  assert.ok(friendStart >= 0 && friendEnd > friendStart);
+  const friend = contactsSource.slice(friendStart, friendEnd);
+
+  assert.match(contactsSource, /\.sb-cdetail-topbar\{[^}]*display:flex;[^}]*justify-content:space-between/);
+  assert.match(contactsSource, /\.sb-cdetail-actions\{[^}]*display:flex;[^}]*align-items:center/);
+  assert.match(friend, /const topbar = el\("div", "sb-cdetail-topbar"\)/);
+  assert.match(friend, /const actionGroup = el\("div", "sb-cdetail-actions"\)/);
+  assert.match(friend, /topbar\.appendChild\(head\)/);
+  assert.match(friend, /actionGroup\.appendChild\(actions\)/);
+  assert.match(friend, /topbar\.appendChild\(actionGroup\)/);
+  assert.match(friend, /label: "云电脑"/);
+  assert.match(friend, /label: "配置"/);
+  assert.match(friend, /sb-caction-companion/);
+  assert.match(friend, /openCompanionPreferences\(/);
+  assert.doesNotMatch(friend, /label: "发消息"/);
+  assert.doesNotMatch(friend, /acquisitionMemberActions\(\)/);
+  assert.doesNotMatch(friend, /detailCol\.appendChild\(acquisitionActions\)/);
+});
+
 test("member avatar state follows the live team and work status", () => {
   assert.equal(memberAvatarStateForStatus({ state: "working" }), "working");
   assert.equal(memberAvatarStateForStatus({ state: "blocked" }), "alerting");
@@ -121,6 +143,14 @@ test("specialist message sends use the conversation context that was created for
   const chatSource = contactsSource.slice(chatStart, chatEnd);
   assert.match(chatSource, /specialistConversationMetadata\(conversationContext\)/);
   assert.doesNotMatch(chatSource, /specialistConversationMetadata\(acquisitionContext\)/);
+});
+
+test("companion preferences are not rendered beside the chat composer", () => {
+  const chatStart = contactsSource.indexOf("function renderChat(");
+  const chatEnd = contactsSource.indexOf("async function renderCloud", chatStart);
+  const chatSource = contactsSource.slice(chatStart, chatEnd);
+  assert.match(chatSource, /const companionRequestForConversation = companionRequestForAgent\(agentType\)/);
+  assert.doesNotMatch(chatSource, /inputWrap\.appendChild\(preferences\)/);
 });
 
 test("chief message flow accepts both control-plane and mock gateway response envelopes", () => {
@@ -310,12 +340,8 @@ test("listener task adjustment payload excludes historical lookback while carryi
     accountId: "account-1",
     conversationId: "conversation-1",
     changes: {
-      strategy: {
-        audienceGoal: "寻找明确咨询用户"
-      },
       touchContent: {
         channel: "private_message",
-        message: "你好",
         replyStyle: "专业、简短",
         handoffBoundary: "涉及价格转人工"
       },

@@ -67,14 +67,15 @@ test("cloud and capability probe contracts reject illegal transitions", () => {
   assert.equal(Object.isFrozen(TOUCH_TRANSITION_GRAPH.submitted), true);
 });
 
-test("Douyin acquisition exposes one complete-capability Agent and four peer capability Agents", () => {
+test("Douyin acquisition exposes one complete-capability Agent and five peer capability Agents", () => {
   const ids = new Set(MARKETPLACE_AGENTS.map(({ id }) => id));
   assert.equal(DOUYIN_ACQUISITION_COMPLETE_AGENT_ID, "mkt-comment-acquisition");
   assert.deepEqual(DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS, [
     "mkt-find-people",
     "mkt-intent-analyst",
     "mkt-cold-writer",
-    "mkt-dm-inbox"
+    "mkt-dm-inbox",
+    "mkt-gold-customer-service"
   ]);
   assert.deepEqual(DOUYIN_ACQUISITION_WORKFLOW, [
     { agentId: "mkt-find-people", stage: "find", handoffTo: ["mkt-intent-analyst"] },
@@ -88,7 +89,7 @@ test("Douyin acquisition exposes one complete-capability Agent and four peer cap
   assert.equal(ids.has("mkt-lead-acquisition"), false);
   assert.equal(MARKETPLACE_AGENTS.filter(({ id }) => id === "mkt-live-lead-miner").length, 1);
   const completeAgent = getMarketplaceAgent(DOUYIN_ACQUISITION_COMPLETE_AGENT_ID);
-  assert.equal(completeAgent.name, "获客专家");
+  assert.equal(completeAgent.name, "抖音获客管家");
   assert.deepEqual(completeAgent.composition, {
     role: "complete_capability",
     coverage: ["find", "analyze", "outreach", "conversation"]
@@ -119,7 +120,7 @@ test("Douyin acquisition exposes one complete-capability Agent and four peer cap
   assert.equal(getMarketplaceAgent("mkt-live-lead-miner").name, "直播间找客户");
   assert.equal(isMarketplaceAgentAvailable(DOUYIN_ACQUISITION_COMPLETE_AGENT_ID), true);
   assert.equal(isMarketplaceAgentAvailable("mkt-live-lead-miner"), false);
-  assert.deepEqual(IMPLEMENTED_MARKETPLACE_AGENT_IDS, ["mkt-lead-miner", "mkt-comment-filter", "mkt-comment-acquisition", "mkt-dm-inbox", "mkt-cold-writer", "mkt-douyin-finder", "mkt-find-people", "mkt-user-research", "mkt-live-lead-miner", "mkt-research-expert", "mkt-intent-analyst"]);
+  assert.deepEqual(IMPLEMENTED_MARKETPLACE_AGENT_IDS, ["mkt-lead-miner", "mkt-comment-filter", "mkt-comment-acquisition", "mkt-dm-inbox", "mkt-gold-customer-service", "mkt-cold-writer", "mkt-douyin-finder", "mkt-find-people", "mkt-user-research", "mkt-live-lead-miner", "mkt-research-expert", "mkt-intent-analyst", "mkt-live-danmaku-analysis", "mkt-live-danmaku-outreach", "mkt-viral-work-analysis"]);
 });
 
 test("acquisition capability readiness gates live execution and public replies independently", () => {

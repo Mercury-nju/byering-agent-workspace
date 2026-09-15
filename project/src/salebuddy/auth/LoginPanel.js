@@ -1,5 +1,4 @@
 import { createAuthAdapter } from "./adapter.js";
-import { createLoginMethodTabs } from "./LoginMethodTabs.js";
 
 function field(documentRef, { label, type, name, placeholder, autocomplete, inputMode }) {
   const wrapper = documentRef.createElement("label");
@@ -73,9 +72,7 @@ export function createLoginPanel({
   submit.className = "sb-auth-submit";
   submit.textContent = "继续";
 
-  let activeMethod = "phone";
   let phoneFields = null;
-  let emailFields = null;
 
   function showStatus(message, tone = "info") {
     status.hidden = false;
@@ -117,20 +114,6 @@ export function createLoginPanel({
     formFields.replaceChildren(phone.wrapper, code.wrapper);
   }
 
-  function renderEmail() {
-    const email = field(documentRef, { label: "邮箱", type: "email", name: "email", placeholder: "请输入邮箱地址", autocomplete: "email" });
-    const password = field(documentRef, { label: "密码", type: "password", name: "password", placeholder: "请输入密码", autocomplete: "current-password" });
-    emailFields = { email, password };
-    formFields.replaceChildren(email.wrapper, password.wrapper);
-  }
-
-  function switchMethod(method) {
-    activeMethod = method;
-    if (method === "phone") renderPhone();
-    else renderEmail();
-    status.hidden = true;
-  }
-
   async function submitPayload() {
     if (simulate) {
       onAuthenticated?.({ status: "ok", simulated: true });
@@ -143,9 +126,11 @@ export function createLoginPanel({
     if (!form.reportValidity()) return;
     submit.disabled = true;
     submit.textContent = "连接中…";
-    const payload = activeMethod === "phone"
-      ? { method: "phone", phone: phoneFields.phone.input.value.trim(), code: phoneFields.code.input.value.trim() }
-      : { method: "email", email: emailFields.email.input.value.trim(), password: emailFields.password.input.value };
+    const payload = {
+      method: "phone",
+      phone: phoneFields.phone.input.value.trim(),
+      code: phoneFields.code.input.value.trim()
+    };
     const result = await adapter.login(payload);
     submit.disabled = false;
     submit.textContent = "继续";
@@ -154,7 +139,6 @@ export function createLoginPanel({
     else showStatus("认证服务尚未连接，请在客户端中完成登录。", "info");
   }
 
-  const tabs = createLoginMethodTabs({ documentRef, active: "phone", onChange: switchMethod });
   form.addEventListener("submit", (event) => { event.preventDefault(); submitPayload(); });
 
   renderPhone();
@@ -162,7 +146,7 @@ export function createLoginPanel({
   const footer = documentRef.createElement("p");
   footer.className = "sb-auth-footer-copy";
   footer.textContent = "Byering · 为线索而生，为转化而造";
-  inner.append(brand, title, subtitle, entryNote, tabs.root, form, footer);
+  inner.append(brand, title, subtitle, entryNote, form, footer);
   root.appendChild(inner);
 
   return {

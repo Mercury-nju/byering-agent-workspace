@@ -8,7 +8,7 @@ import { displayAgentName } from "../brand.js";
 import { douyinCloudTaskStore, isDouyinCloudProvisioningStatus, isDouyinCloudReadyStatus } from "./douyin-cloud-state.js";
 import { agentActivityJournal, recordAgentActivity } from "./agent-activity-journal.js";
 
-const DEFAULT_AGENT_IDS = ["mkt-dm-inbox", "mkt-cold-writer", "mkt-comment-acquisition", "mkt-find-people"];
+const DEFAULT_AGENT_IDS = ["mkt-dm-inbox", "mkt-gold-customer-service", "mkt-cold-writer", "mkt-comment-acquisition", "mkt-find-people"];
 const ACQUISITION_AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-people"]);
 const DEFAULT_INTERVAL_MS = 5000;
 

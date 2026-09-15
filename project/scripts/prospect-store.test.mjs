@@ -41,6 +41,34 @@ test("migrates legacy customer-analysis prospects to explicit outreach confirmat
   assert.equal(store.get("legacy-manager").status, "待触达");
 });
 
+test("stores viral work analysis as a research brief instead of a contactable prospect", () => {
+  const store = createProspectStore({ storage: memoryStorage() });
+  store.ingestRun({
+    resultSnapshot: {
+      status: "completed",
+      analysisKind: "viral_work",
+      title: "爆款作品分析报告",
+      summary: "作品表现和可复用打法已整理",
+      sourceScope: "public_work_link",
+      inputs: { workUrl: "https://www.douyin.com/video/7345678901234567890" },
+      work: { id: "7345678901234567890" },
+      evidence: [{ type: "work_metrics", text: "公开互动指标" }],
+      artifacts: [{ id: "file-viral-1", type: "html", name: "爆款作品分析报告.html" }]
+    },
+    taskId: "viral-task-store",
+    agentId: "mkt-viral-work-analysis",
+    agentName: "爆款作品分析",
+    sourceContext: { source: "抖音公开作品链接", sourceScope: "public_work_link" }
+  });
+
+  const [run] = store.listRuns();
+  assert.equal(run.resultType, "研究简报");
+  assert.equal(run.title, "爆款作品分析报告");
+  assert.equal(run.contactability.allowed, false);
+  assert.equal(run.sourceScope, "public_content");
+  assert.equal(run.resultSnapshot.analysisKind, "viral_work");
+});
+
 test("ingests real lead results, deduplicates people, and keeps task ownership", () => {
   const store = createProspectStore({ storage: memoryStorage(), now: () => "2026-08-31T10:00:00.000Z" });
   const snapshot = {

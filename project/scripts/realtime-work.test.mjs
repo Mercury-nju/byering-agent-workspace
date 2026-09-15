@@ -75,9 +75,10 @@ test("task adjustment reads existing configuration from an acquisition snapshot 
 
   const payload = acquisitionTaskUpdatePayload("mkt-comment-acquisition", {}, {
     strategy: { sourceScope: "other_comments", audienceGoal: "新的目标" },
+    touchContent: { message: "旧版首条话术" },
     runtimeRules: { stopConditions: "用户明确拒绝后停止" }
   });
-  assert.deepEqual(payload.changes, { strategy: { audienceGoal: "新的目标" } });
+  assert.deepEqual(payload.changes, {});
 });
 
 test("task adjustment migrates a legacy comprehensive public reply channel to private first outreach", () => {

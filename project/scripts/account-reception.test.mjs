@@ -50,16 +50,20 @@ test("reception identity owns expression while retired tone and address settings
   assert.doesNotMatch(receptionPrompt(settings), /语气：|称呼对方为/);
 });
 
-test("reception goals describe measurable conversion outcomes and migrate old chat stages to lead capture", () => {
+test("reception goals describe the user's intended conversation outcome", () => {
   assert.deepEqual(RECEPTION_GOALS, {
+    answer: "回答问题",
     contact: "留下联系方式",
     appointment: "预约到店",
     survey: "填写问卷"
   });
   assert.equal(normalizeReception().goal, "contact");
-  assert.equal(normalizeReception({ goal: "understand" }).goal, "contact");
-  assert.equal(normalizeReception({ goal: "answer" }).goal, "contact");
-  assert.match(receptionPrompt(normalizeReception({ knowledge: "可确认的业务资料" })), /最终转化目标：留下联系方式/);
+  assert.equal(normalizeReception({ goal: "understand" }).goal, "answer");
+  assert.equal(normalizeReception({ goal: "answer" }).goal, "answer");
+  assert.match(receptionPrompt(normalizeReception({ knowledge: "可确认的业务资料" })), /对话目标：留下联系方式/);
+  const answerPrompt = receptionPrompt(normalizeReception({ goal: "answer", knowledge: "可确认的业务资料" }));
+  assert.match(answerPrompt, /对话目标：回答问题/);
+  assert.match(answerPrompt, /问题解决后不主动引导留资、预约或继续追问/);
 });
 
 test("account policy survives restart and shares aliases across Agents but not tenants", t => {
@@ -146,13 +150,15 @@ test("Douyin account directory separates saved reception settings from enabled p
   assert.deepEqual(
     accounts.find(account => account.identity.uid === "configured")?.capabilityMatrix
       ?.map(({ agentId, binding }) => [agentId, binding]),
-    [
-      ["mkt-comment-acquisition", "account_cloud"],
-      ["mkt-find-people", "account_cloud"],
-      ["mkt-intent-analyst", "account_cloud"],
-      ["mkt-cold-writer", "account_cloud"],
-      ["mkt-dm-inbox", "account_cloud"]
-    ]
+      [
+        ["mkt-comment-acquisition", "account_cloud"],
+        ["mkt-find-people", "account_cloud"],
+        ["mkt-intent-analyst", "account_cloud"],
+        ["mkt-cold-writer", "account_cloud"],
+        ["mkt-dm-inbox", "account_cloud"],
+        ["mkt-gold-customer-service", "account_cloud"],
+        ["mkt-live-danmaku-analysis", "account_cloud"]
+      ]
   );
   assert.equal(accounts.find(account => account.identity.uid === "configured")?.receptionConfigured, true);
   assert.equal(accounts.find(account => account.identity.uid === "new")?.receptionConfigured, false);

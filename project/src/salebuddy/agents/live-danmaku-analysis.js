@@ -89,10 +89,6 @@ function topicMatches(quote) {
 function userResult(events) {
   const first = events[0] || {};
   const danmaku = events.filter((item) => item.type === "live_chat");
-  const likes = events.filter((item) => item.type === "like");
-  const gifts = events.filter((item) => item.type === "gift");
-  const follows = events.filter((item) => item.type === "follow");
-  const joins = events.filter((item) => item.type === "join");
   const authoredText = danmaku.map((item) => item.quote).filter(Boolean);
   const classification = authoredText.reduce((best, quote) => {
     const next = classifyText(quote);
@@ -106,10 +102,6 @@ function userResult(events) {
     intentTier: classification.tier,
     score: classification.score,
     danmakuCount: danmaku.length,
-    likeCount: likes.length,
-    giftCount: gifts.length,
-    followCount: follows.length,
-    joinCount: joins.length,
     behaviorOnly: authoredText.length === 0,
     topics,
     evidence: events.slice(0, 20).map((item) => ({
@@ -122,7 +114,7 @@ function userResult(events) {
 }
 
 export function analyzeLiveDanmakuSignals({ signals = [], goal = "", now = null } = {}) {
-  const events = flattenSignals(signals);
+  const events = flattenSignals(signals).filter((event) => event.type === "live_chat");
   const grouped = new Map();
   for (const event of events) {
     if (!grouped.has(event.userId)) grouped.set(event.userId, []);
@@ -145,10 +137,6 @@ export function analyzeLiveDanmakuSignals({ signals = [], goal = "", now = null 
   const counts = {
     total: events.length,
     danmaku: events.filter((item) => item.type === "live_chat").length,
-    likes: events.filter((item) => item.type === "like").length,
-    gifts: events.filter((item) => item.type === "gift").length,
-    follows: events.filter((item) => item.type === "follow").length,
-    joins: events.filter((item) => item.type === "join").length,
     uniqueUsers: users.length,
     questions: events.filter((item) => item.type === "live_chat" && /[？?]|吗$|请问|多少钱|怎么/.test(item.quote)).length,
     highIntent: users.filter((user) => user.intentTier === "重点").length,
@@ -158,7 +146,7 @@ export function analyzeLiveDanmakuSignals({ signals = [], goal = "", now = null 
   const date = now ? new Date(now) : null;
   const observedAt = date && !Number.isNaN(date.getTime()) ? date.toISOString() : null;
   const roomId = events.find((item) => item.roomId)?.roomId || "";
-  const summary = `本轮收到${counts.total}条直播互动：${counts.danmaku}条弹幕、${counts.likes}次点赞、${counts.gifts}次送礼；识别到${counts.highIntent}个明确需求用户，${counts.behaviorOnly}个用户只有互动行为，需结合更多弹幕继续判断。`;
+  const summary = `本轮分析${counts.danmaku}条新弹幕：识别到${counts.highIntent}个明确需求用户，${counts.questions}条待回应问题，${counts.behaviorOnly}个用户暂未表达明确需求。`;
 
   return {
     analysisKind: "live_danmaku",

@@ -3,8 +3,11 @@ import assert from "node:assert/strict";
 import { OFFICE_START_ACTIONS, officeWorkState, selectOfficeWork, latestOfficeResult } from "../src/salebuddy/ui/office-workspace-state.js";
 import { DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS } from "../src/salebuddy/agents/marketplace.js";
 
-test("office quick actions use the same five active Agents as Agent Center", () => {
-  assert.deepEqual(OFFICE_START_ACTIONS.map(({ agentId }) => agentId), DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS);
+test("office quick actions expose all active long-running Agents", () => {
+  assert.deepEqual(
+    OFFICE_START_ACTIONS.map(({ agentId }) => agentId),
+    DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.filter((agentId) => agentId !== "mkt-live-danmaku-analysis")
+  );
 });
 
 test("office only surfaces working, idle and authorization-offline states", () => {

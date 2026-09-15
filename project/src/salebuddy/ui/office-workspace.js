@@ -17,7 +17,7 @@ import { appendCompanionCards, mountCompanionStatus, openCompanionPreferences } 
 import { companionRequest, companionCardAction, latestCompanionPhase } from "../bridge/companion-client.js";
 import { listOfficeReplay, loadOfficeReplayImage, loadOfficeReplayVideo, markOfficeReplayTask, saveOfficeReplaySnapshot, saveOfficeReplayVideo } from "../bridge/office-work-replay.js";
 
-const CLOUD_AGENTS = new Set(["mkt-comment-acquisition", "mkt-find-people", "mkt-cold-writer", "mkt-dm-inbox"]);
+const CLOUD_AGENTS = new Set(["mkt-comment-acquisition", "mkt-find-people", "mkt-cold-writer", "mkt-dm-inbox", "mkt-gold-customer-service", "mkt-live-danmaku-outreach"]);
 const ID = "sb-office-workspace";
 const REPLAY_WINDOW_MS = 15_000;
 const REPLAY_SAMPLE_MS = 3_000;
