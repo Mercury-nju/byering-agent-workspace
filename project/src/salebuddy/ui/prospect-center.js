@@ -3679,14 +3679,6 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     wrap.classList.toggle("sb-prospect-page--standalone-discovery", standaloneDiscovery);
     if (!standaloneDiscovery) shell.appendChild(renderConsumerNavigation());
     if (syncNotice) shell.appendChild(syncNotice);
-    if (standaloneDiscovery) {
-      const heading = el("header", "sb-discovery-heading");
-      const headingCopy = el("div", "sb-discovery-heading-copy");
-      const ownDiscovery = state.selectedDiscoveryOrigin === "own";
-      headingCopy.append(el("h1", null, "找到的人"), el("p", null, "承接找客专员的结果：我的账号互动用户可继续分析和触达；公域找人按任务查看，仅用于分析。"));
-      heading.append(headingCopy, el("span", `sb-discovery-heading-note${ownDiscovery ? " sb-discovery-capability is-contactable" : " sb-discovery-capability"}`, ownDiscovery ? "可分析、可触达" : "只查看与分析"));
-      shell.appendChild(heading);
-    }
     if (state.surface === "people" && !standaloneDiscovery && state.resultType !== "发现") state.resultType = "潜客";
     if (state.surface === "touch") state.resultType = "触达记录";
     if (state.surface === "work") {

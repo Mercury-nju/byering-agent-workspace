@@ -5,6 +5,7 @@ import { buildOfficeAgentRoster } from "../src/salebuddy/ui/office-agent-runtime
 import { displayAgentName, displayAgentTitle, localizeAgentText } from "../src/salebuddy/brand.js";
 
 const names = {
+  main: "Byering · 幕僚长",
   "mkt-comment-acquisition": "抖音获客管家",
   "mkt-lead-miner": "评论区找客户",
   "mkt-comment-filter": "按条件筛评论",
@@ -13,7 +14,11 @@ const names = {
   "mkt-user-research": "找人发问卷",
   "mkt-cold-writer": "潜客触达专员",
   "mkt-dm-inbox": "私信客服",
+  "mkt-gold-customer-service": "金牌客服",
   "mkt-live-lead-miner": "直播间找客户",
+  "mkt-live-danmaku-analysis": "直播间弹幕分析",
+  "mkt-live-danmaku-outreach": "电商直播间未成交客户触达",
+  "mkt-viral-work-analysis": "爆款作品分析",
   "mkt-research-expert": "抖音账号分析",
   "mkt-audience-search": "按条件找账号",
   "mkt-network-miner": "粉丝关系分析",
@@ -25,7 +30,7 @@ const names = {
 };
 
 test("every Agent card uses short, plain-language task names and specific actions", () => {
-  assert.equal(MARKETPLACE_AGENTS.length, Object.keys(names).length);
+  assert.equal(MARKETPLACE_AGENTS.length, Object.keys(names).length - 1);
   for (const agent of MARKETPLACE_AGENTS) {
     assert.equal(agent.name, names[agent.id]);
     assert.equal(agent.displayName, agent.name);
@@ -33,15 +38,20 @@ test("every Agent card uses short, plain-language task names and specific action
     assert.ok(agent.displayTitle.length <= 20, agent.id);
     assert.ok(agent.desc.length <= 75, agent.id);
     assert.equal(agent.skills.length, 3);
-    if (!new Set(["mkt-comment-acquisition", "mkt-cold-writer", "mkt-research-expert"]).has(agent.id)) {
+    if (!new Set(["mkt-comment-acquisition", "mkt-cold-writer", "mkt-research-expert", "mkt-live-danmaku-outreach"]).has(agent.id)) {
       assert.doesNotMatch([agent.name, agent.displayTitle, agent.desc, ...agent.skills].join(" "), /潜客|画像|触达|承接|核验|交付|跨来源|语义|回执|分层/);
     }
-    assert.equal(MARKETPLACE_DISPLAY_NAME_MIGRATIONS[agent.id].to, agent.name);
+    const migration = MARKETPLACE_DISPLAY_NAME_MIGRATIONS[agent.id];
+    if (migration) assert.equal(migration.to, agent.name);
   }
 });
 
 test("office labels and generated member profiles use the same card names", () => {
-  const roster = buildOfficeAgentRoster({ activatedAgents: MARKETPLACE_AGENTS }).roster;
+  const officeAgents = MARKETPLACE_AGENTS.filter(({ id }) => Object.hasOwn(names, id));
+  const roster = buildOfficeAgentRoster({
+    activatedAgents: officeAgents,
+    works: officeAgents.map(({ id }) => ({ agentType: id, state: "working" }))
+  }).roster;
   for (const agent of roster) assert.equal(agent.name, names[agent.id]);
   for (const agent of MARKETPLACE_AGENTS) assert.equal(agent.profile.identity.name, agent.name);
   for (const agent of MARKETPLACE_AGENTS) {

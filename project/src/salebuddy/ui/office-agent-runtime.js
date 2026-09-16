@@ -12,6 +12,7 @@ import { findOfficeRightPanel, isUsableOfficeRightPanel } from "./agent-drawer.j
 import { grokStateForTeamStatus, mountGrokBotAvatar } from "./grok-bot-avatar.js";
 import {
   allOfficeRoleVideoUrls,
+  OFFICE_CHIEF_AGENT_ID,
   createOfficeRoleBindings,
   roleVideoUrlsFor
 } from "./office-role-video.js";
@@ -275,14 +276,23 @@ export function listActivatedOfficeAgents() {
 /** Build a current-team snapshot without leaking legacy office role names. */
 export function buildOfficeAgentRoster({ activatedAgents = [], works = [], accounts = null, teamLive = null, maxSeats = OFFICE_AGENT_SLOTS.length } = {}) {
   const workByAgent = new Map((works || []).map((work) => [work.agentType, work]));
+  const chiefWork = {
+    agentType: OFFICE_CHIEF_AGENT_ID,
+    state: "working",
+    task: "统筹当前团队任务",
+    metadata: { officeStatus: "working", officeStatusPhase: "ready" }
+  };
   const visibleAgents = sortMarketplaceAgentsForDisplay((activatedAgents || []).filter((agent) => {
     const id = String(agent?.id || agent?.agentType || "").trim();
-    return Boolean(id && id !== "main");
+    return Boolean(id && id !== OFFICE_CHIEF_AGENT_ID && normalizedStatus(workByAgent.get(id)) === "working");
   }));
-  const roster = visibleAgents.map((agent) => {
+  const roster = [
+    agentIdentity(OFFICE_CHIEF_AGENT_ID, { teamLive, work: chiefWork, works, accounts }),
+    ...visibleAgents.map((agent) => {
     const id = String(agent?.id || agent?.agentType || "").trim();
     return agentIdentity(id, { teamLive, work: workByAgent.get(id), works, accounts });
-  });
+    })
+  ];
   const seatCount = Math.max(1, Number(maxSeats) || OFFICE_AGENT_SLOTS.length);
   return {
     seated: roster.slice(0, seatCount),

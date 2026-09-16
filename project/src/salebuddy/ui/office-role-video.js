@@ -1,8 +1,10 @@
 const OFFICE_ASSET_ROOT = new URL("../../../assets/office-characters/", import.meta.url);
 
-// These keys identify visual packs only; they never encode Agent business roles.
+export const OFFICE_CHIEF_AGENT_ID = "main";
+export const OFFICE_CHIEF_ROLE_KEY = "role-1";
+
+// These keys identify specialist visual packs only; they never encode Agent business roles.
 export const OFFICE_ROLE_KEYS = Object.freeze([
-  "role-1",
   "role-2",
   "role-3",
   "role-4"
@@ -28,10 +30,7 @@ function buildRolePack(roleKey, workingCount, restingCount = workingCount) {
 }
 
 export const OFFICE_ROLE_VIDEO_CATALOG = Object.freeze({
-  "role-1": Object.freeze({
-    working: Object.freeze([assetUrl("role-1", "working", 1)]),
-    resting: Object.freeze([])
-  }),
+  "role-1": buildRolePack("role-1", 1, 0),
   "role-2": buildRolePack("role-2", 5),
   "role-3": buildRolePack("role-3", 5),
   "role-4": buildRolePack("role-4", 5)
@@ -61,13 +60,17 @@ export function roleVideoUrlsFor(roleKey, state = "working", { random = Math.ran
 }
 
 export function createOfficeRoleBindings({ random = Math.random } = {}) {
-  const roleByAgentId = new Map();
+  const roleByAgentId = new Map([[OFFICE_CHIEF_AGENT_ID, OFFICE_CHIEF_ROLE_KEY]]);
   const usedRoleKeys = new Set();
 
   function assign(roster = []) {
     for (const agent of roster) {
       const agentId = String(agent?.id || "").trim();
       if (!agentId || roleByAgentId.has(agentId)) continue;
+      if (agentId === OFFICE_CHIEF_AGENT_ID) {
+        roleByAgentId.set(agentId, OFFICE_CHIEF_ROLE_KEY);
+        continue;
+      }
 
       const available = OFFICE_ROLE_KEYS.filter(roleKey => !usedRoleKeys.has(roleKey));
       const roleKey = available.length
@@ -85,6 +88,7 @@ export function createOfficeRoleBindings({ random = Math.random } = {}) {
     has: agentId => roleByAgentId.has(String(agentId || "")),
     clear() {
       roleByAgentId.clear();
+      roleByAgentId.set(OFFICE_CHIEF_AGENT_ID, OFFICE_CHIEF_ROLE_KEY);
       usedRoleKeys.clear();
     }
   };

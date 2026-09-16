@@ -283,6 +283,8 @@ test("style preview provides a complete results-center conversion chain without 
   assert.equal(model.counts.converted, 1);
   assert.ok(model.views.all.items.length > 0);
   assert.ok(model.views.ready.items.length > 0);
+  assert.ok(model.views.confirmation.items.length > 0);
+  assert.equal(model.views.confirmation.items[0].status, "待确认触达");
   assert.ok(model.views.touched.items.length > 0);
   assert.ok(model.views.following.items.length > 0);
   assert.ok(model.views.leads.items.length > 0);
@@ -846,6 +848,7 @@ test("standalone discovery presents source-specific actions", () => {
   assert.match(prospectCenterSource, /initialSurface === "people" \? "发现" : "全部成果"/);
   assert.match(prospectCenterSource, /state\.surface === "people" && !standaloneDiscovery && state\.resultType !== "发现"/);
   assert.match(prospectCenterSource, /if \(standaloneDiscovery \|\| state\.resultType === "发现"\)/);
+  assert.doesNotMatch(prospectCenterSource, /承接找客专员的结果：我的账号互动用户可继续分析和触达；公域找人按任务查看，仅用于分析。/);
   assert.match(prospectCenterSource, /我的账号互动用户/);
   assert.match(prospectCenterSource, /公域找人/);
   assert.match(prospectCenterSource, /按来源抖音账号筛选，可分析、可触达/);

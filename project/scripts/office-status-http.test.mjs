@@ -50,7 +50,9 @@ test("backend state, store, label and workspace agree across start, pause, stop 
   for (const [backendState, alive, listening, expected] of [["running", true, false, "working"], ["running", true, true, "working"], ["paused", false, false, "idle"], ["stopped", false, false, "idle"], ["running", false, false, "unknown"]]) {
     Object.assign(task, { state: backendState, runtimeAlive: alive, listening }); await store.refresh();
     const roster = buildOfficeAgentRoster({ activatedAgents: [{ id: task.context.agentId }], works: store.getWorks() });
-    assert.equal(roster.roster[0].state, expected);
+    assert.equal(roster.roster.length, expected === "working" ? 2 : 1);
+    assert.equal(roster.roster[0].id, "main");
+    if (expected === "working") assert.equal(roster.roster[1].state, expected);
     assert.equal(officeWorkState(store.getWork(task.context.agentId)).kind, expected);
   }
 });

@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  OFFICE_CHIEF_AGENT_ID,
+  OFFICE_CHIEF_ROLE_KEY,
   OFFICE_ROLE_KEYS,
   OFFICE_ROLE_VIDEO_CATALOG,
   allOfficeRoleVideoUrls,
@@ -13,17 +15,19 @@ function agents(...ids) {
   return ids.map(id => ({ id, state: "idle" }));
 }
 
-test("the first four office Agents receive distinct role packs", () => {
+test("the chief of staff is fixed to role-1 and specialists reuse role-2 to role-4", () => {
   const bindings = createOfficeRoleBindings({ random: () => 0 });
-  const roster = agents("agent-1", "agent-2", "agent-3", "agent-4", "agent-5");
+  const roster = agents(OFFICE_CHIEF_AGENT_ID, "agent-1", "agent-2", "agent-3", "agent-4");
 
   bindings.assign(roster);
 
   assert.deepEqual(
-    roster.slice(0, 4).map(agent => bindings.get(agent.id)),
+    roster.slice(1, 4).map(agent => bindings.get(agent.id)),
     OFFICE_ROLE_KEYS
   );
-  assert.ok(OFFICE_ROLE_KEYS.includes(bindings.get("agent-5")));
+  assert.equal(bindings.get(OFFICE_CHIEF_AGENT_ID), OFFICE_CHIEF_ROLE_KEY);
+  assert.ok(OFFICE_ROLE_KEYS.includes(bindings.get("agent-4")));
+  assert.deepEqual(OFFICE_ROLE_KEYS, ["role-2", "role-3", "role-4"]);
 });
 
 test("role assignment belongs to Agent identity, not roster order", () => {
@@ -45,6 +49,7 @@ test("working and resting states resolve to the correct role asset pools", () =>
     assert.match(working[0], /\/assets\/office-characters\/[^/]+\/working\//);
     assert.match(resting[0], /\/assets\/office-characters\/[^/]+\/(?:resting|working)\//);
   }
+  assert.equal(OFFICE_ROLE_VIDEO_CATALOG["role-1"].working.length, 1);
   assert.equal(OFFICE_ROLE_VIDEO_CATALOG["role-1"].resting.length, 0);
 });
 

@@ -23,7 +23,7 @@ function teamLive(statuses = {}) {
   };
 }
 
-test("office mirrors the activated Agent Center team and ignores work-only agents", () => {
+test("office always keeps the chief of staff visible and adds only working specialists", () => {
   const result = buildOfficeAgentRoster({
     activatedAgents: [
       { id: "mkt-lead-miner" },
@@ -32,28 +32,38 @@ test("office mirrors the activated Agent Center team and ignores work-only agent
     ],
     works: [
       { agentType: "mkt-comment-acquisition", state: "working", task: "持续分析作品评论", startedAt: 20 },
+      { agentType: "mkt-lead-miner", state: "idle", task: "", startedAt: 10 },
       { agentType: "mkt-douyin-finder", state: "working", task: "搜索目标账号", startedAt: 30 }
     ],
     teamLive: teamLive()
   });
 
-  assert.deepEqual(result.seated.map(({ id }) => id), [
-    "mkt-comment-acquisition",
-    "mkt-lead-miner",
-    "mkt-comment-filter"
-  ]);
-  assert.equal(result.seated[0].task, "持续分析作品评论");
-  assert.equal(result.seated[0].name, "抖音获客管家");
-  assert.equal(result.roster.some(({ id }) => id === "main"), false);
+  assert.deepEqual(result.seated.map(({ id }) => id), ["main", "mkt-comment-acquisition"]);
+  assert.equal(result.seated[0].name, "Byering · 幕僚长");
+  assert.equal(result.seated[0].state, "working");
+  assert.equal(result.seated[1].task, "持续分析作品评论");
+  assert.equal(result.seated[1].name, "抖音获客管家");
   assert.equal(result.roster.some(({ id }) => id === "mkt-douyin-finder"), false);
+  assert.equal(result.activeCount, 2);
+});
+
+test("office keeps the chief of staff visible when no specialist is working", () => {
+  const result = buildOfficeAgentRoster({ activatedAgents: [], works: [] });
+  assert.deepEqual(result.roster.map(({ id }) => id), ["main"]);
+  assert.equal(result.roster[0].name, "Byering · 幕僚长");
+  assert.equal(result.roster[0].state, "working");
   assert.equal(result.activeCount, 1);
 });
 
-test("office roster keeps every activated Agent available to the simple video stage", () => {
+test("office roster only includes working Agents and keeps overflow reachable", () => {
   const activatedAgents = Array.from({ length: 8 }, (_, index) => ({ id: `agent-${index + 1}` }));
-  const result = buildOfficeAgentRoster({ activatedAgents, teamLive: teamLive() });
-  assert.equal(result.roster.length, 8);
+  const works = activatedAgents.map(({ id }) => ({ agentType: id, state: "working", task: `任务 ${id}` }));
+  const result = buildOfficeAgentRoster({ activatedAgents, works, teamLive: teamLive(), maxSeats: 3 });
+  assert.equal(result.roster.length, 9);
+  assert.equal(result.seated.length, 3);
+  assert.equal(result.overflow.length, 6);
   assert.deepEqual([...result.seated, ...result.overflow].map(({ id }) => id), result.roster.map(({ id }) => id));
+  assert.equal(result.seated[0].id, "main");
 });
 
 test("legacy office slot metadata is not used to render the simple video stage", () => {
@@ -69,8 +79,8 @@ test("work errors override idle team status in the office", () => {
     works: [{ agentType: "mkt-dm-inbox", state: "working", task: "承接新私信", lastError: "授权已失效" }],
     teamLive: teamLive({ "mkt-dm-inbox": { state: "idle" } })
   });
-  assert.equal(result.seated[0].state, "blocked");
-  assert.equal(result.seated[0].stateLabel, "账号已掉线");
+  assert.deepEqual(result.roster.map(({ id }) => id), ["main"]);
+  assert.equal(result.activeCount, 1);
 });
 
 test("marketplace display names override technical profile ids", () => {
@@ -78,23 +88,28 @@ test("marketplace display names override technical profile ids", () => {
     getProfiles: () => new Map([["mkt-douyin-finder", { identity: { name: "mkt-douyin-finder" } }]]),
     getStatusOf: () => ({ state: "idle", currentTask: null })
   };
-  const result = buildOfficeAgentRoster({ activatedAgents: [{ id: "mkt-douyin-finder" }], teamLive: live });
-  assert.equal(result.seated[0].name, "抖音找人助手");
+  const result = buildOfficeAgentRoster({
+    activatedAgents: [{ id: "mkt-douyin-finder" }],
+    works: [{ agentType: "mkt-douyin-finder", state: "working" }],
+    teamLive: live
+  });
+  assert.equal(result.seated[1].name, "抖音找人助手");
 });
 
-test("office labels an agent without work as idle", () => {
+test("office omits an idle Agent instead of rendering an idle card", () => {
   const result = buildOfficeAgentRoster({
     activatedAgents: [{ id: "mkt-douyin-finder" }],
     works: [{ agentType: "mkt-douyin-finder", metadata: { officeStatus: "idle" } }],
     teamLive: teamLive()
   });
-  assert.equal(result.seated[0].state, "idle");
-  assert.equal(result.seated[0].stateLabel, "空闲中");
+  assert.deepEqual(result.roster.map(({ id }) => id), ["main"]);
+  assert.equal(result.activeCount, 1);
 });
 
 test("office badges show the Agent name above every bound Douyin account", () => {
   const result = buildOfficeAgentRoster({
     activatedAgents: [{ id: "mkt-comment-acquisition" }],
+    works: [{ agentType: "mkt-comment-acquisition", state: "working" }],
     accounts: [
       { id: "douyin-a", name: "家居账号", agentIds: ["mkt-comment-acquisition"] },
       { id: "douyin-b", identity: { nickname: "装修账号" }, agentIds: ["mkt-comment-acquisition"] }
@@ -102,15 +117,16 @@ test("office badges show the Agent name above every bound Douyin account", () =>
     teamLive: teamLive()
   });
 
-  assert.equal(result.seated[0].name, "抖音获客管家");
-  assert.deepEqual(result.seated[0].accountNames, ["家居账号", "装修账号"]);
-  assert.equal(result.seated[0].accountLabel, "家居账号、装修账号");
-  assert.doesNotMatch(result.seated[0].accountLabel, /找人|分析|功能/);
+  assert.equal(result.seated[1].name, "抖音获客管家");
+  assert.deepEqual(result.seated[1].accountNames, ["家居账号", "装修账号"]);
+  assert.equal(result.seated[1].accountLabel, "家居账号、装修账号");
+  assert.doesNotMatch(result.seated[1].accountLabel, /找人|分析|功能/);
 });
 
 test("office badges compactly summarize more than two Douyin accounts", () => {
   const result = buildOfficeAgentRoster({
     activatedAgents: [{ id: "mkt-comment-acquisition" }],
+    works: [{ agentType: "mkt-comment-acquisition", state: "working" }],
     accounts: [
       { id: "douyin-a", name: "账号 A", agentIds: ["mkt-comment-acquisition"] },
       { id: "douyin-b", name: "账号 B", agentIds: ["mkt-comment-acquisition"] },
@@ -119,7 +135,7 @@ test("office badges compactly summarize more than two Douyin accounts", () => {
     teamLive: teamLive()
   });
 
-  assert.equal(result.seated[0].accountLabel, "账号 A、账号 B 等3个账号");
+  assert.equal(result.seated[1].accountLabel, "账号 A、账号 B 等3个账号");
 });
 
 test("office activation source matches the enabled Agent Center capabilities", () => {
