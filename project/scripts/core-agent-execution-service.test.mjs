@@ -159,6 +159,34 @@ test("core gateway routes acquisition and finder listeners through the authorize
   assert.equal(calls.acquisitionCreate[2].config.discoveryOnly, true);
 });
 
+test("core gateway rejects duplicate account tasks instead of silently switching to the existing task", async () => {
+  const { service } = createService({
+    douyinAcquisitionService: {
+      async createTask() {
+        throw Object.assign(new Error("同一抖音账号已有运行中的任务"), {
+          code: "DOUYIN_ACQUISITION_DUPLICATE_TASK",
+          statusCode: 409,
+          details: {
+            existingTaskKey: "existing-task-key",
+            existingTaskId: "existing-task-id",
+            existingTaskRunId: "existing-task-run-id",
+            existingState: "running"
+          }
+        });
+      },
+      async start() {}
+    }
+  });
+
+  await assert.rejects(
+    service.lease(request({ taskId: "duplicate-task", taskRunId: "duplicate-run" })),
+    (error) => error instanceof CoreAgentExecutionError
+      && error.code === "MANAGED_RUNTIME_ACCOUNT_IN_USE"
+      && error.statusCode === 409
+      && error.details.existingTaskId === "existing-task-id"
+  );
+});
+
 test("core gateway routes live danmaku analysis to the authorized live listener without outreach", async () => {
   const { service, calls } = createService();
   const result = await service.lease(request({

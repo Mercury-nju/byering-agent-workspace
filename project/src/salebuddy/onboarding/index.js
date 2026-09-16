@@ -12,6 +12,7 @@ export {
   hasCompletedOnboarding,
   markOnboardingCompleted,
   onboardingRoute,
+  routeForRetiredPage,
   routeAfterAuthentication,
   routeAfterOnboarding
 } from "./entry.js";

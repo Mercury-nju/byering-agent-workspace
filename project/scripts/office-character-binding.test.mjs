@@ -69,15 +69,15 @@ test("workstation clicks and walking characters retain their shared slot identit
   assert.equal(hitOfficeCharacter(game, bindings, 410, 260), null);
 });
 
-test("office labels contain no unrelated portraits and use one owned pointer route", () => {
+test("office runtime renders independent Agent video stages without scene projection", () => {
   const runtime = readFileSync(new URL("../src/salebuddy/ui/office-agent-runtime.js", import.meta.url), "utf8");
-  const labels = runtime.slice(runtime.indexOf("function renderSeatLayer"), runtime.indexOf("function renderRosterPanel"));
-  assert.doesNotMatch(labels, /createAvatar|avatarUrlFor|slot\.left|slot\.top/);
-  assert.match(labels, /button\.hidden = true/);
-  assert.match(runtime, /projectOfficeCharacters\(game, bindings/);
-  assert.match(runtime, /hitOfficeCharacter\(game, bindings/);
+  assert.match(runtime, /function createOfficeStage/);
+  assert.match(runtime, /data-sb-office-simple-host/);
+  assert.match(runtime, /dataset\.agentId/);
+  assert.match(runtime, /dataset\.roleKey/);
+  assert.match(runtime, /roleVideoUrlsFor/);
+  assert.doesNotMatch(runtime, /projectOfficeCharacters|hitOfficeCharacter|createOfficeSceneState|requestAnimationFrame/);
   assert.match(runtime, /createOfficeWorkspace/);
-  assert.match(runtime, /cancelAnimationFrame/);
   const cloud = readFileSync(new URL("../src/salebuddy/ui/cloud-desktop.js", import.meta.url), "utf8");
   assert.match(cloud, /sbOfficeIdentityOwned === "1"\) return/);
 });

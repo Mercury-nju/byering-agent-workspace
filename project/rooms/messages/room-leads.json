@@ -5430,5 +5430,69 @@
     "fromName": "Byering · 幕僚长",
     "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
     "createdAt": "2026-09-15T07:23:06.245Z"
+  },
+  {
+    "id": "msg-mu2llgt4-yiz4",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-15T11:38:06.040Z"
+  },
+  {
+    "id": "msg-mu2llhqp-bvvb",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-15T11:38:07.249Z"
+  },
+  {
+    "id": "msg-mu2nsxet-6e5x",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-15T12:39:53.381Z"
+  },
+  {
+    "id": "msg-mu2nsycb-rx8h",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-15T12:39:54.587Z"
+  },
+  {
+    "id": "msg-mu345yje-cjlp",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-15T20:17:55.226Z"
+  },
+  {
+    "id": "msg-mu345zgz-z4wu",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-15T20:17:56.435Z"
+  },
+  {
+    "id": "msg-mu34linq-4ncc",
+    "roomId": "room-leads",
+    "from": "user",
+    "fromName": "我",
+    "text": "测试：先跑一轮评分",
+    "createdAt": "2026-09-15T20:30:01.142Z"
+  },
+  {
+    "id": "msg-mu34ljlc-9l8x",
+    "roomId": "room-leads",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "收到，我来拆解销售线索转化任务，先确认目标、数据范围和验收口径，再安排对应成员跟进；外部动作会在审批后执行。",
+    "createdAt": "2026-09-15T20:30:02.352Z"
   }
 ]

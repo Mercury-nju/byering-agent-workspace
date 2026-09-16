@@ -2203,5 +2203,29 @@
     "fromName": "周砚",
     "text": "你好，我是周砚，负责线索挖掘。最近有什么需要我帮你处理的客户或线索吗？",
     "createdAt": "2026-09-15T07:24:13.478Z"
+  },
+  {
+    "id": "dm-mu2ntdj3-orhj",
+    "agentType": "mkt-lead-miner",
+    "from": "mkt-lead-miner",
+    "fromName": "周砚",
+    "text": "你好，我是周砚，负责线索挖掘。最近有什么需要我帮你处理的客户或线索吗？",
+    "createdAt": "2026-09-15T12:40:14.271Z"
+  },
+  {
+    "id": "dm-mu346eoy-hk11",
+    "agentType": "mkt-lead-miner",
+    "from": "mkt-lead-miner",
+    "fromName": "周砚",
+    "text": "你好，我是周砚，负责线索挖掘。最近有什么需要我帮你处理的客户或线索吗？",
+    "createdAt": "2026-09-15T20:18:16.162Z"
+  },
+  {
+    "id": "dm-mu34m2ep-cevi",
+    "agentType": "mkt-lead-miner",
+    "from": "mkt-lead-miner",
+    "fromName": "周砚",
+    "text": "你好，我是周砚，负责线索挖掘。最近有什么需要我帮你处理的客户或线索吗？",
+    "createdAt": "2026-09-15T20:30:26.737Z"
   }
 ]

@@ -13,6 +13,7 @@ const LIVE_ROOM_CAPTURE_RETRY_DELAY_MS = 120;
 const query = new URLSearchParams(globalThis.location?.search || "");
 const embedded = query.get("embedded") === "1";
 const agentId = String(query.get("agentId") || "").trim();
+const accountId = String(query.get("accountId") || "").trim();
 const backendUrl = String(
   query.get("backend")
     || globalThis.__SALEBUDDY_CONFIG__?.controlPlaneUrl
@@ -360,6 +361,7 @@ function applyViewData(data) {
 async function fetchCachedTarget({ refresh = false } = {}) {
   if (!agentId) throw new Error("缺少 Agent 身份，无法读取云电脑画面");
   const query = new URLSearchParams({ agentId });
+  if (accountId) query.set("accountId", accountId);
   if (refresh) query.set("refresh", "1");
   const response = await fetch(`${backendUrl}/v1/douyin/mcp/view-link?${query}`, {
     headers: { accept: "application/json" }
@@ -383,7 +385,7 @@ async function fetchFreshTarget({ userInitiated = false } = {}) {
   const response = await fetch(`${backendUrl}/v1/douyin/mcp/open-login`, {
     method: "POST",
     headers: { accept: "application/json", "content-type": "application/json" },
-    body: JSON.stringify({ agentId, force: true })
+    body: JSON.stringify({ agentId, ...(accountId ? { accountId } : {}), force: true })
   });
   const data = await response.json().catch(() => null);
   if (!response.ok || data?.ok === false) {

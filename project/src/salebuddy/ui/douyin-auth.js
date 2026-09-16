@@ -54,6 +54,7 @@ function localCloudViewerUrl(session) {
   if (!session?.agentId || typeof globalThis.location === "undefined" || !globalThis.location.origin || globalThis.location.origin === "null") return null;
   const url = new URL("/cloud-view.html", globalThis.location.origin);
   url.searchParams.set("agentId", session.agentId);
+  if (session.accountId) url.searchParams.set("accountId", String(session.accountId));
   url.searchParams.set("embedded", "1");
   const target = session.view_url || session.viewUrlRaw || session.rawViewUrl;
   if (typeof target === "string" && /^wss?:\/\//i.test(target)) url.searchParams.set("targetUrl", target);

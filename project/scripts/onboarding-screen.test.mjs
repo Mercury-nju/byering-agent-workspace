@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS, getMarketplaceAgent } from "../src/salebuddy/agents/marketplace.js";
+import { getMarketplaceAgent } from "../src/salebuddy/agents/marketplace.js";
 import { FIRST_TASK_OPTIONS } from "../src/salebuddy/onboarding/TaskSelection.js";
 
 const source = await readFile(new URL("../src/salebuddy/onboarding/OnboardingPage.js", import.meta.url), "utf8");
@@ -17,16 +17,22 @@ test("onboarding renders the real Agent task selector instead of the retired bus
 
 test("first-task choices point to executable Agent Square capabilities", () => {
   assert.match(taskSelection, /getMarketplaceAgent/);
-  assert.equal(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.length, 7);
   assert.deepEqual(
     FIRST_TASK_OPTIONS.map((option) => option.agentId),
-    ["mkt-comment-acquisition", "mkt-find-people", "mkt-dm-inbox"]
+    [
+      "mkt-comment-acquisition",
+      "mkt-gold-customer-service",
+      "mkt-live-danmaku-analysis",
+      "mkt-viral-work-analysis",
+      "mkt-live-danmaku-outreach"
+    ]
   );
-  assert.equal(FIRST_TASK_OPTIONS.length, 3);
+  assert.equal(FIRST_TASK_OPTIONS.length, 5);
   for (const option of FIRST_TASK_OPTIONS) {
     assert.equal(option.description, getMarketplaceAgent(option.agentId)?.desc);
   }
-  assert.equal(FIRST_TASK_OPTIONS.find((option) => option.agentId === "mkt-find-people")?.category, "找人");
+  assert.equal(FIRST_TASK_OPTIONS.find((option) => option.agentId === "mkt-gold-customer-service")?.category, "私信对话");
+  assert.equal(FIRST_TASK_OPTIONS.find((option) => option.agentId === "mkt-viral-work-analysis")?.category, "分析");
   assert.match(taskSelection, /sb-onboarding-v2-task-avatar/);
   assert.doesNotMatch(taskSelection, /sb-onboarding-v2-story/);
   assert.match(taskSelection, /mountGrokBotAvatar/);
@@ -34,7 +40,7 @@ test("first-task choices point to executable Agent Square capabilities", () => {
   for (const legacyAgentId of ["mkt-lead-miner", "mkt-douyin-finder", "mkt-comment-filter"]) {
     assert.doesNotMatch(taskSelection, new RegExp(legacyAgentId));
   }
-  for (const unavailableAgentId of ["mkt-intent-analyst", "mkt-cold-writer"]) {
+  for (const unavailableAgentId of ["mkt-intent-analyst", "mkt-cold-writer", "mkt-find-people", "mkt-dm-inbox"]) {
     assert.doesNotMatch(taskSelection, new RegExp(unavailableAgentId));
   }
 });

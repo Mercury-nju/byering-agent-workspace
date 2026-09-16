@@ -6272,5 +6272,77 @@
       "conversationId": "mock-conversation-1"
     },
     "createdAt": "2026-09-15T07:24:03.736Z"
+  },
+  {
+    "id": "dm-mu2nt5ak-g0f0",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T12:40:03.596Z"
+  },
+  {
+    "id": "dm-mu2nt683-ga9n",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2nt5ak-g0f0",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T12:40:04.803Z"
+  },
+  {
+    "id": "dm-mu3466h5-j65d",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T20:18:05.513Z"
+  },
+  {
+    "id": "dm-mu3467eq-39u7",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu3466h5-j65d",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T20:18:06.722Z"
+  },
+  {
+    "id": "dm-mu34lu2s-0fxu",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-15T20:30:15.940Z"
+  },
+  {
+    "id": "dm-mu34lv0b-0u2q",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu34lu2s-0fxu",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-15T20:30:17.147Z"
   }
 ]

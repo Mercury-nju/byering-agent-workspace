@@ -1148,7 +1148,7 @@ function openConnectorModal(gateway = null) {
     ],
     notices: [
       { id: "n1", title: "连接器同步策略更新", body: "新增按项目组刷新知识库的权限控制，已接入的连接器无需重新授权。", time: "今天 09:30", read: false },
-      { id: "n2", title: "专业版额度已刷新", body: "本月包含的自动任务额度已于 8 月 1 日恢复。", time: "8 月 1 日", read: true },
+      { id: "n2", title: "专业版额度已刷新", body: "本月包含的任务执行额度已于 8 月 1 日恢复。", time: "8 月 1 日", read: true },
       { id: "n3", title: "销售工作台使用指南", body: "现在可以在任务输入框中启用联网检索和语音输入。", time: "7 月 28 日", read: true }
     ]
   };
@@ -1253,7 +1253,7 @@ function openConnectorModal(gateway = null) {
   }
 
   function renderCredits() {
-    page.append(buildHeader("充值积分", "积分用于联网检索、自动任务和内容生成，充值后立即到账。"));
+    page.append(buildHeader("充值积分", "积分用于联网检索、任务执行和内容生成，充值后立即到账。"));
     const summary = el("section", "sb-settings-card sb-settings-card-accent");
     summary.append(el("h2", "sb-settings-card-title", "可用积分"));
     const metric = el("div", "sb-settings-metric");

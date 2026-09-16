@@ -34,11 +34,9 @@ function installOfficeApplicationBridge() {
 
 installOfficeApplicationBridge();
 
-// Browser-only fallback for the Electron bridge. The real bridge is injected by preload-reconstructed.mjs.
-// The recovered web build has no Electron-managed gateway, agent, or knowledge-base
-// processes, so mark the native startup check as passed before the app is imported.
-const isElectronRuntime = /Electron/i.test(navigator.userAgent);
-if (!isElectronRuntime) {
+// Browser runtime bridge for the recovered web build.
+// Mark the native startup check as passed before the app is imported.
+{
   // The recovered browser build may expose a deterministic gateway only when
   // the user explicitly opts into demo mode. Production must fail closed and
   // wait for the real Agent Gateway instead of replaying fake business work.
@@ -92,7 +90,7 @@ if (!isElectronRuntime) {
   }
 
   // Recreate the small native callback surface used by the recovered renderer.
-  // This keeps the browser build on the same gateway/token path as Electron.
+  // Keep the browser build on the same gateway/token path as the renderer.
   if (!window.CallBridge) {
     const contentChangedListeners = new Set();
     const supported = new Set([

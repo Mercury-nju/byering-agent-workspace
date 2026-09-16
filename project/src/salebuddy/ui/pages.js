@@ -13,7 +13,7 @@ const CSS = `
 .sb-page-back:hover{background:rgba(15,15,15,0.05);color:#1F2329}
 .sb-page-title{font-size:17px;font-weight:600;color:#1F2329;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sb-page-body{flex:1;overflow-y:auto;background:var(--sb-app-page-bg)}
-.sb-page-body>:where(.sb-as,.sb-chat,.sb-cs,.sb-dash-directory,.sb-ear,.sb-files,.sb-kb,.sb-memory-map,.sb-prospect-page,.sb-realtime-page,.sb-res,.sb-rooms){background:var(--sb-app-page-bg)}
+.sb-page-body>:where(.sb-as,.sb-chat,.sb-cs,.sb-files,.sb-memory-map,.sb-prospect-page,.sb-realtime-page){background:var(--sb-app-page-bg)}
 .sb-page-body>.sb-realtime-page .sb-rw-cloud-wrap,.sb-page-body>.sb-realtime-page .sb-rw-cloud-live-wrap{background:var(--sb-app-subtle-bg)}
 `;
 

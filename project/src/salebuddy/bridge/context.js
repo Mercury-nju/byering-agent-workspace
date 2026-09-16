@@ -47,7 +47,7 @@ export function readStoreSnapshot() {
   return state;
 }
 
-/** 列出 store 顶层域（conversations / skill / autoTask ...）。 */
+/** 列出 store 顶层域。 */
 export function listStoreDomains() {
   const snapshot = readStoreSnapshot();
   if (snapshot && typeof snapshot === "object") return Object.keys(snapshot);

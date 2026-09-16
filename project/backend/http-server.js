@@ -821,9 +821,9 @@ export function createControlPlaneHttpServer({
       }
     };
   };
-  // One account cloud can execute any combination of distinct product Agents.
-  // Duplicate protection belongs to each Agent's task service, not to a
-  // cross-Agent account lock at the HTTP boundary.
+  // Account occupation is enforced by the control plane per semantic Agent.
+  // Distinct product Agents may share one cloud account; repeated starts of
+  // the same Agent are rejected before an external runtime is leased.
   const assertDouyinAccountAgentAvailable = () => {};
   const readOfficeStatus = (tenantId = null) => {
     const acquisitionIds = [...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS];
@@ -1390,7 +1390,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
     );
     requested = await security.preflightCoreExecution?.(requested, principal) || requested;
     const contract = requireActiveCoreAgentEmployment(security.employmentStore, principal, requested.agentId);
-    const durableTask = ensureCoreExecutionTask(controlPlane, requested, principal);
+    const durableTask = ensureCoreExecutionTask(controlPlane, requested, principal, security);
     const body = {
       ...requested,
       taskId: durableTask.taskId,
@@ -1403,7 +1403,9 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       agentId: body.agentId,
       taskId: body.taskId,
       taskRunId: body.taskRunId,
-      goal: body.goal
+      goal: body.goal,
+      accountId: body.accountKey || body.accountId || null,
+      accountKey: body.accountKey || body.accountId || null
     });
     let result;
     try {
@@ -2047,11 +2049,23 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
     // It reconciles the provider state and updates the durable record, while a
     // direct MCP probe would bypass recovery and surface stale local errors.
     const cloudAgentId = resolveDouyinCloudAgentId(agentId);
-    const result = security.douyinAgentCloudRegistry && cloudAgentId
+    let result = security.douyinAgentCloudRegistry && cloudAgentId
       ? await security.douyinAgentCloudRegistry.status(cloudAgentId, cloudScope)
       : typeof mcp.probeRemoteStatus === "function"
         ? await mcp.probeRemoteStatus()
         : await mcp.status();
+    const verifiedAccount = result?.account || null;
+    const pendingAccountId = String(cloudScope.accountId || "").trim();
+    if (verifiedAccount && pendingAccountId.startsWith("douyin-pending:")
+      && typeof security.douyinAgentCloudRegistry?.bindAccountIdentity === "function") {
+      const bound = security.douyinAgentCloudRegistry.bindAccountIdentity(
+        cloudAgentId,
+        cloudScope,
+        verifiedAccount,
+        optionalText(verifiedAccount.accountName || verifiedAccount.account_name || verifiedAccount.nickname || verifiedAccount.nick_name) || null
+      );
+      if (bound) result = { ...result, accountId: bound.accountId, accountKey: bound.accountId };
+    }
     security.assertDouyinAccountAgentAvailable?.({
       tenantId: principal?.tenantId || null,
       agentId,
@@ -2078,9 +2092,21 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
     }
     const checked = await mcp.checkLoginStatus({ reqId: optionalText(body.reqId ?? body.req_id) || randomUUID() });
     const cloudAgentId = resolveDouyinCloudAgentId(agentId);
-    const result = typeof security.douyinAgentCloudRegistry?.status === "function" && cloudAgentId
+    let result = typeof security.douyinAgentCloudRegistry?.status === "function" && cloudAgentId
       ? await security.douyinAgentCloudRegistry.status(cloudAgentId, { ...cloudScope, resumeSaved: false })
       : checked;
+    const verifiedAccount = result?.account || checked?.account || null;
+    const pendingAccountId = String(cloudScope.accountId || "").trim();
+    if (verifiedAccount && pendingAccountId.startsWith("douyin-pending:")
+      && typeof security.douyinAgentCloudRegistry?.bindAccountIdentity === "function") {
+      const bound = security.douyinAgentCloudRegistry.bindAccountIdentity(
+        cloudAgentId,
+        cloudScope,
+        verifiedAccount,
+        optionalText(verifiedAccount.accountName || verifiedAccount.account_name || verifiedAccount.nickname || verifiedAccount.nick_name) || null
+      );
+      if (bound) result = { ...result, accountId: bound.accountId, accountKey: bound.accountId };
+    }
     security.assertDouyinAccountAgentAvailable?.({
       tenantId: cloudScope.tenantId,
       agentId,
@@ -2329,6 +2355,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
         tenantId: cloudScope.tenantId,
         accountId: cloudScope.accountId || inboxConfiguration.accountId,
         accountKey: douyinAccountCoordinationKey(authorizedStatus.account, cloudScope.accountId),
+        accountUseScope: optionalText(body.accountUseScope || body.account_use_scope) || agentId,
         accountName: inboxConfiguration.accountName || cloudScope.accountLabel || authorizedStatus.account?.nickname || null,
         provider: "douyin"
       },
@@ -2822,7 +2849,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
     );
     const agentId = requested.agentId;
     const contract = requireActiveCoreAgentEmployment(security.employmentStore, principal, agentId);
-    const durableTask = ensureCoreExecutionTask(controlPlane, { ...requested, agentId }, principal);
+    const durableTask = ensureCoreExecutionTask(controlPlane, { ...requested, agentId }, principal, security);
     const body = {
       ...requested,
       agentId,
@@ -3037,7 +3064,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
           name: identity.accountName
             || (identity.uniqueId ? `抖音账号 @${identity.uniqueId.replace(/^@+/, "")}` : session.accountKey),
           handle: identity.uniqueId ? `@${identity.uniqueId.replace(/^@+/, "")}` : "",
-          status: "运行中",
+          status: "已连接",
           computer: "在线",
           authenticationVerified: session.authenticationVerified === true,
           ...reception,
@@ -3070,7 +3097,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
           const handle = identity.account || identity.uniqueId || identity.unique_id || identity.uid || identity.userId || identity.user_id || "";
           const avatarSource = douyinAvatarSource(identity);
           return {
-            id: `douyin-agent:${record.agentId}`,
+            id: record.accountId || `douyin-agent:${record.agentId}`,
             agentId: record.agentId,
             sessionId: record.sessionId,
             name: identity.nickname
@@ -3080,13 +3107,13 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
               || identity.account
               || "账号名称未返回",
             handle: handle ? `@${String(handle).replace(/^@+/, "")}` : "",
-            status: "运行中",
+            status: "已连接",
             computer: "在线",
             authenticationVerified: true,
             ...reception,
             capabilityMatrix: capabilityMatrixFor(identity),
             identity,
-            avatar: `${url.origin}/v1/connectors/douyin/accounts/${encodeURIComponent(record.agentId)}/avatar`,
+            avatar: `${url.origin}/v1/connectors/douyin/accounts/${encodeURIComponent(record.agentId)}/avatar${record.accountId ? `?accountId=${encodeURIComponent(record.accountId)}` : ""}`,
             source: "douyin-agent-cloud"
           };
       });
@@ -3098,7 +3125,10 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
   const douyinAvatarMatch = url.pathname.match(/^\/v1\/connectors\/douyin\/accounts\/([^/]+)\/avatar$/);
   if (request.method === "GET" && douyinAvatarMatch) {
     const agentId = decodeURIComponent(douyinAvatarMatch[1]);
-    const record = security.douyinAgentCloudRegistry?.list?.().find((item) => item?.agentId === agentId);
+    const requestedAccountId = optionalText(url.searchParams.get("accountId"));
+    const record = security.douyinAgentCloudRegistry?.list?.().find((item) =>
+      item?.agentId === agentId && (!requestedAccountId || item.accountId === requestedAccountId)
+    );
     const identity = await refreshExpiredDouyinAvatarIdentity({ agentId, record, security });
     const source = douyinAvatarSource(identity);
     if (!source) throw new ControlPlaneError("抖音账号头像不存在", {
@@ -4841,7 +4871,76 @@ function requireActiveCoreAgentEmployment(employmentStore, principal, agentId) {
   return contract;
 }
 
-function ensureCoreExecutionTask(controlPlane, body = {}, principal = null) {
+function managedRuntimeAccountTokens(value = {}) {
+  const source = value?.executionContext && typeof value.executionContext === "object"
+    ? value.executionContext
+    : value?.context && typeof value.context === "object"
+      ? value.context
+      : value;
+  const identity = source?.accountIdentity && typeof source.accountIdentity === "object"
+    ? source.accountIdentity
+    : {};
+  const tokens = new Set();
+  const add = (candidate) => {
+    const text = String(candidate || "").trim();
+    if (text) tokens.add(text);
+  };
+  for (const value of [source?.accountKey, source?.accountRef, source?.accountId, source?.accountCoordinationKey]) add(value);
+  for (const [field, prefix] of [
+    ["secUid", "douyin:sec:"], ["sec_uid", "douyin:sec:"], ["secId", "douyin:sec:"], ["sec_id", "douyin:sec:"],
+    ["uid", "douyin:uid:"], ["userId", "douyin:uid:"], ["user_id", "douyin:uid:"],
+    ["uniqueId", "douyin:unique:"], ["unique_id", "douyin:unique:"],
+    ["profileUrl", "douyin:profile:"], ["profile_url", "douyin:profile:"]
+  ]) {
+    const value = String(identity[field] || "").trim();
+    if (!value) continue;
+    add(value);
+    add(`${prefix}${value}`);
+    add(`douyin:${value}`);
+  }
+  return tokens;
+}
+
+function managedRuntimeAccountsMatch(left, right) {
+  const leftTokens = managedRuntimeAccountTokens(left);
+  const rightTokens = managedRuntimeAccountTokens(right);
+  if (!leftTokens.size || !rightTokens.size) return false;
+  return [...leftTokens].some((token) => rightTokens.has(token));
+}
+
+function managedRuntimeTaskIsActuallyActive(security = {}, task = {}) {
+  const agentId = optionalText(task.agentId);
+  const executionContext = task.executionContext && typeof task.executionContext === "object"
+    ? task.executionContext
+    : {};
+  const accountUseScope = optionalText(executionContext.accountUseScope) || "";
+  const isInboxRuntime = accountUseScope.endsWith(":inbox")
+    || ["mkt-dm-inbox", "mkt-gold-customer-service"].includes(agentId);
+
+  if (isInboxRuntime) {
+    const service = security.getDouyinInboxAgentService?.(
+      agentId,
+      task.tenantId || executionContext.tenantId || null,
+      { ...executionContext, tenantId: task.tenantId || executionContext.tenantId || null }
+    );
+    const snapshot = service?.status?.();
+    return snapshot?.runtime?.running === true && managedRuntimeAccountsMatch(task, snapshot);
+  }
+
+  if (!DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.includes(agentId)) return true;
+  const runtimeTasks = security.douyinAcquisitionService?.listRuntimeTasks?.() || [];
+  return runtimeTasks.some((runtimeTask) => {
+    if (runtimeTask?.runtimeAlive !== true) return false;
+    const runtimeContext = runtimeTask.context && typeof runtimeTask.context === "object"
+      ? runtimeTask.context
+      : runtimeTask;
+    const runtimeAgentId = optionalText(runtimeContext.agentId || runtimeTask.agentId || runtimeContext.executionAgentId);
+    if (runtimeAgentId !== agentId && optionalText(runtimeContext.executionAgentId) !== agentId) return false;
+    return managedRuntimeAccountsMatch(task, runtimeContext);
+  });
+}
+
+function ensureCoreExecutionTask(controlPlane, body = {}, principal = null, security = {}) {
   if (!controlPlane || typeof controlPlane.ensureManagedRuntimeTask !== "function") {
     throw new ControlPlaneError("核心执行缺少任务生命周期服务", {
       code: "CORE_EXECUTION_TASK_LIFECYCLE_UNAVAILABLE",
@@ -4863,7 +4962,9 @@ function ensureCoreExecutionTask(controlPlane, body = {}, principal = null) {
       tenantId: body.tenantId || principal?.tenantId || null,
       accountId,
       accountKey,
+      accountUseScope: optionalText(body.accountUseScope || body.account_use_scope || body.config?.accountUseScope) || agentId,
       accountName: optionalText(body.accountName || body.account_name),
+      accountIdentity: body.accountIdentity && typeof body.accountIdentity === "object" ? body.accountIdentity : null,
       provider: "douyin"
     },
     configuration: {
@@ -4873,7 +4974,8 @@ function ensureCoreExecutionTask(controlPlane, body = {}, principal = null) {
       ...(body.config && typeof body.config === "object"
         ? Object.fromEntries(Object.entries(body.config).filter(([key]) => !["planToken", "startRequestId"].includes(key)))
         : {})
-    }
+    },
+    isTaskActuallyActive: (task) => managedRuntimeTaskIsActuallyActive(security, task)
   });
 }
 

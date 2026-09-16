@@ -412,6 +412,26 @@ test("inbox preflight falls back to a signed baseline when the plan provider tim
   assert.match(result.planToken, /^[^.]+\.[^.]+$/);
 });
 
+test("inbox preflight falls back to a signed baseline when the plan provider rate limits", async () => {
+  const service = createDouyinInboxAgentService({
+    douyinMcpService: fakeMcp(),
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    planGenerator: async () => {
+      throw Object.assign(new Error("provider rate limited"), {
+        code: "DOUYIN_INBOX_PLAN_MODEL_HTTP_ERROR",
+        details: { providerStatus: 429 }
+      });
+    }
+  });
+
+  const result = await service.plan(completePlanInput());
+
+  assert.equal(result.confirmable, true);
+  assert.equal(result.plan.source, "configuration");
+  assert.equal(result.plan.provider, "local-policy");
+  assert.equal(result.plan.model, "signed-baseline");
+});
+
 test("client knowledgeContext cannot bypass required business knowledge", async () => {
   const service = createDouyinInboxAgentService({
     agentId: "mkt-dm-inbox",

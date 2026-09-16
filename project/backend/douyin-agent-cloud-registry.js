@@ -271,6 +271,80 @@ export function createDouyinAgentCloudRegistry({
     });
   }
 
+  function stableAccountId(accountIdentity = {}, fallback = null) {
+    const identity = accountIdentity && typeof accountIdentity === "object" ? accountIdentity : {};
+    const value = [
+      identity.uid, identity.userId, identity.user_id,
+      identity.secUid, identity.sec_uid, identity.secId, identity.sec_id,
+      identity.uniqueId, identity.unique_id, identity.account
+    ].map(valueOf).find(Boolean);
+    return value ? `douyin-account:${value}` : fallback;
+  }
+
+  function isPendingAccountId(accountId = "") {
+    return String(accountId || "").trim().startsWith("douyin-pending:");
+  }
+
+  function moveRuntimeBinding(sourceKey, targetKey) {
+    if (sourceKey === targetKey) return;
+    const sourceService = services.get(sourceKey);
+    if (sourceService) {
+      services.delete(sourceKey);
+      services.set(targetKey, sourceService);
+    }
+    const sourceStart = starts.get(sourceKey);
+    if (sourceStart) {
+      starts.delete(sourceKey);
+      starts.set(targetKey, sourceStart);
+    }
+    const sourceExpiration = expirations.get(sourceKey);
+    if (sourceExpiration) {
+      expirations.delete(sourceKey);
+      expirations.set(targetKey, sourceExpiration);
+    }
+  }
+
+  function bindAccountIdentity(agentId, scope = {}, accountIdentity = {}, accountLabel = null) {
+    const id = normalizeAgentId(agentId);
+    const entry = recordEntry(id, scope);
+    if (!entry.record) return null;
+    const identity = accountIdentity && typeof accountIdentity === "object" ? { ...accountIdentity } : {};
+    const requestedAccountId = valueOf(scope.accountId);
+    const accountId = isPendingAccountId(requestedAccountId)
+      ? stableAccountId(identity, requestedAccountId)
+      : requestedAccountId || stableAccountId(identity, entry.record.accountId);
+    const nextScope = normalizeScope({
+      ...scope,
+      accountId,
+      accountIdentity,
+      accountLabel: accountLabel || scope.accountLabel || identity.accountName || identity.nickname || null
+    });
+    const targetEntry = recordEntry(id, nextScope);
+    if (targetEntry.record && targetEntry.sourceKey !== entry.sourceKey
+      && targetEntry.record.sessionId && entry.record.sessionId
+      && targetEntry.record.sessionId !== entry.record.sessionId) {
+      throw Object.assign(new Error("该抖音账号已经绑定另一台云电脑"), {
+        code: "DOUYIN_ACCOUNT_CLOUD_MIGRATION_CONFLICT",
+        statusCode: 409,
+        details: { agentId: id, accountId, sessionId: targetEntry.record.sessionId }
+      });
+    }
+    const stored = {
+      ...entry.record,
+      agentId: id,
+      bindingKey: targetEntry.key,
+      accountId,
+      accountIdentity: identity,
+      accountLabel: accountLabel || entry.record.accountLabel || identity.accountName || identity.nickname || null,
+      updatedAt: new Date(Number(now())).toISOString()
+    };
+    state.agents[targetEntry.key] = stored;
+    if (entry.sourceKey !== targetEntry.key) delete state.agents[entry.sourceKey];
+    moveRuntimeBinding(entry.sourceKey, targetEntry.key);
+    flush(target, state);
+    return { ...stored, accountIdentity: { ...identity } };
+  }
+
   function recordsRepresentSameAccount(left, right) {
     const leftKeys = new Set(accountIdentityKeys(left));
     return leftKeys.size > 0 && accountIdentityKeys(right).some((key) => leftKeys.has(key));
@@ -885,6 +959,7 @@ export function createDouyinAgentCloudRegistry({
     getService,
     get,
     adopt,
+    bindAccountIdentity,
     list,
     refreshAccountIdentity,
     forget

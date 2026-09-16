@@ -233,16 +233,20 @@ export function createCoreAgentExecutionService({
     } catch (error) {
       if (error?.code === "DOUYIN_ACQUISITION_DUPLICATE_TASK") {
         const details = error.details || {};
-        return accepted(request, "acquisition_existing", {
-          status: cleanText(details.existingState).toUpperCase() || "RUNNING",
-          resultSnapshot: compactSnapshot({
-            key: details.existingTaskKey,
-            state: details.existingState,
-            taskId: details.existingTaskId,
-            taskRunId: details.existingTaskRunId,
-            existing: true
-          }, ["key", "state", "taskId", "taskRunId", "existing"])
-        });
+        throw executionError(
+          "这个抖音账号已经在使用该 Agent，无需重复启动。",
+          "MANAGED_RUNTIME_ACCOUNT_IN_USE",
+          409,
+          {
+            existingTaskKey: details.existingTaskKey || null,
+            existingTaskId: details.existingTaskId || null,
+            existingTaskRunId: details.existingTaskRunId || null,
+            existingState: details.existingState || "running",
+            existingAgentId: request.agentId,
+            existingGoal: request.goal || null,
+            existingAccountKey: request.accountKey || request.accountId || null
+          }
+        );
       }
       throw normalizeServiceError(error, "CORE_AGENT_ACQUISITION_FAILED");
     }

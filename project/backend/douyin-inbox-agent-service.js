@@ -724,7 +724,7 @@ function isPlanModelTransportFailure(error) {
     }
     if (candidate?.code !== "DOUYIN_INBOX_PLAN_MODEL_HTTP_ERROR") return false;
     const providerStatus = Number(candidate?.details?.providerStatus);
-    return !Number.isFinite(providerStatus) || providerStatus === 0 || providerStatus >= 500;
+    return !Number.isFinite(providerStatus) || providerStatus === 0 || providerStatus === 429 || providerStatus >= 500;
   });
 }
 

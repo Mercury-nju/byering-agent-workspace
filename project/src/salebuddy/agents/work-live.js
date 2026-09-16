@@ -15,7 +15,10 @@ import { DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS } from "./marketplace.js";
 const works = new Map(); // workKey -> { agentType, task, phase, projectId, activities: [], state: "working"|"done", artifact }
 const listeners = new Set();
 let sequence = 0;
-const ACQUISITION_AGENT_IDS = new Set(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS);
+const ACQUISITION_AGENT_IDS = new Set([
+  ...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
+  "mkt-live-lead-miner"
+]);
 
 function acquisitionMetadata(agentType, metadata, progress) {
   if (!ACQUISITION_AGENT_IDS.has(String(agentType || ""))) return metadata;

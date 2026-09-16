@@ -10,7 +10,7 @@
 import { locateSidebar } from "./nav-framework.js";
 
 const MENU_ITEM_SELECTOR = '[class*="_menuItem_"], [role="menuitem"]';
-const ITEMS_TO_HIDE = new Set(["成果中心", "车型配置", "应用", "文档", "图库", "此电脑"]);
+const ITEMS_TO_HIDE = new Set(["成果中心", "车型配置", "应用", "文档", "图库", "此电脑", "自动任务"]);
 const STYLE_ID = "salebuddy-sidebar-customization-style";
 let activeInstance = null;
 

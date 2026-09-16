@@ -200,6 +200,96 @@ test("specialist agents use the same worksite layouts for preview and real tasks
   assert.match(realtimeWorkSource, /else if \(specialistWorksite === "outreach"\)\s*\{[\s\S]*?renderOutreachSpecialistWorksite\(selected, state, refreshRealtimeView\)/);
 });
 
+test("remaining marketplace Agents enter dedicated realtime worksites", () => {
+  const taskWork = {
+    metadata: {
+      taskId: "task-remaining-agent",
+      taskRunId: "run-remaining-agent"
+    }
+  };
+
+  assert.equal(realtimeWork.isRealtimeWorkAgent("mkt-live-danmaku-analysis"), true);
+  assert.equal(realtimeWork.isRealtimeWorkAgent("mkt-live-danmaku-outreach"), true);
+  assert.equal(realtimeWork.isRealtimeWorkAgent("mkt-viral-work-analysis"), true);
+  assert.equal(realtimeWork.realtimeSpecialistWorksiteFor("mkt-live-danmaku-analysis", taskWork), "live-analysis");
+  assert.equal(realtimeWork.realtimeSpecialistWorksiteFor("mkt-live-danmaku-outreach", taskWork), "live-outreach");
+  assert.equal(realtimeWork.realtimeSpecialistWorksiteFor("mkt-viral-work-analysis", taskWork), "viral-analysis");
+
+  const works = [{
+    agentType: "mkt-viral-work-analysis",
+    state: "working",
+    task: "分析公开作品",
+    progress: 42,
+    metadata: { taskId: "viral-task", taskRunId: "viral-run", sourceScope: "public_work_link" }
+  }];
+  assert.equal(realtimeWork.visibleRealtimeWorks(works, {
+    selectedAgentId: "mkt-viral-work-analysis",
+    taskId: "viral-task",
+    taskRunId: "viral-run"
+  }).length, 1);
+
+  assert.match(realtimeWorkSource, /specialistWorksite === "live-analysis"/);
+  assert.match(realtimeWorkSource, /specialistWorksite === "live-outreach"/);
+  assert.match(realtimeWorkSource, /specialistWorksite === "viral-analysis"/);
+  assert.match(realtimeWorkSource, /renderLiveDanmakuAnalysisWorksite/);
+  assert.match(realtimeWorkSource, /renderLiveDanmakuOutreachWorksite/);
+  assert.match(realtimeWorkSource, /renderViralWorkAnalysisWorksite/);
+});
+
+test("remaining realtime views preserve provider snapshots without inventing work", () => {
+  const liveView = realtimeWork.liveDanmakuAnalysisRealtimeView({
+    metadata: {
+      acquisitionSnapshot: {
+        resultSnapshot: {
+          danmakuAnalysis: {
+            goal: "识别正在咨询价格的用户",
+            counts: { danmaku: 12, questions: 4, highIntent: 2 },
+            users: [{
+              userId: "live-user-1",
+              nickname: "客户甲",
+              comment: "现在下单有什么优惠？",
+              score: 91,
+              intentTier: "high",
+              evidence: [{ quote: "现在下单有什么优惠？" }]
+            }],
+            topics: [{ label: "价格", count: 4, examples: ["现在下单有什么优惠？"] }]
+          }
+        },
+        lastScan: { sources: { live: { state: "connected" } } }
+      }
+    }
+  });
+  assert.equal(liveView.people[0].nickname, "客户甲");
+  assert.equal(liveView.people[0].quote, "现在下单有什么优惠？");
+  assert.equal(liveView.people[0].intentTier, "high");
+  assert.equal(liveView.counts.danmaku, 12);
+  assert.equal(liveView.topics[0].label, "价格");
+  assert.equal(liveView.liveSourceState, "connected");
+
+  const viralView = realtimeWork.viralWorkAnalysisRealtimeView({
+    state: "done",
+    progress: 100,
+    artifact: "爆款作品分析报告.html",
+    metadata: {
+      status: "completed",
+      sourceUrl: "https://www.douyin.com/video/123",
+      goal: "拆解开头抓手",
+      resultSnapshot: {
+        analysisKind: "viral_work",
+        title: "作品分析报告",
+        summary: "开头冲突明确，评论集中在价格和使用场景。",
+        work: { title: "某条作品", author: "创作者" },
+        metrics: { views: 12000, likes: 800 }
+      }
+    }
+  });
+  assert.equal(viralView.hasResult, true);
+  assert.equal(viralView.sourceUrl, "https://www.douyin.com/video/123");
+  assert.equal(viralView.goal, "拆解开头抓手");
+  assert.equal(viralView.metrics.views, 12000);
+  assert.equal(viralView.steps.at(-1).status, "completed");
+});
+
 test("outreach specialist separates queued and completed prospects from the successful-work replay", () => {
   const works = realtimeWork.createRealtimeMockPreviewWorks([{
     id: "mock-outreach-account",

@@ -7,6 +7,7 @@ import {
   NAV_LAYOUT,
   NAV_SURFACE_COLOR,
   NAV_MODES,
+  NAV_PAGE_ROUTES,
   navigationBlueprint,
   reduceNavigationState,
   reduceKnowledgeState,
@@ -15,7 +16,6 @@ import {
   mountNavFramework
 } from "../src/salebuddy/ui/nav-framework.js";
 import { mountOfficeSwitch } from "../src/salebuddy/ui/office-switch.js";
-import { mountKanbanNav } from "../src/salebuddy/ui/kanban.js";
 import { mountSidebarCustomization } from "../src/salebuddy/ui/sidebar-customization.js";
 import { closeCurrentPage, getCurrentPage, openPage } from "../src/salebuddy/ui/pages.js";
 import { PRODUCT_VISIBILITY } from "../src/salebuddy/ui/product-visibility.js";
@@ -55,16 +55,13 @@ test("primary capability destination is named Agent Center", () => {
   instance.unmount();
 });
 
-test("navigation modes include the resource center", () => {
+test("navigation modes include the restored memory route", () => {
   assert.deepEqual(NAV_MODES, [
     "newTask",
     "office",
-    "kanban",
     "skills",
     "contacts",
     "agentSquare",
-    "resources",
-    "kbDocs",
     "kbMemory",
     "conversationStrategy"
   ]);
@@ -73,7 +70,7 @@ test("navigation modes include the resource center", () => {
 test("navigation blueprint matches the approved grouped order", () => {
   assert.deepEqual(navigationBlueprint().map((group) => [group.id, group.items]), [
     ["work", ["office", "contacts", "agentSquare", "realtimeWork", "prospects", "discoveredPeople", "files"]],
-    ["configuration", ["conversationStrategy"]]
+    ["configuration", ["kbMemory", "conversationStrategy"]]
   ]);
 });
 
@@ -110,10 +107,8 @@ test("contacts opener receives recruitment navigation into the agent square", ()
     openers: {
       contacts(options) { contactsOptions = options; },
       agentSquare(options) { agentSquareOptions = options; },
-      rooms() {},
       files() {},
-      resources() {},
-      knowledge() {}
+      memory() {}
     }
   });
   FakeMutationObserver.flush();
@@ -140,6 +135,59 @@ test("mounted navigation exposes Agent Square as a direct route opener", () => {
   instance.openAgentSquare();
   assert.equal(opened, 1);
   assertSingleActive(document, "agentSquare");
+  instance.unmount();
+});
+
+test("navigation persists the active page and selected Agent in the URL", () => {
+  const document = installDom();
+  buildSidebarFixture(document);
+  const currentUrl = new URL("http://localhost/?onboarding=complete");
+  const navigationWindow = document.defaultView;
+  navigationWindow.location = { get href() { return currentUrl.href; } };
+  navigationWindow.history = {
+    state: null,
+    replaceState(_state, _title, nextUrl) {
+      const next = new URL(nextUrl, currentUrl.href);
+      currentUrl.href = next.href;
+    }
+  };
+  const instance = mountNavFramework({ openers: noOpOpeners() });
+
+  instance.openAgentSquare({ initialAgentId: "mkt-comment-acquisition" });
+  assert.equal(currentUrl.searchParams.get("page"), NAV_PAGE_ROUTES.agentSquare);
+  assert.equal(currentUrl.searchParams.get("agent"), "mkt-comment-acquisition");
+
+  instance.openProspects();
+  assert.equal(currentUrl.searchParams.get("page"), NAV_PAGE_ROUTES.prospects);
+  assert.equal(currentUrl.searchParams.get("agent"), null);
+
+  instance.openFiles();
+  assert.equal(currentUrl.searchParams.get("page"), NAV_PAGE_ROUTES.files);
+  instance.unmount();
+});
+
+test("closing a custom page clears its persisted route", () => {
+  const document = installDom();
+  buildSidebarFixture(document);
+  const currentUrl = new URL("http://localhost/?page=contacts");
+  const navigationWindow = document.defaultView;
+  navigationWindow.location = { get href() { return currentUrl.href; } };
+  navigationWindow.history = {
+    state: null,
+    replaceState(_state, _title, nextUrl) {
+      const next = new URL(nextUrl, currentUrl.href);
+      currentUrl.href = next.href;
+    }
+  };
+  let contactsOptions = null;
+  const instance = mountNavFramework({
+    openers: { ...noOpOpeners(), contacts(options) { contactsOptions = options; } }
+  });
+
+  instance.openContacts();
+  contactsOptions.onClose();
+  assert.equal(currentUrl.searchParams.get("page"), null);
+  assert.equal(currentUrl.searchParams.get("agent"), null);
   instance.unmount();
 });
 
@@ -236,12 +284,32 @@ test("programmatic conversation strategy navigation uses the same integrated rou
   instance.unmount();
 });
 
+test("programmatic memory navigation opens the restored memory page route", () => {
+  const document = installDom();
+  buildSidebarFixture(document);
+  let memoryOptions = null;
+  const instance = mountNavFramework({
+    openers: {
+      ...noOpOpeners(),
+      memory(options) { memoryOptions = options; }
+    }
+  });
+  FakeMutationObserver.flush();
+
+  instance.openMemory();
+  assert.equal(typeof memoryOptions?.onClose, "function");
+  assert.equal(document.querySelector('[data-sb-mode="kbMemory"]')?.classList.contains("sb-nav-on"), true);
+
+  instance.unmount();
+});
+
 test("knowledge area exposes the conversation strategy route", () => {
   const { document, instance } = mountFixture();
   const configuration = document.querySelector('[data-sb-group="configuration"]');
   const work = document.querySelector('[data-sb-group="work"]');
 
   assert.equal(configuration?.querySelector(".sb-nav-group-label")?.textContent, "知识库");
+  assert.ok(configuration?.querySelector('[data-sb-mode="kbMemory"]'));
   assert.ok(configuration?.querySelector('[data-sb-mode="conversationStrategy"]'));
   assert.equal(work?.querySelector('[data-sb-mode="conversationStrategy"]'), null);
 
@@ -276,28 +344,18 @@ test("chat uses the same neutral navigation treatment as owned rows", () => {
   instance.unmount();
 });
 
-test("kanban navigation is hidden when the product is disabled", () => {
-  const { document, instance } = mountFixture();
-  const stylesheet = document.querySelector("#salebuddy-nav-framework-style").textContent;
-
-  assert.match(stylesheet, /\[data-sb-nav-owner="1"\] \[data-sb-nav-slot="kanban"\]\{display:none!important\}/);
-  assert.equal(modeRow(document, "kanban")?.textContent, "看板");
-
-  instance.unmount();
-});
-
 test("active navigation replaces the current destination", () => {
-  assert.equal(reduceNavigationState("contacts", { mode: "kanban", active: true }), "kanban");
+  assert.equal(reduceNavigationState("contacts", { mode: "kbMemory", active: true }), "kbMemory");
 });
 
 test("stale close cannot clear a newer active destination", () => {
-  assert.equal(reduceNavigationState("contacts", { mode: "kanban", active: false }), "contacts");
-  assert.equal(reduceNavigationState("kanban", { mode: "kanban", active: false }), null);
+  assert.equal(reduceNavigationState("contacts", { mode: "kbMemory", active: false }), "contacts");
+  assert.equal(reduceNavigationState("kbMemory", { mode: "kbMemory", active: false }), null);
 });
 
 test("navigation details reject invalid modes and non-boolean active values", () => {
   assert.equal(reduceNavigationState("contacts", { mode: "unknown", active: true }), "contacts");
-  assert.equal(reduceNavigationState("contacts", { mode: "kanban", active: "yes" }), "contacts");
+  assert.equal(reduceNavigationState("contacts", { mode: "kbMemory", active: "yes" }), "contacts");
   assert.equal(reduceNavigationState("contacts", null), "contacts");
 });
 
@@ -314,7 +372,7 @@ test("knowledge is collapsed by default and follows the user preference", () => 
 test("knowledge stays expanded and ignores toggles while a child route is active", () => {
   const active = reduceKnowledgeState(
     { userExpanded: false, activeMode: null },
-    { type: "activate", mode: "kbDocs" }
+    { type: "activate", mode: "kbMemory" }
   );
 
   assert.equal(knowledgeExpanded(active), true);
@@ -328,7 +386,7 @@ test("knowledge restores the prior user preference after leaving a child route",
   assert.equal(knowledgeExpanded(collapsed), false);
 
   let expanded = reduceKnowledgeState(undefined, { type: "toggle" });
-  expanded = reduceKnowledgeState(expanded, { type: "activate", mode: "kbDocs" });
+  expanded = reduceKnowledgeState(expanded, { type: "activate", mode: "kbMemory" });
   expanded = reduceKnowledgeState(expanded, { type: "activate", mode: "contacts" });
   assert.equal(knowledgeExpanded(expanded), true);
 });
@@ -339,10 +397,8 @@ test("native forwarding requires a connected node", () => {
   assert.equal(canForwardNative("office", { isConnected: true, dataset: {} }), true);
 });
 
-test("kanban forwarding waits for the native takeover marker", () => {
-  assert.equal(canForwardNative("kanban", { isConnected: true, dataset: {} }), false);
-  assert.equal(canForwardNative("kanban", { isConnected: true, dataset: { sbKanban: "0" } }), false);
-  assert.equal(canForwardNative("kanban", { isConnected: true, dataset: { sbKanban: "1" } }), true);
+test("native forwarding requires only a connected node", () => {
+  assert.equal(canForwardNative("skills", { isConnected: true, dataset: {} }), true);
 });
 
 test("blank clicks in the host scroll area keep the current product page open", () => {
@@ -914,14 +970,12 @@ function nativeRow(document, label, className = "_menuItem_xyz_") {
   return row;
 }
 
-function buildSidebarContentFixture(document, { history = true, kanbanReady = false } = {}) {
+function buildSidebarContentFixture(document, { history = true } = {}) {
   const scroll = node(document, "div", { className: "_scrollArea_xyz_" });
   const pluginSection = node(document, "section", { className: "_pluginSection_xyz_" });
   const pluginList = node(document, "div", { className: "_pluginList_xyz_" });
-  const kanban = nativeRow(document, "自动任务");
-  if (kanbanReady) kanban.dataset.sbKanban = "1";
   const skills = nativeRow(document, "技能广场");
-  pluginList.append(kanban, skills);
+  pluginList.append(skills);
   pluginSection.appendChild(pluginList);
 
   const localDataSection = node(document, "section", { className: "_localDataSection_xyz_" });
@@ -943,7 +997,6 @@ function buildSidebarContentFixture(document, { history = true, kanbanReady = fa
   return {
     scroll,
     pluginSection,
-    kanban,
     skills,
     localDataSection,
     conversationSection,
@@ -952,7 +1005,7 @@ function buildSidebarContentFixture(document, { history = true, kanbanReady = fa
   };
 }
 
-function buildSidebarFixture(document, { search = true, history = true, kanbanReady = false } = {}) {
+function buildSidebarFixture(document, { search = true, history = true } = {}) {
   const host = node(document, "div", { className: "app-shell" });
   const sidebar = node(document, "aside", { className: "_sidebar_xyz_" });
   const fixedTop = node(document, "div", { className: "_fixedTop_xyz_" });
@@ -964,7 +1017,7 @@ function buildSidebarFixture(document, { search = true, history = true, kanbanRe
     searchRow = nativeRow(document, "搜索", "_searchRow_xyz_");
     fixedTop.appendChild(searchRow);
   }
-  const content = buildSidebarContentFixture(document, { history, kanbanReady });
+  const content = buildSidebarContentFixture(document, { history });
 
   const { scroll } = content;
   sidebar.append(fixedTop, scroll);
@@ -1007,12 +1060,12 @@ function noOpOpeners() {
   return {
     contacts() {},
     agentSquare() {},
+    realtimeWork() {},
+    prospects() {},
     discoveredPeople() {},
     files() {},
-    resources() {},
     memory() {},
-    knowledge() {},
-    rooms() {}
+    conversationStrategy() {}
   };
 }
 
@@ -1133,7 +1186,6 @@ for (const search of [false, true]) {
         modeRow(document, "realtimeWork"),
         document.querySelector('[data-sb-results-group="1"]'),
         modeRow(document, "skills"),
-        modeRow(document, "kanban"),
         ...(history ? [document.querySelector('[data-sb-nav-slot="history-label"]'), fixture.historyList] : []),
         fixture.pluginSection,
         document.querySelector('[data-sb-group="configuration"]'),
@@ -1151,7 +1203,6 @@ for (const search of [false, true]) {
         14,
         15,
         16,
-        17,
         ...(history ? [18, 19] : []),
         20,
         21,
@@ -1415,65 +1466,6 @@ test("navigation scopes ownership to the real sidebar when an unrelated scroll a
   instance.unmount();
 });
 
-test("native proxies disable, recover, and forward each click exactly once", () => {
-  const { document, fixture, instance } = mountFixture({ kanbanReady: false });
-  let kanbanClicks = 0;
-  let skillsClicks = 0;
-  fixture.kanban.addEventListener("click", () => { kanbanClicks += 1; });
-  fixture.skills.addEventListener("click", () => { skillsClicks += 1; });
-  const kanbanProxy = modeRow(document, "kanban");
-  const skillsProxy = modeRow(document, "skills");
-
-  assert.equal(kanbanProxy.getAttribute("aria-disabled"), "true");
-  kanbanProxy.click();
-  assert.equal(kanbanClicks, 0);
-  assert.equal(skillsProxy.getAttribute("aria-disabled"), "false");
-  skillsProxy.click();
-  assert.equal(skillsClicks, 1);
-
-  fixture.kanban.dataset.sbKanban = "1";
-  FakeMutationObserver.flush();
-  assert.equal(kanbanProxy.getAttribute("aria-disabled"), "false");
-  kanbanProxy.click();
-  assert.equal(kanbanClicks, 1);
-
-  fixture.kanban.remove();
-  fixture.skills.remove();
-  FakeMutationObserver.flush();
-  assert.equal(fixture.kanban.style.display ?? "", "");
-  assert.equal(fixture.kanban.getAttribute("aria-hidden"), null);
-  assert.equal(fixture.skills.style.display ?? "", "");
-  assert.equal(fixture.skills.getAttribute("aria-hidden"), null);
-  assert.equal(kanbanProxy.getAttribute("aria-disabled"), "true");
-  assert.equal(skillsProxy.getAttribute("aria-disabled"), "true");
-  kanbanProxy.click();
-  skillsProxy.click();
-  assert.equal(kanbanClicks, 1);
-  assert.equal(skillsClicks, 1);
-
-  const replacementKanban = nativeRow(document, "看板");
-  fixture.pluginSection.querySelector("._pluginList_xyz_").appendChild(replacementKanban);
-  FakeMutationObserver.flush();
-  assert.equal(kanbanProxy.getAttribute("aria-disabled"), "true");
-  replacementKanban.dataset.sbKanban = "1";
-  FakeMutationObserver.flush();
-  let replacementClicks = 0;
-  replacementKanban.addEventListener("click", () => { replacementClicks += 1; });
-  kanbanProxy.click();
-  assert.equal(replacementClicks, 1);
-
-  const replacementSkills = nativeRow(document, "技能广场");
-  fixture.pluginSection.querySelector("._pluginList_xyz_").appendChild(replacementSkills);
-  FakeMutationObserver.flush();
-  assert.equal(skillsProxy.getAttribute("aria-disabled"), "false");
-  let replacementSkillClicks = 0;
-  replacementSkills.addEventListener("click", () => { replacementSkillClicks += 1; });
-  skillsProxy.click();
-  assert.equal(replacementSkillClicks, 1);
-
-  instance.unmount();
-});
-
 test("native capture click and React active mutation emit one active transition", () => {
   const { document, fixture, instance } = mountFixture();
   const details = [];
@@ -1516,7 +1508,7 @@ test("unmount restores the claimed aria-current snapshot after sequential native
 });
 
 test("native programmatic state and all navigation-away paths keep active state exclusive", () => {
-  const { document, fixture, instance } = mountFixture({ kanbanReady: true, history: true });
+  const { document, fixture, instance } = mountFixture({ history: true });
 
   fixture.newTask.classList.add("_active_xyz_");
   FakeMutationObserver.flush();
@@ -1536,7 +1528,7 @@ test("native programmatic state and all navigation-away paths keep active state 
   assertSingleActive(document, null);
   fixture.skills.classList.remove("_active_xyz_");
 
-  for (const mode of ["kanban", "contacts", "agentSquare", "skills"]) {
+  for (const mode of ["contacts", "agentSquare", "skills"]) {
     modeRow(document, mode).click();
     assertSingleActive(document, mode);
   }
@@ -1618,14 +1610,14 @@ test("account DOM supports login and logout actions", () => {
 
 test("same sidebar recovers when only its content root is replaced", () => {
   const document = installDom();
-  const fixture = buildSidebarFixture(document, { kanbanReady: true });
+  const fixture = buildSidebarFixture(document);
   fixture.localDataSection.style.display = "grid";
   fixture.localDataSection.setAttribute("aria-hidden", "false");
   const oldLocalOriginal = nativePresentation(fixture.localDataSection);
   const instance = mountNavFramework({ openers: noOpOpeners() });
   FakeMutationObserver.flush();
 
-  const replacement = buildSidebarContentFixture(document, { kanbanReady: true, history: false });
+  const replacement = buildSidebarContentFixture(document, { history: false });
   const replacementLocalOriginal = nativePresentation(replacement.localDataSection);
   let skillClicks = 0;
   replacement.skills.addEventListener("click", () => { skillClicks += 1; });
@@ -1647,7 +1639,7 @@ test("same sidebar recovers when only its content root is replaced", () => {
     display: "none",
     ariaHidden: "true"
   });
-  assert.equal(document.querySelectorAll("[data-sb-mode]").length, NAV_MODES.length - 3);
+  assert.equal(document.querySelectorAll("[data-sb-mode]").length, NAV_MODES.length);
   modeRow(document, "skills").click();
   assert.equal(skillClicks, 1);
   assert.equal(document.listenerCount(NAV_EVENT), 1);
@@ -1659,15 +1651,15 @@ test("same sidebar recovers when only its content root is replaced", () => {
 });
 
 test("three whole-sidebar replacements repair one clean owner without duplicate forwarding", () => {
-  const { document, fixture, instance } = mountFixture({ kanbanReady: true });
+  const { document, fixture, instance } = mountFixture();
   let latest = fixture;
   for (let index = 0; index < 3; index += 1) {
     latest.sidebar.remove();
-    latest = buildSidebarFixture(document, { kanbanReady: true, history: index % 2 === 0 });
+    latest = buildSidebarFixture(document, { history: index % 2 === 0 });
     FakeMutationObserver.flush();
     assert.equal(document.querySelectorAll("[data-sb-nav-owner]").length, 1);
     assert.equal(document.querySelectorAll("[data-sb-group]").length, 3);
-    assert.equal(document.querySelectorAll("[data-sb-mode]").length, NAV_MODES.length - 3);
+    assert.equal(document.querySelectorAll("[data-sb-mode]").length, NAV_MODES.length);
   }
 
   let clicks = 0;
@@ -1681,7 +1673,7 @@ test("three whole-sidebar replacements repair one clean owner without duplicate 
 });
 
 test("sidebar replacement immediately restores and releases every detached generation", () => {
-  const { document, fixture, instance } = mountFixture({ kanbanReady: true });
+  const { document, fixture, instance } = mountFixture();
   const generations = [fixture];
   fixture.newTask.classList.add("_active_xyz_");
   FakeMutationObserver.flush();
@@ -1690,7 +1682,7 @@ test("sidebar replacement immediately restores and releases every detached gener
     const previous = generations.at(-1);
     assert.equal(previous.newTask.dataset.sbNavActiveOwned, "1");
     previous.sidebar.remove();
-    const replacement = buildSidebarFixture(document, { kanbanReady: true, history: true });
+    const replacement = buildSidebarFixture(document, { history: true });
     replacement.newTask.classList.add("_active_xyz_");
     generations.push(replacement);
     FakeMutationObserver.flush();
@@ -1702,7 +1694,6 @@ test("sidebar replacement immediately restores and releases every detached gener
     assert.equal(previous.office.parentElement.getAttribute("data-sb-nav-slot"), null);
     assert.equal(previous.historyList.getAttribute("data-sb-nav-slot"), null);
     assert.equal(previous.scroll.getAttribute("data-sb-nav-content-root"), null);
-    assert.equal(previous.kanban.style.display ?? "", "");
     assert.equal(previous.skills.style.display ?? "", "");
   }
 
@@ -1715,14 +1706,12 @@ test("sidebar replacement immediately restores and releases every detached gener
     assert.equal(generation.office.getAttribute("data-sb-mode"), null);
     assert.equal(generation.office.parentElement.getAttribute("data-sb-nav-slot"), null);
     assert.equal(generation.historyList.getAttribute("data-sb-nav-slot"), null);
-    assert.equal(generation.kanban.style.display ?? "", "");
     assert.equal(generation.skills.style.display ?? "", "");
   }
 });
 
 test("unmount restores native rows and removes all lifecycle state before a clean remount", () => {
-  const { document, fixture, instance } = mountFixture({ kanbanReady: true });
-  assert.equal(fixture.kanban.style.display, "none");
+  const { document, fixture, instance } = mountFixture();
   assert.equal(fixture.skills.style.display, "none");
 
   instance.unmount();
@@ -1734,9 +1723,7 @@ test("unmount restores native rows and removes all lifecycle state before a clea
   assert.equal(document.listenerCount(NAV_EVENT), 0);
   assert.equal(document.listenerCount("click"), 0);
   assert.equal(window.listenerCount("popstate"), 0);
-  assert.equal(fixture.kanban.style.display ?? "", "");
   assert.equal(fixture.skills.style.display ?? "", "");
-  assert.equal(fixture.kanban.getAttribute("aria-hidden"), null);
   assert.equal(fixture.skills.getAttribute("aria-hidden"), null);
 
   const remounted = mountNavFramework({ openers: noOpOpeners() });
@@ -2057,188 +2044,6 @@ test("office title is hidden without affecting other pages", async () => {
   instance.unmount();
 });
 
-test("kanban emits shared open and close state while page ownership survives row replacement", () => {
-  const document = installDom();
-  const fixture = buildSidebarFixture(document);
-  const details = [];
-  const opened = [];
-  document.addEventListener(NAV_EVENT, (event) => details.push({ target: event.target, detail: event.detail }));
-  const instance = mountKanbanNav({
-    openKanban(options) {
-      opened.push(options);
-      return { close: options.onClose };
-    }
-  });
-
-  let replacement = null;
-  try {
-    fixture.kanban.click();
-    assert.equal(opened.length, 1);
-    assert.deepEqual(details, [{ target: document, detail: { mode: "kanban", active: true } }]);
-
-    fixture.kanban.remove();
-    replacement = nativeRow(document, "自动任务");
-    fixture.pluginSection.querySelector("._pluginList_xyz_").appendChild(replacement);
-    window.runIntervals();
-    replacement.click();
-    assert.equal(opened.length, 1, "an open page remains owned across native row replacement");
-
-    opened[0].onClose();
-    assert.deepEqual(details.at(-1), { target: document, detail: { mode: "kanban", active: false } });
-    replacement.click();
-    assert.equal(opened.length, 2);
-    assert.deepEqual(details.at(-1), { target: document, detail: { mode: "kanban", active: true } });
-  } finally {
-    instance.unmount();
-    closeCurrentPage();
-  }
-  assert.equal(replacement.getAttribute("data-sb-kanban"), null);
-  assert.equal(fixture.kanban.getAttribute("data-sb-kanban"), null);
-  assert.equal(window._intervals.size, 0);
-});
-
-test("kanban unmount closes only its owned page once and invalidates the old close callback", () => {
-  const document = installDom();
-  const fixture = buildSidebarFixture(document);
-  const details = [];
-  const pages = [];
-  const openKanban = (options) => {
-    const page = {
-      options,
-      closeCalls: 0,
-      close() {
-        this.closeCalls += 1;
-        options.onClose();
-      }
-    };
-    pages.push(page);
-    return page;
-  };
-  document.addEventListener(NAV_EVENT, (event) => details.push(event.detail));
-
-  const first = mountKanbanNav({ openKanban });
-  fixture.kanban.click();
-  first.unmount();
-  assert.equal(pages[0].closeCalls, 1);
-  assert.deepEqual(details, [
-    { mode: "kanban", active: true },
-    { mode: "kanban", active: false }
-  ]);
-  pages[0].options.onClose();
-  pages[0].options.onClose();
-  assert.equal(details.length, 2);
-
-  const second = mountKanbanNav({ openKanban });
-  fixture.kanban.click();
-  assert.equal(pages.length, 2);
-  second.unmount();
-  assert.equal(pages[1].closeCalls, 1);
-  assert.deepEqual(details, [
-    { mode: "kanban", active: true },
-    { mode: "kanban", active: false },
-    { mode: "kanban", active: true },
-    { mode: "kanban", active: false }
-  ]);
-});
-
-test("kanban restores native text, translate, classes, marker, and listeners across generations", async () => {
-  const document = installDom();
-  const fixture = buildSidebarFixture(document);
-  fixture.kanban.className = "_menuItem_xyz_ original-one";
-  fixture.kanban.setAttribute("translate", "yes");
-  const instance = mountKanbanNav({ openKanban() { return { close() {} }; } });
-  assert.equal(fixture.kanban.textContent, "看板");
-  assert.equal(fixture.kanban.getAttribute("translate"), "no");
-  assert.equal(fixture.kanban.classList.contains("notranslate"), true);
-
-  fixture.kanban.remove();
-  const replacement = nativeRow(document, "自动任务", "_menuItem_xyz_ original-two");
-  fixture.pluginSection.querySelector("._pluginList_xyz_").appendChild(replacement);
-  await window.runIntervals();
-  assert.equal(fixture.kanban.textContent, "自动任务");
-  assert.equal(fixture.kanban.getAttribute("translate"), "yes");
-  assert.equal(fixture.kanban.className, "_menuItem_xyz_ original-one");
-  assert.equal(fixture.kanban.getAttribute("data-sb-kanban"), null);
-  assert.equal(fixture.kanban.listenerCount("click"), 0);
-
-  instance.unmount();
-  assert.equal(replacement.textContent, "自动任务");
-  assert.equal(replacement.getAttribute("translate"), null);
-  assert.equal(replacement.className, "_menuItem_xyz_ original-two");
-  assert.equal(replacement.getAttribute("data-sb-kanban"), null);
-  assert.equal(replacement.listenerCount("click"), 0);
-
-  const external = mountKanbanNav({ openKanban() { return { close() {} }; } });
-  const replacementText = document.createTreeWalker(replacement, NodeFilter.SHOW_TEXT).nextNode();
-  replacementText.nodeValue = "外部入口";
-  replacement.setAttribute("translate", "external");
-  replacement.classList.add("external-token");
-  external.unmount();
-  assert.equal(replacement.textContent, "外部入口");
-  assert.equal(replacement.getAttribute("translate"), "external");
-  assert.equal(replacement.classList.contains("external-token"), true);
-  assert.equal(replacement.classList.contains("notranslate"), false);
-});
-
-test("kanban releases three replaced Text subtrees on the same native row", async () => {
-  const document = installDom();
-  const fixture = buildSidebarFixture(document);
-  const instance = mountKanbanNav({ openKanban() { return { close() {} }; } });
-  const releasedTextNodes = [];
-
-  for (let index = 0; index < 3; index += 1) {
-    const oldLabel = fixture.kanban.querySelector("._label_xyz_");
-    const oldText = document.createTreeWalker(oldLabel, NodeFilter.SHOW_TEXT).nextNode();
-    releasedTextNodes.push(oldText);
-    const replacementLabel = node(document, "span", { className: "_label_xyz_", text: "自动任务" });
-    oldLabel.replaceWith(replacementLabel);
-    await window.runIntervals();
-
-    assert.equal(oldText.nodeValue, "自动任务");
-    assert.equal(fixture.kanban.textContent, "看板");
-    oldText.nodeValue = "看板";
-  }
-
-  instance.unmount();
-  assert.equal(fixture.kanban.textContent, "自动任务");
-  for (const oldText of releasedTextNodes) assert.equal(oldText.nodeValue, "看板");
-});
-
-test("integrated kanban forwarding emits one active transition and preserves close synchronization", () => {
-  const document = installDom();
-  const fixture = buildSidebarFixture(document);
-  const nav = mountNavFramework({ openers: noOpOpeners() });
-  const pages = [];
-  const kanban = mountKanbanNav({
-    openKanban(options) {
-      pages.push(options);
-      return { close: options.onClose };
-    }
-  });
-  FakeMutationObserver.flush();
-  const details = [];
-  document.addEventListener(NAV_EVENT, (event) => details.push(event.detail));
-
-  document.querySelector("[data-sb-nav-owner]").remove();
-  fixture.kanban.click();
-  assert.equal(fixture.kanban.dataset.sbKanban, "1");
-  assert.deepEqual(details.filter((detail) => detail.mode === "kanban" && detail.active), [
-    { mode: "kanban", active: true }
-  ]);
-  pages[0].onClose();
-  assert.deepEqual(details.filter((detail) => detail.mode === "kanban" && !detail.active), [
-    { mode: "kanban", active: false }
-  ]);
-
-  nav.unmount();
-  details.length = 0;
-  fixture.kanban.click();
-  assert.deepEqual(details, [{ mode: "kanban", active: true }]);
-  pages.at(-1).onClose();
-  assert.deepEqual(details.at(-1), { mode: "kanban", active: false });
-  kanban.unmount();
-});
-
 test("integrated office switching emits one active transition", async () => {
   const document = installDom();
   buildSidebarFixture(document);
@@ -2380,6 +2185,24 @@ test("sidebar customization reversibly hides exact legacy groups without touchin
   assert.equal(document.querySelectorAll("#salebuddy-sidebar-customization-style").length, 0);
   assert.equal(FakeMutationObserver.activeCount(), 0);
   assert.equal(window._intervals.size, 0);
+});
+
+test("sidebar customization hides the retired automatic-task entry", () => {
+  const document = installDom();
+  const fixture = buildSidebarFixture(document);
+  fixture.localDataSection.textContent = "";
+  const automaticTasks = nativeRow(document, "自动任务");
+  fixture.localDataSection.appendChild(automaticTasks);
+  const original = nativePresentation(automaticTasks);
+
+  const instance = mountSidebarCustomization();
+  assert.equal(automaticTasks.hidden, true);
+  assert.equal(automaticTasks.style.display, "none");
+  assert.equal(automaticTasks.getAttribute("aria-hidden"), "true");
+  assert.ok(automaticTasks.isConnected);
+
+  instance.unmount();
+  assert.deepEqual(nativePresentation(automaticTasks), original);
 });
 
 test("sidebar customization restores detached generations and reapplies hiding after replacement", () => {

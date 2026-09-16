@@ -1,4 +1,4 @@
-# Marvis 恢复版架构文档
+# Byering Web 架构文档
 
 > 本文描述 `Marvis.app` 安装包中能够确认的运行架构，以及当前恢复项目的可运行实现。
 > 这是逆向恢复文档，不等同于原项目的官方设计文档。原始 TypeScript/JSX、源码映射和后端源码不在安装包中，因此所有“已确认”和“推断”都会明确标记。
@@ -7,8 +7,7 @@
 
 本文覆盖以下边界：
 
-- macOS Electron 桌面壳；
-- preload 安全桥和 IPC；
+- 浏览器运行时桥接和本地控制面；
 - Vite/React 渲染器与本地离线资源；
 - Marvis Gateway WebSocket 和 AG-UI 事件；
 - 会话、消息、技能、定时任务等 Store 模型；
@@ -20,18 +19,13 @@
 
 ## 2. 结论摘要
 
-Marvis 不是一个单纯的聊天网页，而是一个“桌面壳 + 本地服务编排 + Web 渲染器 + 多 Agent 办公室”的组合应用。
+Byering 当前是一个“网页运行时 + 本地服务编排 + Web 渲染器 + 多 Agent 办公室”的组合应用。
 
 ```text
-macOS / Electron
+Browser
         |
-        +-- Main process
-        |      +-- BrowserWindow
-        |      +-- IPC handlers
-        |      `-- local component lifecycle (reconstructed)
-        |
-        +-- Preload bridge
-        |      `-- window.marvis (contextBridge)
+        +-- Runtime bridge
+        |      `-- CallBridge / window.marvis compatibility surface
         |
         +-- Renderer
         |      +-- React UI and stores
@@ -59,7 +53,7 @@ macOS / Electron
 | --- | --- | --- |
 | 已确认 | 在打包 JavaScript、资源、manifest、字节码字符串或运行行为中直接看到 | WebSocket envelope、Agent 状态枚举、`office.tmj`、IPC channel |
 | 高可信推断 | 多个调用点和状态转移能够互相印证，但缺少原始源码 | `dCe` 将 subagent 消息状态翻译为办公室任务动作 |
-| 当前重建 | 为了让项目可启动而重新编写的代码，不代表原实现逐字恢复 | `scripts/gateway-mock.mjs`、Electron reconstruction |
+| 当前重建 | 为了让项目可启动而重新编写的代码，不代表原实现逐字恢复 | `scripts/gateway-mock.mjs`、浏览器运行时桥接 |
 | 未知 | 安装包没有足够证据，不能安全下结论 | 原始后端数据库、完整认证服务、模型编排细节 |
 
 更多证据见 [RECOVERY-REPORT.md](../RECOVERY-REPORT.md) 和 [recovered-protocol](recovered-protocol)。
@@ -119,40 +113,9 @@ npm run serve
 
 `static-server.mjs` 对恢复后的 treemap bundle 做了一处兼容性补丁：如果初次加载时 Session Store 早于 Gateway 连接完成，会在短延迟后再次拉取会话列表。这是启动竞态修复，不是原始业务逻辑的证明。
 
-### 5.2 Electron 模式
+## 6. Web 运行边界
 
-```text
-npm run electron
-    |
-    +--> electron/main-reconstructed.mjs
-    |      +--> create BrowserWindow
-    |      +--> load index.html
-    |      `--> register IPC handlers
-    |
-    `--> electron/preload-reconstructed.mjs
-           `--> expose window.marvis through contextBridge
-```
-
-恢复版 Electron 主进程只提供安全可启动的壳和最小 IPC 返回值。原始主进程是 V8 cached bytecode，无法从中无损还原完整源码。
-
-## 6. Electron 边界
-
-### 6.1 Main process
-
-文件：[electron/main-reconstructed.mjs](electron/main-reconstructed.mjs)
-
-职责：
-
-- 创建窗口并配置 `contextIsolation`、`nodeIntegration`；
-- 注册 `marvis:service-ports:get`、`marvis:gateway:wait-ready` 等 IPC；
-- 接收渲染器 ready、拖拽文件、菜单和崩溃测试事件；
-- 预留本地服务端口和组件生命周期的接入点。
-
-### 6.2 Preload
-
-文件：[electron/preload-reconstructed.mjs](electron/preload-reconstructed.mjs)
-
-通过 `contextBridge.exposeInMainWorld` 暴露 `window.marvis`，包括：
+网页版本直接由 Node.js 静态服务和控制面服务提供，通过 `browser-shim.js` 提供浏览器环境下的运行时桥接，不依赖桌面壳或本地 IPC。
 
 - `getVersion()`；
 - `invoke(methodName, args)`；
@@ -391,7 +354,7 @@ terminal event => task and conversation are cleaned up
 
 ### 已可运行
 
-- 浏览器模式和恢复版 Electron 壳；
+- 浏览器模式和本地控制面；
 - React/Vite 离线 UI 资源；
 - 办公室地图、角色、座位、路径和动画资源；
 - 本地 Gateway mock、WebSocket handshake、请求 ack；
@@ -404,7 +367,7 @@ terminal event => task and conversation are cleaned up
 - `agent.run` 当前主要发送主 Agent 的 `RUN_*` 事件；
 - mock 尚未完整生成 subagent 的真实状态记录，因此未覆盖完整的 `DISPATCH -> handover -> WORKING -> COMPLETE` 演示；
 - 原始账号、生产 Gateway、远程 API、模型服务和数据库不可由安装包恢复；
-- Electron 中的原始服务编排、签名、token 生命周期和 native IPC 仍需重新实现；
+- 原始服务编排、签名、token 生命周期和 native IPC 不在当前网页版本范围内；
 - 原始源码文件名、类型定义、单元测试和构建流水线没有保留。
 
 因此，当前版本应被称为“可运行的恢复框架”，而不是“原项目源码的完整还原”。
@@ -437,7 +400,7 @@ terminal event => task and conversation are cleaned up
 - 首屏不应永久停留在加载页；
 - 地图和全部角色资源成功加载；
 - 会话列表和右侧详情在 Gateway ready 后刷新；
-- 浏览器窗口和 Electron 窗口尺寸变化不破坏办公室布局；
+- 浏览器窗口尺寸变化不破坏办公室布局；
 - 场景日志应能对应到状态机事件。
 
 ## 14. 推荐的后续实现顺序
@@ -453,7 +416,7 @@ terminal event => task and conversation are cleaned up
        |
 5. 再接入真实 Gateway / 账号 / Agent 服务
        |
-6. 最后补齐 Electron native service lifecycle
+6. 最后补齐网页版本的生产服务生命周期
 ```
 
 这样可以先验证“事件到动画”的正确性，再替换后端，不会把网络问题、认证问题和场景问题混在一起排查。
@@ -488,4 +451,3 @@ MARVIS_DISABLE_GATEWAY_MOCK=1
 - [API endpoint inventory](recovered-symbols/api-endpoints.txt)
 - [Gateway action inventory](recovered-symbols/gateway-actions.txt)
 - [IPC channel inventory](recovered-symbols/ipc-channels.txt)
-

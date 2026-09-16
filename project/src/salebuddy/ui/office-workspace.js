@@ -7,7 +7,7 @@ import { douyinCloudViewerUrlFor } from "./realtime-work.js";
 import { mountGrokBotAvatar } from "./grok-bot-avatar.js";
 import { prospectStore } from "./prospect-store.js";
 import { buildAccountAnalysisResumeFlow } from "../agents/account-analysis-contract.js";
-import { OFFICE_START_ACTIONS, officeWorkState, selectOfficeWork, latestOfficeResult, partitionOfficeMessages } from "./office-workspace-state.js";
+import { OFFICE_START_ACTIONS, officeWorkState, selectOfficeWork, latestOfficeResult, hasOfficeTaskHistory, partitionOfficeMessages } from "./office-workspace-state.js";
 import { officeWorkspaceHeight } from "./office-workspace-layout.js";
 import createIcon from "../../../node_modules/lucide/dist/esm/createElement.mjs";
 import ArrowUp from "../../../node_modules/lucide/dist/esm/icons/arrow-up.mjs";
@@ -55,8 +55,7 @@ const CSS = `
 .sb-ow-start-avatar{width:38px;height:38px;flex:none}.sb-ow-start-copy{display:grid;gap:5px;min-width:0;flex:1}.sb-ow-start-copy strong{font-size:15px;font-weight:600}.sb-ow-start-copy small{font-size:12px;color:#7e888f}.sb-ow-start-arrow{font-size:20px;color:#8a949b}
 .sb-ow-start button:disabled{opacity:.5;cursor:not-allowed}
 .sb-ow-start-primary{height:42px;padding:0 17px;border:0;border-radius:8px;background:#292e34;color:#fff;font:inherit;font-size:14px;cursor:pointer;margin:8px 0 12px}
-.sb-ow-recent{margin-top:28px;padding-top:0}.sb-ow-recent h3{margin:0 0 12px;font-size:12px;font-weight:500;color:#849097}.sb-ow-recent strong{font-size:15px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}.sb-ow-recent time{display:block;margin-top:8px;font-size:11px;color:#89949b}
-.sb-ow-recent-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.sb-ow-recent-actions button,.sb-ow-recovery{min-height:34px;padding:7px 11px;border:1px solid #dce2e6;border-radius:6px;background:white;color:#505b63;font:inherit;font-size:12px;cursor:pointer}.sb-ow-work-head{flex-wrap:wrap}.sb-ow-work-head .sb-ow-recovery{flex-basis:100%;text-align:left}
+.sb-ow-recent{display:grid;gap:0;margin-top:26px;padding:16px;border:1px solid #e5ebef;border-radius:12px;background:#fff;box-shadow:0 3px 12px rgba(40,55,68,.035)}.sb-ow-recent-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}.sb-ow-recent h3{margin:0;color:#849097;font-size:12px;font-weight:550;line-height:1.4}.sb-ow-recent-source{margin-top:10px;color:#5e7da1;font-size:11px;line-height:1.4}.sb-ow-recent strong{display:block;margin-top:7px;color:#30363b;font-size:15px;font-weight:650;line-height:1.45;overflow-wrap:anywhere}.sb-ow-recent p{margin:7px 0 0;color:#707a83;font-size:12px;line-height:1.65;overflow-wrap:anywhere}.sb-ow-recent time{flex:none;margin:0;color:#89949b;font-size:11px;line-height:1.4;white-space:nowrap}.sb-ow-recent.is-empty{padding-bottom:18px}.sb-ow-recent.is-empty strong{margin-top:11px}.sb-ow-recent-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:14px}.sb-ow-recent-actions button,.sb-ow-recovery{min-height:34px;padding:7px 11px;border:1px solid #dce2e6;border-radius:6px;background:white;color:#505b63;font:inherit;font-size:12px;cursor:pointer}.sb-ow-work-head{flex-wrap:wrap}.sb-ow-work-head .sb-ow-recovery{flex-basis:100%;text-align:left}
 .sb-ow-work-start{display:grid;place-content:center;justify-items:center;gap:10px;width:100%;height:100%;padding:28px;border:1px solid #e0e6e9;border-radius:12px;background:#fafbfc;color:#44505a;text-align:center}.sb-ow-work-start-mark{width:10px;height:10px;border-radius:50%;background:#39b878;box-shadow:0 0 0 6px rgba(57,184,120,.12);animation:sb-ow-breathe 1.8s ease-in-out infinite}.sb-ow-work-start strong{font-size:15px;font-weight:650;color:#303940}.sb-ow-work-start p{max-width:260px;margin:0;color:#7b8790;font-size:12px;line-height:1.65}.sb-ow-replay{width:100%;margin:18px 0 4px;padding-top:16px}.sb-ow-replay-stage{position:relative;display:block;width:100%;aspect-ratio:4/3;overflow:hidden;border:1px solid #e2e7ea;border-radius:12px;background:#121725}.sb-ow-replay-stage img,.sb-ow-replay-stage video{display:block;width:100%;height:100%;object-fit:contain;background:#121725;transition:opacity .24s ease}.sb-ow-replay-empty{display:grid;place-items:center;width:100%;height:100%;padding:24px;color:#c0cad5;font-size:12px;text-align:center}.sb-ow-replay-overlay{position:absolute;inset:0;z-index:2;display:grid;place-items:center;padding:22px;background:rgba(17,21,34,.78);color:#f7f9fb;text-align:center;backdrop-filter:blur(2px)}.sb-ow-replay-overlay-card{display:grid;justify-items:center;gap:8px;max-width:320px}.sb-ow-replay-overlay-card span{font-size:11px;color:#bdc8d5}.sb-ow-replay-overlay-card strong{font-size:18px;font-weight:650;line-height:1.35}.sb-ow-replay-overlay-card p{margin:0;color:#d3dbe4;font-size:12px;line-height:1.65}.sb-ow-replay-overlay-card button{min-height:36px;margin-top:7px;padding:0 14px;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:#fff;color:#252c34;font:inherit;font-size:12px;cursor:pointer}.sb-ow-replay-overlay-card button:hover{background:#f2f5f8}.sb-ow-replay-overlay-card button:disabled{opacity:.55;cursor:not-allowed}.sb-ow-replay-overlay-card button:focus-visible{outline:2px solid #8ab5ff;outline-offset:3px}.sb-ow-capture-frame{position:fixed;left:-10000px;top:-10000px;width:880px;height:560px;border:0;opacity:0;pointer-events:none}@keyframes sb-ow-breathe{50%{transform:scale(.82);opacity:.68}}
 .sb-ow-empty{display:grid;place-content:center;gap:8px;flex:1;grid-row:1/-1;text-align:center;padding:24px;font-size:14px;color:#78828c}.sb-ow-empty strong{color:#353d45;font-weight:550}
 .sb-ow-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #e7eaec;flex:none}.sb-ow-avatar{width:36px;height:36px;flex:none}.sb-ow-identity{min-width:0;flex:1}.sb-ow-name{font-size:15px;font-weight:650;overflow-wrap:anywhere}.sb-ow-status{font-size:12px;color:#7a848c;margin-top:4px}.sb-ow-tools{display:flex;gap:6px}
@@ -183,6 +182,7 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
     root.dataset.view = showLiveWorkspace ? "live" : "chat";
     root.dataset.officeState = selected ? state.kind : "";
     if (!selected) { buildHome(); return; }
+    delete root.dataset.homeState;
     const agent = getMarketplaceAgent(selected);
     root.dataset.agentId = selected;
     const head = el("header", "sb-ow-head"), avatar = el("span", "sb-ow-avatar"), identity = el("div", "sb-ow-identity");
@@ -242,13 +242,29 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
   function viewKey(state) {
     return JSON.stringify([selected, state.kind, state.label, state.reason, getWork(selected)?.task || null]);
   }
-  function appendRecent(parent, result) {
-    if (!result) return;
+  function appendRecent(parent, result, { firstRun = false } = {}) {
     const section = el("section", "sb-ow-recent");
-    section.append(el("h3", null, "最近一次成果"), el("strong", null, result.title || "上次的工作结果"));
+    const header = el("div", "sb-ow-recent-head");
+    header.appendChild(el("h3", null, "最近一次成果"));
+    section.appendChild(header);
+    if (!result) {
+      section.classList.add("is-empty");
+      section.append(el("strong", null, firstRun ? "还没有开始过工作" : "暂无可展示的成果"), el("p", null, firstRun ? "去 Agent 中心选择一项工作，完成后的成果会保留在这里。" : "完成一次工作后，结果会显示在这里。"));
+      if (firstRun) {
+        const actions = el("div", "sb-ow-recent-actions");
+        const openAgentCenter = el("button", null, "去 Agent 中心"); openAgentCenter.type = "button";
+        openAgentCenter.addEventListener("click", () => onConfigure?.(null));
+        actions.appendChild(openAgentCenter); section.appendChild(actions);
+      }
+      parent.appendChild(section);
+      return;
+    }
+    const sourceAgent = getMarketplaceAgent(result.agentId);
+    if (sourceAgent?.name) section.appendChild(el("div", "sb-ow-recent-source", sourceAgent.name));
+    section.appendChild(el("strong", null, result.title || "上次的工作结果"));
     if (result.summary) section.appendChild(el("p", null, result.summary));
     const date = new Date(result.generatedAt || result.updatedAt);
-    if (Number.isFinite(date.getTime())) section.appendChild(el("time", null, date.toLocaleString("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })));
+    if (Number.isFinite(date.getTime())) header.appendChild(el("time", null, date.toLocaleString("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })));
     const actions = el("div", "sb-ow-recent-actions"), view = el("button", null, "查看结果"); view.type = "button"; view.disabled = !onOpenResult;
     view.addEventListener("click", () => onOpenResult?.(result)); actions.appendChild(view);
     if (result.agentId !== "mkt-intent-analyst" && buildAccountAnalysisResumeFlow({ run: result }).analysisAccounts.length) {
@@ -461,7 +477,7 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
   }
   function buildHome() {
     delete root.dataset.agentId; delete root.dataset.replay;
-    const content = el("div", "sb-ow-start"); content.appendChild(el("h2", null, "今天想做点什么？"));
+    const content = el("div", "sb-ow-start"); content.appendChild(el("h2", null, "我可以帮你做什么？"));
     const actions = el("div", "sb-ow-start-options");
     OFFICE_START_ACTIONS.forEach(action => {
       const button = el("button", "sb-ow-start-option"); button.type = "button"; button.disabled = !onConfigure;
@@ -469,7 +485,13 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
       const copy = el("span", "sb-ow-start-copy"); copy.append(el("strong", null, action.label), el("small", null, action.detail));
       button.append(avatar, copy, el("span", "sb-ow-start-arrow", "→")); button.addEventListener("click", () => onConfigure?.(action.agentId)); actions.appendChild(button);
     });
-    content.appendChild(actions); appendRecent(content, latestOfficeResult(getResults())); root.appendChild(content);
+    content.appendChild(actions);
+    const runs = getResults();
+    const result = latestOfficeResult(runs);
+    const firstRun = !hasOfficeTaskHistory(runs);
+    root.dataset.homeState = firstRun ? "first-run" : "history";
+    appendRecent(content, result, { firstRun });
+    root.appendChild(content);
   }
   function idleConversationPrompt(agentId) {
     const state = officeDisplayState(officeWorkState(getWork(agentId)));

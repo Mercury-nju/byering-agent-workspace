@@ -4,6 +4,7 @@
  * the production agent.memory.* gateway actions consumed by the backend.
  */
 import { el, openPage } from "./pages.js";
+import { clearNavigationRoute, persistNavigationRoute } from "./navigation-routes.js";
 import { mountGrokBotAvatar } from "./grok-bot-avatar.js";
 import { personAvatarUrl } from "./person-avatar.js";
 import { douyinCloudTaskStore } from "../agents/douyin-cloud-state.js";
@@ -538,9 +539,13 @@ function renderKnowledge(host, state, { gateway, reload, rerender }) {
  * Open the integrated conversation strategy workspace.
  */
 export function openConversationStrategyPage({ onClose = null, initialAccountId = "" } = {}) {
+  persistNavigationRoute("conversationStrategy");
   return openAccountReceptionPage({
     getAccounts: authoritativeConversationStrategyAccountProfiles,
-    onClose,
+    onClose: () => {
+      clearNavigationRoute("conversationStrategy");
+      onClose?.();
+    },
     initialAccountId,
     renderEmpty: (root) => {
       const empty = el("section", "sb-reception-empty");

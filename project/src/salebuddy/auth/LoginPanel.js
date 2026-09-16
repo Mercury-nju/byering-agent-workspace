@@ -38,9 +38,6 @@ export function createLoginPanel({
 
   const title = documentRef.createElement("h1");
   title.textContent = "登录 / 注册";
-  const subtitle = documentRef.createElement("p");
-  subtitle.className = "sb-auth-login-subtitle";
-  subtitle.textContent = "进入你的增长工作台";
   const entryNote = documentRef.createElement("p");
   entryNote.className = "sb-auth-entry-note";
   entryNote.textContent = "首次使用？验证后将自动创建账号";
@@ -91,20 +88,47 @@ export function createLoginPanel({
     codeButton.textContent = "获取验证码";
     let countdown = 0;
     let timer = null;
+
+    function updateCountdownLabel() {
+      codeButton.textContent = `${countdown}s 后重发`;
+      codeButton.style.setProperty("--sb-auth-countdown-progress", (countdown / 60).toFixed(3));
+    }
+
+    function resetCodeButton() {
+      if (timer) clearInterval(timer);
+      timer = null;
+      countdown = 0;
+      codeButton.disabled = false;
+      codeButton.classList.remove("is-sending", "is-counting");
+      codeButton.style.removeProperty("--sb-auth-countdown-progress");
+      codeButton.textContent = "获取验证码";
+    }
+
     codeButton.addEventListener("click", async () => {
       if (!phone.input.value.trim() || countdown > 0) return;
       codeButton.disabled = true;
-      const result = await adapter.requestCode({ method: "phone", phone: phone.input.value.trim() });
+      codeButton.classList.add("is-sending");
+      codeButton.textContent = "发送中";
+      let result = null;
+      try {
+        result = simulate
+          ? await new Promise((resolve) => setTimeout(() => resolve({ status: "ok", simulated: true }), 420))
+          : await adapter.requestCode({ method: "phone", phone: phone.input.value.trim() });
+      } catch {
+        result = null;
+      }
+      codeButton.classList.remove("is-sending");
       if (result?.status === "ok") {
         countdown = 60;
-        codeButton.textContent = `${countdown}s 后重发`;
+        codeButton.classList.add("is-counting");
+        updateCountdownLabel();
         timer = setInterval(() => {
           countdown -= 1;
-          codeButton.textContent = countdown > 0 ? `${countdown}s 后重发` : "获取验证码";
-          if (!countdown) { clearInterval(timer); timer = null; codeButton.disabled = false; }
+          if (countdown > 0) updateCountdownLabel();
+          else resetCodeButton();
         }, 1000);
       } else {
-        codeButton.disabled = false;
+        resetCodeButton();
         showStatus("验证码服务暂未连接，请使用客户端认证入口。", "info");
       }
     });
@@ -146,7 +170,7 @@ export function createLoginPanel({
   const footer = documentRef.createElement("p");
   footer.className = "sb-auth-footer-copy";
   footer.textContent = "Byering · 为线索而生，为转化而造";
-  inner.append(brand, title, subtitle, entryNote, form, footer);
+  inner.append(brand, title, entryNote, form, footer);
   root.appendChild(inner);
 
   return {

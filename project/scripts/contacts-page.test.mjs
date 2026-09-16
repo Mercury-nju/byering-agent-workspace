@@ -267,6 +267,15 @@ test("cloud desktop actions stay inside the conversation message stream", () => 
   assert.doesNotMatch(contactsSource, /sb-dm-cloud-notice/);
 });
 
+test("conversation interactions use the shared blue-neutral palette", () => {
+  assert.match(contactsSource, /\.sb-proactive-action\{[^}]*border:1px solid #D7E1EE[^}]*color:#4267A5/);
+  assert.match(contactsSource, /\.sb-proactive-action\.primary\{border-color:#1F2329;background:#1F2329;color:#fff\}/);
+  assert.match(contactsSource, /\.sb-dm-cloud-bubble\.is-ready\{background:#F5F8FF;border-color:#D9E4F3\}/);
+  assert.match(contactsSource, /\.sb-dm-cloud-bubble\.is-ready \.sb-dm-cloud-title\{color:#4267A5\}/);
+  assert.doesNotMatch(contactsSource, /\.sb-proactive-action\{[^}]*#(?:16B778|1B8E62|CFE4D8|8BCDAA|F0FAF4)/);
+  assert.doesNotMatch(contactsSource, /\.sb-proactive-action\.primary\{[^}]*#(?:16B778|119A64)/);
+});
+
 test("conversation history rejects an Agent message when its conversation metadata is missing", () => {
   const merged = mergeAgentConversationMessages([
     { id: "remote-2", from: "mkt-dm-inbox", text: "有个进展：读取完成", createdAt: "2026-08-31T10:03:00.000Z" }

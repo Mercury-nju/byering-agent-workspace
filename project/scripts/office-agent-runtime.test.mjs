@@ -43,24 +43,24 @@ test("office mirrors the activated Agent Center team and ignores work-only agent
     "mkt-comment-filter"
   ]);
   assert.equal(result.seated[0].task, "持续分析作品评论");
-  assert.equal(result.seated[0].name, "获客专家");
+  assert.equal(result.seated[0].name, "抖音获客管家");
   assert.equal(result.roster.some(({ id }) => id === "main"), false);
   assert.equal(result.roster.some(({ id }) => id === "mkt-douyin-finder"), false);
   assert.equal(result.activeCount, 1);
 });
 
-test("office exposes overflow agents while keeping six physical seats", () => {
+test("office roster keeps every activated Agent available to the simple video stage", () => {
   const activatedAgents = Array.from({ length: 8 }, (_, index) => ({ id: `agent-${index + 1}` }));
   const result = buildOfficeAgentRoster({ activatedAgents, teamLive: teamLive() });
-  assert.equal(OFFICE_AGENT_SLOTS.length, 6);
-  assert.equal(result.seated.length, 6);
-  assert.equal(result.overflow.length, 2);
   assert.equal(result.roster.length, 8);
+  assert.deepEqual([...result.seated, ...result.overflow].map(({ id }) => id), result.roster.map(({ id }) => id));
 });
 
-test("office slots follow native actor order without hardcoded label coordinates", () => {
-  assert.deepEqual(OFFICE_AGENT_SLOTS.map(slot => slot.nativeType), ["main", "App Agent", "Computer Agent", "Browser Agent", "File Agent", "Search Agent"]);
-  assert.ok(OFFICE_AGENT_SLOTS.every(slot => !("left" in slot) && !("top" in slot)));
+test("legacy office slot metadata is not used to render the simple video stage", () => {
+  const source = readFileSync(new URL("../src/salebuddy/ui/office-agent-runtime.js", import.meta.url), "utf8");
+  assert.equal(OFFICE_AGENT_SLOTS.length, 6);
+  assert.doesNotMatch(source, /office-character-binding|projectOfficeCharacters|hitOfficeCharacter/);
+  assert.match(source, /snapshot\.roster/);
 });
 
 test("work errors override idle team status in the office", () => {
@@ -92,27 +92,70 @@ test("office labels an agent without work as idle", () => {
   assert.equal(result.seated[0].stateLabel, "空闲中");
 });
 
+test("office badges show the Agent name above every bound Douyin account", () => {
+  const result = buildOfficeAgentRoster({
+    activatedAgents: [{ id: "mkt-comment-acquisition" }],
+    accounts: [
+      { id: "douyin-a", name: "家居账号", agentIds: ["mkt-comment-acquisition"] },
+      { id: "douyin-b", identity: { nickname: "装修账号" }, agentIds: ["mkt-comment-acquisition"] }
+    ],
+    teamLive: teamLive()
+  });
+
+  assert.equal(result.seated[0].name, "抖音获客管家");
+  assert.deepEqual(result.seated[0].accountNames, ["家居账号", "装修账号"]);
+  assert.equal(result.seated[0].accountLabel, "家居账号、装修账号");
+  assert.doesNotMatch(result.seated[0].accountLabel, /找人|分析|功能/);
+});
+
+test("office badges compactly summarize more than two Douyin accounts", () => {
+  const result = buildOfficeAgentRoster({
+    activatedAgents: [{ id: "mkt-comment-acquisition" }],
+    accounts: [
+      { id: "douyin-a", name: "账号 A", agentIds: ["mkt-comment-acquisition"] },
+      { id: "douyin-b", name: "账号 B", agentIds: ["mkt-comment-acquisition"] },
+      { id: "douyin-c", name: "账号 C", agentIds: ["mkt-comment-acquisition"] }
+    ],
+    teamLive: teamLive()
+  });
+
+  assert.equal(result.seated[0].accountLabel, "账号 A、账号 B 等3个账号");
+});
+
 test("office activation source matches the enabled Agent Center capabilities", () => {
   assert.deepEqual(listActivatedOfficeAgents().map(({ id, displayName }) => [id, displayName]), [
-    ["mkt-comment-acquisition", "获客专家"],
+    ["mkt-comment-acquisition", "抖音获客管家"],
     ["mkt-find-people", "找客专员"],
     ["mkt-intent-analyst", "客户分析员"],
     ["mkt-cold-writer", "潜客触达专员"],
-    ["mkt-dm-inbox", "私信客服"]
+    ["mkt-dm-inbox", "私信客服"],
+    ["mkt-gold-customer-service", "金牌客服"],
+    ["mkt-live-danmaku-analysis", "直播间弹幕分析"],
+    ["mkt-live-danmaku-outreach", "电商直播间未成交客户触达"]
   ]);
 });
 
-test("office area switcher only shows the area name, not notification counts", () => {
+test("office stage renders one independent video entry per Agent", () => {
   const source = readFileSync(new URL("../src/salebuddy/ui/office-agent-runtime.js", import.meta.url), "utf8");
-  assert.match(source, /button\.textContent = `办公区 \$\{page \+ 1\}`/);
-  assert.doesNotMatch(source, /位工作中|位需处理/);
-  assert.match(source, /\.sb-office-area\{[^}]*min-width:88px[^}]*text-align:center/);
+  assert.match(source, /\.sb-office-agent-stage\{display:grid/);
+  assert.match(source, /entries\.get\(agent\.id\)/);
+  assert.match(source, /entry\.video\.dataset\.agentId = agent\.id/);
+  assert.match(source, /entry\.video\.dataset\.roleKey = roleKey/);
+  assert.doesNotMatch(source, /sb-office-area|pageCount|setPage/);
 });
 
-test("office area switcher is centered in the office canvas instead of tracking its right edge", () => {
+test("office badge second line is reserved for the Douyin account", () => {
   const source = readFileSync(new URL("../src/salebuddy/ui/office-agent-runtime.js", import.meta.url), "utf8");
-  assert.match(source, /\.sb-office-areas\{[^}]*left:50%[^}]*right:auto[^}]*transform:translateX\(-50%\)/);
-  assert.doesNotMatch(source, /\.sb-office-areas\{[^}]*right:12px/);
+  assert.match(source, /\.sb-office-agent-account/);
+  assert.doesNotMatch(source, /\.sb-office-agent-task/);
+  assert.match(source, /抖音账号：\$\{agent\.accountLabel\}/);
+});
+
+test("office badges use the same Agent Center avatar runtime", () => {
+  const source = readFileSync(new URL("../src/salebuddy/ui/office-agent-runtime.js", import.meta.url), "utf8");
+  assert.match(source, /mountGrokBotAvatar/);
+  assert.match(source, /grokStateForTeamStatus/);
+  assert.doesNotMatch(source, /HUMAN_ASSET_URLS|officeAvatarFallbackUrl|mountAgentAvatar/);
 });
 
 test("office hides the native branded page title", () => {

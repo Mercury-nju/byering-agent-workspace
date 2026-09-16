@@ -160,7 +160,7 @@
     "createdAt": "2026-08-10T02:15:00.000Z"
   },
   {
-    "id": "dm-mu2ciwu4-qt4b",
+    "id": "dm-mu34lzy7-2poi",
     "agentType": "main",
     "from": "user",
     "fromName": "我",
@@ -170,10 +170,10 @@
       "source": "chief-conversation",
       "suppressAutoReply": true
     },
-    "createdAt": "2026-09-15T07:24:10.300Z"
+    "createdAt": "2026-09-15T20:30:23.551Z"
   },
   {
-    "id": "dm-mu2ciwue-g6z7",
+    "id": "dm-mu34lzye-iizj",
     "agentType": "main",
     "from": "main",
     "fromName": "Byering · 幕僚长",
@@ -198,6 +198,6 @@
         "shouldCreateTask": false
       }
     },
-    "createdAt": "2026-09-15T07:24:10.310Z"
+    "createdAt": "2026-09-15T20:30:23.558Z"
   }
 ]

@@ -20,8 +20,8 @@
       var ua = navigator.userAgent;
       var platform = navigator.platform;
 
-      // 框架检测：CEF → Electron → browser
-      var framework = /CefView/i.test(ua) ? 'cef' : /Electron/i.test(ua) ? 'electron' : 'browser';
+      // 框架检测：CEF → browser
+      var framework = /CefView/i.test(ua) ? 'cef' : 'browser';
 
       // 操作系统检测
       var os = /Win32|Windows/i.test(platform) ? 'windows' : /MacIntel|MacPPC/i.test(platform) ? 'macos' : 'linux';

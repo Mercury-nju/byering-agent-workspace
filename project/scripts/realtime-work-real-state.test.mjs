@@ -31,6 +31,11 @@ test("realtime work gives each empty state one clear next action", () => {
   assert.match(source, /PUBLIC_TASK_EMPTY_ILLUSTRATION/);
   assert.match(source, /\.sb-realtime-page\{min-height:100dvh/);
   assert.match(source, /\.sb-rw-no-account\{display:grid;min-height:calc\(100dvh - 60px\)/);
+  assert.match(source, /\.sb-page\.sb-page-realtime-work > \.sb-page-body\{min-height:0\}/);
+  assert.match(source, /\.sb-page\.sb-page-realtime-work > \.sb-page-body > \.sb-realtime-page\{display:flex;flex-direction:column;min-height:100%;height:100%\}/);
+  assert.match(source, /\.sb-rw-no-account\{display:flex;flex:1 1 auto;align-items:center;justify-content:center;min-height:320px;overflow:auto\}/);
+  assert.match(source, /@media \(max-width:760px\)\{\.sb-rw-no-account\{min-height:300px;padding:32px 16px\}/);
+  assert.match(source, /@media \(max-height:720px\)\{\.sb-realtime-page\{padding-top:16px;padding-bottom:20px\}/);
   assert.doesNotMatch(source, /当前没有正在执行的公开数据任务/);
 });
 
@@ -175,6 +180,9 @@ test("realtime work describes the account Agent status in plain language", () =>
   assert.match(source, /`「\$\{account\.name\}」的 Agent`/);
   assert.match(source, /\$\{erroredLiveCount\} 个任务需要处理/);
   assert.match(source, /\$\{activeLiveCount\} 个任务正在运行/);
+  assert.equal(realtimeWork.realtimeAccountStatusLabel({ status: "运行中" }, []), "已连接");
+  assert.equal(realtimeWork.realtimeAccountStatusLabel({ status: "已连接" }, [{ state: "working" }]), "运行中");
+  assert.equal(realtimeWork.realtimeAccountStatusLabel({ status: "需重新登录" }, []), "需重新登录");
   assert.doesNotMatch(source, /AI 军团/);
   assert.doesNotMatch(source, /全力执行中/);
 });
@@ -667,7 +675,7 @@ test("comment acquisition scene omits the redundant bottom events panel", () => 
 
 test("realtime work removes the duplicate page title and simplifies the account heading", () => {
   assert.match(source, /\.sb-page\.sb-page-realtime-work > \.sb-page-head\{display:none\}/);
-  assert.match(source, /openPage\(\{ title: "", onClose \}\)/);
+  assert.match(source, /openPage\(\{\s*title: "",\s*onClose: \(\) => \{/);
   assert.match(source, /page\.root\.classList\.add\("sb-page-realtime-work"\)/);
   assert.match(source, /\.sb-rw-account-topline\{display:flex;align-items:center;justify-content:space-between/);
   assert.match(source, /accountHeading\.append\(el\("div", "sb-rw-account-title", "我的账号"\)\)/);

@@ -132,6 +132,19 @@ export function createDouyinAcquisitionService({
       now
     }) : null);
 
+  function taskRuntimeAlive(task = {}, leases = state.leases, runtimeKeys = runners) {
+    const expiresAt = Date.parse(leases?.[task?.key]?.expiresAt || "");
+    const nowAt = Date.parse(now());
+    return (runtimeKeys?.has(task?.key) || Boolean(leases?.[task?.key]?.owner))
+      && Number.isFinite(expiresAt)
+      && Number.isFinite(nowAt)
+      && expiresAt > nowAt;
+  }
+
+  function taskOccupationActive(task = {}, leases = state.leases, runtimeKeys = runners) {
+    return task.state !== TASK_STATES.RUNNING || taskRuntimeAlive(task, leases, runtimeKeys);
+  }
+
   maintainPersistedTasks();
   if (autoResume) queueMicrotask(() => resumePersisted({ runImmediately: true }).catch(() => {}));
 
@@ -259,7 +272,14 @@ export function createDouyinAcquisitionService({
       const latest = loadSnapshot(target);
       const existing = latest.tasks?.[key];
       if (existing) return { existing };
-      const duplicate = findDuplicateTask(latest.tasks || {}, key, context, config, taskFingerprint);
+      const duplicate = findDuplicateTask(
+        latest.tasks || {},
+        key,
+        context,
+        config,
+        taskFingerprint,
+        (candidate) => taskOccupationActive(candidate, latest.leases, runners)
+      );
       if (duplicate) return { duplicate };
       latest.tasks ||= {};
       latest.tasks[key] = task;
@@ -287,7 +307,13 @@ export function createDouyinAcquisitionService({
     if (task.resumeBlocked?.reason === "touch_channel_reconfiguration_required") {
       throw acquisitionError(task.resumeBlocked.message, "DOUYIN_COMMENT_ACQUISITION_TOUCH_CHANNEL_FIXED", 409);
     }
-    const activeTask = findExclusiveContinuousTask(state.tasks, task.key, task.context, task.config);
+    const activeTask = findExclusiveContinuousTask(
+      state.tasks,
+      task.key,
+      task.context,
+      task.config,
+      (candidate) => taskOccupationActive(candidate)
+    );
     if (activeTask) throw exclusiveTaskError(activeTask);
     const cloud = cloudBindingForTask(task);
     const includesLive = includesLiveSignals(task);
@@ -2299,12 +2325,13 @@ function canonicalize(value) {
   return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalize(value[key])]));
 }
 
-function findDuplicateTask(tasks, key, context, config, taskFingerprint) {
-  const exclusive = findExclusiveContinuousTask(tasks, key, context, config);
+function findDuplicateTask(tasks, key, context, config, taskFingerprint, isTaskActuallyActive = null) {
+  const exclusive = findExclusiveContinuousTask(tasks, key, context, config, isTaskActuallyActive);
   if (exclusive) return exclusive;
   const currentAccountKeys = new Set(taskAccountKeys(context, config));
   return Object.values(tasks || {}).find((task) => {
     if (!task || task.key === key || task.archivedAt || !TASK_DEDUP_STATES.has(task.state)) return false;
+    if (typeof isTaskActuallyActive === "function" && isTaskActuallyActive(task) !== true) return false;
     const otherContext = task.context;
     const otherConfig = task.config;
     if (!otherContext || !otherConfig || otherContext.agentId !== context.agentId) return false;
@@ -2312,12 +2339,13 @@ function findDuplicateTask(tasks, key, context, config, taskFingerprint) {
   });
 }
 
-function findExclusiveContinuousTask(tasks, key, context, config) {
+function findExclusiveContinuousTask(tasks, key, context, config, isTaskActuallyActive = null) {
   if (!isContinuousContext(context)) return null;
   const currentAccountKeys = new Set(taskAccountKeys(context, config));
   const semanticAgentId = String(context?.agentId || "").trim();
   return Object.values(tasks || {}).find((task) => {
     if (!task || task.key === key || task.archivedAt || !TASK_DEDUP_STATES.has(task.state)) return false;
+    if (typeof isTaskActuallyActive === "function" && isTaskActuallyActive(task) !== true) return false;
     if (String(task.context?.agentId || "").trim() !== semanticAgentId) return false;
     return taskAccountKeys(task.context, task.config).some((accountKey) => currentAccountKeys.has(accountKey));
   }) || null;

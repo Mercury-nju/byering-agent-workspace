@@ -1,9 +1,25 @@
-import { DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS } from "../agents/marketplace.js";
+import { DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS, MARKETPLACE_STANDALONE_AGENT_IDS } from "../agents/marketplace.js";
 
 export const ONBOARDING_COMPLETED_KEY = "byering-onboarding-completed";
 export const ONBOARDING_FIRST_AGENT_KEY = "byering-onboarding-first-agent";
 
-const ONBOARDING_EXECUTABLE_AGENT_IDS = new Set(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS);
+const RETIRED_PAGE_ROUTES = new Set([
+  "chat",
+  "kanban",
+  "skills",
+  "rooms",
+  "ear",
+  "resources",
+  "resource-center",
+  "docs",
+  "kb-docs",
+  "knowledge"
+]);
+
+const ONBOARDING_EXECUTABLE_AGENT_IDS = new Set([
+  ...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
+  ...MARKETPLACE_STANDALONE_AGENT_IDS
+]);
 
 function readStorage(storage, key) {
   try {
@@ -32,6 +48,12 @@ export function markOnboardingCompleted(storage = globalThis.localStorage) {
 
 export function onboardingRoute() {
   return "?page=onboarding";
+}
+
+export function routeForRetiredPage(page) {
+  return RETIRED_PAGE_ROUTES.has(String(page || "").trim())
+    ? "?page=agent-square"
+    : null;
 }
 
 export function routeAfterAuthentication(storage = globalThis.localStorage, { isNewUser = null } = {}) {

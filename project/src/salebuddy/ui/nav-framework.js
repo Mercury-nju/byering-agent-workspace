@@ -4,19 +4,18 @@
  * Native React rows stay in their original parents. SaleBuddy owns only the
  * proxy/group DOM, visual slot attributes, active state, and lifecycle.
  */
-import { openRoomsPage } from "./rooms-page.js";
 import { openContactsPage } from "./contacts-page.js";
 import { openAgentSquarePage } from "./agent-square.js?v=20260915-live-danmaku-only-1";
-import { openKnowledgePage } from "./knowledge-page.js";
 import { openMemoryPage } from "./memory-page.js";
 import { openFileCenterPage } from "./file-center.js";
-import { openResourceCenterPage } from "./resource-center.js";
 import { openConversationStrategyPage } from "./conversation-strategy.js?v=20260914-grid-alignment-1";
-import { openKanbanPage } from "./kanban.js";
 import { openProspectCenterPage } from "./prospect-center.js?v=20260909-results-structure-2";
 import { openRealtimeWorkPage } from "./realtime-work.js";
+import { NAV_PAGE_ROUTES, persistNavigationRoute, clearNavigationRoute } from "./navigation-routes.js";
 import { getCurrentPage, closeCurrentPage } from "./pages.js";
 import { PRODUCT_VISIBILITY } from "./product-visibility.js";
+
+export { NAV_PAGE_ROUTES };
 
 export const NAV_EVENT = "salebuddy:navigation-state";
 export const NAV_SURFACE_COLOR = "#FAFAFA";
@@ -32,20 +31,17 @@ export const NAV_LAYOUT = Object.freeze({
 export const NAV_MODES = Object.freeze([
   "newTask",
   "office",
-  "kanban",
   "skills",
   "contacts",
   "agentSquare",
-  "resources",
-  "kbDocs",
   "kbMemory",
   "conversationStrategy"
 ]);
 
 const EXTRA_NAV_MODES = new Set(["realtimeWork", "prospects", "discoveredPeople", "files"]);
 const NAV_MODE_SET = new Set([...NAV_MODES, ...EXTRA_NAV_MODES]);
-const KNOWLEDGE_MODES = new Set(["kbDocs", "kbMemory", "conversationStrategy"]);
-const VISIBLE_KNOWLEDGE_MODES = Object.freeze(["conversationStrategy"]);
+const KNOWLEDGE_MODES = new Set(["kbMemory", "conversationStrategy"]);
+const VISIBLE_KNOWLEDGE_MODES = Object.freeze(["kbMemory", "conversationStrategy"]);
 const NAV_BLUEPRINT = Object.freeze([
   Object.freeze({ id: "work", items: Object.freeze(["office", "contacts", "agentSquare", "realtimeWork", "prospects", "discoveredPeople", "files"]) }),
   Object.freeze({ id: "configuration", items: VISIBLE_KNOWLEDGE_MODES })
@@ -78,7 +74,7 @@ export function reduceKnowledgeState(current = DEFAULT_KNOWLEDGE_STATE, action) 
 }
 
 export function canForwardNative(mode, node) {
-  return node?.isConnected === true && (mode !== "kanban" || node.dataset?.sbKanban === "1");
+  return node?.isConnected === true;
 }
 
 const STYLE_ID = "salebuddy-nav-framework-style";
@@ -97,7 +93,6 @@ const CSS = `
 [data-sb-nav-root="1"] [data-sb-nav-slot="newTask"] [class*="_label_"],[data-sb-nav-root="1"] [data-sb-nav-slot="newTask"] span{color:inherit!important}
 [data-sb-nav-root="1"] [data-sb-nav-slot="search"]{order:2}
 ${PRODUCT_VISIBILITY.conversation ? "" : `[data-sb-nav-root="1"] [data-sb-nav-slot="newTask"],[data-sb-nav-root="1"] [data-sb-nav-slot="search"],[data-sb-nav-root="1"] [data-sb-nav-slot="history"]{display:none!important}`}
-${PRODUCT_VISIBILITY.kanban ? "" : `[data-sb-nav-owner="1"] [data-sb-nav-slot="kanban"]{display:none!important}`}
 ${PRODUCT_VISIBILITY.skills ? "" : `[data-sb-nav-owner="1"] [data-sb-mode="skills"]{display:none!important}`}
 
 [data-sb-nav-root="1"] [data-sb-nav-content-root="1"]{display:flex!important;flex-direction:column!important;min-height:100%}
@@ -120,7 +115,6 @@ ${PRODUCT_VISIBILITY.skills ? "" : `[data-sb-nav-owner="1"] [data-sb-mode="skill
 [data-sb-nav-owner="1"] .sb-nav-results-children .sb-nav-row{min-height:36px;padding-left:38px;font-size:12px}
 [data-sb-nav-owner="1"] .sb-nav-results-children .sb-nav-icon{width:16px;height:16px}
 [data-sb-nav-owner="1"] .sb-nav-results-children .sb-nav-icon svg{width:16px;height:16px}
-[data-sb-nav-owner="1"] [data-sb-nav-slot="kanban"]{order:16}
 [data-sb-nav-owner="1"] [data-sb-nav-slot="history-label"]{order:17}
 [data-sb-nav-root="1"] [data-sb-nav-slot="history"]{order:18}
 [data-sb-nav-root="1"] [data-sb-nav-plugin-section="1"]{order:19;margin:0!important}
@@ -163,7 +157,6 @@ ${PRODUCT_VISIBILITY.skills ? "" : `[data-sb-nav-owner="1"] [data-sb-mode="skill
 `;
 
 const ITEM_DEFINITIONS = Object.freeze({
-  kanban: { label: "看板", icon: "board", native: true },
   realtimeWork: { label: "实时工作", icon: "realtimeWork" },
   prospects: { label: "潜客线索", icon: "prospects" },
   discoveredPeople: { label: "发现的人", icon: "discovered" },
@@ -171,14 +164,11 @@ const ITEM_DEFINITIONS = Object.freeze({
   contacts: { label: "对话", icon: "contacts" },
   skills: { label: "技能广场", icon: "skills", native: true },
   agentSquare: { label: "Agent 中心", icon: "agentCenter" },
-  resources: { label: "资源中心", icon: "resources" },
-  kbDocs: { label: "文档", icon: "docs" },
   kbMemory: { label: "记忆", icon: "memory" },
   conversationStrategy: { label: "对话策略", icon: "strategy" }
 });
 
 const ICONS = Object.freeze({
-  board: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="4" fill="currentColor"/><path d="M6.5 7.2h2v5.6h-2zm5 0h2v3.6h-2z" fill="white"/></svg>',
   prospects: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="2"/><path d="m13.2 13.2 4 4M6.7 9h4.6M9 6.7v4.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   discovered: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8" cy="7" r="3.1" stroke="currentColor" stroke-width="1.7"/><path d="M2.8 16c.7-2.7 2.4-4.1 5.2-4.1s4.5 1.4 5.2 4.1M14 9.2a2.5 2.5 0 1 0 0-5M13.8 12.1c1.9.2 3.1 1.4 3.5 3.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   files: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 2.5h7.2L16 7.3v10.2H4a1.5 1.5 0 0 1-1.5-1.5V4A1.5 1.5 0 0 1 4 2.5Z" fill="currentColor"/><path d="M11 2.8v4.7h4.6M6.5 10h6.5M6.5 13h5" stroke="white" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -186,8 +176,6 @@ const ICONS = Object.freeze({
   contacts: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="2.5" width="14" height="15" rx="4" fill="currentColor"/><circle cx="10" cy="8" r="2.2" fill="white"/><path d="M6.6 14c.7-1.8 1.9-2.7 3.4-2.7s2.7.9 3.4 2.7" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>',
   skills: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m10 2 2.1 4.3L17 7l-3.5 3.4.8 4.8-4.3-2.3-4.3 2.3.8-4.8L3 7l4.9-.7z" fill="currentColor"/><circle cx="10" cy="9" r="1.6" fill="white"/></svg>',
   agentCenter: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true" data-sb-agent-avatar="1"><path d="M10.1 1.6c4.4 0 7.4 3.6 7.4 8.2 0 4.9-2.8 8.3-7.6 8.3-4.6 0-7.5-3-7.5-7.5 0-4.8 3.1-8.7 7.7-9Z" fill="currentColor"/><path d="M6.3 7.1c.7-.4 1.5-.1 1.8.6l.8 1.9c.3.7 0 1.5-.7 1.8-.7.3-1.5 0-1.8-.7l-.8-1.8c-.3-.7 0-1.5.7-1.8Z" fill="white" data-sb-agent-eye="1"/><path d="M11.6 5.9c.7-.3 1.5 0 1.8.7l.8 1.8c.3.7 0 1.5-.7 1.8-.7.3-1.5 0-1.8-.7l-.8-1.8c-.3-.7 0-1.5.7-1.8Z" fill="white" data-sb-agent-eye="1"/></svg>',
-  resources: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h9A2.5 2.5 0 0 1 17 5.5v9a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 3 14.5z" fill="currentColor"/><path d="M6.5 13.5h7M6.5 10h7M6.5 6.5h3" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>',
-  docs: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 2h8l4 4v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1" fill="currentColor"/><path d="M6.5 9h7m-7 3h7m-7 3h4" stroke="white" stroke-width="1.2" stroke-linecap="round"/></svg>',
   memory: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2a6 6 0 0 1 4.2 10.3c-.8.8-1.2 1.6-1.2 2.7H7c0-1.1-.4-1.9-1.2-2.7A6 6 0 0 1 10 2" fill="currentColor"/><path d="M8 18h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 8.5h4" stroke="white" stroke-width="1.3" stroke-linecap="round"/></svg>',
   strategy: '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 3.5h12a1.5 1.5 0 0 1 1.5 1.5v10A1.5 1.5 0 0 1 16 16.5H4A1.5 1.5 0 0 1 2.5 15V5A1.5 1.5 0 0 1 4 3.5Z" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7h9M5.5 10h6M5.5 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
 });
@@ -251,7 +239,6 @@ function findOffice(root) {
 function findNativeTarget(root, mode) {
   if (mode === "newTask") return findNewTask(root);
   if (mode === "office") return findOffice(root);
-  if (mode === "kanban") return findRowByLabels(findPluginSection(root), new Set(["自动任务", "看板"]));
   if (mode === "skills") return findRowByLabels(findPluginSection(root), new Set(["技能广场"]));
   if (mode === "conversationStrategy") return findRowByLabels(findPluginSection(root), new Set(["知识库", "对话策略"]));
   return null;
@@ -291,7 +278,6 @@ function hasNativeActiveState(row) {
 
 function defaultOpeners() {
   return {
-    rooms: (options) => openRoomsPage(options),
     realtimeWork: (options) => openRealtimeWorkPage(options),
     prospects: (options) => openProspectCenterPage(options),
     discoveredPeople: (options) => openProspectCenterPage({
@@ -300,13 +286,10 @@ function defaultOpeners() {
       standaloneDiscovery: true
     }),
     contacts: (options) => openContactsPage(options),
-    kanban: (options) => openKanbanPage(options),
     agentSquare: (options) => openAgentSquarePage(options),
-    knowledge: (kind, options) => openKnowledgePage(kind, options),
     memory: (options) => openMemoryPage(options),
     conversationStrategy: (options) => openConversationStrategyPage(options),
-    files: (options) => openFileCenterPage(options),
-    resources: (options) => openResourceCenterPage(options)
+    files: (options) => openFileCenterPage(options)
   };
 }
 
@@ -466,7 +449,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   }
 
   function syncNativeActiveVisuals() {
-    const nativeModes = ["newTask", "office", "kanban", "skills"];
+    const nativeModes = ["newTask", "office", "skills"];
     const customPageActive = activeMode && !nativeModes.includes(activeMode);
     if (!customPageActive) {
       restoreNeutralizedNativeActiveTokens();
@@ -518,12 +501,14 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       route.replaced = true;
       pageRoute = null;
       route.cleanup?.();
+      clearNavigationRoute(mode);
       if (mode && activeMode === mode) emit(mode, false);
     };
   }
 
   function openCustom(mode, options = {}) {
     if (["prospects", "discoveredPeople", "files"].includes(mode)) resultsExpanded = true;
+    persistNavigationRoute(mode, options);
     if (activeMode === mode && getCurrentPage()) return;
     const onClose = claimPageRoute(mode);
     emit(mode, true);
@@ -532,6 +517,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
         gateway,
         teamLive,
         onRecruit: () => {
+          persistNavigationRoute("agentSquare");
           const recruitClose = claimPageRoute("agentSquare");
           emit("agentSquare", true);
           openers.agentSquare({ gateway, teamLive, onChat: (agentType) => openChatWith(agentType), onClose: recruitClose });
@@ -550,12 +536,8 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       openers.agentSquare({ ...options, gateway, teamLive, onChat: (agentType) => openChatWith(agentType), onClose });
     } else if (mode === "files") {
       openers.files({ ...options, onClose });
-    } else if (mode === "resources") {
-      openers.resources({ onClose });
     } else if (mode === "kbMemory") {
       openers.memory({ gateway, onClose });
-    } else if (mode === "kbDocs") {
-      openers.knowledge(mode === "kbDocs" ? "docs" : "memory", { gateway, teamLive, onClose });
     } else if (mode === "conversationStrategy") {
       openers.conversationStrategy({
         ...options,
@@ -572,6 +554,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     const ready = canForwardNative(mode, target);
     proxy.setAttribute("aria-disabled", ready ? "false" : "true");
     if (!ready) return;
+    persistNavigationRoute(mode);
     target.click();
   }
 
@@ -689,13 +672,10 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       renderResultsGroup();
     });
     const skills = buildRow("skills", menuClass);
-    const kanban = buildRow("kanban", menuClass);
-    kanban.dataset.sbNavSlot = "kanban";
     contacts.style.order = "12";
     agentCenter.style.order = "13";
     realtimeWork.style.order = "14";
     skills.style.order = "16";
-    kanban.style.order = "17";
     const recentLabel = createElement("div", "sb-nav-recent-label", "最近任务");
     recentLabel.dataset.sbNavSlot = "history-label";
     recentLabel.style.order = "18";
@@ -747,7 +727,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
 
     // The empty group remains queryable for state/style compatibility. Its
     // visual children are appended directly so flex ordering is deterministic.
-    owner.append(work, workLabel, contacts, agentCenter, realtimeWork, resultsGroup, skills, kanban, recentLabel, configuration, accountSection);
+    owner.append(work, workLabel, contacts, agentCenter, realtimeWork, resultsGroup, skills, recentLabel, configuration, accountSection);
     renderAccount();
     contentRoot.appendChild(owner);
   }
@@ -816,12 +796,12 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["class", "aria-current", "data-sb-kanban"]
+      attributeFilter: ["class", "aria-current"]
     });
   }
 
   function updateAvailability() {
-    for (const mode of ["kanban", "skills"]) {
+    for (const mode of ["skills"]) {
       const row = proxyRows.get(mode);
       if (!row?.isConnected) continue;
       row.setAttribute("aria-disabled", String(!canForwardNative(mode, currentTarget(mode))));
@@ -870,7 +850,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   }
 
   function hideDuplicatePluginRows() {
-    hideNativeRow(currentTarget("kanban"));
     hideNativeRow(currentTarget("skills"));
     hideNativeRow(currentTarget("conversationStrategy"));
   }
@@ -948,7 +927,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
 
   function onNavigation(event) {
     const mode = event.detail?.mode;
-    if (event.detail?.active && ["newTask", "office", "kanban", "skills"].includes(mode)) {
+    if (event.detail?.active && ["newTask", "office", "skills"].includes(mode)) {
       // Native surfaces and SaleBuddy pages share the same content slot. Close
       // the custom route before the native view paints so two work surfaces
       // cannot remain visible at the same time.
@@ -968,12 +947,11 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   function onDocumentClick(event) {
     if (accountMenu && !accountMenu.hidden && !accountSection?.contains(event.target)) closeAccountMenu();
     if (owner?.contains(event.target)) return;
-    const nativeMode = ["newTask", "office", "kanban", "skills"].find((mode) => currentTarget(mode)?.contains(event.target));
+    const nativeMode = ["newTask", "office", "skills"].find((mode) => currentTarget(mode)?.contains(event.target));
     if (nativeMode) {
-      if (nativeMode !== "kanban" || canForwardNative("kanban", currentTarget("kanban"))) {
-        lastNativeActive = nativeMode;
-        emit(nativeMode, true);
-      }
+      lastNativeActive = nativeMode;
+      persistNavigationRoute(nativeMode);
+      emit(nativeMode, true);
       return;
     }
     const search = findSearch(location?.root, location?.fixedTop);
@@ -990,6 +968,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       ? agentOrContext
       : { ...context, agentId: agentOrContext };
     const agentType = handoff.agentId || handoff.agentType;
+    persistNavigationRoute("contacts");
     const onClose = claimPageRoute("contacts");
     openers.contacts({
       gateway,
@@ -1038,6 +1017,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     openProspects: (options = {}) => openCustom("prospects", options),
     openDiscoveredPeople: (options = {}) => openCustom("discoveredPeople", options),
     openFiles: (options = {}) => openCustom("files", options),
+    openMemory: (options = {}) => openCustom("kbMemory", options),
     openConversationStrategy: (options = {}) => openCustom("conversationStrategy", options),
     unmount() {
       if (disposed) return;

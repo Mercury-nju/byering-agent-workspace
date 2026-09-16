@@ -1,10 +1,12 @@
-import { DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS, getMarketplaceAgent } from "../agents/marketplace.js";
+import { getMarketplaceAgent, isMarketplaceAgentAvailable } from "../agents/marketplace.js";
 import { mountGrokBotAvatar } from "../ui/grok-bot-avatar.js";
 
 const ONBOARDING_FIRST_TASK_AGENT_IDS = Object.freeze([
   "mkt-comment-acquisition",
-  "mkt-find-people",
-  "mkt-dm-inbox"
+  "mkt-gold-customer-service",
+  "mkt-live-danmaku-analysis",
+  "mkt-viral-work-analysis",
+  "mkt-live-danmaku-outreach"
 ]);
 
 const TASK_VISUALS = Object.freeze({
@@ -12,13 +14,21 @@ const TASK_VISUALS = Object.freeze({
     role: "完整获客",
     tone: "blue"
   }),
-  "mkt-find-people": Object.freeze({
-    role: "线索发现",
-    tone: "blue"
-  }),
-  "mkt-dm-inbox": Object.freeze({
+  "mkt-gold-customer-service": Object.freeze({
     role: "私信承接",
-    tone: "orange"
+    tone: "cyan"
+  }),
+  "mkt-live-danmaku-analysis": Object.freeze({
+    role: "直播分析",
+    tone: "violet"
+  }),
+  "mkt-viral-work-analysis": Object.freeze({
+    role: "内容分析",
+    tone: "gray"
+  }),
+  "mkt-live-danmaku-outreach": Object.freeze({
+    role: "直播触达",
+    tone: "green"
   })
 });
 
@@ -27,19 +37,27 @@ const ONBOARDING_TASK_DETAILS = Object.freeze({
     category: "持续获客",
     requirement: "适合想把抖音获客交给一位 Agent 全程负责"
   }),
-  "mkt-find-people": Object.freeze({
-    category: "找人",
-    requirement: "公开找人无需授权，结果仅用于分析"
+  "mkt-gold-customer-service": Object.freeze({
+    category: "私信对话",
+    requirement: "把新私信交给 AI 接待，遇到敏感事项再交给你"
   }),
-  "mkt-dm-inbox": Object.freeze({
-    category: "私信承接",
-    requirement: "需要连接抖音账号并配置接待方式"
+  "mkt-live-danmaku-analysis": Object.freeze({
+    category: "分析",
+    requirement: "连接账号后，持续整理当前直播间的新弹幕"
+  }),
+  "mkt-viral-work-analysis": Object.freeze({
+    category: "分析",
+    requirement: "提供抖音作品链接，拆解内容和流量机制"
+  }),
+  "mkt-live-danmaku-outreach": Object.freeze({
+    category: "触达",
+    requirement: "连接账号后，弹幕出现即触达对应用户"
   })
 });
 
 export const FIRST_TASK_OPTIONS = Object.freeze(
   ONBOARDING_FIRST_TASK_AGENT_IDS
-    .filter((agentId) => DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.includes(agentId))
+    .filter((agentId) => isMarketplaceAgentAvailable(agentId))
     .map((agentId) => {
     const agent = getMarketplaceAgent(agentId);
     return Object.freeze({

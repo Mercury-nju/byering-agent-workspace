@@ -5,6 +5,7 @@
  *   右栏：选中对象的详情——成员：发消息（1:1 私聊）/ 云电脑（工作区文件）/ 配置（档案）。
  */
 import { el, openPage } from "./pages.js";
+import { clearNavigationRoute, persistNavigationRoute } from "./navigation-routes.js";
 import { TEAM_STATE_LABELS, TEAM_STATES } from "../agents/status.js";
 import { avatarInitial } from "./agent-drawer.js";
 import { createSnapshotScreen, createLiveBadge } from "./cloud-desktop.js";
@@ -217,7 +218,7 @@ const CSS = `
 .sb-msg-name{font-size:11px;color:#8A8F99;margin-bottom:3px}
 .sb-msg.sb-mine .sb-msg-name{text-align:right}
 .sb-msg-bubble{background:#fff;border:1px solid rgba(15,15,15,0.06);border-radius:4px 12px 12px 12px;padding:8px 11px;font-size:13px;color:#1F2329;line-height:1.6;white-space:pre-wrap;word-break:break-word}
-.sb-msg.sb-mine .sb-msg-bubble{background:#DCF0E2;border-color:transparent;border-radius:12px 4px 12px 12px}
+.sb-msg.sb-mine .sb-msg-bubble{background:#EEF4FF;border-color:transparent;border-radius:12px 4px 12px 12px}
 .sb-dm-artifact{width:100%;margin-top:7px;border:1px solid rgba(15,15,15,0.08);border-radius:12px;background:linear-gradient(135deg,#fff 0%,#F8FAFC 100%);padding:11px;text-align:left;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s ease,transform .15s ease,box-shadow .15s ease}
 .sb-dm-artifact:hover{border-color:rgba(59,107,212,0.32);transform:translateY(-1px);box-shadow:0 8px 24px rgba(31,35,41,0.07)}
 .sb-dm-fileico{width:36px;height:36px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:.3px;background:rgba(59,107,212,0.1);color:#3B6BD4}
@@ -240,27 +241,27 @@ const CSS = `
 .sb-chat-send2[aria-busy="true"]::after{content:"";position:absolute;width:13px;height:13px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:sb-chat-spin .7s linear infinite}
 @keyframes sb-chat-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.sb-chat-connection{transition:none}.sb-chat-send2[aria-busy="true"]::after{animation:none}}
-.sb-proactive{flex:none;display:flex;flex-direction:column;gap:8px;color:#26362E}
+.sb-proactive{flex:none;display:flex;flex-direction:column;gap:8px;color:#3F4D5D}
 .sb-proactive-message{background:#fff!important;border-color:rgba(15,15,15,.06)!important;border-radius:4px 12px 12px 12px!important;padding:11px 14px!important}
 .sb-proactive-message-title{font-size:13px;font-weight:650;line-height:1.5}
 .sb-proactive-message-body{margin-top:4px;color:#59636D;font-size:12px;line-height:1.65}
 .sb-proactive-message-meta{margin-top:7px;color:#7C8791;font-size:10.5px;line-height:1.5}
 .sb-proactive-options{margin-left:40px}
 .sb-proactive-options-label{margin-bottom:6px;color:#8A8F99;font-size:11px}
-.sb-proactive-dot{width:8px;height:8px;flex:none;margin-top:5px;border-radius:50%;background:#16B778;box-shadow:0 0 0 4px rgba(22,183,120,.12)}
-.sb-proactive-dot.idle{background:#7EAA95;box-shadow:0 0 0 4px rgba(126,170,149,.12)}
+.sb-proactive-dot{width:8px;height:8px;flex:none;margin-top:5px;border-radius:50%;background:#3B6BD4;box-shadow:0 0 0 4px rgba(59,107,212,.12)}
+.sb-proactive-dot.idle{background:#AAB4C1;box-shadow:0 0 0 4px rgba(170,180,193,.14)}
 .sb-proactive-copy{min-width:0;flex:1}
 .sb-proactive-actions{display:flex;flex-wrap:wrap;gap:7px}
-.sb-proactive-action{border:1px solid #CFE4D8;border-radius:8px;padding:6px 9px;background:#fff;color:#1B8E62;font:inherit;font-size:10.5px;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,transform .15s ease}
-.sb-proactive-action:hover{border-color:#8BCDAA;background:#F0FAF4;transform:translateY(-1px)}
-.sb-proactive-action.primary{border-color:#16B778;background:#16B778;color:#fff}
-.sb-proactive-action.primary:hover{background:#119A64}
+.sb-proactive-action{border:1px solid #D7E1EE;border-radius:8px;padding:6px 9px;background:#fff;color:#4267A5;font:inherit;font-size:10.5px;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,transform .15s ease}
+.sb-proactive-action:hover{border-color:#9EB8DB;background:#F4F8FF;transform:translateY(-1px)}
+.sb-proactive-action.primary{border-color:#1F2329;background:#1F2329;color:#fff}
+.sb-proactive-action.primary:hover{background:#33373F}
 .sb-dm-cloud-message{margin:0;align-items:flex-start}
 .sb-dm-cloud-bubble{max-width:520px;background:#F7FAFF;border-color:#D9E4F3;color:#59616B;font-size:11px;line-height:1.6}
-.sb-dm-cloud-bubble.is-ready{background:#F5FBF7;border-color:#CFE3D8}
+.sb-dm-cloud-bubble.is-ready{background:#F5F8FF;border-color:#D9E4F3}
 .sb-dm-cloud-bubble.is-error{background:#FFF8F6;border-color:#F0D7D1}
 .sb-dm-cloud-title{color:#294A7E;font-size:12px;font-weight:700}
-.sb-dm-cloud-bubble.is-ready .sb-dm-cloud-title{color:#23734E}
+.sb-dm-cloud-bubble.is-ready .sb-dm-cloud-title{color:#4267A5}
 .sb-dm-cloud-bubble.is-error .sb-dm-cloud-title{color:#99483D}
 .sb-dm-cloud-copy{margin-top:5px;color:#6E7D91}
 .sb-dm-cloud-bubble button{margin-top:9px;height:30px;padding:0 10px;border:1px solid #4267A5;border-radius:7px;background:#fff;color:#34578F;font:inherit;font-size:11px;font-weight:650;cursor:pointer}
@@ -362,10 +363,17 @@ function fmtSize(bytes) {
  * initialFriend：打开后自动选中该成员并进入私聊（agentType）。
  */
 export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, initialFriend = null, initialConversationContext = null }) {
+  persistNavigationRoute("contacts");
   ensureStyle();
   const demoGateway = isStyleMockPreview() ? createDemoDmGateway() : null;
   gateway = demoGateway || (gateway?.action ? gateway : null);
-  const page = openPage({ title: "成员", onClose });
+  const page = openPage({
+    title: "成员",
+    onClose: () => {
+      clearNavigationRoute("contacts");
+      onClose?.();
+    }
+  });
   // The contacts workspace already provides its own master-detail context;
   // remove the generic page header so the member list starts at the top edge.
   page.root.querySelector(".sb-page-head")?.remove();

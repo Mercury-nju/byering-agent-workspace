@@ -257,14 +257,6 @@ test("wordmark keeps the native avatar separate from the Byering text lockup", (
   assert.match(source, /BRAND\.slogan/);
 });
 
-test("Electron shell config names the app and points to the Byering icon", () => {
-  const source = readFileSync(path.join(projectRoot, "electron/main-reconstructed.mjs"), "utf8");
-  assert.match(source, /app\.setName\("Byering"\)/);
-  assert.match(source, /title:\s*"Byering"/);
-  assert.match(source, /byering-logo-128\.png/);
-  assert.match(source, /app\.dock\?\.setIcon/);
-});
-
 test("real employee avatars map by role and every employee surface mounts them", () => {
   const expected = [
     ["main", "assets/agents/human/generated-avatar-v2-02.png"],
@@ -283,12 +275,9 @@ test("real employee avatars map by role and every employee surface mounts them",
   const drawer = sourceFor("agent-drawer.js");
   const cloud = sourceFor("cloud-desktop.js");
   const contacts = sourceFor("contacts-page.js");
-  const rooms = sourceFor("rooms-page.js");
   const square = sourceFor("agent-square.js");
   const office = sourceFor("agent-card-chat.js");
-  const knowledge = sourceFor("knowledge-page.js");
   const taskRunner = sourceFor("task-runner.js");
-  const kanban = sourceFor("kanban.js");
   assert.match(drawer, /mountAgentAvatar/);
   assert.doesNotMatch(drawer, /sb-team-switcher/);
   assert.match(cloud, /else openProgressFor\(hit\.type\)/);
@@ -296,13 +285,10 @@ test("real employee avatars map by role and every employee surface mounts them",
   assert.match(contacts, /mountAgentAvatar/);
   assert.match(contacts, /sb-cgroup-recruit/);
   assert.match(contacts, /onRecruit/);
-  assert.match(rooms, /mountAgentAvatar/);
   assert.match(square, /mountAgentAvatar/);
   assert.match(office, /mountAgentAvatar/);
   assert.match(office, /data-sb-card-avatar/);
-  assert.match(knowledge, /mountAgentAvatar/);
   assert.match(taskRunner, /mountAgentAvatar/);
-  assert.match(kanban, /mountAgentAvatar/);
 });
 
 test("new v3 avatar batch exposes 12 unique assets without changing the old roster", () => {
@@ -339,13 +325,12 @@ test("active employee roster excludes the retired development assistant", () => 
   assert.equal(avatarUrlFor("开发助手"), null);
 });
 
-test("project groups use member avatar compositions instead of text initials", () => {
+test("active employee surfaces use member avatar compositions instead of text initials", () => {
   const sourceFor = (name) => readFileSync(path.join(projectRoot, "src/salebuddy/ui", name), "utf8");
   const avatar = readFileSync(path.join(projectRoot, "src/salebuddy/ui/agent-avatar.js"), "utf8");
   assert.match(avatar, /mountGroupAvatar/);
-  assert.match(sourceFor("rooms-page.js"), /mountGroupAvatar/);
-  assert.match(sourceFor("kanban.js"), /mountGroupAvatar/);
-  assert.doesNotMatch(sourceFor("rooms-page.js"), /sb-room-card-avatar", avatarInitial\(room\.name\)/);
+  assert.match(sourceFor("agent-square.js"), /mountAgentAvatar/);
+  assert.match(sourceFor("contacts-page.js"), /mountAgentAvatar/);
 });
 
 test("contacts page stays focused on one-to-one Agent conversations", () => {

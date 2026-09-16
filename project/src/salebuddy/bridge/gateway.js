@@ -28,7 +28,7 @@ export class SaleBuddyGatewayClient {
 
   /** 从恢复版 shim/bridge 推导 gateway 地址（与 bundle 同一来源）。 */
   static async discoverUrl({ timeoutMs = 3000 } = {}) {
-    // 浏览器 shim 通过 CallBridge 提供 token+port；Electron 经 window.marvis。
+    // Browser shim provides the token and port through CallBridge or window.marvis.
     if (window.CallBridge) {
       const payload = await new Promise((resolve) => {
         const callbackId = `sb-gw-${Date.now()}`;

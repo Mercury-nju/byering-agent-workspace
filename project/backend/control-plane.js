@@ -100,6 +100,18 @@ const EXTERNAL_EVENT_TYPES = new Set([
   "agent.stage.completed"
 ]);
 
+const MANAGED_RUNTIME_ACTIVE_STATES = new Set([
+  TASK_STATES.CREATED,
+  TASK_STATES.WAITING_REQUIREMENT,
+  TASK_STATES.WAITING_ACCESS,
+  TASK_STATES.RUNNING,
+  TASK_STATES.WAITING_APPROVAL,
+  TASK_STATES.PAUSED,
+  TASK_STATES.RETRYING,
+  TASK_STATES.WAITING_REPLY,
+  TASK_STATES.HANDOFF_REQUIRED
+]);
+
 function requiresAuthorizedExecution(workflow, executionBoundary) {
   return workflow?.requiresAccess === true
     || executionBoundary === EXECUTION_BOUNDARIES.PRODUCT_AGENTS;
@@ -181,6 +193,54 @@ export class ControlPlaneError extends Error {
     this.details = details && typeof details === "object" ? details : {};
     Object.assign(this, details);
   }
+}
+
+function managedRuntimeAccountKey(task = {}) {
+  return normalizeNullableString(task?.executionContext?.accountKey || task?.executionContext?.accountId);
+}
+
+function managedRuntimeAccountScope(task = {}, fallbackAgentId = "") {
+  return normalizeNullableString(task?.executionContext?.accountUseScope) || normalizeNullableString(fallbackAgentId);
+}
+
+function managedRuntimeScopesConflict(left, right, agentId) {
+  const defaultScope = normalizeNullableString(agentId);
+  const leftScope = normalizeNullableString(left) || defaultScope;
+  const rightScope = normalizeNullableString(right) || defaultScope;
+  if (!leftScope || !rightScope) return false;
+  if (leftScope === rightScope) return true;
+  // Composite product Agents may intentionally run separate sub-runtimes on
+  // one account. A default external start still conflicts with either
+  // sub-runtime, so the user receives one consistent busy-account decision.
+  return leftScope === defaultScope || rightScope === defaultScope;
+}
+
+export function findActiveManagedRuntimeTask(tasks = [], {
+  agentId = null,
+  tenantId = null,
+  accountKey = null,
+  taskId = null,
+  accountUseScope = null,
+  isTaskActuallyActive = null
+} = {}) {
+  const requestedAgentId = normalizeNullableString(agentId);
+  const requestedTenantId = normalizeNullableString(tenantId);
+  const requestedAccountKey = normalizeNullableString(accountKey);
+  if (!requestedAgentId || !requestedAccountKey) return null;
+  return (Array.isArray(tasks) ? tasks : []).find((task) => {
+    if (!task || task.taskId === taskId) return false;
+    if (!MANAGED_RUNTIME_ACTIVE_STATES.has(task.state)) return false;
+    if (typeof isTaskActuallyActive === "function" && isTaskActuallyActive(task) !== true) return false;
+    const taskTenantId = normalizeNullableString(task.tenantId || task.executionContext?.tenantId);
+    if (taskTenantId !== requestedTenantId) return false;
+    if (normalizeNullableString(task.agentId) !== requestedAgentId) return false;
+    if (managedRuntimeAccountKey(task) !== requestedAccountKey) return false;
+    return managedRuntimeScopesConflict(
+      accountUseScope || requestedAgentId,
+      managedRuntimeAccountScope(task, requestedAgentId),
+      requestedAgentId
+    );
+  }) || null;
 }
 
 /**
@@ -720,7 +780,17 @@ export class ControlPlane {
    * authorization gates; this method only establishes the durable lifecycle
    * record before the external runtime is allowed to start work.
    */
-  ensureManagedRuntimeTask({ taskId = null, taskRunId = null, conversationId = null, agentId, tenantId = null, goal, executionContext = {}, configuration = {} } = {}) {
+  ensureManagedRuntimeTask({
+    taskId = null,
+    taskRunId = null,
+    conversationId = null,
+    agentId,
+    tenantId = null,
+    goal,
+    executionContext = {},
+    configuration = {},
+    isTaskActuallyActive = null
+  } = {}) {
     const normalizedAgentId = normalizeNullableString(agentId);
     const normalizedGoal = normalizeNullableString(goal);
     if (!normalizedAgentId || !normalizedGoal) {
@@ -755,6 +825,31 @@ export class ControlPlane {
         code: "MANAGED_RUNTIME_TASK_NOT_RUNNING",
         statusCode: 409,
         details: { taskId: existing.taskId, state: existing.state }
+      });
+    }
+
+    const requestedAccountKey = normalizedContext.accountKey || normalizedContext.accountId;
+    const existingActive = findActiveManagedRuntimeTask(this.persistence.listTasks(), {
+      agentId: normalizedAgentId,
+      tenantId: normalizedTenantId,
+      accountKey: requestedAccountKey,
+      taskId: requestedTaskId,
+      accountUseScope: normalizedContext.accountUseScope,
+      isTaskActuallyActive
+    });
+    if (existingActive) {
+      throw new ControlPlaneError("这个抖音账号已经在使用该 Agent，无需重复启动。", {
+        code: "MANAGED_RUNTIME_ACCOUNT_IN_USE",
+        statusCode: 409,
+        details: {
+          existingTaskId: existingActive.taskId,
+          existingTaskRunId: existingActive.taskRunId || null,
+          existingAgentId: existingActive.agentId,
+          existingState: existingActive.state,
+          existingGoal: existingActive.goal || null,
+          existingAccountKey: managedRuntimeAccountKey(existingActive),
+          existingAccountUseScope: managedRuntimeAccountScope(existingActive, normalizedAgentId)
+        }
       });
     }
 
@@ -2235,6 +2330,7 @@ function normalizeExecutionContext(payload = {}) {
     ["tenantId", value("tenantId")],
     ["accountId", value("accountId") || value("account_id")],
     ["accountKey", value("accountKey")],
+    ["accountUseScope", value("accountUseScope") || value("account_use_scope")],
     ["accountLabel", value("accountLabel")],
     ["provider", value("provider")],
     ["deviceId", value("deviceId")],

@@ -576,6 +576,7 @@ test("Douyin account listing only returns ready sessions with a real profile ide
   const payload = await response.json();
   assert.deepEqual(payload.accounts.map((account) => account.id), ["real-1"]);
   assert.equal(payload.accounts[0].handle, "@real_shop");
+  assert.equal(payload.accounts[0].status, "已连接");
 });
 
 test("Douyin account listing includes each authenticated Agent cloud with its real nickname", async (t) => {
@@ -641,6 +642,7 @@ test("Douyin account listing includes each authenticated Agent cloud with its re
   ]);
   assert.deepEqual(payload.accounts.map((account) => account.name), ["国王", "一以万真"]);
   assert.deepEqual(payload.accounts.map((account) => account.sessionId), ["session-king", "session-yiyiwanzhen"]);
+  assert.deepEqual(payload.accounts.map((account) => account.status), ["已连接", "已连接"]);
   assert.match(payload.accounts[0].avatar, /\/v1\/connectors\/douyin\/accounts\/mkt-dm-inbox\/avatar$/);
   assert.match(payload.accounts[1].avatar, /\/v1\/connectors\/douyin\/accounts\/mkt-cold-writer\/avatar$/);
   assert.equal(workspaceSnapshotCalls, 0);

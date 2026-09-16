@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -49,6 +49,7 @@ function fakeAcquisition() {
 
 async function fixture(t, options = {}) {
   const acquisition = options.acquisition || fakeAcquisition();
+  const persistenceDir = await mkdtemp(join(tmpdir(), "byering-acquisition-http-control-"));
   const serverOptions = {
     port: 0,
     host: "127.0.0.1",
@@ -64,6 +65,7 @@ async function fixture(t, options = {}) {
     browserWorkspace: {},
     localBrowserExecutor: { configured: false },
     taskDispatcher: {},
+    persistenceDir,
     coreAgentExecutionService: options.coreAgentExecutionService || null,
     employmentStore: options.employmentStore || null,
     allowLegacyProductExecution: options.allowLegacyProductExecution ?? true
@@ -73,6 +75,7 @@ async function fixture(t, options = {}) {
     : await startControlPlaneServer(serverOptions);
   if (options.controlPlane) await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   t.after(() => new Promise((resolve) => server.close(resolve)));
+  t.after(() => rm(persistenceDir, { recursive: true, force: true }));
   const address = server.address();
   const base = `http://${address.address}:${address.port}`;
   return { acquisition, server, request: (path, init = {}) => fetch(`${base}${path}`, { ...init, headers: { "content-type": "application/json", ...(init.headers || {}) } }) };
@@ -102,6 +105,40 @@ test("cloud status route reconciles the Agent registry instead of bypassing it",
   const body = await response.json();
   assert.equal(body.display_state, "starting");
   assert.deepEqual(calls, [["registry.status", "mkt-douyin-account-runtime"]]);
+});
+
+test("cloud status binds a newly authorized account to its pending cloud session", async (t) => {
+  const calls = [];
+  const registry = {
+    configured: true,
+    list() { return []; },
+    getService() { return { configured: true }; },
+    async status(agentId, scope) {
+      calls.push(["status", agentId, scope]);
+      return {
+        ok: true,
+        state: "ONLINE",
+        login_state: "logged_in",
+        account: { uid: "new-account", nickname: "新账号" }
+      };
+    },
+    bindAccountIdentity(agentId, scope, identity, label) {
+      calls.push(["bind", agentId, scope, identity, label]);
+      return { accountId: "douyin-account:new-account" };
+    }
+  };
+  const { request } = await fixture(t, { douyinAgentCloudRegistry: registry });
+  const response = await request("/v1/douyin/mcp/status?agentId=mkt-dm-inbox&accountId=douyin-pending:new-login");
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.accountId, "douyin-account:new-account");
+  assert.equal(body.accountKey, "douyin-account:new-account");
+  assert.equal(calls[0][0], "status");
+  assert.equal(calls[0][1], "mkt-douyin-account-runtime");
+  assert.equal(calls[0][2].accountId, "douyin-pending:new-login");
+  assert.equal(calls[1][0], "bind");
+  assert.equal(calls[1][3].uid, "new-account");
+  assert.equal(calls[1][4], "新账号");
 });
 
 test("acquisition routes authenticate, validate context, and dispatch lifecycle actions", async (t) => {

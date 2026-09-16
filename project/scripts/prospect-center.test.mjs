@@ -349,7 +349,7 @@ test("results center keeps partial and failed delivery results visible", () => {
 });
 
 test("results center leaves the global page title empty because navigation already identifies the section", () => {
-  assert.match(prospectCenterSource, /const page = openPage\(\{ title: \"\", onClose \}\)/);
+  assert.match(prospectCenterSource, /const page = openPage\(\{\s*title: \"\",\s*onClose: \(\) => \{/);
 });
 
 test("default prospect center opens on the direct data dashboard", () => {
@@ -893,6 +893,29 @@ test("discovered people only enables batch analysis after accounts are selected"
 
 test("discovery export action stays on one line in the result header", () => {
   assert.match(prospectCenterSource, /\.sb-discovery-results-actions \.sb-prospect-button\{min-width:100px;flex:none;white-space:nowrap\}/);
+});
+
+test("standalone discovery selected cards do not use a left inset accent line", () => {
+  const taskRule = prospectCenterSource.match(/\.sb-prospect-page--standalone-discovery \.sb-discovery-task\.is-active\{[^}]+\}/)?.[0];
+  const sourceRule = prospectCenterSource.match(/\.sb-discovery-source\.is-active\{[^}]+\}/)?.[0];
+
+  assert.ok(taskRule);
+  assert.ok(sourceRule);
+  assert.doesNotMatch(taskRule, /inset 3px 0/);
+  assert.doesNotMatch(sourceRule, /inset 3px 0/);
+  assert.match(taskRule, /background:#f7faff/);
+  assert.match(sourceRule, /background:#f7faff/);
+});
+
+test("standalone discovery disabled primary actions keep readable text", () => {
+  assert.match(
+    prospectCenterSource,
+    /\.sb-prospect-page--standalone-discovery \.sb-prospect-bulk button\.primary\{border-color:#20252b;color:#fff;background:#20252b\}/
+  );
+  assert.match(
+    prospectCenterSource,
+    /\.sb-prospect-page--standalone-discovery \.sb-prospect-bulk button\.primary:disabled\{border-color:#20252b;color:#fff;background:#20252b;opacity:1\}/
+  );
 });
 
 test("does not turn missing finder metrics into zeroes", () => {

@@ -19,6 +19,7 @@ import {
 } from "../src/salebuddy/ui/grok-bot-avatar.js";
 
 const avatarSource = readFileSync(new URL("../src/salebuddy/ui/grok-bot-avatar.js", import.meta.url), "utf8");
+const libraryBlobSource = readFileSync(new URL("../assets/grok-bot-avatars/chief-54b9a6.svg", import.meta.url), "utf8");
 
 test("mirrors the recovered avatar catalog", () => {
   assert.deepEqual(GROK_AVATAR_SHAPES, [
@@ -62,10 +63,12 @@ test("keeps visible marketplace avatar pairs unique", () => {
 test("uses the recovered DMG runtime as the only avatar source", () => {
   assert.equal(GROK_AVATAR_RUNTIME_SOURCE.package, "Grok_Bot_0.44.0.dmg");
   assert.deepEqual(GROK_AVATAR_RUNTIME_SOURCE.explicitFields, ["avatarShape", "avatarColor"]);
+  assert.equal(grokAvatarPathFor("blob"), libraryBlobSource.match(/<path[^>]*d="([^"]+)"/)?.[1]);
   assert.deepEqual(GROK_AVATAR_CATALOG["mkt-comment-acquisition"], { shape: "blob", color: "blue" });
   assert.deepEqual(GROK_AVATAR_CATALOG["mkt-lead-miner"], { shape: "wedge", color: "magenta" });
   assert.deepEqual(GROK_AVATAR_CATALOG["mkt-research-expert"], { shape: "hex", color: "violet" });
   assert.deepEqual(GROK_AVATAR_CATALOG["mkt-dm-inbox"], { shape: "cloud", color: "orange" });
+  assert.deepEqual(GROK_AVATAR_CATALOG["mkt-viral-work-analysis"], { shape: "blob", color: "red" });
   assert.deepEqual(GROK_AVATAR_CATALOG["mkt-comment-filter"], { shape: "blob", color: "orange" });
   assert.deepEqual(GROK_AVATAR_CATALOG["mkt-douyin-finder"], { shape: "teardrop", color: "brown" });
   assert.deepEqual(GROK_AVATAR_CATALOG["mkt-find-people"], { shape: "wedge", color: "blue" });

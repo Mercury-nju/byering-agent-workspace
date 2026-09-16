@@ -1149,6 +1149,27 @@ test("one account keeps a single continuous acquisition task even when its sourc
   assert.equal(service.listTasks().length, 1);
 });
 
+test("an expired durable acquisition task does not block a fresh task for the same account", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-acquisition-stale-runtime-"));
+  const first = build(directory, {
+    now: () => "2026-09-01T00:00:00.000Z",
+    autoResume: false
+  }).service;
+  const stale = await first.createTask(context({ taskId: "stale-task", taskRunId: "stale-run" }), config());
+  await first.start(stale.key, { runImmediately: false });
+  first.close();
+
+  const restored = build(directory, {
+    now: () => "2026-09-02T00:00:00.000Z",
+    autoResume: false
+  }).service;
+  t.after(() => restored.close());
+
+  const fresh = await restored.createTask(context({ taskId: "fresh-task", taskRunId: "fresh-run" }), config());
+  assert.notEqual(fresh.key, stale.key);
+  assert.equal(restored.listTasks().length, 2);
+});
+
 test("restart consolidates legacy duplicate continuous tasks and archives stale failures", async t => {
   const directory = await mkdtemp(join(tmpdir(), "byering-acquisition-maintenance-"));
   const first = build(directory, { now: () => "2026-09-01T00:00:00.000Z" }).service;

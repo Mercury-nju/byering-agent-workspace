@@ -14,7 +14,6 @@ import { createDouyinCloudActivityMonitor } from "./agents/douyin-cloud-activity
 import { getUiRoot, mountPanel } from "./ui/mount.js";
 import { ACCOUNT_EVENT, mountNavFramework } from "./ui/nav-framework.js?v=20260915-live-danmaku-only-1";
 import { mountWordmark, releaseWordmarkEarlyGuard } from "./ui/wordmark.js";
-import { mountKanbanNav } from "./ui/kanban.js";
 import { mountAgentCardChat } from "./ui/agent-card-chat.js";
 import { mountCloudDesktop } from "./ui/cloud-desktop.js";
 import { mountToolboxFirst } from "./ui/toolbox-first.js";
@@ -36,10 +35,13 @@ import {
   onboardingRoute,
   renderOnboardingPage,
   routeAfterOnboarding,
+  routeForRetiredPage,
   markOnboardingCompleted
 } from "./onboarding/index.js";
 
 const initialPage = new URLSearchParams(location.search).get("page");
+const retiredPageRoute = routeForRetiredPage(initialPage);
+if (retiredPageRoute) globalThis.location?.replace?.(retiredPageRoute);
 const deferNativeRootReveal = ["agent-square", "agents"].includes(initialPage);
 const isMarketingLanding = (initialPage === "marketing" || initialPage === "landing")
   && !location.hash
@@ -303,6 +305,16 @@ function activateProspectCenterEntry() {
 
 const prospectCenterEntryReady = activateProspectCenterEntry();
 
+function activateFilesEntry() {
+  if (new URLSearchParams(location.search).get("page") !== "files") return null;
+  return navFrameworkReady.then((framework) => {
+    framework?.openFiles?.();
+    return framework;
+  });
+}
+
+const filesEntryReady = activateFilesEntry();
+
 function activateRealtimeWorkEntry() {
   const page = new URLSearchParams(location.search).get("page");
   if (page !== "realtime-work" && page !== "realtime") return null;
@@ -400,22 +412,23 @@ function activateConversationStrategyEntry() {
 
 const conversationStrategyEntryReady = activateConversationStrategyEntry();
 
+function activateMemoryEntry() {
+  const page = new URLSearchParams(location.search).get("page");
+  if (page !== "memory") return null;
+  return navFrameworkReady.then((framework) => {
+    framework?.openMemory?.();
+    return framework;
+  });
+}
+
+const memoryEntryReady = activateMemoryEntry();
+
 // 品牌字标：把 bundle 里的 Marvis 矢量字形替换为 SaleBuddy 文字（DOM 层，不动冻结文件）
 // Native settings sidebar: remove retired entries and rename the knowledge-base entry.
 const sidebarCustomizationReady = Promise.resolve()
   .then(() => mountSidebarCustomization())
   .catch((error) => {
     console.warn("[SaleBuddy] 侧边栏菜单调整失败", error);
-    return null;
-  });
-
-// 「自动任务 → 看板」：改名 + 接管点击 + 本地任务存储联动（gateway 断开也能看本地任务）
-const kanbanReady = (PRODUCT_VISIBILITY.kanban
-  ? Promise.all([gatewayReady.catch(() => null), teamLiveReady])
-    .then(([client, live]) => mountKanbanNav({ gateway: client, teamLive: live }))
-  : Promise.resolve(null))
-  .catch((error) => {
-    console.warn("[SaleBuddy] 看板挂载失败", error);
     return null;
   });
 
@@ -517,14 +530,15 @@ const api = {
   officeTaskBoardReady,
   contactsEntryReady,
   prospectCenterEntryReady,
+  filesEntryReady,
   realtimeWorkEntryReady,
   agentSquareEntryReady,
   onboardingEntryReady,
   conversationStrategyEntryReady,
+  memoryEntryReady,
   wordmarkReady,
   visualThemeReady,
   sidebarCustomizationReady,
-  kanbanReady,
   officeSwitchReady,
   officeAgentRuntimeReady,
   agentCardChatReady,

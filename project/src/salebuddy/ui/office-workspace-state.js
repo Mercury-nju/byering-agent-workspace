@@ -1,13 +1,20 @@
 import { DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS, getMarketplaceAgent } from "../agents/marketplace.js";
 
+/** Core Agents exposed by the office workbench. Developer-mode Agents stay in Agent Center. */
+export const OFFICE_CORE_AGENT_IDS = Object.freeze([
+  "mkt-comment-acquisition",
+  "mkt-gold-customer-service",
+  "mkt-live-danmaku-analysis",
+  "mkt-live-danmaku-outreach",
+  "mkt-viral-work-analysis"
+]);
+
 export const OFFICE_START_ACTIONS = Object.freeze([
-  { agentId: "mkt-comment-acquisition", label: "找一批客户", detail: "先选想找的人和行业" },
-  { agentId: "mkt-find-people", label: "开始找人", detail: "从评论、直播和互动中找候选人" },
-  { agentId: "mkt-intent-analyst", label: "分析候选人", detail: "整理证据、意向和下一步" },
-  { agentId: "mkt-cold-writer", label: "准备私信触达", detail: "确认名单和内容后发送私信" },
-  { agentId: "mkt-dm-inbox", label: "帮我接待私信", detail: "沿用账号的接待方式" },
-  { agentId: "mkt-gold-customer-service", label: "使用金牌客服", detail: "用更简单的流程承接客户咨询" },
-  { agentId: "mkt-live-danmaku-outreach", label: "触达直播间观众", detail: "有人发弹幕就自动发送私信" },
+  { agentId: "mkt-comment-acquisition", label: "我来帮你找客户", detail: "我会从评论、直播和互动里找出值得跟进的人" },
+  { agentId: "mkt-gold-customer-service", label: "我来帮你承接咨询", detail: "我会用更简单的流程接住客户的咨询" },
+  { agentId: "mkt-live-danmaku-analysis", label: "我来帮你分析直播间", detail: "我会整理弹幕里的问题、需求和购买意向" },
+  { agentId: "mkt-live-danmaku-outreach", label: "我来帮你触达直播观众", detail: "有人发弹幕，我就帮你发出私信" },
+  { agentId: "mkt-viral-work-analysis", label: "我来帮你拆解爆款", detail: "我会拆解爆款作品，整理可验证的创作方法" },
 ]);
 
 const AUTHORIZATION_ERROR_CODES = new Set([
@@ -93,12 +100,19 @@ export function selectOfficeWork(works = [], current = null) {
 }
 
 export function latestOfficeResult(runs = [], agentId = null) {
-  return runs.filter(run => (!agentId || run.agentId === agentId) && DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.includes(run.agentId) && getMarketplaceAgent(run.agentId)
+  return runs.filter(run => (!agentId || run.agentId === agentId) && OFFICE_CORE_AGENT_IDS.includes(run.agentId) && getMarketplaceAgent(run.agentId)
     && run.metadata?.simulated !== true && run.projectId !== "demo-office"
     && ["completed", "partial", "succeeded"].includes(String(run.status || "").toLowerCase())
     && !["运行摘要", "错误", "实时能力"].includes(run.resultType)
     && (run.title || run.summary))
     .sort((a, b) => (Date.parse(b.generatedAt || b.updatedAt) || 0) - (Date.parse(a.generatedAt || a.updatedAt) || 0))[0] || null;
+}
+
+export function hasOfficeTaskHistory(runs = []) {
+  return runs.some(run => OFFICE_CORE_AGENT_IDS.includes(run?.agentId)
+    && getMarketplaceAgent(run.agentId)
+    && run.metadata?.simulated !== true
+    && run.projectId !== "demo-office");
 }
 
 export function officeAgentStartLabel(agentId) {

@@ -3,6 +3,7 @@
  * The map is a visual index over the same agent.memory.* records used elsewhere.
  */
 import { el, openPage } from "./pages.js";
+import { clearNavigationRoute, persistNavigationRoute } from "./navigation-routes.js";
 import { mountAgentAvatar } from "./agent-avatar.js";
 
 const STORAGE_KEY = "byering.main-agent-memory-enabled";
@@ -117,8 +118,15 @@ function fmtTime(value) {
 }
 
 export function openMemoryPage({ gateway = null, onClose = null } = {}) {
+  persistNavigationRoute("kbMemory");
   ensureStyle();
-  const page = openPage({ title: "记忆", onClose });
+  const page = openPage({
+    title: "记忆",
+    onClose: () => {
+      clearNavigationRoute("kbMemory");
+      onClose?.();
+    }
+  });
   page.root.classList.add("sb-memory-map-page");
   const root = el("div", "sb-memory-map notranslate");
   root.setAttribute("translate", "no");

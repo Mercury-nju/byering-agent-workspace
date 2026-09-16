@@ -32,12 +32,15 @@ function setup(t, gateway, options = {}) {
   return { host, controller };
 }
 
-test("office without work offers three meaningful ways to start instead of an empty viewer", t => {
+test("office without work offers five meaningful ways to start instead of an empty viewer", t => {
   const { host } = setup(t);
-  assert.match(host.textContent, /今天想做点什么/);
-  assert.match(host.textContent, /找一批客户/);
-  assert.match(host.textContent, /帮我接待私信/);
-  assert.match(host.textContent, /分析候选人/);
+  assert.match(host.textContent, /我可以帮你做什么/);
+  assert.match(host.textContent, /我来帮你找客户/);
+  assert.match(host.textContent, /我来帮你承接咨询/);
+  assert.match(host.textContent, /我来帮你分析直播间/);
+  assert.match(host.textContent, /我来帮你触达直播观众/);
+  assert.match(host.textContent, /我来帮你拆解爆款/);
+  assert.doesNotMatch(host.textContent, /我来帮你找人|我来帮你分析候选人|我来帮你完成首次触达|我来帮你接待私信/);
   assert.doesNotMatch(host.textContent, /选择一个人物|查看工作画面和对话/);
   assert.doesNotMatch(host.textContent, /幕僚长|当前 Agent 团队|成员名单/);
   assert.equal(host.querySelector("iframe"), null);
@@ -45,7 +48,11 @@ test("office without work offers three meaningful ways to start instead of an em
 
 test("office start actions lead with Douyin customer acquisition manager", () => {
   assert.equal(OFFICE_START_ACTIONS[0].agentId, "mkt-comment-acquisition");
-  assert.equal(OFFICE_START_ACTIONS[0].label, "找一批客户");
+  assert.equal(OFFICE_START_ACTIONS[0].label, "我来帮你找客户");
+});
+
+test("office start actions speak in the Agent's first person", () => {
+  assert.ok(OFFICE_START_ACTIONS.every(action => action.label.startsWith("我来帮你")));
 });
 
 test("office start panel uses spacing instead of repeated divider lines", () => {
@@ -55,10 +62,43 @@ test("office start panel uses spacing instead of repeated divider lines", () => 
   assert.doesNotMatch(source, /\.sb-ow-recent\{[^}]*border-top/);
 });
 
+test("office recent results use a stable hierarchy for heading, time, summary, and actions", () => {
+  const source = readFileSync(new URL("../src/salebuddy/ui/office-workspace.js", import.meta.url), "utf8");
+  assert.match(source, /\.sb-ow-recent\{[^}]*background:#fff[^}]*box-shadow/);
+  assert.match(source, /\.sb-ow-recent-head\{display:flex;align-items:center;justify-content:space-between/);
+  assert.match(source, /\.sb-ow-recent-actions\{display:flex;justify-content:flex-end/);
+  assert.match(source, /header\.appendChild\(el\("h3", null, "最近一次成果"\)\)/);
+  assert.match(source, /header\.appendChild\(el\("time", null,/);
+  assert.match(source, /section\.appendChild\(el\("strong", null, result\.title/);
+});
+
+test("first-time office users keep the recent-result slot as an Agent Center guide", t => {
+  const opened = [];
+  const { host } = setup(t, null, { getWork: () => null, getResults: () => [], onConfigure: agentId => opened.push(agentId) });
+  assert.equal(host.querySelector("#sb-office-workspace").dataset.homeState, "first-run");
+  assert.match(host.textContent, /最近一次成果/);
+  assert.match(host.textContent, /还没有开始过工作/);
+  assert.match(host.textContent, /去 Agent 中心选择一项工作/);
+  const openAgentCenter = host.all().find(node => node.tagName === "button" && node.textContent === "去 Agent 中心");
+  assert.ok(openAgentCenter);
+  openAgentCenter.listeners.click();
+  assert.deepEqual(opened, [null]);
+  assert.equal(host.all().find(node => node.tagName === "button" && node.textContent === "查看结果"), undefined);
+});
+
+test("office users with task history keep a recent-result area even when no business result is available", t => {
+  const history = { agentId: "mkt-comment-acquisition", status: "failed", title: "失败的任务", projectId: "account-research" };
+  const { host } = setup(t, null, { getWork: () => null, getResults: () => [history] });
+  assert.equal(host.querySelector("#sb-office-workspace").dataset.homeState, "history");
+  assert.match(host.textContent, /最近一次成果/);
+  assert.match(host.textContent, /暂无可展示的成果/);
+  assert.doesNotMatch(host.textContent, /还没有开始过工作/);
+});
+
 test("office home does not surface an unavailable status from an inactive Agent", t => {
   const task = { agentType: "mkt-comment-acquisition", metadata: { officeStatus: "unknown", officeStatusPhase: "unavailable" } };
   const { host } = setup(t, null, { getWork: () => task, getWorks: () => [task], onRetryStatus: () => assert.fail("inactive status must not expose a retry action") });
-  assert.match(host.textContent, /今天想做点什么/);
+  assert.match(host.textContent, /我可以帮你做什么/);
   assert.doesNotMatch(host.textContent, /暂时无法获取工作状态|重新获取/);
   assert.equal(host.querySelector(".sb-ow-notice"), null);
 });
@@ -169,13 +209,13 @@ test("working and authorization-offline states use distinct office surfaces", t 
 test("idle actions navigate to the right Agent without starting an execution", t => {
   const opened = [];
   const { host } = setup(t, { action: () => assert.fail("must not execute") }, { onConfigure: id => opened.push(id) });
-  const button = host.all().find(node => node.tagName === "button" && node.textContent.includes("找一批客户"));
+  const button = host.all().find(node => node.tagName === "button" && node.textContent.includes("我来帮你找客户"));
   button.listeners.click();
   assert.deepEqual(opened, ["mkt-comment-acquisition"]);
 });
 
 test("recent results link to the exact source result and continuing analysis preserves that source", t => {
-  const record = { id: "r1", agentId: "mkt-find-people", taskId: "t1", status: "completed", title: "上次找到的候选人", items: [{ secUid: "user1" }] };
+  const record = { id: "r1", agentId: "mkt-comment-acquisition", taskId: "t1", status: "completed", title: "上次找到的候选人", items: [{ secUid: "user1" }] };
   const opened = [], analyzed = [];
   const { host } = setup(t, null, { getResults: () => [record], onOpenResult: run => opened.push(run), onAnalyze: run => analyzed.push(run) });
   host.all().find(node => node.tagName === "button" && node.textContent === "查看结果").listeners.click();
@@ -186,7 +226,7 @@ test("recent results link to the exact source result and continuing analysis pre
 test("new work opens automatically and completion keeps the Agent conversation available", t => {
   let task = null;
   const { host, controller } = setup(t, null, { getWorks: () => task ? [task] : [], getWork: () => task });
-  assert.match(host.textContent, /今天想做点什么/);
+  assert.match(host.textContent, /我可以帮你做什么/);
   task = { agentType: "mkt-dm-inbox", state: "working" }; controller.refresh();
   const frame = host.querySelector("iframe"); assert.ok(frame);
   assert.match(host.textContent, /工作中/);
@@ -214,10 +254,10 @@ test("paused and authorization-blocked tasks remain direct conversations", t => 
 
 test("idle views without results do not create placeholder statistics or result links", t => {
   const { host, controller } = setup(t, null, { getWork: () => null });
-  assert.doesNotMatch(host.textContent, /最近一次成果|查看结果|0 位|210|150/);
+  assert.doesNotMatch(host.textContent, /查看结果|0 位|210|150/);
   controller.select("mkt-comment-acquisition");
   assert.equal(host.querySelector("iframe"), null);
-  assert.doesNotMatch(host.textContent, /最近一次成果/);
+  assert.doesNotMatch(host.textContent, /我还没有完成过工作/);
   assert.ok(host.all().find(node => node.tagName === "textarea"));
 });
 

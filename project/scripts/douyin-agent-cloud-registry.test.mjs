@@ -93,6 +93,42 @@ test("registry provisions a separate cloud session for each account of the same 
   assert.equal(registry.list().filter((record) => record.agentId === "mkt-comment-acquisition").length, 2);
 });
 
+test("registry binds a new account authorization without replacing an existing account session", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-agent-cloud-new-account-"));
+  const stateFile = join(directory, "registry.json");
+  let sequence = 0;
+  const registry = createDouyinAgentCloudRegistry({
+    stateFile,
+    createService: () => {
+      const sessionId = `session-${++sequence}`;
+      return {
+        configured: true,
+        async start() { return { ok: true, session_id: sessionId }; },
+        getSessionId() { return sessionId; },
+        close() {}
+      };
+    }
+  });
+
+  const first = await registry.start("mkt-douyin-account-runtime", {
+    accountId: "douyin-account:first",
+    accountIdentity: { uid: "first" }
+  });
+  const pending = await registry.start("mkt-douyin-account-runtime", {
+    accountId: "douyin-pending:second-login"
+  });
+  const bound = registry.bindAccountIdentity("mkt-douyin-account-runtime", {
+    accountId: "douyin-pending:second-login"
+  }, { uid: "second", nickname: "第二个账号" });
+
+  assert.equal(first.sessionId, "session-1");
+  assert.equal(pending.sessionId, "session-2");
+  assert.equal(bound.accountId, "douyin-account:second");
+  assert.equal(registry.get("mkt-douyin-account-runtime", { accountId: "douyin-account:first" }).sessionId, "session-1");
+  assert.equal(registry.get("mkt-douyin-account-runtime", { accountId: "douyin-account:second" }).sessionId, "session-2");
+  assert.equal(registry.list().filter((record) => record.agentId === "mkt-douyin-account-runtime").length, 2);
+});
+
 test("registry binds an existing unscoped login to the first logical product account scope", async () => {
   const directory = await mkdtemp(join(tmpdir(), "byering-agent-cloud-logical-account-"));
   const stateFile = join(directory, "registry.json");

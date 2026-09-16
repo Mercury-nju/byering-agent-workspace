@@ -5715,5 +5715,68 @@
       "inReplyTo": "dm-mu2ciy39-7r1q"
     },
     "createdAt": "2026-09-15T07:24:13.169Z"
+  },
+  {
+    "id": "dm-mu2ntcd4-r7st",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-09-15T12:40:12.760Z"
+  },
+  {
+    "id": "dm-mu2ntdam-xlle",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我收到你的要求了。我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu2ntcd4-r7st"
+    },
+    "createdAt": "2026-09-15T12:40:13.966Z"
+  },
+  {
+    "id": "dm-mu346dj4-fqgz",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-09-15T20:18:14.656Z"
+  },
+  {
+    "id": "dm-mu346egk-24xv",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我收到你的要求了。我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu346dj4-fqgz"
+    },
+    "createdAt": "2026-09-15T20:18:15.860Z"
+  },
+  {
+    "id": "dm-mu34m17f-srsw",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-09-15T20:30:25.179Z"
+  },
+  {
+    "id": "dm-mu34m25g-oi0r",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "跟跟",
+    "text": "我收到你的要求了。我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu34m17f-srsw"
+    },
+    "createdAt": "2026-09-15T20:30:26.404Z"
   }
 ]

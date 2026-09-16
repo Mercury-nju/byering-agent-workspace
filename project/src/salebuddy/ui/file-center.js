@@ -7,6 +7,7 @@
  * initialFileId 传入时直接选中并预览该文件。
  */
 import { openPage, el } from "./pages.js";
+import { clearNavigationRoute, persistNavigationRoute } from "./navigation-routes.js";
 import { addFile, listFiles, getFile, subscribe } from "../agents/file-store.js";
 import { displayCreatedBy } from "../brand.js";
 import { fetchCanonicalArtifact } from "../bridge/results-client.js";
@@ -214,6 +215,7 @@ function renderHtmlFile(container, content, title) {
  * options: { initialFileId, onClose }
  */
 export function openFileCenterPage({ initialFileId = null, artifact = null, projectId = null, projectName = "", onClose = null } = {}) {
+  persistNavigationRoute("files");
   ensureStyle();
   const mockPreview = isResultsMockPreview();
   const mockFiles = mockPreview ? createResultsMockPreviewFiles() : [];
@@ -226,6 +228,7 @@ export function openFileCenterPage({ initialFileId = null, artifact = null, proj
     onClose: () => {
       active = false;
       if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      clearNavigationRoute("files");
       onClose?.();
     }
   });
