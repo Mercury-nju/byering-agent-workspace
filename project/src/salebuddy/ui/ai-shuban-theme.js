@@ -283,7 +283,7 @@ html[${THEME_ATTRIBUTE}="ai-shuban"] .sb-contacts2{
   -ms-overflow-style:none!important;
 }
 html[${THEME_ATTRIBUTE}="ai-shuban"] .sb-clist{
-  width:360px!important;
+  width:320px!important;
   padding:0!important;
   border-right:0!important;
   scrollbar-width:none!important;

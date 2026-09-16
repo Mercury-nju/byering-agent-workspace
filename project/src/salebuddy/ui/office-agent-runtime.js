@@ -33,7 +33,7 @@ const VIDEO_LAYER_ID = "salebuddy-office-role-video-layer";
 const CSS = `
 .office-dashboard [class*="_pageTitleText_"]{display:none !important}
 [data-sb-office-simple-host="1"]{position:relative!important;overflow:hidden!important;background:#f6f7f9!important}
-[data-sb-office-simple-host="1"]>canvas{display:none!important}
+[data-sb-office-simple-host="1"]>:not(#${VIDEO_LAYER_ID}){display:none!important}
 #${VIDEO_LAYER_ID}{position:absolute;inset:0;z-index:6;box-sizing:border-box;overflow:auto;padding:24px 0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;scrollbar-width:none}
 #${VIDEO_LAYER_ID}::-webkit-scrollbar{display:none}
 #${VIDEO_LAYER_ID} .sb-office-agent-stage{display:grid;grid-template-columns:repeat(2,minmax(300px,300px));justify-content:center;align-content:start;gap:28px 12px;min-height:100%;box-sizing:border-box;padding:0 12px}
@@ -46,6 +46,7 @@ const CSS = `
 #${VIDEO_LAYER_ID} .sb-office-agent-copy{min-width:0;display:flex;flex-direction:column;gap:1px}
 #${VIDEO_LAYER_ID} .sb-office-agent-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px;font-weight:600;line-height:21px}
 #${VIDEO_LAYER_ID} .sb-office-agent-account{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6f7882;font-size:13px;line-height:18px}
+#${VIDEO_LAYER_ID} .sb-office-agent-account:empty{display:none}
 #${VIDEO_LAYER_ID} .sb-office-agent-state{display:flex;align-items:center;flex:0 0 auto;gap:5px;color:#21a55b;font-size:13px;line-height:18px;white-space:nowrap}
 #${VIDEO_LAYER_ID} .sb-office-agent-dot{width:8px;height:8px;flex:none;border-radius:50%;background:#a9b0b8;box-shadow:0 0 0 4px rgba(169,176,184,.12)}
 #${VIDEO_LAYER_ID} .sb-office-agent-badge[data-state="working"] .sb-office-agent-dot{background:#2eb66d;box-shadow:0 0 0 3px rgba(46,182,109,.12)}
@@ -61,7 +62,8 @@ const CSS = `
 #${VIDEO_LAYER_ID} .sb-office-agent-video{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;background:transparent;pointer-events:none}
 #${VIDEO_LAYER_ID} .sb-office-agent-video[hidden]{display:none}
 #${VIDEO_LAYER_ID} .sb-office-empty{display:grid;place-items:center;min-height:100%;padding:32px;color:#89929b;font-size:13px;text-align:center}
-@media(max-width:640px){#${VIDEO_LAYER_ID}{padding:16px 0}#${VIDEO_LAYER_ID} .sb-office-agent-stage{grid-template-columns:300px;gap:24px 0}}
+@media(max-width:900px){.office-dashboard [class*="_contentRow_"]{position:relative!important;min-width:0!important}.office-dashboard [class*="_leftPanel_"]{width:100%!important;min-width:0!important;flex:1 1 auto!important}.office-dashboard [class*="_rightPanel_"]{position:absolute!important;top:0!important;right:0!important;bottom:auto!important;left:auto!important;width:min(294px,calc(100% - 24px))!important;min-width:0!important;height:calc(100% - 26px)!important;margin:0!important;z-index:20!important}}
+@media(max-width:640px){#${VIDEO_LAYER_ID}{padding:16px 8px}#${VIDEO_LAYER_ID} .sb-office-agent-stage{grid-template-columns:minmax(0,1fr);gap:24px 0;padding:0}#${VIDEO_LAYER_ID} .sb-office-agent-figure{width:100%;min-width:0}#${VIDEO_LAYER_ID} .sb-office-agent-badge,#${VIDEO_LAYER_ID} .sb-office-agent-video-button{width:100%;max-width:100%}#${VIDEO_LAYER_ID} .sb-office-agent-video-button{height:auto;aspect-ratio:1}}
 `;
 
 function normalizedStatus(work) {
@@ -85,6 +87,11 @@ function officeBadgeStateLabel(agent) {
   if (agent?.state === "blocked") return "已掉线";
   if (agent?.state === "done") return "已完成";
   return agent?.stateLabel || "空闲中";
+}
+
+export function officeAgentAriaLabel(agent = {}) {
+  const account = agent.id === OFFICE_CHIEF_AGENT_ID ? "" : `，抖音账号：${agent.accountLabel || "抖音账号待同步"}`;
+  return `查看 ${agent.name || "数字员工"}${account}，当前状态：${agent.stateLabel || officeBadgeStateLabel(agent)}`;
 }
 
 function textValue(...values) {
@@ -218,6 +225,9 @@ function addOfficeAccount(accounts, seen, reference, explicitName = "") {
 }
 
 function officeAccountPresentation(agentId, works = [], accounts = null) {
+  if (agentId === OFFICE_CHIEF_AGENT_ID) {
+    return { accountIds: [], accountNames: [], accountLabel: "" };
+  }
   const directory = officeAccountDirectory(accounts);
   const accountEntries = [];
   const seen = new Set();
@@ -312,7 +322,7 @@ function agentButton(agent, className, onOpenAgent) {
   button.className = className;
   button.dataset.agentId = agent.id;
   button.dataset.state = agent.state;
-  button.setAttribute("aria-label", `查看 ${agent.name}，抖音账号：${agent.accountLabel}，当前状态：${agent.stateLabel}`);
+  button.setAttribute("aria-label", officeAgentAriaLabel(agent));
   button.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -455,8 +465,8 @@ function createOfficeStage(host, roleBindings, onOpenAgent) {
     entry.badge.dataset.state = agent.state;
     entry.videoButton.dataset.agentId = agent.id;
     entry.videoButton.dataset.state = agent.state;
-    entry.badge.setAttribute("aria-label", `查看 ${agent.name}，抖音账号：${agent.accountLabel}，当前状态：${agent.stateLabel}`);
-    entry.videoButton.setAttribute("aria-label", `查看 ${agent.name}，抖音账号：${agent.accountLabel}，当前状态：${agent.stateLabel}`);
+    entry.badge.setAttribute("aria-label", officeAgentAriaLabel(agent));
+    entry.videoButton.setAttribute("aria-label", officeAgentAriaLabel(agent));
 
     const name = entry.badge.querySelector(".sb-office-agent-name");
     const account = entry.badge.querySelector(".sb-office-agent-account");
@@ -537,6 +547,13 @@ function createOfficeStage(host, roleBindings, onOpenAgent) {
   };
 }
 
+function findOfficeStageHost(dashboard) {
+  const leftPanel = dashboard?.querySelector?.('[class*="_leftPanel_"]');
+  if (leftPanel) return leftPanel;
+  const canvas = dashboard?.querySelector?.("canvas");
+  return canvas?.parentElement || null;
+}
+
 function syncNativeAgentSummary(dashboard, snapshot) {
   const summary = [...dashboard.querySelectorAll("*")].find((node) => {
     if (node.children.length) return false;
@@ -584,8 +601,7 @@ export function mountOfficeAgentRuntime({ teamLive = null, gateway = null, onCon
   function refresh() {
     if (disposed) return;
     const dashboard = document.querySelector(".office-dashboard");
-    const canvas = dashboard?.querySelector("canvas");
-    const nextSimpleHost = canvas?.parentElement || null;
+    const nextSimpleHost = findOfficeStageHost(dashboard);
     const candidatePanel = dashboard ? findOfficeRightPanel(document) : null;
     const nextPanelHost = isUsableOfficeRightPanel(candidatePanel) ? candidatePanel : null;
     if (!dashboard || !nextSimpleHost) {

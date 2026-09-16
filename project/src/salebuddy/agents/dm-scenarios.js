@@ -283,7 +283,7 @@ const DEMO_AGENT_MEMORY = Object.freeze({
     businessContext: "负责从授权抖音账号的评论、直播和账号互动中找齐用户，保留原始证据，再交给客户分析员判断。",
     account: { name: "臻选新能源·上海", handle: "@58262205543" },
     metrics: { interactions: 4286, foundUsers: 138, explicitSignals: 26, implicitSignals: 19, handedToAnalyst: 45 },
-    yesterday: { interactions: 4286, foundUsers: 138, firstTouched: 4, repliedUsers: 2, qualifiedLeads: 0, conversionRate: "0%" },
+    yesterday: { interactions: 4286, foundUsers: 138, aLeads: 9, firstTouched: 4, repliedUsers: 2, qualifiedLeads: 0, conversionRate: "0%" },
     diagnosis: [
       "9 位 A 级用户里只有 4 位完成首次触达，覆盖率不足",
       "其中 3 条首触发生在用户活跃窗口之后，错过了用户刚提问的上下文",
@@ -726,8 +726,9 @@ function demoProposalFor(agentType, memory, state) {
 
 function isDemoApproval(text) {
   const compact = String(text || "").replace(/[，。！？、,.!?；;：:]/gu, "").trim();
-  return /^(?:可以|好|好的|确认|确认生效|立即生效|生效|应用|按这个来|执行|确定)(?:了|吧)?$/u.test(compact)
-    || /(?:可以|确认|同意).{0,8}(?:生效|应用|执行)/u.test(compact);
+  return /^(?:(?:ok|okay|可以|好|好的|确认|确认生效|立即生效|生效|应用|按这个来|执行|确定|行|没问题|我觉得可以|就这样调整|这样调整)(?:了|吧)?)$/iu.test(compact)
+    || /(?:ok|okay|可以|确认|同意|我觉得可以).{0,12}(?:生效|应用|执行|这样调整|按这个来)/iu.test(compact)
+    || /(?:就这样调整|这样调整)(?:了|吧)?$/u.test(compact);
 }
 
 function isDemoCancellation(text) {
@@ -736,7 +737,7 @@ function isDemoCancellation(text) {
 
 function isDemoMetricQuestion(text) {
   const value = String(text || "");
-  return (/(?:昨天|昨日|前一天)/u.test(value) && /(?:数据|表现|结果|转化|线索|多少|怎么样|工作)/u.test(value))
+  return (/(?:昨天|昨日|前一天)/u.test(value) && /(?:数据|表现|结果|转化|线索|触达|回复率|多少|怎么样|工作)/u.test(value))
     || /(?:最近|当前).{0,8}(?:数据|进展|结果|转化|线索)/u.test(value);
 }
 
@@ -745,7 +746,7 @@ function isDemoDiagnosisQuestion(text) {
 }
 
 function isDemoSolutionQuestion(text) {
-  return /(?:怎么解决|如何解决|后面怎么|下一步|怎么办|怎么优化|如何优化|优化一下|改进)/u.test(String(text || ""));
+  return /(?:怎么解决|如何解决|后面怎么|下一步|怎么办|怎么优化|如何优化|优化一下|改进|提升|改善|变得更好|做得更好|表现.*更好)/u.test(String(text || ""));
 }
 
 function isDemoConfigQuestion(text) {
@@ -758,7 +759,11 @@ function demoMetricsReply(agentType, memory) {
     return `我记得昨天全局有 ${data.managedAgents} 个 Agent 参与工作，完成 ${data.completedTasks} 项任务，产出 ${data.qualifiedLeads} 位高意向线索，收到 ${data.repliedUsers} 位客户回复，整体转化率为 ${data.conversionRate}。当前主要卡点是证据不足和触达承接。`;
   }
   if (agentType === "mkt-comment-acquisition") {
-    return `我记得昨天处理的是${memory.account.name}。共读取 ${data.interactions.toLocaleString("zh-CN")} 条互动，去重后找到 ${data.foundUsers} 位用户，完成首触 ${data.firstTouched} 位，收到回复 ${data.repliedUsers} 位，新增转化线索 ${data.qualifiedLeads} 位，转化率为 ${data.conversionRate}。`;
+    const percent = (numerator, denominator) => denominator > 0 ? `${((numerator / denominator) * 100).toFixed(2)}%` : "0%";
+    const qualifiedTouchRate = percent(data.firstTouched, data.aLeads);
+    const overallTouchRate = percent(data.firstTouched, data.foundUsers);
+    const replyRate = percent(data.repliedUsers, data.firstTouched);
+    return `我记得昨天处理的是${memory.account.name}。共读取 ${data.interactions.toLocaleString("zh-CN")} 条互动，去重后找到 ${data.foundUsers} 位用户，其中 ${data.aLeads} 位是 A 级高意向用户；完成首触 ${data.firstTouched} 位，A 级触达率为 ${qualifiedTouchRate}（${data.firstTouched}/${data.aLeads}），按全部用户计算的整体首触率为 ${overallTouchRate}（${data.firstTouched}/${data.foundUsers}），收到回复 ${data.repliedUsers} 位，首触回复率为 ${replyRate}，新增转化线索 ${data.qualifiedLeads} 位，转化率为 ${data.conversionRate}。`;
   }
   if (agentType === "mkt-find-people") {
     return `我记得昨天从 ${data.liveRooms} 场直播和 ${data.works} 条作品里找到 ${data.foundUsers} 位去重用户，其中 ${data.strongSignals} 位出现价格、现车、置换或到店信号，另有 ${data.missingEvidence} 位证据还不完整，暂时没有直接判成潜客。`;
@@ -836,10 +841,6 @@ export function mockConversationTurn(agentType, taskText = "", context = {}) {
     }
   }
 
-  if (isDemoMetricQuestion(text)) {
-    state.lastTopic = "metrics";
-    return { text: demoMetricsReply(agentType, memory), state, memory };
-  }
   if (isDemoDiagnosisQuestion(text)) {
     state.lastTopic = "diagnosis";
     return { text: demoDiagnosisReply(memory), state, memory };
@@ -849,6 +850,10 @@ export function mockConversationTurn(agentType, taskText = "", context = {}) {
     const solution = demoSolutionReply(agentType, memory, state);
     state.pendingProposal = solution.proposal;
     return { ...solution, state, memory };
+  }
+  if (isDemoMetricQuestion(text)) {
+    state.lastTopic = "metrics";
+    return { text: demoMetricsReply(agentType, memory), state, memory };
   }
 
   return { text: mockConversationReply(agentType, text), state, memory };

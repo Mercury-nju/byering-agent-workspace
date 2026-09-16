@@ -108,6 +108,8 @@ const CSS = `
 .sb-ap-textarea{width:100%;min-height:76px;resize:vertical;border:1px solid rgba(15,15,15,0.12);border-radius:8px;padding:7px 9px;font-size:12.5px;line-height:1.7;font-family:inherit;color:#1F2329;background:#fff;outline:none;box-sizing:border-box}
 .sb-ap-editing{border-color:rgba(76,154,255,0.22);box-shadow:0 0 0 2px rgba(76,154,255,0.04)}
 .sb-ap-loading{padding:30px 0;text-align:center;font-size:12px;color:#B0B4BB}
+.sb-ap-demo-config{border-color:rgba(76,154,255,.24);background:linear-gradient(180deg,rgba(76,154,255,.055),#fff)}
+.sb-ap-demo-config .sb-ap-title{color:#3B6BD4}
 `;
 
 let styleInjected = false;
@@ -127,6 +129,14 @@ const MEM_KIND_LABELS = {
   bestPractices: "最佳实践"
 };
 const MEM_KIND_CLASS = { feedback: "sb-feedback", lessons: "sb-lessons", bestPractices: "sb-best" };
+const DEMO_CONFIG_LABELS = Object.freeze({
+  touchWindow: "首触时间窗",
+  priorityRule: "触达优先级",
+  firstTouchBatch: "首次触达批次",
+  dailyFocus: "今日重点",
+  reviewThreshold: "复核规则",
+  responseMode: "工作方式"
+});
 
 /* 各岗位的默认「灵魂 / 技能 / 工具 / 范围」展示值（档案为空时补齐，不落库） */
 const SECTION_DEFAULTS = {
@@ -255,7 +265,7 @@ function tagList(items, { tagClass = "", editable = false, onChange = null } = {
  * 渲染完整 Agent 详情页到容器（异步取数，先出骨架再填充）。
  * deps: { gateway, teamLive }
  */
-export async function renderAgentProfile(container, agentType, fallbackProfile, { gateway, teamLive } = {}) {
+export async function renderAgentProfile(container, agentType, fallbackProfile, { gateway, teamLive, demoConfig = null } = {}) {
   ensureStyle();
   const root = el("div", "sb-ap notranslate");
   root.setAttribute("translate", "no");
@@ -393,6 +403,23 @@ export async function renderAgentProfile(container, agentType, fallbackProfile, 
     statusSec.appendChild(line);
     if (status.waitingApproval) statusSec.appendChild(el("div", "sb-ap-statusline", "有任务正等待你审批"));
     root.appendChild(statusSec);
+
+    const appliedConfig = demoConfig && typeof demoConfig === "object"
+      ? Object.entries(demoConfig).filter(([, value]) => value !== null && value !== undefined && value !== "")
+      : [];
+    if (appliedConfig.length) {
+      const appliedSec = el("div", "sb-ap-sec sb-ap-demo-config");
+      appliedSec.dataset.sbDemoAppliedConfig = "true";
+      appliedSec.appendChild(el("div", "sb-ap-title", "对话中已生效的策略"));
+      appliedSec.appendChild(el("div", "sb-ap-empty", "这些值来自刚刚确认的对话配置，后续演示任务会按此策略执行。"));
+      for (const [key, value] of appliedConfig) {
+        const row = el("div", "sb-ap-kv");
+        row.appendChild(el("b", null, DEMO_CONFIG_LABELS[key] || key));
+        row.appendChild(el("span", null, Array.isArray(value) ? value.join("、") : String(value)));
+        appliedSec.appendChild(row);
+      }
+      root.appendChild(appliedSec);
+    }
 
     // ── 身份 IDENTITY ──
     const idSec = el("div", `sb-ap-sec${editMode ? " sb-ap-editing" : ""}`);

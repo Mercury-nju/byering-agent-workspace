@@ -51,6 +51,20 @@ function conversationStateKey(agentType, conversationId) {
   return `salebuddy:dm-demo-state:${DEMO_DM_SEED_VERSION}:${agentType || "main"}:${encodeURIComponent(conversationId || "default")}`;
 }
 
+function agentConfigKey(agentType) {
+  return `salebuddy:dm-demo-config:${DEMO_DM_SEED_VERSION}:${agentType || "main"}`;
+}
+
+function readAgentConfig(agentType) {
+  const config = readJson(agentConfigKey(agentType), {});
+  return config && typeof config === "object" && !Array.isArray(config) ? { ...config } : {};
+}
+
+function writeAgentConfig(agentType, patch = {}) {
+  const next = { ...readAgentConfig(agentType), ...patch };
+  return writeJson(agentConfigKey(agentType), next);
+}
+
 function displayName(agentType) {
   const names = {
     main: "Byering · 幕僚长",
@@ -158,6 +172,16 @@ function loadConversationState(agentType, conversationId) {
     || inferConversationState(agentType, conversationId);
 }
 
+function stateForTurn(agentType, conversationId, currentState = null) {
+  const state = currentState || loadConversationState(agentType, conversationId) || {};
+  return {
+    ...state,
+    // Agent-level changes are the source of truth for a new conversation and
+    // override the old snapshot persisted by an individual conversation.
+    appliedConfig: { ...(state.appliedConfig || {}), ...readAgentConfig(agentType) }
+  };
+}
+
 function createWorkspace(agentType) {
   return {
     path: `workspace/${displayName(agentType)}`,
@@ -198,11 +222,17 @@ export function createDemoDmGateway({ delayMs = 1200 } = {}) {
           const key = stateKey(agentType, payload.conversationId);
           schedule(() => {
             const turn = mockConversationTurn(agentType, payload.text, {
-              state: conversationStates.get(key) || loadConversationState(agentType, payload.conversationId)
+              state: stateForTurn(agentType, payload.conversationId, conversationStates.get(key))
             });
             if (turn?.state) {
               conversationStates.set(key, turn.state);
               writeConversationState(agentType, payload.conversationId, turn.state);
+            }
+            if (turn?.proposal?.status === "applied") {
+              const appliedPatch = Object.fromEntries(
+                (turn.proposal.changes || []).map((change) => [change.field, change.to])
+              );
+              if (Object.keys(appliedPatch).length) writeAgentConfig(agentType, appliedPatch);
             }
             appendMessage(agentType, {
               from: agentType,
@@ -231,6 +261,9 @@ export function createDemoDmGateway({ delayMs = 1200 } = {}) {
       }
 
       return { data: {} };
+    },
+    getDemoConfig(agentType) {
+      return readAgentConfig(agentType);
     },
     dispose() {
       for (const timer of timers) globalThis.clearTimeout(timer);

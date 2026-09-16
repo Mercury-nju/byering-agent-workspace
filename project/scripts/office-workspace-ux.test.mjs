@@ -13,6 +13,7 @@ test("theme reflows presentation viewports instead of forcing a fixed desktop ca
   assert.match(theme, /@media\(max-width:920px\)/);
   assert.match(theme, /\.sb-drawer\{[\s\S]*?min-width:0!important;/);
   assert.doesNotMatch(theme, /\.sb-page:has\(\.sb-contacts2\)\{[^}]*left:230px!important/);
+  assert.match(theme, /html\[\$\{THEME_ATTRIBUTE\}="ai-shuban"\] \.sb-clist\{\s*width:320px!important;/);
 });
 
 test("workspace bottom leaves a visible margin on desktop, scaled and keyboard-reduced viewports", () => {

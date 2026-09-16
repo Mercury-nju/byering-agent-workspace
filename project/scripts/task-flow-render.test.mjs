@@ -42,7 +42,7 @@ class Element {
   focus() {}
 }
 const source = readFileSync(new URL("../src/salebuddy/ui/agent-square.js", import.meta.url), "utf8");
-const names = ["taskPersonAvatar", "acquisitionAccountControl", "appendLabeledField", "douyinFinderScopeError", "isCompositeFinderAgent", "isFinderListenerFlow", "finderOwnDataSelections", "finderListenerSourceScope", "finderListenerSourceLabel", "isInboxAgent", "isInboxIntakeFlow", "selectedChoiceLabels", "publicFinderTargetText", "hasPublicFinderTarget", "publicFinderNeedsBusinessAccount", "publicFinderBusinessAccountError", "publicFinderCanStart", "syncPublicFinderAccountPresentation", "publicFinderReferenceUrls", "publicFinderAccountName", "resolvePublicFinderBusinessAccount", "renderPublicFinderBrief", "renderPublicFinderFilters", "publicFinderFilterSummary", "syncCompositeFinderFlow", "renderCompositeFinderSetup", "renderDouyinFinderSetup", "renderCommentLeadMinerSetup", "renderLiveLeadSetup", "renderCommentAcquisitionSetup", "renderCommentAcquisitionRunning", "renderUserResearchSetup", "renderAccountAnalysisSetup", "renderStandaloneUserAnalysisSetup", "leadRecipientId", "awaitingIntentAnalysis", "privateOutreachRecords", "privateOutreachMode", "privateOutreachRecordMatchesSender", "privateOutreachContactedRecords", "privateOutreachDefaultMessage", "privateOutreachEntryFromProspect", "prefillPrivateOutreachFromProspects", "prefillInboxFromTouchedProspects", "intentCandidateFromRecord", "finderEntriesForAnalysis", "intentCandidateFromFinderEntry", "latestFinderRunForAnalysis", "intentCandidatesFromStore", "renderIntentAnalystModeChooser", "renderIntentAnalystSetup", "renderIntentAnalystRunning", "startIntentAnalyst", "isAccountScopedAcquisitionSetup", "restoreAccountScopedAcquisitionDraft", "persistAccountSetupDraft", "appendGoalFirstComposer", "renderGoldCustomerServiceSetup", "renderManagerInboxSetup", "renderInboxSetup", "renderPrivateOutreachSetup", "renderPrivateOutreachReview", "validateInboxSetup"];
+const names = ["taskPersonAvatar", "acquisitionAccountControl", "appendLabeledField", "douyinFinderScopeError", "isCompositeFinderAgent", "isFinderListenerFlow", "finderOwnDataSelections", "finderListenerSourceScope", "finderListenerSourceLabel", "isInboxAgent", "isInboxIntakeFlow", "selectedChoiceLabels", "publicFinderTargetText", "hasPublicFinderTarget", "publicFinderNeedsBusinessAccount", "publicFinderBusinessAccountError", "publicFinderCanStart", "syncPublicFinderAccountPresentation", "publicFinderReferenceUrls", "publicFinderAccountName", "resolvePublicFinderBusinessAccount", "renderPublicFinderBrief", "renderPublicFinderFilters", "publicFinderFilterSummary", "syncCompositeFinderFlow", "renderCompositeFinderSetup", "renderDouyinFinderSetup", "renderCommentLeadMinerSetup", "renderLiveLeadSetup", "renderCommentAcquisitionSetup", "renderCommentAcquisitionRunning", "renderUserResearchSetup", "renderAccountAnalysisSetup", "renderStandaloneUserAnalysisSetup", "leadRecipientId", "awaitingIntentAnalysis", "privateOutreachRecords", "privateOutreachMode", "privateOutreachRecordMatchesSender", "privateOutreachContactedRecords", "privateOutreachDefaultMessage", "privateOutreachEntryFromProspect", "prefillPrivateOutreachFromProspects", "prefillInboxFromTouchedProspects", "intentCandidateFromRecord", "finderEntriesForAnalysis", "intentCandidateFromFinderEntry", "latestFinderRunForAnalysis", "intentCandidatesFromStore", "intentAnalystDefaultGoal", "buildIntentAnalysisGoal", "renderIntentAnalystModeChooser", "renderIntentAnalystSetup", "renderIntentAnalystRunning", "startIntentAnalyst", "isAccountScopedAcquisitionSetup", "restoreAccountScopedAcquisitionDraft", "persistAccountSetupDraft", "appendGoalFirstComposer", "renderGoldCustomerServiceSetup", "renderManagerInboxSetup", "renderInboxSetup", "renderPrivateOutreachSetup", "renderPrivateOutreachReview", "validateInboxSetup"];
 names.push("receptionAccountId");
 function extract(name) {
   const start = Math.max(source.indexOf(`  function ${name}(`), source.indexOf(`  async function ${name}(`));
@@ -559,41 +559,47 @@ test("inbox specialist independently detects users already reached by activation
   assert.match(panel.textContent, /已识别已触达用户/);
 });
 
-test("analysis agent setup consumes existing candidates and starts without typing", t => {
+test("analysis agent setup lets AI infer intent and starts without lead criteria", t => {
   const setup = harness(t, "mkt-intent-analyst");
   setup.flow.intentCandidates = [{ sourceRecordId: "record-1", leadId: "user-1", nickname: "待判断用户", text: "想了解价格", source: { type: "作品评论" }, evidence: [] }];
-  setup.flow.intentSelectedIds = ["record-1"];
+  setup.flow.intentSelectedIds = [];
   setup.renderers.renderIntentAnalystSetup(setup.panel, setup.flow);
   assert.match(setup.panel.textContent, /选择待判断对象/);
-  assert.doesNotMatch(setup.panel.textContent, /TEXTAREA/);
+  assert.match(setup.panel.textContent, /账号画像、互动原文和来源证据/);
+  assert.doesNotMatch(setup.panel.textContent, /你想找什么样的潜客|问价格的人|准备买的人|正在挑选的人|有具体问题的人/);
   assert.match(setup.panel.textContent, /待判断/);
   assert.match(setup.panel.textContent, /重点潜客|待确认|暂不跟进/);
   assert.doesNotMatch(setup.panel.textContent, /账号与作品|评论与互动|综合分析/);
   assert.equal(setup.flow.analysisScope, "user_intent");
+  assert.deepEqual(Array.from(setup.flow.intentSelectedIds), ["record-1"]);
+  const focus = setup.panel.all().find(node => node.tagName === "TEXTAREA" && node.attributes["aria-label"] === "补充特殊侧重点（选填）");
+  assert.ok(focus);
   const start = setup.panel.all().find(node => node.tagName === "BUTTON" && node.textContent === "开始判断 1 位潜客");
   assert.equal(start.disabled, false);
-  const selectAll = setup.panel.all().find(node => node.tagName === "BUTTON" && node.textContent === "取消全选");
-  selectAll.trigger("click");
-  assert.deepEqual(Array.from(setup.flow.intentSelectedIds), []);
-  assert.equal(start.disabled, true);
-  assert.equal(start.textContent, "开始判断潜客");
-  selectAll.trigger("click");
-  assert.deepEqual(Array.from(setup.flow.intentSelectedIds), ["record-1"]);
-  assert.equal(start.disabled, false);
+  assert.equal(setup.panel.all().some(node => node.tagName === "INPUT" && node.type === "checkbox"), false);
+  focus.value = "只关注近期明确比较价格和到店的人";
+  focus.trigger("input");
+  assert.equal(setup.flow.intentFocus, "只关注近期明确比较价格和到店的人");
 });
 
-test("intent analysis configures the high-intent audience before execution", t => {
+test("intent analysis keeps special focus optional", t => {
   const setup = harness(t, "mkt-intent-analyst");
   setup.flow.intentCandidates = [{ sourceRecordId: "record-1", leadId: "user-1", nickname: "待判断用户", text: "想了解价格", source: { type: "作品评论" }, evidence: [] }];
-  setup.flow.intentSelectedIds = ["record-1"];
   setup.renderers.renderIntentAnalystSetup(setup.panel, setup.flow);
 
-  assert.match(setup.panel.textContent, /你想找什么样的潜客/);
-  assert.match(setup.panel.textContent, /问价格的人|准备买的人|正在挑选的人/);
-  assert.match(setup.flow.intentGoal, /需求信号/);
-  const purchase = setup.panel.all().find(node => node.tagName === "INPUT" && node.value === "purchase");
-  assert.ok(purchase);
-  assert.equal(purchase.checked, true);
+  assert.match(setup.panel.textContent, /AI 会结合用户账号画像、互动原文和来源证据自动完成判断/);
+  assert.doesNotMatch(setup.panel.textContent, /先选择要留意的潜客信号|问价格的人|准备买的人|正在挑选的人/);
+  assert.equal(setup.flow.intentGoal, "结合用户账号画像、互动原文和来源证据，自动判断每位用户是否值得继续跟进，并给出意向等级、判断依据和下一步建议。");
+  const focus = setup.panel.all().find(node => node.tagName === "TEXTAREA" && node.attributes["aria-label"] === "补充特殊侧重点（选填）");
+  assert.ok(focus);
+  setup.flow.intentFocus = "重点关注近期明确比较价格的人";
+  assert.match(setup.renderers.buildIntentAnalysisGoal(setup.flow), /用户补充的特殊侧重点：重点关注近期明确比较价格的人/);
+});
+
+test("intent analysis candidate cards keep a single fluid content column", () => {
+  const legacyRule = source.lastIndexOf(".sb-as-intent-candidate{display:grid;grid-template-columns:20px minmax(0,1fr)");
+  const fluidRule = source.lastIndexOf(".sb-as-intent-candidate{grid-template-columns:minmax(0,1fr);cursor:default}");
+  assert.ok(fluidRule > legacyRule, "the fluid candidate rule must override the legacy checkbox grid");
 });
 
 test("standalone user analysis requires a prompt and stays out of the outreach flow", t => {
@@ -659,6 +665,8 @@ test("analysis agent automatically receives the latest completed finder list", t
         uniqueId: "found_user",
         secUid: "sec-found-user-1",
         text: "请问这个怎么收费？",
+        profileData: { signature: "分享家庭装修经验", followerCount: 1200 },
+        contentEvidence: [{ title: "小户型装修避坑", observedAt: "2026-09-15" }],
         source: { type: "作品评论", videoTitle: "装修案例" }
       }]
     }
@@ -677,6 +685,10 @@ test("analysis agent automatically receives the latest completed finder list", t
   assert.equal(setup.flow.sourceScope, "own_account_comments");
   assert.equal(setup.flow.intentCandidates.length, 1);
   assert.equal(Array.from(setup.flow.intentSelectedIds).join(","), "found-user-1");
+  assert.equal(setup.flow.intentCandidates[0].profileData.signature, "分享家庭装修经验");
+  assert.equal(setup.flow.intentCandidates[0].profileData.followerCount, 1200);
+  assert.equal(setup.flow.intentCandidates[0].contentEvidence[0].title, "小户型装修避坑");
+  assert.equal(setup.flow.intentCandidates[0].contentEvidence[0].observedAt, "2026-09-15");
 });
 
 test("analysis completion stores the real result snapshot on its live work", () => {

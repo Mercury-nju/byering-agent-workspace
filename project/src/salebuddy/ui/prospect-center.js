@@ -74,6 +74,7 @@ const CSS = `
 .sb-prospect-task-run{display:flex;align-items:center;gap:12px;margin-top:10px;padding:10px 13px;border:1px solid #e5e5e5;border-radius:10px;background:#fff}.sb-prospect-task-run-copy{min-width:0;flex:1}.sb-prospect-task-run-title{color:#262626;font-size:11px;font-weight:750}.sb-prospect-task-run-meta{margin-top:3px;color:#858585;font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-prospect-task-run-progress{width:112px;height:5px;border-radius:99px;background:#f0f1f2;overflow:hidden}.sb-prospect-task-run-progress i{display:block;height:100%;border-radius:99px;background:#2f80ed}.sb-prospect-task-run-state{color:#2f80ed;font-size:9.5px;font-weight:650;white-space:nowrap}.sb-prospect-task-run button{height:27px;padding:0 9px;border:1px solid #d4d4d4;border-radius:6px;background:#fff;color:#525252;font:inherit;font-size:9.5px;cursor:pointer}.sb-prospect-task-run button:hover{background:#fafafa}
 .sb-prospect-timeline-stage{justify-self:start;margin-left:0;padding:2px 5px;border-radius:4px;color:#727b83;background:#f0f1f2;font-size:8.5px;white-space:nowrap}.sb-prospect-timeline-item{grid-template-columns:10px minmax(0,1fr) auto auto}
 .sb-prospect-modal{position:fixed;inset:0;z-index:6;display:grid;place-items:center;padding:22px;background:rgba(20,22,25,.24);backdrop-filter:blur(3px)}.sb-prospect-modal-card{width:min(460px,100%);padding:20px;border:1px solid #e5e5e5;border-radius:14px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.16)}.sb-prospect-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.sb-prospect-modal-title{color:#262626;font-size:16px;font-weight:750}.sb-prospect-modal-copy{margin-top:5px;color:#858585;font-size:10.5px;line-height:1.5}.sb-prospect-modal-close{width:28px;height:28px;border:0;border-radius:7px;background:#f4f4f5;color:#727272;font-size:15px;cursor:pointer}.sb-prospect-modal-fields{display:grid;gap:12px;margin-top:18px}.sb-prospect-modal-field{display:grid;gap:6px;color:#626262;font-size:10.5px;font-weight:650}.sb-prospect-modal-field input,.sb-prospect-modal-field select{height:34px;box-sizing:border-box;padding:0 9px;border:1px solid #e5e5e5;border-radius:7px;outline:none;color:#3f3f46;background:#fff;font:inherit;font-size:11px}.sb-prospect-modal-field input:focus,.sb-prospect-modal-field select:focus{border-color:#2f80ed;box-shadow:0 0 0 3px rgba(47,128,237,.1)}.sb-prospect-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.sb-prospect-modal-actions button{height:33px;padding:0 12px;border:1px solid #d4d4d4;border-radius:7px;background:#fff;color:#525252;font:inherit;font-size:10.5px;cursor:pointer}.sb-prospect-modal-actions button.primary{border-color:#262626;background:#262626;color:#fff}.sb-prospect-modal-actions button:hover{background:#fafafa}.sb-prospect-modal-actions button.primary:hover{background:#3a3a3a}
+.sb-analysis-choice-modal{z-index:7}.sb-analysis-choice-card{width:min(560px,100%)}.sb-analysis-choice-list{display:grid;gap:10px;margin-top:18px}.sb-analysis-choice{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;padding:15px 16px;border:1px solid #e5e5e5;border-radius:10px;color:#262626;background:#fff;font:inherit;text-align:left;cursor:pointer}.sb-analysis-choice:hover{border-color:#b8c9e5;background:#f8fbff}.sb-analysis-choice.is-primary{border-color:#cbdcf8;background:#f7faff}.sb-analysis-choice:disabled{opacity:.62;cursor:not-allowed}.sb-analysis-choice:disabled:hover{border-color:#e5e5e5;background:#fff}.sb-analysis-choice-copy{display:grid;gap:5px;min-width:0}.sb-analysis-choice-copy strong{font-size:13px}.sb-analysis-choice-copy span{color:#737b86;font-size:10.5px;line-height:1.5}.sb-analysis-choice-copy small{color:#2f80ed;font-size:9.5px;line-height:1.4}.sb-analysis-choice:disabled .sb-analysis-choice-copy small{color:#92979d}.sb-analysis-choice-arrow{color:#8a949f;font-size:20px;line-height:1}.sb-analysis-choice:focus-visible{outline:2px solid #2f80ed;outline-offset:2px}@media(max-width:560px){.sb-analysis-choice-card{padding:18px}.sb-analysis-choice{grid-template-columns:minmax(0,1fr) 18px;padding:13px}.sb-analysis-choice-copy strong{font-size:12px}}
 @media(max-width:1250px){.sb-prospect-loop{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-prospect-loop-step{border-bottom:1px solid #e5e7eb}.sb-prospect-loop-step:nth-child(2){border-right:0}.sb-prospect-loop-step:nth-last-child(-n+2){border-bottom:0}}
 @media(max-width:760px){.sb-prospect-loop{grid-template-columns:1fr}.sb-prospect-loop-step{border-right:0;border-bottom:1px solid #ededed}.sb-prospect-loop-step:nth-child(2){border-bottom:1px solid #ededed}.sb-prospect-loop-step:last-child{border-bottom:0}}
 .sb-result-tabs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:18px}.sb-result-tab{height:31px;padding:0 12px;border:1px solid #e5e5e5;border-radius:7px;color:#737373;background:#fff;font:inherit;font-size:10.5px;cursor:pointer}.sb-result-tab:hover{border-color:#b8c7dc;background:#fafafa}.sb-result-tab.is-active{border-color:#262626;color:#fff;background:#262626;font-weight:700}.sb-result-tab-count{margin-left:5px;color:#a0a0a0;font-size:9px}.sb-result-tab.is-active .sb-result-tab-count{color:#d4d4d4}.sb-result-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 16px;border-bottom:1px solid #f0f0f0}.sb-result-toolbar .sb-prospect-search{margin-left:auto}.sb-result-card-list{display:grid;gap:1px;padding:7px 9px 12px}.sb-result-card{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:11px;align-items:start;padding:13px 10px;border:1px solid transparent;border-radius:9px;cursor:pointer}.sb-result-card:hover{background:#fafafa}.sb-result-card.is-selected{border-color:#d4d4d4;background:#f7f9fd}.sb-result-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;color:#fff;background:#262626;font-size:10px;font-weight:750}.sb-result-icon.research{background:#67758d}.sb-result-icon.comment{background:#3f7d9e}.sb-result-icon.content{background:#8c6b47}.sb-result-icon.outreach{background:#587c64}.sb-result-card-copy{min-width:0}.sb-result-card-title{color:#262626;font-size:12px;font-weight:750}.sb-result-card-summary{margin-top:4px;color:#737373;font-size:10px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-result-card-meta{display:flex;gap:8px;margin-top:7px;color:#a0a0a0;font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-result-card-side{text-align:right}.sb-result-type{display:inline-flex;padding:3px 6px;border-radius:5px;color:#2f80ed;background:#edf3ff;font-size:9px;font-weight:650;white-space:nowrap}.sb-result-card-side time{display:block;margin-top:8px;color:#a0a0a0;font-size:9px}.sb-result-counts{display:flex;gap:6px;margin-top:8px}.sb-result-count{padding:3px 6px;border-radius:5px;color:#626262;background:#f0f1f2;font-size:9px}.sb-result-detail-kicker{color:#2f80ed;font-size:9.5px;font-weight:650}.sb-result-detail-title{margin-top:6px;color:#262626;font-size:16px;font-weight:750;line-height:1.35}.sb-result-detail-summary{margin-top:11px;padding:11px;border-radius:8px;color:#525252;background:#f4f4f5;font-size:10.5px;line-height:1.6}.sb-result-detail-section{padding:14px 0;border-top:1px solid #e5e5e5}.sb-result-detail-section-title{display:flex;justify-content:space-between;gap:10px;color:#626262;font-size:11px;font-weight:700}.sb-result-detail-section-title span{color:#a0a0a0;font-size:9.5px;font-weight:500}.sb-result-detail-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}.sb-result-detail-metric{padding:9px;border:1px solid #e5e5e5;border-radius:7px;background:#fafafa}.sb-result-detail-metric strong{display:block;color:#262626;font-size:15px}.sb-result-detail-metric span{display:block;margin-top:3px;color:#858585;font-size:9px}.sb-result-artifacts{display:grid;gap:7px;margin-top:10px}.sb-result-artifact{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e5e5e5;border-radius:7px;color:#525252;background:#fff;font-size:10px}.sb-result-artifact i{width:6px;height:6px;border-radius:50%;background:#2f80ed}.sb-result-artifact-copy{min-width:0;flex:1}.sb-result-artifact strong{display:block;color:#262626;font-size:10.5px}.sb-result-artifact span{display:block;margin-top:3px;color:#929292;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-result-detail-actions{display:flex;gap:7px;margin-top:14px}.sb-result-detail-actions button{height:31px;flex:1;border:1px solid #d4d4d4;border-radius:7px;color:#525252;background:#fff;font:inherit;font-size:10px;cursor:pointer}.sb-result-detail-actions button.primary{border-color:#262626;color:#fff;background:#262626}.sb-result-detail-actions button:hover{background:#fafafa}.sb-result-detail-actions button.primary:hover{background:#3a3a3a}.sb-results-empty{padding:46px 18px;color:#a0a0a0;font-size:11px;line-height:1.6;text-align:center}.sb-results-empty strong{display:block;margin-bottom:6px;color:#626262;font-size:13px}@media(max-width:760px){.sb-result-tabs{margin-top:14px}.sb-result-toolbar .sb-prospect-search{margin-left:0}.sb-result-card{grid-template-columns:30px minmax(0,1fr)}.sb-result-icon{width:30px;height:30px}.sb-result-card-side{grid-column:2;text-align:left}.sb-result-card-side time{display:inline-block;margin:6px 0 0 8px}}
@@ -96,10 +97,13 @@ const CONSUMER_CSS = `
 `;
 
 const DISCOVERY_RESULTS_CSS = `
+.sb-page--prospect-center>.sb-page-body:has(.sb-prospect-page--standalone-discovery){padding-bottom:0!important}
+@media(min-width:821px){.sb-page--prospect-center>.sb-page-body:has(.sb-prospect-page--standalone-discovery){overflow:hidden}}
 .sb-prospect-page--standalone-discovery{display:flex;overflow:hidden}.sb-prospect-page--standalone-discovery .sb-prospect-shell{display:flex;flex:1;flex-direction:column;width:100%;min-height:0}.sb-prospect-page--standalone-discovery .sb-prospect-workspace{align-items:stretch;flex:1;min-height:0}.sb-prospect-page--standalone-discovery .sb-discovery-heading{align-items:center;margin:0 0 20px;padding:2px 0}.sb-discovery-heading-copy{display:grid;gap:5px;min-width:0}.sb-prospect-page--standalone-discovery .sb-discovery-heading h1{font-size:31px}.sb-prospect-page--standalone-discovery .sb-discovery-heading p{max-width:none;text-align:left;color:#7c8794;font-size:12px}.sb-discovery-heading-note{display:inline-flex;align-items:center;flex:none;padding:6px 9px;border-radius:6px;color:#687483;background:#eaf0f7;font-size:10px;font-weight:650}
+.sb-prospect-page--standalone-discovery{height:100%;min-height:0;box-sizing:border-box;padding:16px 42px}
 .sb-discovery-task-kicker{display:block;margin-bottom:4px;color:#2f80ed;font-size:9px;font-weight:700;line-height:1.2}.sb-discovery-task-kicker+.sb-discovery-task-name{margin-top:0}
 .sb-prospect-page--standalone-discovery .sb-prospect-workspace{grid-template-columns:minmax(0,1.65fr) minmax(310px,.72fr);gap:16px}.sb-prospect-page--standalone-discovery .sb-prospect-panel{height:100%;min-height:0;overflow:hidden;border-color:#e0e5eb;box-shadow:0 4px 14px rgba(28,39,55,.03)}.sb-prospect-page--standalone-discovery .sb-prospect-panel:first-child{display:flex;flex-direction:column}
-.sb-prospect-page--standalone-discovery .sb-discovery-task-browser{padding:14px 16px 15px;background:#fff}.sb-prospect-page--standalone-discovery .sb-discovery-task-browser-title{font-size:12px}.sb-prospect-page--standalone-discovery .sb-discovery-task-list{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px;margin-top:10px}.sb-prospect-page--standalone-discovery .sb-discovery-task{padding:10px 12px;border-radius:8px}.sb-prospect-page--standalone-discovery .sb-discovery-task:hover{transform:none}.sb-prospect-page--standalone-discovery .sb-discovery-task.is-active{border-color:#b9d0f5;background:#f7faff;box-shadow:0 1px 3px rgba(28,39,55,.06)}.sb-prospect-page--standalone-discovery .sb-discovery-task-profile{margin-top:4px}.sb-prospect-page--standalone-discovery .sb-discovery-task-meta{margin-top:7px}
+.sb-prospect-page--standalone-discovery .sb-discovery-task-browser{padding:14px 16px 15px;background:#fff}.sb-prospect-page--standalone-discovery .sb-discovery-task-browser-title{font-size:12px}.sb-prospect-page--standalone-discovery .sb-discovery-task-list{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px;margin-top:10px}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts{max-width:760px;grid-template-columns:repeat(2,minmax(260px,1fr));gap:8px}.sb-prospect-page--standalone-discovery .sb-discovery-task{padding:10px 12px;border-radius:8px}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;column-gap:16px;row-gap:2px;min-height:0}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-profile{grid-column:1;grid-row:2;margin-top:0}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-meta{grid-column:2;grid-row:1 / span 2;display:grid;justify-items:end;align-self:center;gap:2px;margin-top:0;white-space:nowrap}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-count{font-size:13px;line-height:1.1}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-kind{font-size:9px}.sb-prospect-page--standalone-discovery .sb-discovery-task:hover{transform:none}.sb-prospect-page--standalone-discovery .sb-discovery-task.is-active{border-color:#b9d0f5;background:#f7faff;box-shadow:0 1px 3px rgba(28,39,55,.06)}.sb-prospect-page--standalone-discovery .sb-discovery-task-profile{margin-top:4px}.sb-prospect-page--standalone-discovery .sb-discovery-task-meta{margin-top:7px}
 .sb-discovery-account-heading{display:flex;align-items:center;gap:8px;min-width:0}.sb-discovery-account-heading .sb-discovery-task-name{min-width:0;flex:1}.sb-discovery-account-avatar{display:grid;place-items:center;width:28px;height:28px;flex:none;overflow:hidden;border-radius:8px;color:#35649e;background:#e7f0ff;font-size:11px;font-weight:750}.sb-discovery-account-avatar img{display:block;width:100%;height:100%;object-fit:cover}
 .sb-discovery-source-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:11px}.sb-discovery-source{display:grid;gap:4px;min-width:0;padding:10px 11px;border:1px solid #e1e6ed;border-radius:8px;color:#65707b;background:#fff;font:inherit;text-align:left;cursor:pointer}.sb-discovery-source:hover{border-color:#b8c9e5;background:#f8faff}.sb-discovery-source.is-active{border-color:#b9d0f5;background:#f7faff;box-shadow:0 1px 3px rgba(28,39,55,.06)}.sb-discovery-source-name{overflow:hidden;color:#20252b;font-size:11px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}.sb-discovery-source-copy{color:#7b8794;font-size:9px;line-height:1.45}.sb-discovery-source-meta{color:#2f80ed;font-size:9px;font-weight:700}.sb-discovery-scope-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:16px}.sb-discovery-scope-head strong{color:#3f4954;font-size:11px}.sb-discovery-scope-head span{color:#9aa3ae;font-size:10px}.sb-discovery-task.is-compact{min-height:72px}.sb-discovery-task.is-compact .sb-discovery-task-profile{white-space:normal}.sb-discovery-capability{display:inline-flex;align-items:center;flex:none;padding:5px 8px;border-radius:6px;color:#2f80ed;background:#edf3ff;font-size:10px;font-weight:650}.sb-discovery-capability.is-contactable{color:#157347;background:#eaf8ef}
 .sb-prospect-page--standalone-discovery .sb-result-panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 16px;border-bottom:1px solid #edf0f3}.sb-discovery-results-title{display:grid;gap:3px;min-width:0}.sb-discovery-results-title strong{overflow:hidden;color:#20252b;font-size:15px;font-weight:750;text-overflow:ellipsis;white-space:nowrap}.sb-discovery-results-title span{color:#8b95a1;font-size:10px}.sb-discovery-results-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0}.sb-prospect-page--standalone-discovery .sb-result-toolbar{padding:0;border:0}.sb-prospect-page--standalone-discovery .sb-result-toolbar .sb-prospect-search{width:220px;margin:0}.sb-prospect-page--standalone-discovery .sb-discovery-results-actions .sb-prospect-button{min-width:100px;flex:none;white-space:nowrap}
@@ -107,7 +111,7 @@ const DISCOVERY_RESULTS_CSS = `
 .sb-prospect-page--standalone-discovery .sb-prospect-table-wrap{margin:0;border:0;border-radius:0}.sb-prospect-page--standalone-discovery .sb-prospect-table{min-width:680px}.sb-prospect-page--standalone-discovery .sb-prospect-table th{height:37px;padding:0 12px;color:#98a1ac;background:#fbfcfd;font-size:9px}.sb-prospect-page--standalone-discovery .sb-prospect-table td{padding:11px 12px;color:#66707c;font-size:10px;vertical-align:middle}.sb-prospect-page--standalone-discovery .sb-prospect-table tr:hover td,.sb-prospect-page--standalone-discovery .sb-prospect-table tr.is-selected td{background:#f7faff}.sb-prospect-page--standalone-discovery .sb-prospect-person{gap:8px}.sb-prospect-page--standalone-discovery .sb-prospect-avatar{width:32px;height:32px;border-radius:9px}.sb-discovery-profile{max-width:220px;color:#66707c;font-variant-numeric:tabular-nums;line-height:1.55}.sb-discovery-evidence{min-width:180px}.sb-discovery-evidence .sb-prospect-status{margin-bottom:5px}.sb-discovery-evidence-copy{display:block;max-width:250px;color:#56616d;line-height:1.5}.sb-discovery-evidence.is-pending .sb-discovery-evidence-copy{color:#98a1ac}.sb-prospect-page--standalone-discovery .sb-prospect-status{font-size:9px}
 .sb-prospect-page--standalone-discovery .sb-prospect-panel:last-child{position:static;display:flex;flex-direction:column;align-self:stretch}.sb-prospect-page--standalone-discovery .sb-prospect-panel:last-child>.sb-prospect-panel-head{flex:none;padding:15px 17px}.sb-prospect-page--standalone-discovery .sb-prospect-detail{flex:1;min-height:0;overflow:auto;padding:17px}.sb-prospect-page--standalone-discovery .sb-prospect-detail-suggestion{background:#f7f9fc;border-color:#e0e7f1}.sb-prospect-page--standalone-discovery .sb-prospect-detail-actions button.primary{border-color:#20252b;background:#20252b}
 @media(max-width:1100px){.sb-prospect-page--standalone-discovery .sb-prospect-workspace{grid-template-columns:minmax(0,1fr) 310px}.sb-prospect-page--standalone-discovery .sb-result-toolbar .sb-prospect-search{width:165px}}
-@media(max-width:820px){.sb-prospect-page--standalone-discovery{display:block;height:auto;min-height:100%;overflow:auto}.sb-prospect-page--standalone-discovery .sb-prospect-shell{display:block;min-height:0}.sb-prospect-page--standalone-discovery .sb-prospect-workspace{display:grid;grid-template-columns:1fr;flex:none;min-height:auto}.sb-prospect-page--standalone-discovery .sb-prospect-panel,.sb-prospect-page--standalone-discovery .sb-prospect-panel:last-child{display:block;height:auto;min-height:0;overflow:visible}.sb-prospect-page--standalone-discovery .sb-prospect-detail{overflow:visible}.sb-discovery-list-content{display:block;overflow:visible}.sb-discovery-list-content .sb-prospect-table-wrap{overflow:auto}.sb-prospect-page--standalone-discovery .sb-result-panel-head{align-items:flex-start;flex-direction:column}.sb-discovery-results-actions{justify-content:flex-start;width:100%}.sb-prospect-page--standalone-discovery .sb-result-toolbar{flex:1}.sb-prospect-page--standalone-discovery .sb-result-toolbar .sb-prospect-search{width:100%}.sb-prospect-page--standalone-discovery .sb-discovery-heading{align-items:flex-start;flex-direction:column;gap:8px}.sb-discovery-source-tabs{grid-template-columns:1fr}}
+@media(max-width:820px){.sb-prospect-page--standalone-discovery{display:block;height:auto;min-height:100%;padding:16px;overflow:auto}.sb-prospect-page--standalone-discovery .sb-prospect-shell{display:block;min-height:0}.sb-prospect-page--standalone-discovery .sb-prospect-workspace{display:grid;grid-template-columns:1fr;flex:none;min-height:auto}.sb-prospect-page--standalone-discovery .sb-prospect-panel,.sb-prospect-page--standalone-discovery .sb-prospect-panel:last-child{display:block;height:auto;min-height:0;overflow:visible}.sb-prospect-page--standalone-discovery .sb-prospect-detail{overflow:visible}.sb-discovery-list-content{display:block;overflow:visible}.sb-discovery-list-content .sb-prospect-table-wrap{overflow:auto}.sb-prospect-page--standalone-discovery .sb-result-panel-head{align-items:flex-start;flex-direction:column}.sb-discovery-results-actions{justify-content:flex-start;width:100%}.sb-prospect-page--standalone-discovery .sb-result-toolbar{flex:1}.sb-prospect-page--standalone-discovery .sb-result-toolbar .sb-prospect-search{width:100%}.sb-prospect-page--standalone-discovery .sb-discovery-heading{align-items:flex-start;flex-direction:column;gap:8px}.sb-discovery-source-tabs{grid-template-columns:1fr}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts{max-width:none;grid-template-columns:1fr}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-meta{grid-column:1;grid-row:3;display:flex;justify-content:space-between;justify-items:initial;margin-top:5px}}
 `;
 
 const DATA_CSS = `
@@ -1896,7 +1900,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       step: "setup",
       intentCandidates: candidates,
       intentSelectedIds: candidates.map((candidate) => candidate.sourceRecordId || candidate.leadId),
-      intentGoal: "判断这些用户是否是高意向潜客，并说明值得继续跟进的依据。",
+      intentGoal: "结合用户账号画像、互动原文和来源证据，自动判断每位用户是否值得继续跟进，并给出意向等级、判断依据和下一步建议。",
       analysisMode: "intent",
       analysisKind: "intent",
       analysisScope: "user_intent",
@@ -2204,7 +2208,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
 
   function renderTaskComposer() {
     if (!state.taskComposer) return;
-    const modal = el("div", "sb-prospect-modal");
+    const modal = el("div", "sb-prospect-modal sb-task-composer-modal");
     const card = el("form", "sb-prospect-modal-card");
     const head = el("div", "sb-prospect-modal-head");
     const copy = el("div"); copy.append(el("div", "sb-prospect-modal-title", "新建潜客拓展任务"), el("div", "sb-prospect-modal-copy", "配置目标和来源后，任务会进入找人 → 分析 → 触达的执行链路。"));
@@ -2279,7 +2283,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     const analyze = el("button", "primary", ownView ? "分析已选用户" : "分析已选账号");
     analyze.type = "button";
     analyze.disabled = !selectedItems.length;
-    analyze.addEventListener("click", () => ownView ? openDiscoveredPeopleAnalysis(selectedItems) : openDiscoveredBatchAnalysis(selectedItems));
+    analyze.addEventListener("click", () => openAnalysisChoiceModal(selectedItems));
     if (ownView) {
       const touchTargets = selectedItems
         .map((item) => recordForDiscovered(item))
@@ -2399,27 +2403,138 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     return runs.find((run) => run.taskId === sourceTaskId || resultId(run) === sourceTaskId) || null;
   }
 
-  function openDiscoveredPeopleAnalysis(items = []) {
-    const selectedItems = Array.isArray(items) ? items : [];
+  function discoveredAnalysisContext(items = []) {
+    const selectedItems = (Array.isArray(items) ? items : []).filter(Boolean);
     const recordsForAnalysis = selectedItems.map(recordForDiscovered).filter(Boolean);
     const ownRecords = selectedItems
       .map((item) => ({ item, record: recordForDiscovered(item) }))
       .filter(({ item, record }) => item?.origin === "own" && record && isContactableRecord(record))
       .map(({ record }) => record);
+    const awaitingIntent = recordsForAnalysis.filter(isAwaitingIntentAnalysis);
+    return {
+      selectedItems,
+      recordsForAnalysis,
+      ownRecords,
+      awaitingIntent,
+      sourceRun: selectedItems.length ? sourceRunForDiscovered(selectedItems[0]) || {} : {},
+      canMineProspects: Boolean(ownRecords.length || awaitingIntent.length)
+    };
+  }
+
+  function openDiscoveredBehaviorAnalysis(items = []) {
+    const selectedItems = (Array.isArray(items) ? items : []).filter(Boolean);
+    if (!selectedItems.length) {
+      showToast("请选择要分析的用户");
+      return;
+    }
+    const publicItems = selectedItems.filter((item) => item.origin === "public");
+    if (publicItems.length && publicItems.length !== selectedItems.length) {
+      showToast("请在同一种来源中选择用户后再生成报告");
+      return;
+    }
+    if (publicItems.length) {
+      openDiscoveredBatchAnalysis(selectedItems);
+      return;
+    }
+    openAccountAnalysis({
+      run: sourceRunForDiscovered(selectedItems[0]) || {},
+      items: selectedItems.map((item) => item.accountData || item),
+      goal: selectedItems.length === 1
+        ? "分析这个用户的行为、需求和仍需确认的信息"
+        : "分析这些互动用户的行为、需求和仍需确认的信息"
+    });
+  }
+
+  function openAnalysisChoiceModal(items = []) {
+    const context = discoveredAnalysisContext(items);
+    if (!context.selectedItems.length) {
+      showToast("请选择要分析的用户");
+      return;
+    }
+    wrap.querySelector(".sb-analysis-choice-modal")?.remove();
+    const modal = el("div", "sb-prospect-modal sb-analysis-choice-modal");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    const card = el("section", "sb-prospect-modal-card sb-analysis-choice-card");
+    const head = el("div", "sb-prospect-modal-head");
+    const title = context.selectedItems.length === 1 ? "这个用户，你想怎么分析？" : "这批用户，你想怎么分析？";
+    const copy = el("div");
+    copy.append(el("div", "sb-prospect-modal-title", title), el("div", "sb-prospect-modal-copy", "先选择分析目的，系统会进入对应的工作流程。"));
+    const close = el("button", "sb-prospect-modal-close", "×");
+    close.type = "button";
+    close.setAttribute("aria-label", "关闭分析方式选择");
+    head.append(copy, close);
+
+    let closed = false;
+    const closeModal = () => {
+      if (closed) return;
+      closed = true;
+      document.removeEventListener("keydown", onKeydown);
+      modal.remove();
+    };
+    const onKeydown = (event) => {
+      if (event.key === "Escape") closeModal();
+    };
+    close.addEventListener("click", closeModal);
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeModal();
+    });
+    document.addEventListener("keydown", onKeydown);
+
+    const choices = el("div", "sb-analysis-choice-list");
+    const mining = el("button", `sb-analysis-choice${context.canMineProspects ? " is-primary" : ""}`);
+    mining.type = "button";
+    mining.disabled = !context.canMineProspects;
+    mining.title = context.canMineProspects ? "" : "需要评论、直播或已授权账号互动证据";
+    const miningCopy = el("span", "sb-analysis-choice-copy");
+    miningCopy.append(
+      el("strong", null, "挖掘潜客"),
+      el("span", null, "从评论、直播和账号互动中识别高意向用户，继续进入潜客触达链路。"),
+      el("small", null, context.canMineProspects ? "产出潜客判断，可继续触达" : "当前来源没有可用的互动证据")
+    );
+    mining.append(miningCopy, el("span", "sb-analysis-choice-arrow", "→"));
+    mining.addEventListener("click", () => {
+      closeModal();
+      openDiscoveredPeopleAnalysis(context.selectedItems);
+    });
+
+    const report = el("button", "sb-analysis-choice");
+    report.type = "button";
+    const reportCopy = el("span", "sb-analysis-choice-copy");
+    reportCopy.append(
+      el("strong", null, "用户行为数据分析"),
+      el("span", null, "基于已有用户或账号画像、行为和互动证据，生成可查看的分析报告。"),
+      el("small", null, "只产出报告，不进入潜客触达流程")
+    );
+    report.append(reportCopy, el("span", "sb-analysis-choice-arrow", "→"));
+    report.addEventListener("click", () => {
+      closeModal();
+      openDiscoveredBehaviorAnalysis(context.selectedItems);
+    });
+    choices.append(mining, report);
+    card.append(head, choices);
+    modal.appendChild(card);
+    wrap.appendChild(modal);
+    (context.canMineProspects ? mining : report).focus();
+  }
+
+  function openDiscoveredPeopleAnalysis(items = []) {
+    const context = discoveredAnalysisContext(items);
+    const selectedItems = context.selectedItems;
+    const ownRecords = context.ownRecords;
     if (ownRecords.length) {
       openIntentAnalysisFromProspects(ownRecords, sourceRunForDiscovered(selectedItems[0]) || {}, { allowSelected: true });
       return;
     }
-    if (selectedItems.some((item) => item?.origin === "own")) {
+    if (context.selectedItems.some((item) => item?.origin === "own")) {
       showToast("这批互动用户的潜客记录尚未同步，请刷新成果中心后重试");
       return;
     }
-    const awaitingIntent = recordsForAnalysis.filter(isAwaitingIntentAnalysis);
-    if (awaitingIntent.length) {
-      openIntentAnalysisFromProspects(awaitingIntent, sourceRunForDiscovered(selectedItems[0]) || {});
+    if (context.awaitingIntent.length) {
+      openIntentAnalysisFromProspects(context.awaitingIntent, context.sourceRun);
       return;
     }
-    openAccountAnalysis({ items: selectedItems.map((item) => item.accountData || item) });
+    openAccountAnalysis({ items: context.selectedItems.map((item) => item.accountData || item) });
   }
 
   function openDiscoveredOutreach(items = []) {
@@ -2513,13 +2628,12 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     const scopeMeta = ownView ? `${authorizedAccountCount} 个当前已授权抖音账号` : `${groups.length} 次任务`;
     const scopeHead = el("div", "sb-discovery-scope-head");
     scopeHead.append(el("strong", null, scopeLabel), el("span", null, scopeMeta));
-    const list = el("div", "sb-discovery-task-list");
+    const list = el("div", `sb-discovery-task-list${ownView ? " sb-discovery-task-list--accounts" : ""}`);
     const all = el("button", `sb-discovery-task${state.selectedDiscoveryTaskId === "all" ? " is-active" : ""}`);
     all.type = "button";
     const allCount = ownView ? sources.ownItems.length : sources.publicItems.length;
-    if (ownView) all.appendChild(el("span", "sb-discovery-task-kicker", "来源抖音账号 · 已授权"));
     all.append(el("span", "sb-discovery-task-name", ownView ? "全部来源抖音账号" : "全部任务"), el("span", "sb-discovery-task-profile", ownView ? "汇总所有已授权抖音账号的互动用户" : "汇总全部公域找人任务的账号"));
-    const allMeta = el("span", "sb-discovery-task-meta"); allMeta.append(el("span", "sb-discovery-task-count", `${allCount} 位`), document.createTextNode("全部")); all.appendChild(allMeta);
+    const allMeta = el("span", "sb-discovery-task-meta"); allMeta.append(el("span", "sb-discovery-task-count", `${allCount} 位`)); all.appendChild(allMeta);
     all.addEventListener("click", () => { state.selectedDiscoveryTaskId = "all"; state.selectedDiscoveredIds.clear(); state.discoverySelectionTaskId = "all"; state.selectedDiscoveredId = discoveryItemsForCurrentScope()[0]?.id || null; render(); });
     list.appendChild(all);
     groups.forEach((group) => {
@@ -2527,7 +2641,6 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       button.type = "button";
       const title = ownView ? sourceDouyinAccountName(group) : group.title;
       const profile = ownView ? sourceDouyinAccountDescription(group) : group.profile;
-      if (ownView) button.appendChild(el("span", "sb-discovery-task-kicker", "来源抖音账号 · 已授权"));
       if (ownView) {
         const accountHeading = el("span", "sb-discovery-account-heading");
         const avatar = el("span", "sb-discovery-account-avatar");
@@ -2537,7 +2650,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       } else {
         button.append(el("span", "sb-discovery-task-name", title), el("span", "sb-discovery-task-profile", profile));
       }
-      const meta = el("span", "sb-discovery-task-meta"); meta.append(el("span", "sb-discovery-task-count", `${group.count} 位`), document.createTextNode(ownView ? "互动用户" : group.generatedAt ? formatResultTime(group.generatedAt) : "历史结果")); button.appendChild(meta);
+      const meta = el("span", "sb-discovery-task-meta"); meta.append(el("span", "sb-discovery-task-count", `${group.count} 位`)); if (!ownView) meta.append(el("span", "sb-discovery-task-kind", group.generatedAt ? formatResultTime(group.generatedAt) : "历史结果")); button.appendChild(meta);
       button.addEventListener("click", () => { state.selectedDiscoveryTaskId = group.id; state.selectedDiscoveredId = group.items[0]?.id || null; state.selectedDiscoveredIds.clear(); state.discoverySelectionTaskId = group.id; state.search = ""; render(); });
       list.appendChild(button);
     });
@@ -2604,9 +2717,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     const actions = el("div", "sb-prospect-detail-actions");
     const analyze = el("button", "primary", ownDiscovery ? isAwaitingIntentAnalysis(record || item) ? "分析互动用户" : "分析这个用户" : "分析这个账号"); analyze.type = "button";
     const sourceRun = sourceRunForDiscovered(item);
-    analyze.addEventListener("click", () => ownDiscovery
-      ? openDiscoveredPeopleAnalysis([item])
-      : openAccountAnalysis({ run: sourceRun || {}, items: [item.accountData || item] }));
+    analyze.addEventListener("click", () => openAnalysisChoiceModal([item]));
     actions.appendChild(analyze);
     if (ownDiscovery) {
       const outreach = el("button", null, record?.status === "已触达" ? "开启私信承接" : canDirectOutreach ? "开始触达" : "自动触达中");
@@ -3657,7 +3768,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
   }
 
   function render() {
-    wrap.querySelector(".sb-prospect-modal")?.remove();
+    wrap.querySelector(".sb-task-composer-modal")?.remove();
     shell.textContent = "";
 
     const prospectCount = records.filter(isProspectRecord).length;

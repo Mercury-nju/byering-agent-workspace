@@ -4,6 +4,8 @@ import test from "node:test";
 
 const source = await readFile(new URL("../src/salebuddy/marketing-site.js", import.meta.url), "utf8");
 const document = await readFile(new URL("../index.html", import.meta.url), "utf8");
+const bSource = await readFile(new URL("../src/salebuddy/marketing-site-b.js", import.meta.url), "utf8");
+const bDocument = await readFile(new URL("../b/index.html", import.meta.url), "utf8");
 
 test("homepage copy reflects the current product surface", () => {
   assert.match(source, /抖音获客与触达 Agent/);
@@ -22,4 +24,15 @@ test("homepage copy reflects the current product surface", () => {
 test("homepage metadata names the real acquisition and outreach focus", () => {
   assert.match(document, /抖音智能获客与触达 Agent/);
   assert.doesNotMatch(document, /持续为你工作的 AI 获客团队。/);
+});
+
+test("homepage B keeps the reference-inspired shell separate from homepage A", () => {
+  assert.match(bDocument, /marketing-site-b\.css/);
+  assert.match(bDocument, /marketing-site-b\.js/);
+  assert.match(bSource, /让每个线索/);
+  assert.match(bSource, /让结果/);
+  assert.match(bSource, /可以在这里/);
+  assert.match(bSource, /在行动前/);
+  assert.match(bSource, /data-service-row/);
+  assert.match(bSource, /<details/);
 });

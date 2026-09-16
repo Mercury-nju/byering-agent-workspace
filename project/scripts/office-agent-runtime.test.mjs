@@ -5,7 +5,8 @@ import { readFileSync } from "node:fs";
 import {
   buildOfficeAgentRoster,
   listActivatedOfficeAgents,
-  OFFICE_AGENT_SLOTS
+  OFFICE_AGENT_SLOTS,
+  officeAgentAriaLabel
 } from "../src/salebuddy/ui/office-agent-runtime.js";
 import {
   installPixiLegacyRoleLabelFilter,
@@ -52,7 +53,27 @@ test("office keeps the chief of staff visible when no specialist is working", ()
   assert.deepEqual(result.roster.map(({ id }) => id), ["main"]);
   assert.equal(result.roster[0].name, "Byering · 幕僚长");
   assert.equal(result.roster[0].state, "working");
+  assert.equal(result.roster[0].accountLabel, "");
   assert.equal(result.activeCount, 1);
+});
+
+test("chief of staff does not enter the Douyin account identity pipeline", () => {
+  const source = readFileSync(new URL("../src/salebuddy/ui/office-agent-runtime.js", import.meta.url), "utf8");
+  const result = buildOfficeAgentRoster({
+    activatedAgents: [],
+    works: [],
+    accounts: [{ id: "douyin-a", name: "家居账号", agentIds: ["main"] }]
+  });
+  assert.equal(result.roster[0].accountLabel, "");
+  assert.match(source, /agentId === OFFICE_CHIEF_AGENT_ID/);
+  assert.match(source, /\.sb-office-agent-account:empty\{display:none\}/);
+});
+
+test("chief of staff accessibility labels do not mention Douyin accounts", () => {
+  const chiefLabel = officeAgentAriaLabel({ id: "main", name: "Byering · 幕僚长", state: "working", stateLabel: "工作中" });
+  const specialistLabel = officeAgentAriaLabel({ id: "mkt-comment-acquisition", name: "抖音获客管家", accountLabel: "家居账号", state: "working", stateLabel: "工作中" });
+  assert.equal(chiefLabel, "查看 Byering · 幕僚长，当前状态：工作中");
+  assert.match(specialistLabel, /抖音账号：家居账号/);
 });
 
 test("office roster only includes working Agents and keeps overflow reachable", () => {
@@ -160,11 +181,19 @@ test("office stage renders one independent video entry per Agent", () => {
   assert.doesNotMatch(source, /sb-office-area|pageCount|setPage/);
 });
 
+test("office stage uses the stable left panel instead of the native canvas wrapper", () => {
+  const source = readFileSync(new URL("../src/salebuddy/ui/office-agent-runtime.js", import.meta.url), "utf8");
+  assert.match(source, /function findOfficeStageHost/);
+  assert.match(source, /\[class\*="_leftPanel_"\]/);
+  assert.match(source, /const nextSimpleHost = findOfficeStageHost\(dashboard\)/);
+  assert.doesNotMatch(source, /const nextSimpleHost = canvas\?\.parentElement/);
+});
+
 test("office badge second line is reserved for the Douyin account", () => {
   const source = readFileSync(new URL("../src/salebuddy/ui/office-agent-runtime.js", import.meta.url), "utf8");
   assert.match(source, /\.sb-office-agent-account/);
   assert.doesNotMatch(source, /\.sb-office-agent-task/);
-  assert.match(source, /抖音账号：\$\{agent\.accountLabel\}/);
+  assert.match(source, /抖音账号：\$\{agent\.accountLabel \|\| "抖音账号待同步"\}/);
 });
 
 test("office badges use the same Agent Center avatar runtime", () => {

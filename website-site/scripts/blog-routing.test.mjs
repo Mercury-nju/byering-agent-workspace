@@ -100,6 +100,7 @@ test("Vercel keeps known files and falls back unknown blog paths", async () => {
   const config = JSON.parse(await readSource("vercel.json"));
   assert.deepEqual(config.routes, [
     { handle: "filesystem" },
+    { src: "/b/?$", dest: "/b/index.html" },
     { src: "/blog/(.*)", dest: "/blog/not-found/index.html" }
   ]);
 });

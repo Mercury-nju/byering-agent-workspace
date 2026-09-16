@@ -19,6 +19,7 @@ export function isPrivateConversationMessage(message = {}) {
       || message.metadata?.source === "chief-conversation"
       || message.metadata?.source === "member-conversation"
       || message.metadata?.source === "reception-strategy"
+      || message.metadata?.source === "acquisition-business-conversation"
       || message.metadata?.source === "managed-daily-report"
   );
 }

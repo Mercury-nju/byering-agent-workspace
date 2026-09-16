@@ -97,6 +97,42 @@ test("durable task subscription is a supported control-plane action", () => {
   assert.equal(isControlPlaneAction("chief.message.decide"), true);
   assert.equal(isControlPlaneAction("dm.message.list"), true);
   assert.equal(isControlPlaneAction("dm.message.send"), true);
+  assert.equal(isControlPlaneAction("douyin.acquisition.tasks.list"), true);
+});
+
+test("browser control-plane client lists durable acquisition tasks for conversation binding", async t => {
+  const acquisitionService = {
+    status() { return {}; },
+    listTasks() {
+      return [{
+        key: "mkt-comment-acquisition::task-1::account-1",
+        context: {
+          agentId: "mkt-comment-acquisition",
+          taskId: "task-1",
+          taskRunId: "run-1",
+          conversationId: "conversation-1",
+          accountId: "account-1"
+        },
+        state: "running",
+        eventSeq: 7,
+        configurationVersion: 3,
+        updatedAt: "2026-09-15T10:00:00.000Z"
+      }];
+    }
+  };
+  const server = createControlPlaneHttpServer({ auth: false, douyinAcquisitionService: acquisitionService });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => new Promise((resolve) => { server.close(resolve); server.closeAllConnections(); }));
+  const client = new ControlPlaneHttpClient({ baseUrl: `http://127.0.0.1:${server.address().port}` });
+
+  const listed = await client.action("douyin.acquisition.tasks.list", {
+    agentId: "mkt-comment-acquisition",
+    accountId: "account-1"
+  });
+  assert.equal(listed.accepted, true);
+  assert.equal(listed.data.tasks[0].taskId, "task-1");
+  assert.equal(listed.data.tasks[0].configurationVersion, 3);
+  assert.equal(listed.data.tasks[0].configuration.version, 3);
 });
 
 test("direct messages use the durable control-plane store without a native gateway", async () => {

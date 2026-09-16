@@ -19,7 +19,6 @@ import { getWork, listWorks, subscribeWork } from "../agents/work-live.js";
 import { createOfficeStatusStore } from "../bridge/office-status.js";
 import { officeWorkState } from "./office-workspace-state.js";
 import { listAgentActivity, recordAgentActivity } from "../agents/agent-activity-journal.js";
-import { mountAgentAvatar } from "./agent-avatar.js";
 import { grokStateForTeamStatus, mountGrokBotAvatar } from "./grok-bot-avatar.js";
 import { createAgentActivityBadge } from "./agent-activity.js";
 import { douyinCloudTaskStore, isDouyinCloudProvisioningStatus, isDouyinCloudReadyStatus } from "../agents/douyin-cloud-state.js";
@@ -120,6 +119,46 @@ export function acquisitionContextFor(agentType, { task = null, work = null } = 
   };
 }
 
+function acquisitionTaskField(task, field) {
+  return task?.[field]
+    ?? task?.context?.[field]
+    ?? task?.metadata?.[field]
+    ?? null;
+}
+
+const ACQUISITION_TASK_STATE_PRIORITY = Object.freeze({
+  running: 0,
+  configuring: 1,
+  degraded: 2,
+  paused: 3,
+  waiting_reply: 4,
+  waiting_approval: 5,
+  completed: 6,
+  done: 6,
+  failed: 7,
+  cancelled: 8
+});
+
+export function selectAcquisitionConversationTask(tasks = [], { agentType, context = {} } = {}) {
+  const requestedAgentId = String(agentType || context.agentId || "").trim();
+  const matches = (Array.isArray(tasks) ? tasks : [])
+    .filter((task) => !requestedAgentId || String(acquisitionTaskField(task, "agentId") || "").trim() === requestedAgentId)
+    .filter((task) => ["taskId", "taskRunId", "conversationId", "accountId"].every((field) => {
+      const expected = String(context[field] || "").trim();
+      return !expected || String(acquisitionTaskField(task, field) || "").trim() === expected;
+    }));
+  if (!matches.length) return null;
+  return [...matches].sort((left, right) => {
+    const leftState = String(acquisitionTaskField(left, "state") || acquisitionTaskField(left, "taskState") || "").toLowerCase();
+    const rightState = String(acquisitionTaskField(right, "state") || acquisitionTaskField(right, "taskState") || "").toLowerCase();
+    const stateDelta = (ACQUISITION_TASK_STATE_PRIORITY[leftState] ?? 99) - (ACQUISITION_TASK_STATE_PRIORITY[rightState] ?? 99);
+    if (stateDelta) return stateDelta;
+    const leftUpdatedAt = Date.parse(acquisitionTaskField(left, "updatedAt") || acquisitionTaskField(left, "createdAt") || "") || 0;
+    const rightUpdatedAt = Date.parse(acquisitionTaskField(right, "updatedAt") || acquisitionTaskField(right, "createdAt") || "") || 0;
+    return rightUpdatedAt - leftUpdatedAt;
+  })[0];
+}
+
 export function acquisitionActionPayload(agentType, action, context = {}) {
   const payload = { agentId: agentType, action, ...context };
   return Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== null && value !== undefined && value !== ""));
@@ -182,6 +221,65 @@ export function mergeAgentConversationMessages(remoteMessages = [], localMessage
 
 const CSS = `
 .sb-contacts2{display:flex;height:100%;min-height:0}
+.sb-contacts-mock-body{display:flex;flex-direction:column;overflow:hidden!important}
+.sb-contacts-mock-body>.sb-contacts2{flex:1;min-height:0;height:auto}
+.sb-mock-controls{flex:none;display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid rgba(15,15,15,.07);background:#fff;box-shadow:0 2px 12px rgba(31,35,41,.04);z-index:2}
+.sb-mock-controls-head{display:flex;align-items:center;gap:8px;flex:none;white-space:nowrap}
+.sb-mock-controls-title{font-size:12px;font-weight:700;color:#1F2329}
+.sb-mock-controls-badge{font-size:10px;color:#4267A5;background:#EEF4FF;border:1px solid #D9E4F3;border-radius:999px;padding:3px 7px}
+.sb-mock-controls-status{font-size:11px;color:#8A8F99;white-space:nowrap}
+.sb-mock-controls-actions{display:flex;align-items:center;gap:6px;margin-left:auto;flex:none}
+.sb-mock-control{height:28px;border:1px solid #D8E0EA;border-radius:7px;padding:0 9px;background:#fff;color:#4267A5;font:inherit;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background-color .16s ease,border-color .16s ease,transform .16s ease}
+.sb-mock-control:hover{background:#F4F8FF;border-color:#AFC3DF;transform:translateY(-1px)}
+.sb-mock-control.is-primary{background:#1F2329;border-color:#1F2329;color:#fff}
+.sb-mock-control.is-primary:hover{background:#33373F}
+.sb-mock-control.is-playing{background:#EEF4FF;border-color:#9EB8DB;color:#34578F}
+.sb-mock-scenario-rail{display:flex;align-items:center;gap:5px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.sb-mock-scenario-rail::-webkit-scrollbar{display:none}
+.sb-mock-scenario{height:27px;border:1px solid transparent;border-radius:999px;padding:0 8px;background:transparent;color:#68727E;font:inherit;font-size:10.5px;cursor:pointer;white-space:nowrap;transition:background-color .16s ease,color .16s ease,border-color .16s ease}
+.sb-mock-scenario:hover{background:#F5F7FA;color:#34578F}
+.sb-mock-scenario.is-active{background:#EEF4FF;border-color:#D3E0F2;color:#34578F;font-weight:650}
+.sb-mock-showcase{height:100%;overflow-y:auto;padding:22px 28px 30px;background:#FBFCFE;color:#1F2329}
+.sb-mock-showcase-header{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:0 0 17px;border-bottom:1px solid rgba(15,15,15,.08)}
+.sb-mock-showcase-kicker{font-size:10px;letter-spacing:.08em;color:#4267A5;font-weight:750;text-transform:uppercase}
+.sb-mock-showcase-title{margin-top:5px;font-size:20px;line-height:1.35;font-weight:700}
+.sb-mock-showcase-copy{margin-top:5px;max-width:660px;font-size:12px;line-height:1.65;color:#77818C}
+.sb-mock-showcase-progress{flex:none;display:flex;align-items:center;gap:7px;color:#8A8F99;font-size:11px}
+.sb-mock-showcase-progress-dot{width:7px;height:7px;border-radius:50%;background:#3B7BE8;box-shadow:0 0 0 4px rgba(59,123,232,.12);animation:sb-mock-progress-pulse 1.6s ease-in-out infinite}
+.sb-mock-showcase-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+.sb-mock-scene{min-width:0;padding:18px 0 20px;border-bottom:1px solid rgba(15,15,15,.07)}
+.sb-mock-scene:nth-last-child(-n+2){border-bottom:0}
+.sb-mock-scene-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sb-mock-scene-label{display:flex;align-items:center;gap:7px;min-width:0;font-size:13px;font-weight:700}
+.sb-mock-scene-index{width:22px;height:22px;display:grid;place-items:center;border-radius:7px;background:#EEF4FF;color:#4267A5;font-size:10px;font-weight:750}
+.sb-mock-scene-tone{font-size:10px;color:#8A8F99;white-space:nowrap}
+.sb-mock-scene-agent{margin-top:4px;font-size:10.5px;color:#8A8F99}
+.sb-mock-scene-preview{display:flex;flex-direction:column;gap:7px;margin-top:12px;min-height:114px}
+.sb-mock-mini-message{display:flex;align-items:flex-start;gap:7px;max-width:92%}
+.sb-mock-mini-message.is-user{align-self:flex-end;flex-direction:row-reverse}
+.sb-mock-mini-avatar{width:22px;height:22px;border-radius:50%;flex:none;background:#3B8EF3;color:#fff;font-size:9px;display:grid;place-items:center;font-weight:700;overflow:hidden}
+.sb-mock-mini-avatar.is-user{background:#E7EDF6;color:#6A7480}
+.sb-mock-mini-bubble{padding:7px 9px;border:1px solid rgba(15,15,15,.07);border-radius:4px 10px 10px 10px;background:#fff;font-size:11px;line-height:1.55;color:#38404A;white-space:pre-wrap}
+.sb-mock-mini-message.is-user .sb-mock-mini-bubble{border-color:transparent;border-radius:10px 4px 10px 10px;background:#EEF4FF}
+.sb-mock-mini-meta{font-size:9.5px;color:#8A8F99;line-height:1.4}
+.sb-mock-mini-state{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;padding:5px 8px;border-radius:999px;background:#F3F5F8;color:#64707D;font-size:10px}
+.sb-mock-mini-state::before{content:"";width:5px;height:5px;border-radius:50%;background:#3B7BE8;animation:sb-mock-progress-pulse 1.6s ease-in-out infinite}
+.sb-mock-mini-state.is-success{background:#EFF8F3;color:#317753}.sb-mock-mini-state.is-success::before{background:#4BAA72;animation:none}.sb-mock-mini-state.is-attention{background:#FFF8EA;color:#966514}.sb-mock-mini-state.is-attention::before{background:#E4A23B}.sb-mock-mini-state.is-danger{background:#FFF2EF;color:#99483D}.sb-mock-mini-state.is-danger::before{background:#C86656;animation:none}
+.sb-mock-mini-artifact{display:flex;align-items:center;gap:8px;padding:8px 9px;border:1px solid #DCE6F2;border-radius:8px;background:#fff;font-size:10.5px;color:#34578F}
+.sb-mock-mini-file{width:25px;height:25px;display:grid;place-items:center;border-radius:6px;background:#EEF4FF;color:#4267A5;font-size:8px;font-weight:750}
+.sb-mock-mini-artifact-copy{min-width:0;flex:1}.sb-mock-mini-artifact-copy strong{display:block;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-mock-mini-artifact-copy span{display:block;margin-top:2px;color:#8A8F99;font-size:9.5px}
+.sb-mock-mini-actions{display:flex;align-items:center;gap:6px;margin-top:auto;padding-top:10px}
+.sb-mock-mini-action{height:28px;border:1px solid #D3E0F2;border-radius:7px;padding:0 9px;background:#fff;color:#4267A5;font:inherit;font-size:10px;font-weight:650;cursor:pointer;transition:background-color .16s ease,border-color .16s ease,transform .16s ease}
+.sb-mock-mini-action:hover{background:#EEF4FF;border-color:#9EB8DB;transform:translateY(-1px)}
+.sb-mock-mini-action.is-primary{background:#1F2329;border-color:#1F2329;color:#fff}.sb-mock-mini-action.is-primary:hover{background:#33373F}
+.sb-mock-mini-action.is-done{background:#EFF8F3;border-color:#B9DDC8;color:#317753;cursor:default;transform:none}
+.sb-mock-scene.is-thinking .sb-mock-mini-bubble{animation:sb-mock-thinking-breathe 1.9s ease-in-out infinite}
+.sb-mock-scene.is-working .sb-mock-mini-state::before{animation-duration:.92s}
+@keyframes sb-mock-progress-pulse{0%,100%{opacity:.45;transform:scale(.78)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes sb-mock-thinking-breathe{0%,100%{opacity:.78;transform:translateY(0)}50%{opacity:1;transform:translateY(-1px)}}
+@media(prefers-reduced-motion:reduce){.sb-mock-progress-dot,.sb-mock-mini-state::before,.sb-mock-scene.is-thinking .sb-mock-mini-bubble{animation:none!important}}
+@media(max-width:1120px){.sb-mock-controls{align-items:flex-start;flex-wrap:wrap;gap:8px}.sb-mock-controls-status{order:3;width:100%}.sb-mock-scenario-rail{order:4;width:100%}.sb-mock-controls-actions{margin-left:auto}.sb-mock-showcase-grid{grid-template-columns:minmax(0,1fr)}.sb-mock-scene:nth-last-child(-n+2){border-bottom:1px solid rgba(15,15,15,.07)}.sb-mock-scene:last-child{border-bottom:0}}
+@media(max-width:760px){.sb-mock-controls{padding:9px 12px}.sb-mock-showcase{padding:18px 16px 24px}.sb-mock-showcase-header{align-items:flex-start;flex-direction:column;gap:10px}.sb-mock-showcase-title{font-size:18px}}
 .sb-clist{width:300px;flex:none;border-right:1px solid rgba(15,15,15,0.06);overflow-y:auto;padding:10px}
 .sb-cgroup-title{font-size:11px;font-weight:600;color:#8A8F99;letter-spacing:.4px;padding:10px 8px 6px;display:flex;gap:6px;align-items:baseline}
 .sb-cgroup-count{font-weight:400;color:#B0B4BB}
@@ -213,6 +311,8 @@ const CSS = `
 .sb-chead-avatar{width:84px;height:84px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:600;color:#fff;background:#5B6B8C;overflow:hidden}
 .sb-chead-avatar.sb-grok-avatar,.sb-msg-avatar.sb-grok-avatar{border-radius:0;overflow:visible;background:transparent!important}
 .sb-chead-avatar.sb-grok-avatar .sb-grok-avatar-svg,.sb-msg-avatar.sb-grok-avatar .sb-grok-avatar-svg{display:block;width:100%;height:100%;overflow:visible}
+.sb-chead-avatar.sb-conversation-avatar .sb-grok-avatar-svg{animation:sb-conversation-avatar-in .34s cubic-bezier(.22,.8,.3,1) both;transform-origin:center}
+@keyframes sb-conversation-avatar-in{from{opacity:.7;transform:translateY(4px) scale(.95) rotate(-2deg)}72%{opacity:1;transform:translateY(-1px) scale(1.02) rotate(.8deg)}to{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
 .sb-chead-avatar.sb-main{background:#1F2329}
 .sb-chead-name{font-size:18px;font-weight:600;color:#1F2329}
 .sb-chead-status{font-size:12px;color:#8A8F99;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:6px}
@@ -235,15 +335,23 @@ const CSS = `
 .sb-cactions-friend .sb-caction{flex:0 0 auto;flex-direction:row;gap:6px;width:auto;min-width:0;padding:7px 11px;border-radius:8px}.sb-cactions-friend .sb-caction svg{width:15px;height:15px}
 
 .sb-chat-list2{flex:1;overflow-y:auto;padding:16px 24px;display:flex;flex-direction:column;gap:12px}
-.sb-msg{display:flex;gap:10px;align-items:flex-start}
+.sb-msg{display:flex;gap:10px;align-items:flex-start;transform-origin:50% 100%}
 .sb-msg.sb-mine{flex-direction:row-reverse}
 .sb-msg-avatar{width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;background:#5B6B8C;overflow:hidden}
 .sb-msg-avatar.sb-main{background:#1F2329}
 .sb-msg-body{max-width:70%}
-.sb-msg-name{font-size:11px;color:#8A8F99;margin-bottom:3px}
+.sb-msg-name{font-size:12px;color:#8A8F99;margin-bottom:4px}
 .sb-msg.sb-mine .sb-msg-name{text-align:right}
-.sb-msg-bubble{background:#fff;border:1px solid rgba(15,15,15,0.06);border-radius:4px 12px 12px 12px;padding:8px 11px;font-size:13px;color:#1F2329;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.sb-msg-bubble{background:#fff;border:1px solid rgba(15,15,15,0.06);border-radius:4px 12px 12px 12px;padding:10px 14px;font-size:14px;color:#1F2329;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .sb-msg.sb-mine .sb-msg-bubble{background:#EEF4FF;border-color:transparent;border-radius:12px 4px 12px 12px}
+.sb-msg.sb-companion-arrive{animation:sb-contact-message-in .34s cubic-bezier(.22,.8,.3,1) both;will-change:transform,opacity}
+.sb-msg.sb-companion-arrive .sb-msg-name{animation:sb-contact-meta-in .26s ease-out .04s both;will-change:transform,opacity}
+.sb-msg.sb-companion-arrive .sb-msg-bubble{animation:sb-contact-bubble-in .34s cubic-bezier(.22,.8,.3,1) .02s both;transform-origin:inherit;will-change:transform,opacity}
+.sb-msg.sb-companion-arrive .sb-msg-avatar{animation:sb-contact-avatar-in .38s cubic-bezier(.22,.8,.3,1) .02s both;will-change:transform,opacity}
+@keyframes sb-contact-message-in{from{opacity:0;transform:translateY(8px) scale(.985)}72%{opacity:1;transform:translateY(-1px) scale(1.002)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes sb-contact-bubble-in{from{opacity:0;transform:translateY(5px) scale(.975)}70%{opacity:1;transform:translateY(-1px) scale(1.008)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes sb-contact-meta-in{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sb-contact-avatar-in{from{opacity:0;transform:translateY(5px) scale(.9) rotate(-4deg)}72%{opacity:1;transform:translateY(-1px) scale(1.04) rotate(1deg)}to{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
 .sb-dm-artifact{width:100%;margin-top:7px;border:1px solid rgba(15,15,15,0.08);border-radius:12px;background:linear-gradient(135deg,#fff 0%,#F8FAFC 100%);padding:11px;text-align:left;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:10px;transition:border-color .15s ease,transform .15s ease,box-shadow .15s ease}
 .sb-dm-artifact:hover{border-color:rgba(59,107,212,0.32);transform:translateY(-1px);box-shadow:0 8px 24px rgba(31,35,41,0.07)}
 .sb-dm-fileico{width:36px;height:36px;border-radius:9px;flex:none;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:.3px;background:rgba(59,107,212,0.1);color:#3B6BD4}
@@ -255,42 +363,49 @@ const CSS = `
 .sb-dm-filestatus{font-size:10px;color:#2F7D3F;background:rgba(87,178,106,0.1);border-radius:999px;padding:2px 7px}
 .sb-dm-filelink{font-size:10.5px;color:#3B6BD4;font-weight:600}
 .sb-chat-input2{flex:none;display:flex;gap:10px;padding:12px 24px 14px;border-top:1px solid rgba(15,15,15,0.06)}
-.sb-chat-input2 textarea{flex:1;resize:none;height:38px;max-height:120px;border:1px solid rgba(15,15,15,0.1);border-radius:10px;padding:9px 12px;font-size:13px;font-family:inherit;color:#1F2329;outline:none;background:#fff}
-.sb-chat-input2 textarea:focus{border-color:#3B6BD4}
-.sb-chat-send2{border:none;background:#1F2329;color:#fff;font-size:13px;padding:0 16px;border-radius:10px;cursor:pointer;height:38px}
+.sb-chat-input2 textarea{flex:1;resize:none;height:38px;max-height:120px;border:1px solid rgba(15,15,15,0.1);border-radius:10px;padding:9px 12px;font-size:13px;font-family:inherit;color:#1F2329;outline:none;background:#fff;transition:border-color .18s ease,box-shadow .18s ease,transform .18s cubic-bezier(.22,.8,.3,1)}
+.sb-chat-input2 textarea:focus{border-color:#3B6BD4;box-shadow:0 0 0 3px rgba(59,107,212,.1);transform:translateY(-1px)}
+.sb-chat-send2{border:none;background:#1F2329;color:#fff;font-size:13px;padding:0 16px;border-radius:10px;cursor:pointer;height:38px;transition:background-color .16s ease,box-shadow .16s ease,transform .16s cubic-bezier(.22,.8,.3,1)}
 .sb-chat-send2:disabled{background:#C4C8CE;cursor:default}
+.sb-chat-send2:not(:disabled):hover{background:#30353D;box-shadow:0 6px 16px rgba(31,35,41,.12);transform:translateY(-1px)}
+.sb-chat-send2:not(:disabled):active{box-shadow:none;transform:translateY(1px) scale(.97)}
 .sb-chat-connection{flex:none;min-height:0;padding:0 24px;color:#8A929B;font-size:12px;line-height:1.5;overflow:hidden;transition:color .18s ease,opacity .18s ease,padding .18s ease}
 .sb-chat-connection:empty{display:none}
 .sb-chat-connection[data-state="error"]{color:#B04A4A}
 .sb-chat-send2[aria-busy="true"]{position:relative;color:transparent;pointer-events:none}
 .sb-chat-send2[aria-busy="true"]::after{content:"";position:absolute;width:13px;height:13px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:sb-chat-spin .7s linear infinite}
 @keyframes sb-chat-spin{to{transform:rotate(360deg)}}
-@media(prefers-reduced-motion:reduce){.sb-chat-connection{transition:none}.sb-chat-send2[aria-busy="true"]::after{animation:none}}
+@media(prefers-reduced-motion:reduce){.sb-chead-avatar.sb-conversation-avatar .sb-grok-avatar-svg,.sb-msg.sb-companion-arrive,.sb-msg.sb-companion-arrive .sb-msg-name,.sb-msg.sb-companion-arrive .sb-msg-bubble,.sb-msg.sb-companion-arrive .sb-msg-avatar{animation:none!important;will-change:auto}.sb-chat-connection{transition:none}.sb-chat-input2 textarea,.sb-chat-send2{transition:none}.sb-chat-send2[aria-busy="true"]::after{animation:none}}
 .sb-proactive{flex:none;display:flex;flex-direction:column;gap:8px;color:#3F4D5D}
-.sb-proactive-message{background:#fff!important;border-color:rgba(15,15,15,.06)!important;border-radius:4px 12px 12px 12px!important;padding:11px 14px!important}
+.sb-proactive-message{background:#fff!important;border-color:rgba(15,15,15,.06)!important;border-radius:4px 12px 12px 12px!important;padding:11px 14px 12px!important}
 .sb-proactive-message-title{font-size:13px;font-weight:650;line-height:1.5}
 .sb-proactive-message-body{margin-top:4px;color:#59636D;font-size:12px;line-height:1.65}
 .sb-proactive-message-meta{margin-top:7px;color:#7C8791;font-size:10.5px;line-height:1.5}
-.sb-proactive-options{margin-left:40px}
-.sb-proactive-options-label{margin-bottom:6px;color:#8A8F99;font-size:11px}
-.sb-proactive-dot{width:8px;height:8px;flex:none;margin-top:5px;border-radius:50%;background:#3B6BD4;box-shadow:0 0 0 4px rgba(59,107,212,.12)}
-.sb-proactive-dot.idle{background:#AAB4C1;box-shadow:0 0 0 4px rgba(170,180,193,.14)}
-.sb-proactive-copy{min-width:0;flex:1}
-.sb-proactive-actions{display:flex;flex-wrap:wrap;gap:7px}
+.sb-proactive-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;padding-top:10px;border-top:1px solid rgba(15,15,15,.06)}
 .sb-proactive-action{border:1px solid #D7E1EE;border-radius:8px;padding:6px 9px;background:#fff;color:#4267A5;font:inherit;font-size:10.5px;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,transform .15s ease}
 .sb-proactive-action:hover{border-color:#9EB8DB;background:#F4F8FF;transform:translateY(-1px)}
 .sb-proactive-action.primary{border-color:#1F2329;background:#1F2329;color:#fff}
 .sb-proactive-action.primary:hover{background:#33373F}
-.sb-dm-cloud-message{margin:0;align-items:flex-start}
-.sb-dm-cloud-bubble{max-width:520px;background:#F7FAFF;border-color:#D9E4F3;color:#59616B;font-size:11px;line-height:1.6}
-.sb-dm-cloud-bubble.is-ready{background:#F5F8FF;border-color:#D9E4F3}
-.sb-dm-cloud-bubble.is-error{background:#FFF8F6;border-color:#F0D7D1}
-.sb-dm-cloud-title{color:#294A7E;font-size:12px;font-weight:700}
-.sb-dm-cloud-bubble.is-ready .sb-dm-cloud-title{color:#4267A5}
-.sb-dm-cloud-bubble.is-error .sb-dm-cloud-title{color:#99483D}
-.sb-dm-cloud-copy{margin-top:5px;color:#6E7D91}
-.sb-dm-cloud-bubble button{margin-top:9px;height:30px;padding:0 10px;border:1px solid #4267A5;border-radius:7px;background:#fff;color:#34578F;font:inherit;font-size:11px;font-weight:650;cursor:pointer}
-.sb-dm-cloud-bubble button:hover{background:#EEF4FF}
+.sb-task-update{display:flex;align-items:flex-start;gap:10px;max-width:520px;margin:0;padding:12px 14px;border:1px solid #D9E4F3;border-radius:12px;background:#F7FAFF;color:#59616B;box-shadow:0 4px 14px rgba(59,107,212,.04);animation:sb-task-update-in .28s cubic-bezier(.22,.8,.3,1) both;transform-origin:left center}
+.sb-task-update.is-ready{background:#F5F8FF;border-color:#D9E4F3}
+.sb-task-update.is-error{background:#FFF8F6;border-color:#F0D7D1}
+.sb-task-update-mark{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:9px;background:#E5EEFC;color:#4267A5}
+.sb-task-update-mark::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px rgba(66,103,165,.12);animation:sb-task-update-pulse 1.8s ease-in-out infinite}
+.sb-task-update.is-error .sb-task-update-mark{background:#FBEAE5;color:#99483D}
+.sb-task-update.is-error .sb-task-update-mark::before{box-shadow:0 0 0 4px rgba(153,72,61,.1);animation:none}
+.sb-task-update-content{min-width:0;flex:1}
+.sb-task-update-header{display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:#7A8797;font-size:10.5px;line-height:1.4}
+.sb-task-update-label{color:#4267A5;font-weight:700}
+.sb-task-update-agent{color:#8A96A4}
+.sb-task-update-title{margin-top:7px;color:#294A7E;font-size:13px;font-weight:700;line-height:1.5}
+.sb-task-update.is-ready .sb-task-update-title{color:#4267A5}
+.sb-task-update.is-error .sb-task-update-title{color:#99483D}
+.sb-task-update-copy{margin-top:5px;color:#6E7D91;font-size:11px;line-height:1.6}
+.sb-task-update-action{margin-top:10px;height:30px;padding:0 10px;border:1px solid #4267A5;border-radius:7px;background:#fff;color:#34578F;font:inherit;font-size:11px;font-weight:650;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,transform .15s ease}
+.sb-task-update-action:hover{background:#EEF4FF;transform:translateY(-1px)}
+@keyframes sb-task-update-pulse{0%,100%{opacity:.45;transform:scale(.78)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes sb-task-update-in{from{opacity:0;transform:translateY(5px) scale(.985)}70%{opacity:1;transform:translateY(-1px) scale(1.003)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.sb-task-update,.sb-task-update-mark::before{animation:none!important}}
 @media(max-width:760px){.sb-cdetail-topbar{align-items:flex-start;flex-direction:column;gap:8px}.sb-cdetail-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}.sb-cdetail-topbar .sb-chead-friend{width:100%}}
 
 .sb-pane{flex:1;overflow-y:auto;padding:18px 28px}
@@ -370,6 +485,21 @@ const PROACTIVE_GUIDANCE = Object.freeze({
   }
 });
 
+export const CONTACTS_MOCK_SCENARIOS = Object.freeze([
+  { id: "welcome", label: "首次进入", agentType: "mkt-comment-acquisition", kind: "message", tone: "neutral", title: "我在，可以开始了", user: "", agent: "告诉我目标、账号或想看的结果，我会先确认范围。", action: "查看实时工作" },
+  { id: "question", label: "用户提问", agentType: "mkt-comment-acquisition", kind: "message", tone: "user", title: "用户侧提问", user: "为什么转化率还有损耗？", agent: "我会回看获客、分析和触达链路，把损耗定位到具体环节。", action: "发送示例" },
+  { id: "thinking", label: "理解中", agentType: "main", kind: "thinking", tone: "thinking", title: "正在理解请求", user: "帮我看一下今天的全局进展。", agent: "我正在整理任务、证据和需要你决定的部分。", action: "模拟回复" },
+  { id: "working", label: "执行中", agentType: "mkt-find-people", kind: "working", tone: "working", title: "正在执行任务", user: "从评论、直播和互动里找潜客。", agent: "正在读取互动，保留原话、来源和时间。", action: "查看实时工作" },
+  { id: "artifact", label: "产出交付", agentType: "mkt-intent-analyst", kind: "artifact", tone: "success", title: "结果已经交付", user: "把分析结果整理成可回溯的名单。", agent: "报告已完成，A 级名单和每条证据都已写入文件中心。", action: "查看产出" },
+  { id: "approval", label: "待确认", agentType: "mkt-cold-writer", kind: "approval", tone: "attention", title: "发送前确认", user: "先发 4 位高意向客户。", agent: "文案和账号已经准备好，发送前需要你确认。", action: "确认发送" },
+  { id: "applied", label: "已生效", agentType: "mkt-comment-acquisition", kind: "applied", tone: "success", title: "配置已生效", user: "可以，立即生效。", agent: "后续会优先处理价格和到店信号，首轮最多处理 8 位用户。", action: "继续安排" },
+  { id: "error", label: "异常恢复", agentType: "mkt-dm-inbox", kind: "error", tone: "danger", title: "这次没有完成", user: "继续处理昨天未完成的会话。", agent: "连接中断，原消息和任务上下文已保留，可以重试。", action: "重试" },
+  { id: "cloud", label: "云电脑", agentType: "mkt-dm-inbox", kind: "cloud", tone: "cloud", title: "云电脑状态", user: "打开当前账号的云电脑。", agent: "云电脑正在运行，私信承接会在后台持续处理。", action: "查看当前进展" },
+  { id: "settings", label: "配置入口", agentType: "mkt-comment-acquisition", kind: "settings", tone: "neutral", title: "进入 Agent 配置", user: "我想调整触达规则。", agent: "配置入口保持在顶部，不把设置塞进聊天气泡。", action: "打开配置" }
+]);
+
+const CONTACTS_MOCK_SCENARIO_MAP = new Map(CONTACTS_MOCK_SCENARIOS.map((scenario) => [scenario.id, scenario]));
+
 function dotClass(state) {
   if (state === TEAM_STATES.WORKING) return "sb-busy";
   if (state === TEAM_STATES.BLOCKED) return "sb-waiting";
@@ -390,7 +520,8 @@ function fmtSize(bytes) {
 export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, initialFriend = null, initialConversationContext = null }) {
   persistNavigationRoute("contacts");
   ensureStyle();
-  const demoGateway = isStyleMockPreview() ? createDemoDmGateway() : null;
+  const mockPreview = isStyleMockPreview();
+  const demoGateway = mockPreview ? createDemoDmGateway() : null;
   gateway = demoGateway || (gateway?.action ? gateway : null);
   const page = openPage({
     title: "成员",
@@ -406,6 +537,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   const listCol = el("div", "sb-clist");
   const detailCol = el("div", "sb-cdetail");
   root.append(listCol, detailCol);
+  if (mockPreview) page.body.classList.add("sb-contacts-mock-body");
   page.body.appendChild(root);
 
   const state = {
@@ -416,17 +548,25 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     memberRosterSignature: "",
     conversationAvatarUpdate: null,
     conversationAvatarTimer: null,
-    conversationAvatarTransientUntil: 0
+    conversationAvatarTransientUntil: 0,
+    mockScenarioId: "all",
+    mockShowcaseOpen: mockPreview,
+    mockActionState: new Map()
   };
   let dmPollTimer = null;
   let disposeCompanion = () => {};
   let disposed = false;
+  let mockPlaybackTimer = null;
   const cloudNoticeInFlight = new Set();
   const DOUYIN_AGENT_IDS = new Set(["mkt-dm-inbox", "mkt-gold-customer-service", "mkt-cold-writer"]);
   const officeStatusStore = createOfficeStatusStore({
     getLocalWorks: listWorks,
     getAgentIds: () => listActivatedMarketplaceAgents().map(({ id }) => id)
   });
+
+  const mockControls = mockPreview ? buildMockControls() : null;
+  if (mockControls) page.body.prepend(mockControls);
+  updateMockControls();
 
   function memberPresentationFor(agentType) {
     const status = teamLive?.getStatusOf?.(agentType) || { agentType, state: TEAM_STATES.IDLE };
@@ -532,6 +672,198 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       };
     }
     return { identity: { name: displayAgentName({ agentType }), title: displayAgentTitle({ agentType }) } };
+  }
+
+  function mockScenarioFor(id) {
+    return CONTACTS_MOCK_SCENARIO_MAP.get(id) || CONTACTS_MOCK_SCENARIOS[0];
+  }
+
+  function updateMockControls() {
+    if (!mockControls) return;
+    const current = mockScenarioFor(state.mockScenarioId);
+    const status = mockControls.querySelector("[data-sb-mock-status]");
+    const all = mockControls.querySelector('[data-sb-mock-action="all"]');
+    const play = mockControls.querySelector('[data-sb-mock-action="play"]');
+    if (status) {
+      const currentLabel = state.mockScenarioId === "all" ? "真实对话" : current.label;
+      status.textContent = state.mockShowcaseOpen ? "已展开全部交互状态" : `当前：${currentLabel}`;
+    }
+    if (all) all.classList.toggle("is-primary", state.mockShowcaseOpen);
+    if (play) {
+      play.classList.toggle("is-playing", Boolean(mockPlaybackTimer));
+      play.textContent = mockPlaybackTimer ? "停止播放" : "自动播放";
+    }
+    for (const button of mockControls.querySelectorAll("[data-sb-mock-scenario]")) {
+      button.classList.toggle("is-active", button.dataset.sbMockScenario === state.mockScenarioId && !state.mockShowcaseOpen);
+    }
+  }
+
+  function buildMockControls() {
+    const controls = el("section", "sb-mock-controls");
+    controls.dataset.sbMockControls = "true";
+    const head = el("div", "sb-mock-controls-head");
+    head.append(el("span", "sb-mock-controls-title", "交互演示"), el("span", "sb-mock-controls-badge", "MOCK"));
+    controls.appendChild(head);
+    controls.appendChild(el("span", "sb-mock-controls-status", "已展开全部交互状态"));
+    controls.lastChild.dataset.sbMockStatus = "true";
+    const rail = el("div", "sb-mock-scenario-rail");
+    for (const scenario of CONTACTS_MOCK_SCENARIOS) {
+      const button = el("button", "sb-mock-scenario", scenario.label);
+      button.type = "button";
+      button.dataset.sbMockScenario = scenario.id;
+      button.addEventListener("click", () => applyMockScenario(scenario.id));
+      rail.appendChild(button);
+    }
+    controls.appendChild(rail);
+    const actions = el("div", "sb-mock-controls-actions");
+    const all = el("button", "sb-mock-control is-primary", "全部场景");
+    all.type = "button";
+    all.dataset.sbMockAction = "all";
+    all.addEventListener("click", () => applyMockScenario("all"));
+    const play = el("button", "sb-mock-control", "自动播放");
+    play.type = "button";
+    play.dataset.sbMockAction = "play";
+    play.addEventListener("click", toggleMockPlayback);
+    actions.append(all, play);
+    controls.appendChild(actions);
+    return controls;
+  }
+
+  function mockMiniMessage(scenario, { user = false, text = "" } = {}) {
+    const row = el("div", `sb-mock-mini-message${user ? " is-user" : ""}`);
+    if (!user) row.appendChild(el("div", "sb-mock-mini-avatar", avatarInitial(scenario.agentType)));
+    const body = el("div");
+    body.appendChild(el("div", "sb-mock-mini-meta", user ? "我" : displayAgentName({ id: scenario.agentType })));
+    body.appendChild(el("div", "sb-mock-mini-bubble", text));
+    row.appendChild(body);
+    return row;
+  }
+
+  function mockSceneAction(scene, scenario, nextText, { secondary = false } = {}) {
+    const action = el("button", `sb-mock-mini-action${secondary ? "" : " is-primary"}`, nextText);
+    action.type = "button";
+    const actionState = state.mockActionState.get(scenario.id);
+    if (actionState) {
+      action.textContent = actionState;
+      action.classList.add("is-done");
+      action.disabled = true;
+    }
+    action.addEventListener("click", () => {
+      if (action.disabled) return;
+      state.mockActionState.set(scenario.id, secondary ? "已保留待确认" : "已触发");
+      scene.querySelectorAll(".sb-mock-mini-action").forEach((button) => {
+        button.disabled = true;
+        button.classList.add("is-done");
+      });
+      action.textContent = secondary ? "已保留待确认" : scenario.id === "error" ? "已发起重试" : "已触发";
+      const feedback = scene.querySelector("[data-sb-mock-feedback]") || el("div", "sb-mock-mini-state is-success");
+      feedback.dataset.sbMockFeedback = "true";
+      feedback.textContent = action.textContent;
+      scene.querySelector(".sb-mock-scene-preview")?.appendChild(feedback);
+    });
+    return action;
+  }
+
+  function renderMockScene(scenario, index) {
+    const scene = el("article", `sb-mock-scene is-${scenario.tone}`);
+    scene.dataset.sbMockScene = scenario.id;
+    if (state.mockScenarioId === scenario.id) scene.dataset.active = "true";
+    const head = el("div", "sb-mock-scene-head");
+    const label = el("div", "sb-mock-scene-label");
+    label.append(el("span", "sb-mock-scene-index", String(index + 1).padStart(2, "0")), el("span", null, scenario.label));
+    head.appendChild(label);
+    head.appendChild(el("span", "sb-mock-scene-tone", scenario.kind === "message" ? "聊天消息" : scenario.kind === "cloud" ? "系统状态" : "交互状态"));
+    scene.append(head, el("div", "sb-mock-scene-agent", displayAgentName({ id: scenario.agentType })));
+    const preview = el("div", "sb-mock-scene-preview");
+    if (scenario.user) preview.appendChild(mockMiniMessage(scenario, { user: true, text: scenario.user }));
+    if (scenario.kind === "thinking") {
+      preview.appendChild(el("div", "sb-mock-mini-state", "想一想…"));
+      preview.appendChild(mockMiniMessage(scenario, { text: scenario.agent }));
+    } else {
+      preview.appendChild(mockMiniMessage(scenario, { text: scenario.agent }));
+    }
+    if (scenario.kind === "working") preview.appendChild(el("div", "sb-mock-mini-state", "理解中…"));
+    if (scenario.kind === "approval") preview.appendChild(el("div", "sb-mock-mini-state is-attention", "等待你的确认"));
+    if (scenario.kind === "applied") preview.appendChild(el("div", "sb-mock-mini-state is-success", "配置已生效"));
+    if (scenario.kind === "error") preview.appendChild(el("div", "sb-mock-mini-state is-danger", "需要重试"));
+    if (scenario.kind === "cloud") preview.appendChild(el("div", "sb-mock-mini-state", "后台运行中"));
+    if (scenario.kind === "artifact") {
+      const artifact = el("div", "sb-mock-mini-artifact");
+      artifact.appendChild(el("span", "sb-mock-mini-file", "HTML"));
+      const copy = el("span", "sb-mock-mini-artifact-copy");
+      copy.append(el("strong", null, "潜客意向分析报告.html"), el("span", null, "9 位 A 级潜客 · 已完成"));
+      artifact.appendChild(copy);
+      preview.appendChild(artifact);
+    }
+    scene.appendChild(preview);
+    const actions = el("div", "sb-mock-mini-actions");
+    if (scenario.kind === "approval") {
+      actions.append(mockSceneAction(scene, scenario, "确认发送"), mockSceneAction(scene, scenario, "稍后处理", { secondary: true }));
+    } else {
+      actions.appendChild(mockSceneAction(scene, scenario, scenario.action));
+    }
+    scene.appendChild(actions);
+    return scene;
+  }
+
+  function renderMockShowcase(container) {
+    stopDmPoll();
+    stopCloudFeed();
+    container.textContent = "";
+    const showcase = el("section", "sb-mock-showcase");
+    showcase.setAttribute("aria-label", "全部对话交互场景");
+    const header = el("header", "sb-mock-showcase-header");
+    const copy = el("div");
+    copy.append(el("div", "sb-mock-showcase-kicker", "Conversation states"), el("div", "sb-mock-showcase-title", "全部对话交互场景"), el("div", "sb-mock-showcase-copy", "覆盖首次进入、用户提问、Agent 理解与执行、结果交付、人工确认、配置生效、异常恢复和云电脑状态。点击任意按钮查看它的即时反馈。"));
+    const progress = el("div", "sb-mock-showcase-progress");
+    progress.append(el("span", "sb-mock-showcase-progress-dot"), el("span", null, `${CONTACTS_MOCK_SCENARIOS.length} 个场景`));
+    header.append(copy, progress);
+    showcase.appendChild(header);
+    const grid = el("div", "sb-mock-showcase-grid");
+    CONTACTS_MOCK_SCENARIOS.forEach((scenario, index) => grid.appendChild(renderMockScene(scenario, index)));
+    showcase.appendChild(grid);
+    container.appendChild(showcase);
+    updateMockControls();
+  }
+
+  function applyMockScenario(id) {
+    if (id === "all") {
+      state.mockScenarioId = "all";
+      state.mockShowcaseOpen = true;
+      state.tab = "chat";
+      renderDetail();
+      updateMockControls();
+      return;
+    }
+    const scenario = mockScenarioFor(id);
+    state.mockScenarioId = scenario.id;
+    state.mockShowcaseOpen = false;
+    state.selected = { kind: "friend", id: scenario.agentType };
+    state.tab = scenario.kind === "cloud" ? "cloud" : scenario.kind === "settings" ? "settings" : "chat";
+    renderList();
+    renderDetail();
+    updateMockControls();
+  }
+
+  function toggleMockPlayback() {
+    if (mockPlaybackTimer) {
+      window.clearInterval(mockPlaybackTimer);
+      mockPlaybackTimer = null;
+      updateMockControls();
+      return;
+    }
+    state.mockShowcaseOpen = true;
+    let index = 0;
+    const playNext = () => {
+      const scenario = CONTACTS_MOCK_SCENARIOS[index % CONTACTS_MOCK_SCENARIOS.length];
+      index += 1;
+      state.mockScenarioId = scenario.id;
+      renderDetail();
+      updateMockControls();
+    };
+    playNext();
+    mockPlaybackTimer = window.setInterval(playNext, 2200);
+    updateMockControls();
   }
 
   // ── 左栏 ──
@@ -701,34 +1033,33 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     const errored = task.phase === "error";
     const market = getMarketplaceAgent(agentType);
     const name = displayAgentName({ id: agentType, name: market?.name || agentType });
-    const notice = el("div", "sb-msg sb-dm-cloud-message");
+    const notice = el("article", `sb-task-update sb-dm-cloud-message${ready ? " is-ready" : errored ? " is-error" : ""}`);
+    notice.dataset.state = errored ? "error" : ready ? task.phase === "running" ? "running" : "ready" : "loading";
+    notice.setAttribute("role", "status");
     notice.setAttribute("data-sb-message-kind", "system-message");
     notice.setAttribute("aria-label", `${name}的云电脑消息`);
-    const avatar = el("div", `sb-msg-avatar${agentType === "main" ? " sb-main" : ""}`, avatarInitial(name));
-    mountGrokBotAvatar(avatar, agentType, {
-      alt: name,
-      state: errored ? "alerting" : ready ? "idle" : "thinking",
-      trackPointer: false,
-      mode: "members"
-    });
-    notice.appendChild(avatar);
-    const body = el("div", "sb-msg-body");
-    body.appendChild(el("div", "sb-msg-name", name));
-    const bubble = el("div", `sb-msg-bubble sb-dm-cloud-bubble${ready ? " is-ready" : errored ? " is-error" : ""}`);
+    const marker = el("span", "sb-task-update-mark");
+    marker.setAttribute("aria-hidden", "true");
+    notice.appendChild(marker);
+    const body = el("div", "sb-task-update-content");
+    const header = el("div", "sb-task-update-header");
+    header.append(el("span", "sb-task-update-label", "任务状态"), el("span", "sb-task-update-agent", name));
+    body.appendChild(header);
+    const card = el("div", "sb-task-update-copy-wrap");
     const title = ready ? "云电脑已准备好" : errored ? "云电脑需要重新检查" : "云电脑正在后台准备";
     const copy = ready
       ? task.phase === "running"
-        ? "该账号的云电脑正在运行，私信承接会在后台持续处理。点击继续处理查看会话和回复状态。"
-        : "该账号的云电脑已经可以继续使用。点击继续处理，回到原来的配置流程。"
+        ? "该账号的云电脑正在运行，私信承接会在后台持续处理。"
+        : "该账号的云电脑已经可以继续使用，可以回到原来的配置流程。"
       : errored
-        ? (task.error || "启动过程需要重新检查。点击继续处理，查看当前状态。")
+        ? (task.error || "启动过程需要重新检查，请查看当前状态。")
         : "你已退出等待，但启动没有中断。准备完成后，这里会出现继续处理入口。";
-    bubble.append(el("div", "sb-dm-cloud-title", title), el("div", "sb-dm-cloud-copy", copy));
-    const action = el("button", null, ready ? "继续处理" : "查看启动状态");
+    card.append(el("div", "sb-task-update-title", title), el("div", "sb-task-update-copy", copy));
+    const action = el("button", "sb-task-update-action", ready && task.phase === "running" ? "查看当前进展" : ready ? "继续处理" : "查看启动状态");
     action.type = "button";
     action.addEventListener("click", () => openCloudResume(agentType));
-    bubble.appendChild(action);
-    body.appendChild(bubble);
+    card.appendChild(action);
+    body.appendChild(card);
     notice.appendChild(body);
     return notice;
   }
@@ -872,22 +1203,19 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     messageRow.appendChild(messageBody);
     brief.appendChild(messageRow);
 
-    const optionsPanel = el("div", "sb-proactive-options");
-    optionsPanel.appendChild(el("div", "sb-proactive-options-label", "我也可以直接帮你打开"));
     const actions = el("div", "sb-proactive-actions");
     const options = snapshot.working
       ? [["查看实时进展", "realtime", true], ["打开云电脑", "cloud"], ["查看当前结果", "prospects"]]
       : snapshot.completed
         ? [["查看交付结果", "prospects", true], ["查看实时工作", "realtime"]]
-        : snapshot.guidance.actions;
+        : snapshot.guidance.actions.filter(([, action]) => action !== "settings");
     for (const [label, action, primary] of options) {
       const button = el("button", `sb-proactive-action${primary ? " primary" : ""}`, label);
       button.type = "button";
       button.addEventListener("click", () => runProactiveAction(agentType, action));
       actions.appendChild(button);
     }
-    optionsPanel.appendChild(actions);
-    brief.appendChild(optionsPanel);
+    if (options.length) messageBubble.appendChild(actions);
     return brief;
   }
 
@@ -941,7 +1269,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     detailCol.textContent = "";
 
     const head = el("div", "sb-chead sb-chead-friend");
-    const headAvatar = el("div", `sb-chead-avatar${agentType === "main" ? " sb-main" : ""}`, avatarInitial(profile.identity?.name));
+    const headAvatar = el("div", `sb-chead-avatar sb-conversation-avatar${agentType === "main" ? " sb-main" : ""}`, avatarInitial(profile.identity?.name));
     // Agent广场雇佣的成员：头像用目录配色
     const marketAgent = getMarketplaceAgent(agentType);
     if (marketAgent) headAvatar.style.background = marketAgent.color;
@@ -1084,11 +1412,36 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       }
     };
     applyConversationBaseAvatar();
-    const conversationContext = isChiefAgentType(agentType)
+    let conversationContext = isChiefAgentType(agentType)
       ? {}
       : acquisitionContextFor(agentType, { task: taskForAgent(agentType, initialConversationContext || {}), work: getWork(agentType) });
     const dmPayload = (extra = {}) => dmPayloadFor(agentType, { ...conversationContext, ...extra });
     const companionRequestForConversation = companionRequestForAgent(agentType);
+
+    async function hydrateAcquisitionContext() {
+      if (!isAcquisitionMember(agentType) || mockPreview || !gateway?.action) return;
+      try {
+        const response = await gateway.action("douyin.acquisition.tasks.list", {
+          agentId: agentType,
+          ...(initialConversationContext?.taskId ? { taskId: initialConversationContext.taskId } : {}),
+          ...(initialConversationContext?.taskRunId ? { taskRunId: initialConversationContext.taskRunId } : {}),
+          ...(initialConversationContext?.conversationId ? { conversationId: initialConversationContext.conversationId } : {}),
+          ...(initialConversationContext?.accountId ? { accountId: initialConversationContext.accountId } : {})
+        });
+        const task = selectAcquisitionConversationTask(response?.data?.tasks || response?.tasks, {
+          agentType,
+          context: initialConversationContext || {}
+        });
+        if (!task || !active) return;
+        const nextContext = acquisitionContextFor(agentType, { task, work: getWork(agentType) });
+        conversationContext = {
+          ...conversationContext,
+          ...Object.fromEntries(Object.entries(nextContext).filter(([, value]) => value !== null && value !== undefined && value !== ""))
+        };
+      } catch {
+        // Keep the local context as a fallback while the control plane reconnects.
+      }
+    }
 
     const rememberLocalMessage = (message) => {
       if (!message?.id) return;
@@ -1135,23 +1488,23 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       const mine = message.from === "user";
       const row = el("div", `sb-msg${mine ? " sb-mine" : ""}`);
       if (!displayedMessages.has(message.id)) { row.className += " sb-companion-arrive"; displayedMessages.add(message.id); }
-      const messageAvatar = el("div", `sb-msg-avatar${message.from === "main" ? " sb-main" : ""}`, avatarInitial(message.fromName));
       const agentType = message.agentType || message.from;
       const presentation = memberPresentationFor(agentType);
       const { status, work } = presentation;
-      mine
-        ? mountAgentAvatar(messageAvatar, agentType, { alt: message.fromName || message.from })
-        : mountGrokBotAvatar(messageAvatar, agentType, {
+      if (!mine) {
+        const messageAvatar = el("div", `sb-msg-avatar${message.from === "main" ? " sb-main" : ""}`, avatarInitial(message.fromName));
+        mountGrokBotAvatar(messageAvatar, agentType, {
           alt: message.fromName || message.from,
           state: grokStateForTeamStatus(status),
           trackPointer: false,
           mode: "members"
         });
-      row.appendChild(messageAvatar);
+        row.appendChild(messageAvatar);
+      }
       const body = el("div", "sb-msg-body");
       const nameRow = el("div", "sb-msg-name-row");
       nameRow.appendChild(el("div", "sb-msg-name", message.fromName || ""));
-      const activity = createAgentActivityBadge(agentType, { status, work });
+      const activity = mine ? null : createAgentActivityBadge(agentType, { status, work });
       if (activity) nameRow.appendChild(activity);
       body.appendChild(nameRow);
       body.appendChild(el("div", "sb-msg-bubble", message.text || ""));
@@ -1350,6 +1703,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
 
     state.dmLastId = null;
     (async () => {
+      await hydrateAcquisitionContext();
       await refresh({ scroll: true });
       await refresh({ scroll: true });
     })();
@@ -1407,11 +1761,21 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
 
   // 配置：完整 Agent 详情页（九段模型 + 运行数据 + 训练，见 agent-profile.js）
   function renderSettings(container, agentType, profile) {
-    renderAgentProfile(container, agentType, profile, { gateway, teamLive });
+    renderAgentProfile(container, agentType, profile, {
+      gateway,
+      teamLive,
+      demoConfig: gateway?.getDemoConfig?.(agentType) || null
+    });
   }
 
   function renderDetail() {
     if (disposed) return;
+    if (mockPreview && state.mockShowcaseOpen) {
+      stopDmPoll();
+      stopCloudFeed();
+      renderMockShowcase(detailCol);
+      return;
+    }
     if (!state.selected) {
       stopDmPoll();
       stopCloudFeed();
@@ -1424,10 +1788,15 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   }
 
   function select(next) {
+    if (mockPreview) {
+      state.mockShowcaseOpen = false;
+      state.mockScenarioId = "all";
+    }
     state.selected = next;
     state.tab = "chat";
     renderList();
     renderDetail();
+    updateMockControls();
   }
 
   function handleMemberStateUpdate() {
@@ -1447,6 +1816,9 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   }
 
   // ── 启动与订阅 ──
+  if (mockPreview && !initialFriend && isContactAgentAvailable("mkt-comment-acquisition")) {
+    state.selected = { kind: "friend", id: "mkt-comment-acquisition" };
+  }
   renderList();
   renderDetail();
   void officeStatusStore.refresh();
@@ -1479,6 +1851,8 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   };
   page.close = () => {
     disposed = true;
+    if (mockPlaybackTimer) window.clearInterval(mockPlaybackTimer);
+    mockPlaybackTimer = null;
     stopDmPoll();
         stopCloudFeed();
         unsubscribe();

@@ -1433,6 +1433,16 @@ test("Agent Center removes non-core Agents instead of rendering disabled cards",
   assert.doesNotMatch(homeSource, /暂未开放/);
 });
 
+test("Agent Center shows the Tiktok acquisition placeholder as unavailable", () => {
+  assert.match(source, /const AGENT_SQUARE_PLACEHOLDER_AGENTS = Object\.freeze\(\[/);
+  assert.match(source, /id: "mkt-tiktok-acquisition"/);
+  assert.match(source, /displayName: "Tiktok获客管家"/);
+  assert.match(source, /function buildUnavailableButton\(label = "即将开放"\)/);
+  assert.match(source, /const placeholderAgents = AGENT_SQUARE_PLACEHOLDER_AGENTS\.filter/);
+  assert.match(source, /buildCard\(agent, \{ placeholder: isPlaceholder \}\)/);
+  assert.match(source, /disabledReason: placeholder \? "即将开放"/);
+});
+
 test("Agent Center keeps each marketplace category in its own workflow section", () => {
   const homeStart = source.indexOf("function renderHome()");
   const homeEnd = source.indexOf("\n  function render()", homeStart);

@@ -16,12 +16,12 @@ const CSS = `
 .sb-companion button{cursor:pointer;white-space:normal;overflow-wrap:anywhere;max-width:100%}
 .sb-companion button:disabled{cursor:default;opacity:.5}
 .sb-companion :focus-visible{outline:2px solid #28685a;outline-offset:3px}
-.sb-companion-status{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-height:28px;color:#626b70;animation:sb-companion-status-in .22s ease-out both}
-.sb-companion-dots{display:inline-flex;align-items:center;gap:4px;width:28px;height:20px;flex:none}
-.sb-companion-dot{display:block;width:5px;height:5px;border-radius:50%;background:currentColor;animation:sb-companion-typing 1.2s ease-in-out infinite}
+.sb-companion-status{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-height:28px;color:#626b70;animation:sb-companion-status-in .3s cubic-bezier(.22,.8,.3,1) both;transform-origin:left center}
+.sb-companion-dots{display:inline-flex;align-items:center;justify-content:center;gap:4px;width:34px;height:22px;flex:none;border-radius:999px;background:rgba(98,107,112,.08)}
+.sb-companion-dot{display:block;width:5px;height:5px;border-radius:50%;background:currentColor;animation:sb-companion-typing 1.35s cubic-bezier(.22,.8,.3,1) infinite;transform-origin:center}
 .sb-companion-dot:nth-child(2){animation-delay:.16s}
 .sb-companion-dot:nth-child(3){animation-delay:.32s}
-@keyframes sb-companion-typing{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-3px);opacity:1}}
+@keyframes sb-companion-typing{0%,68%,100%{opacity:.34;transform:translateY(0) scale(.72)}28%{opacity:1;transform:translateY(-4px) scale(1.18)}44%{opacity:.72;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.sb-companion-dot{animation:none;transform:none;opacity:.65}}
 .sb-companion-command{border:1px solid #d7ddda;border-radius:6px;min-height:36px;padding:6px 12px;background:#fff}
 .sb-companion-command:hover:not(:disabled){background:#f3f6f4;border-color:#889c91}
@@ -35,7 +35,7 @@ const CSS = `
 .sb-companion-arrive{animation:sb-companion-arrive .18s ease-out both}
 .sb-companion-completed{display:inline-flex;align-items:center;gap:5px;color:#536a5b;font-size:11px;margin-top:6px}
 @keyframes sb-companion-arrive{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-@keyframes sb-companion-status-in{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sb-companion-status-in{from{opacity:0;transform:translateY(4px) scale(.98)}72%{opacity:1;transform:translateY(-1px) scale(1.005)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.sb-companion-arrive,.sb-companion-status{animation:none}}
 .sb-companion-card{margin:0;min-width:0;padding:12px 14px;border:1px solid #dce2de;border-radius:8px;background:#fff}
 .sb-companion-card legend{padding:0 4px;font-weight:600;font-size:14px;max-width:100%}

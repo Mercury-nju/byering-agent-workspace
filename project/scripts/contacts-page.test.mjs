@@ -1,9 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { ACQUISITION_TASK_UPDATE_ACTION, acquisitionActionPayload, acquisitionContextFor, acquisitionMemberActions, acquisitionTaskUpdatePayload, chiefDecisionPresentation, conversationModeForAgent, isAcquisitionMember, isContactAgentAvailable, memberAvatarStateForStatus, memberConversationAvatarStateForStatus, memberStatusPresentation, mergeAgentConversationMessages, sortContactFriendEntries, specialistConversationMetadata } from "../src/salebuddy/ui/contacts-page.js";
+import { ACQUISITION_TASK_UPDATE_ACTION, CONTACTS_MOCK_SCENARIOS, acquisitionActionPayload, acquisitionContextFor, acquisitionMemberActions, acquisitionTaskUpdatePayload, chiefDecisionPresentation, conversationModeForAgent, isAcquisitionMember, isContactAgentAvailable, memberAvatarStateForStatus, memberConversationAvatarStateForStatus, memberStatusPresentation, mergeAgentConversationMessages, selectAcquisitionConversationTask, sortContactFriendEntries, specialistConversationMetadata } from "../src/salebuddy/ui/contacts-page.js";
 
 const contactsSource = readFileSync(new URL("../src/salebuddy/ui/contacts-page.js", import.meta.url), "utf8");
+const companionSource = readFileSync(new URL("../src/salebuddy/ui/agent-companion-ui.js", import.meta.url), "utf8");
+const activitySource = readFileSync(new URL("../src/salebuddy/ui/agent-activity.js", import.meta.url), "utf8");
 const appSource = readFileSync(new URL("../src/salebuddy/index.js", import.meta.url), "utf8");
 const navSource = readFileSync(new URL("../src/salebuddy/ui/nav-framework.js", import.meta.url), "utf8");
 
@@ -33,7 +35,55 @@ test("member conversation uses the current Agent avatar system", () => {
   assert.ok(chatStart >= 0 && chatEnd > chatStart);
   assert.match(contactsSource.slice(proactiveStart, proactiveEnd), /mountGrokBotAvatar\(messageAvatar, agentType/);
   assert.match(contactsSource.slice(friendStart, friendEnd), /mountGrokBotAvatar\(headAvatar, agentType/);
-  assert.match(contactsSource.slice(chatStart, chatEnd), /mine\s*\?\s*mountAgentAvatar[\s\S]*:\s*mountGrokBotAvatar/);
+  assert.match(contactsSource.slice(chatStart, chatEnd), /if \(!mine\) \{[\s\S]*mountGrokBotAvatar\(messageAvatar, agentType/);
+  assert.doesNotMatch(contactsSource.slice(chatStart, chatEnd), /mine\s*\?\s*mountAgentAvatar/);
+});
+
+test("member conversation keeps user messages free of Agent avatar and activity state", () => {
+  const chatStart = contactsSource.indexOf("function renderChat(");
+  const chatEnd = contactsSource.indexOf("async function renderCloud", chatStart);
+  assert.ok(chatStart >= 0 && chatEnd > chatStart);
+  const chatSource = contactsSource.slice(chatStart, chatEnd);
+  const bubbleStart = chatSource.indexOf("function bubble(message)");
+  const bubbleEnd = chatSource.indexOf("async function refresh", bubbleStart);
+  assert.ok(bubbleStart >= 0 && bubbleEnd > bubbleStart);
+  const bubbleSource = chatSource.slice(bubbleStart, bubbleEnd);
+
+  assert.match(bubbleSource, /if \(!mine\) \{[\s\S]*mountGrokBotAvatar\(messageAvatar, agentType/);
+  assert.doesNotMatch(bubbleSource, /mine\s*\?\s*mountAgentAvatar/);
+  assert.match(bubbleSource, /const activity = mine \? null : createAgentActivityBadge\(agentType/);
+});
+
+test("style mock exposes every conversation state in a playable showcase", () => {
+  assert.deepEqual(CONTACTS_MOCK_SCENARIOS.map(({ id }) => id), [
+    "welcome",
+    "question",
+    "thinking",
+    "working",
+    "artifact",
+    "approval",
+    "applied",
+    "error",
+    "cloud",
+    "settings"
+  ]);
+  assert.equal(CONTACTS_MOCK_SCENARIOS.length, 10);
+  assert.match(contactsSource, /mockShowcaseOpen: mockPreview/);
+  assert.match(contactsSource, /data-sb-mock-scenario/);
+  assert.match(contactsSource, /function toggleMockPlayback\(\)/);
+  assert.match(contactsSource, /function renderMockShowcase\(container\)/);
+  assert.match(contactsSource, /\.sb-mock-showcase-grid\{/);
+  assert.match(contactsSource, /function applyMockScenario\(id\) \{\s*if \(id === "all"\)/);
+  assert.match(contactsSource, /state\.mockScenarioId === "all" \? "真实对话"/);
+});
+
+test("mock user-side previews do not render Agent avatars", () => {
+  const mockStart = contactsSource.indexOf("function mockMiniMessage");
+  const mockEnd = contactsSource.indexOf("function mockSceneAction", mockStart);
+  assert.ok(mockStart >= 0 && mockEnd > mockStart);
+  const mockSource = contactsSource.slice(mockStart, mockEnd);
+  assert.match(mockSource, /if \(!user\) row\.appendChild/);
+  assert.match(mockSource, /user \? "我"/);
 });
 
 test("members use the same activated marketplace Agents and names as Agent Center", () => {
@@ -180,6 +230,38 @@ test("specialist member conversations stay scoped to the assigned Agent and curr
   });
 });
 
+test("acquisition conversations bind to the newest active durable task", () => {
+  const selected = selectAcquisitionConversationTask([
+    {
+      agentId: "mkt-comment-acquisition",
+      taskId: "completed-task",
+      state: "completed",
+      updatedAt: "2026-09-16T08:00:00.000Z"
+    },
+    {
+      agentId: "mkt-comment-acquisition",
+      taskId: "active-task",
+      taskRunId: "active-run",
+      conversationId: "active-conversation",
+      accountId: "account-1",
+      state: "running",
+      updatedAt: "2026-09-15T08:00:00.000Z"
+    },
+    {
+      agentId: "mkt-comment-acquisition",
+      taskId: "other-account-task",
+      accountId: "account-2",
+      state: "running",
+      updatedAt: "2026-09-16T09:00:00.000Z"
+    }
+  ], {
+    agentType: "mkt-comment-acquisition",
+    context: { accountId: "account-1" }
+  });
+  assert.equal(selected.taskId, "active-task");
+  assert.equal(selected.conversationId, "active-conversation");
+});
+
 test("specialist message sends use the conversation context that was created for the chat", () => {
   const chatStart = contactsSource.indexOf("function renderChat(");
   const chatEnd = contactsSource.indexOf("async function renderCloud", chatStart);
@@ -300,8 +382,27 @@ test("the proactive first paint is a normal assistant message, not a work-status
   const source = contactsSource.slice(start, end);
   assert.match(source, /setAttribute\("data-sb-message-kind",\s*"assistant-message"\)/);
   assert.match(source, /sb-msg-bubble/);
+  assert.match(source, /messageBubble\.appendChild\(actions\)/);
+  assert.doesNotMatch(source, /sb-proactive-options/);
   assert.doesNotMatch(source, /工作状态/);
   assert.doesNotMatch(source, /等待真实任务事件/);
+});
+
+test("conversation bubbles use readable type and spacing", () => {
+  assert.match(contactsSource, /\.sb-msg-name\{font-size:12px;[^}]*margin-bottom:4px\}/);
+  assert.match(contactsSource, /\.sb-msg-bubble\{[^}]*padding:10px 14px;[^}]*font-size:14px;[^}]*line-height:1\.65/);
+});
+
+test("conversation motion uses layered entry and direct interaction feedback", () => {
+  assert.match(contactsSource, /\.sb-msg\.sb-companion-arrive\{animation:sb-contact-message-in/);
+  assert.match(contactsSource, /\.sb-msg\.sb-companion-arrive \.sb-msg-bubble\{animation:sb-contact-bubble-in/);
+  assert.match(contactsSource, /\.sb-chead-avatar\.sb-conversation-avatar \.sb-grok-avatar-svg\{animation:sb-conversation-avatar-in/);
+  assert.match(contactsSource, /\.sb-chat-send2:not\(:disabled\):active\{[^}]*transform:translateY\(1px\) scale\(\.97\)/);
+  assert.match(companionSource, /\.sb-companion-dots\{[^}]*border-radius:999px/);
+  assert.match(companionSource, /@keyframes sb-companion-typing\{/);
+  assert.match(companionSource, /scale\(1\.18\)/);
+  assert.match(activitySource, /@keyframes sb-agent-activity-pulse\{/);
+  assert.match(activitySource, /scale\(1\.18\)/);
 });
 
 test("cloud desktop actions stay inside the conversation message stream", () => {
@@ -313,10 +414,17 @@ test("cloud desktop actions stay inside the conversation message stream", () => 
 test("conversation interactions use the shared blue-neutral palette", () => {
   assert.match(contactsSource, /\.sb-proactive-action\{[^}]*border:1px solid #D7E1EE[^}]*color:#4267A5/);
   assert.match(contactsSource, /\.sb-proactive-action\.primary\{border-color:#1F2329;background:#1F2329;color:#fff\}/);
-  assert.match(contactsSource, /\.sb-dm-cloud-bubble\.is-ready\{background:#F5F8FF;border-color:#D9E4F3\}/);
-  assert.match(contactsSource, /\.sb-dm-cloud-bubble\.is-ready \.sb-dm-cloud-title\{color:#4267A5\}/);
+  assert.match(contactsSource, /\.sb-task-update\.is-ready\{background:#F5F8FF;border-color:#D9E4F3\}/);
+  assert.match(contactsSource, /\.sb-task-update\.is-ready \.sb-task-update-title\{color:#4267A5\}/);
   assert.doesNotMatch(contactsSource, /\.sb-proactive-action\{[^}]*#(?:16B778|1B8E62|CFE4D8|8BCDAA|F0FAF4)/);
   assert.doesNotMatch(contactsSource, /\.sb-proactive-action\.primary\{[^}]*#(?:16B778|119A64)/);
+});
+
+test("cloud notices are explicit task status cards", () => {
+  assert.match(contactsSource, /const notice = el\("article", `sb-task-update sb-dm-cloud-message/);
+  assert.match(contactsSource, /el\("span", "sb-task-update-label", "任务状态"\)/);
+  assert.match(contactsSource, /ready && task\.phase === "running" \? "查看当前进展" : ready \? "继续处理"/);
+  assert.doesNotMatch(contactsSource, /sb-msg-bubble sb-dm-cloud-bubble/);
 });
 
 test("conversation history rejects an Agent message when its conversation metadata is missing", () => {

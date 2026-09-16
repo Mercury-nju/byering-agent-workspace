@@ -18,15 +18,16 @@ compare_file() {
 }
 
 compare_file "$ROOT_DIR/index.html" "$DIST_DIR/index.html"
+compare_file "$ROOT_DIR/b/index.html" "$DIST_DIR/b/index.html"
 compare_file "$ROOT_DIR/robots.txt" "$DIST_DIR/robots.txt"
 compare_file "$ROOT_DIR/sitemap.xml" "$DIST_DIR/sitemap.xml"
 compare_file "$ROOT_DIR/vercel.json" "$DIST_DIR/vercel.json"
 
-for file in marketing-site.js marketing-site.css blog-content.js blog-site.js blog-site.css site-router.js; do
+for file in marketing-site.js marketing-site.css marketing-site-b.js marketing-site-b.css blog-content.js blog-site.js blog-site.css site-router.js; do
   compare_file "$ROOT_DIR/src/salebuddy/$file" "$DIST_DIR/src/salebuddy/$file"
 done
 
-for asset in byering-product-agent-center.png byering-product-agent-detail.png byering-product-realtime-work.png byering-hero-founder-v2.png byering-hero-glass.png byering-logo-mark.png noto-sans-sc-v38-latin-100-CC4HgmWe.ttf; do
+for asset in byering-product-agent-center.png byering-product-agent-detail.png byering-product-realtime-work.png byering-case-intent.png byering-case-followup.png byering-hero-founder-v2.png byering-hero-glass.png byering-logo-mark.png creatie-hills.png noto-sans-sc-v38-latin-100-CC4HgmWe.ttf; do
   compare_file "$ROOT_DIR/assets/$asset" "$DIST_DIR/assets/$asset"
 done
 

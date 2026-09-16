@@ -522,6 +522,7 @@ const CSS = `
 @media(max-width:640px){.sb-as-use:not(:has(.sb-as-lead-setup)){padding:22px 16px 36px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-title{font-size:25px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-panel{padding:22px 18px 18px}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-steps{grid-template-columns:1fr}.sb-as-use:not(:has(.sb-as-lead-setup)) .sb-as-use-step{padding:9px 11px}.sb-as-use:has(.sb-as-private-review) .sb-as-use-panel{padding:22px 18px 18px}.sb-as-private-review-top{align-items:flex-start;flex-direction:column;gap:10px}.sb-as-private-summary{grid-template-columns:1fr;grid-template-areas:"sender" "boundary" "target" "message"}.sb-as-private-actions{flex-direction:column-reverse;align-items:stretch}.sb-as-private-actions button{width:100%}.sb-as-use.is-task-compose.is-task-compose{padding:42px 17px 36px}.sb-as-use.is-task-compose.is-task-compose .sb-as-use-panel.sb-as-task-compose-panel{padding:0}.sb-as-task-compose-panel .sb-as-use-panel-title{font-size:25px}.sb-as-task-compose-panel .sb-as-finder-goal{min-height:160px;padding:16px;font-size:15px}.sb-as-task-compose-panel .sb-as-finder-actions{justify-content:stretch}.sb-as-task-compose-panel .sb-as-finder-actions button.primary{width:100%}.sb-as-task-options>summary{align-items:flex-start;flex-wrap:wrap;padding-right:45px}.sb-as-task-options>summary:after{position:absolute;top:11px;right:13px}.sb-as-task-options>summary span{flex-basis:100%}}
 @media(max-width:640px){.sb-as-private-source-head{flex-direction:column}.sb-as-private-source-tools{width:100%}.sb-as-private-source-tool{flex:1}.sb-as-private-mode-options{grid-template-columns:1fr}.sb-as-private-running-summary{grid-template-columns:1fr}.sb-as-private-target{grid-template-columns:25px minmax(0,1fr);}.sb-as-private-target-status{grid-column:2}.sb-as-private-review-target{align-items:flex-start;flex-direction:column;gap:3px}.sb-as-private-mock-flow{grid-template-columns:1fr}}
 .sb-as-finder-consumer{padding:14px 26px 34px}.sb-as-finder-promise{display:grid;gap:4px;margin:2px 0 18px;padding:13px 15px;border:1px solid #dce6f5;border-radius:11px;background:#f7faff}.sb-as-finder-promise strong{color:#294a7e;font-size:12px;line-height:1.45}.sb-as-finder-promise span{color:#718096;font-size:10.5px;line-height:1.55}.sb-as-finder-consumer .sb-task-choices legend{font-size:18px;line-height:1.35;margin-bottom:14px;color:#2d343b}.sb-as-finder-consumer .sb-task-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.sb-as-finder-consumer .sb-task-choice{min-height:102px;align-items:flex-start;padding:15px 15px 14px;border-radius:10px;transition:background .15s,border-color .15s,box-shadow .15s,transform .15s ease}.sb-as-finder-consumer .sb-task-choice:hover{background:#fbfdff}.sb-as-finder-consumer .sb-task-choice.is-selected{background:#f8fbff}.sb-as-finder-consumer .sb-task-choice.is-selected .sb-task-choice-copy strong{color:#245ea9}.sb-as-finder-consumer .sb-task-choice.is-selected:hover{transform:translateY(-1px)}.sb-as-finder-consumer .sb-task-choice-copy{gap:5px}.sb-as-finder-consumer .sb-task-choice-eyebrow{color:#7f9bc0;font-size:10px;font-weight:650;line-height:1.2}.sb-as-finder-consumer .sb-task-choice strong{font-size:14px;line-height:1.35}.sb-as-finder-consumer .sb-task-choice small{font-size:11px;line-height:1.5}.sb-task-selection-note{display:flex;align-items:baseline;gap:8px;min-height:24px;margin:12px 1px 0;color:#7d8791;font-size:10.5px;line-height:1.45}.sb-task-selection-note strong{color:#42566d;font-size:11px;font-weight:650}.sb-task-selection-note small{color:#929ca7}.sb-task-filter-section{margin-top:12px;padding-top:12px;border-top:1px solid #edf0f3}.sb-task-filter-header{display:flex;align-items:baseline;gap:8px}.sb-task-filter-header strong{color:#5b6773;font-size:11px;font-weight:650}.sb-task-filter-header span{color:#9aa3ad;font-size:10px}.sb-task-filter-section .sb-task-filter-row{margin-top:8px}.sb-task-choice{transition:background .15s,border-color .15s,box-shadow .15s,transform .15s ease}
+.sb-as-intent-focus{display:grid;gap:8px;margin:14px 0 18px}.sb-as-intent-focus-label{color:#4b5968;font-size:12px;font-weight:680}.sb-as-intent-focus textarea{width:100%;min-height:82px;box-sizing:border-box;padding:11px 12px;border:1px solid #d5dfed;border-radius:9px;background:#fff;color:#30363c;font:inherit;font-size:12px;line-height:1.6;resize:vertical;outline:none}.sb-as-intent-focus textarea:focus{border-color:#4267a5;box-shadow:0 0 0 3px rgba(66,103,165,.1)}.sb-as-intent-focus textarea::placeholder{color:#a0aab6}.sb-as-intent-candidate{grid-template-columns:minmax(0,1fr);cursor:default}
  .sb-as-finder-consumer .sb-task-specific-goal{display:none;gap:7px;margin:13px 0 0;padding:13px 14px;border:1px solid #d9e3f1;border-radius:10px;background:#f8fbff}.sb-as-finder-consumer .sb-task-specific-goal.is-visible{display:grid}.sb-as-finder-consumer .sb-task-specific-goal label{color:#536b86;font-size:11px;font-weight:650}.sb-as-finder-consumer .sb-task-specific-goal textarea{width:100%;box-sizing:border-box;min-height:64px;padding:10px 11px;border:1px solid #d8e0ea;border-radius:8px;background:#fff;color:#30363c;font:inherit;font-size:12px;line-height:1.55;resize:vertical;outline:none}.sb-as-finder-consumer .sb-task-specific-goal textarea:focus{border-color:#8ca9d1;box-shadow:0 0 0 3px rgba(66,103,165,.1)}
 .sb-as-finder-consumer .sb-task-choice-guidance{margin:0 0 15px;color:#8793a1;font-size:11px}.sb-as-finder-consumer .sb-task-filter-section{margin-top:15px;padding:14px 15px 15px;border:1px solid #e0e7f0;border-radius:12px;background:#fbfcfe;box-shadow:none}.sb-as-finder-consumer .sb-task-filter-section[hidden]{display:none}.sb-as-finder-consumer .sb-task-filter-section:not([hidden]){animation:sb-as-finder-reveal .22s ease-out}.sb-as-finder-consumer .sb-task-filter-header{margin-bottom:10px}.sb-as-finder-consumer .sb-task-filter-header strong{color:#4c5d70;font-size:11px}.sb-as-finder-consumer .sb-task-filter-header span{color:#929eac;font-size:10px}.sb-composite-finder-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 22px}.sb-composite-finder-step{padding:9px 11px;border-bottom:2px solid #edf0f3;color:#9aa3ad;font-size:11px;font-weight:600}.sb-composite-finder-step.is-active{border-color:#4267a5;color:#1f2329}.sb-composite-finder-step.is-done{border-color:#9fc8b3;color:#2d9a68}.sb-composite-finder-source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}.sb-composite-finder-source-option{min-height:118px;padding:16px;border:1px solid #dfe5ec;border-radius:8px;background:#fff;color:#1f2329;text-align:left;font:inherit;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s}.sb-composite-finder-source-option:hover{border-color:#a8bddb;background:#fbfdff}.sb-composite-finder-source-option.is-selected{border-color:#5f86bd;background:#f7faff;box-shadow:0 0 0 2px rgba(66,103,165,.1)}.sb-composite-finder-source-option strong,.sb-composite-finder-source-option span{display:block}.sb-composite-finder-source-option strong{font-size:14px;line-height:1.4}.sb-composite-finder-source-option span{margin-top:7px;color:#778494;font-size:11px;line-height:1.55}.sb-public-finder-brief{display:grid;gap:14px;margin:0 0 20px;padding:0 0 20px;border-bottom:1px solid #e8edf2}.sb-public-finder-brief-heading{display:grid;gap:4px}.sb-public-finder-brief-heading strong{color:#2d343b;font-size:18px;line-height:1.35}.sb-public-finder-brief-heading span{color:#8491a0;font-size:11px;line-height:1.55}.sb-public-finder-brief>textarea,.sb-public-finder-field textarea,.sb-public-finder-field input{width:100%;box-sizing:border-box;border:1px solid #d9e1ea;border-radius:8px;background:#fff;color:#30363c;font:inherit;font-size:12px;line-height:1.5;outline:0}.sb-public-finder-brief>textarea,.sb-public-finder-field textarea{min-height:72px;padding:10px 11px;resize:vertical}.sb-public-finder-field input{height:38px;padding:0 11px}.sb-public-finder-brief>textarea:focus,.sb-public-finder-field textarea:focus,.sb-public-finder-field input:focus{border-color:#7799ca;box-shadow:0 0 0 3px rgba(66,103,165,.1)}.sb-public-finder-context{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1.35fr) minmax(180px,.7fr);gap:12px;align-items:start}.sb-public-finder-field{display:grid;gap:7px;min-width:0}.sb-public-finder-label{color:#4b5b6d;font-size:11px;font-weight:650}.sb-public-finder-account-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.sb-public-finder-resolve{height:38px;padding:0 11px;border:1px solid #cfd9e5;border-radius:8px;background:#fff;color:#365f9d;font:inherit;font-size:11px;font-weight:650;white-space:nowrap;cursor:pointer}.sb-public-finder-resolve:hover:not(:disabled){border-color:#86a4ce;background:#f7faff}.sb-public-finder-resolve:disabled{opacity:.55;cursor:wait}.sb-public-finder-hint{min-height:28px;color:#8794a2;font-size:10px;line-height:1.45}.sb-public-finder-hint.is-error{color:#bd6353}.sb-public-finder-limit input{max-width:132px}.sb-as-composite-finder .sb-task-choices{margin-top:18px}.sb-as-composite-finder .sb-task-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-as-composite-finder .sb-task-choice{min-height:82px}.sb-as-composite-finder .sb-as-use-actions{margin-top:24px}
 @media(max-width:860px){.sb-as-finder-consumer .sb-task-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -570,6 +571,7 @@ const CSS = `
 .sb-public-finder-filter-field select{width:100%;height:36px;box-sizing:border-box;border:1px solid #d9e1ea;border-radius:7px;padding:0 9px;background:#fff;color:#394653;font:inherit;font-size:11px;outline:0}
 .sb-public-finder-filter-field select:focus{border-color:#7799ca;box-shadow:0 0 0 3px rgba(66,103,165,.1)}
 @media(max-width:640px){.sb-composite-finder-steps.is-public{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice-grid{grid-template-columns:1fr;gap:8px}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice{min-height:76px}.sb-public-finder-limit{align-items:flex-start;flex-direction:column;gap:7px}.sb-public-finder-custom-goal-body,.sb-public-finder-context-body,.sb-public-finder-filters-body{grid-template-columns:1fr}.sb-public-finder-custom-goal>summary,.sb-public-finder-context>summary,.sb-public-finder-filters>summary{min-height:58px}.sb-public-finder-context-copy small{max-width:250px}.sb-public-finder-filters>summary{align-items:flex-start;padding:11px 0}.sb-public-finder-filters>summary span{margin-left:0}.sb-public-finder-filters>summary:after{margin-top:7px}}
+.sb-as-intent-candidate{grid-template-columns:minmax(0,1fr);cursor:default}.sb-as-intent-candidate-copy{min-width:0}.sb-as-intent-candidate-copy span{overflow-wrap:anywhere}
 `;
 
 let styleInjected = false;
@@ -666,6 +668,16 @@ function buildLeadTargetPreview(flow = {}) {
 // Only the focused Douyin acquisition roster is available for new work. Legacy
 // marketplace capabilities remain visible as disabled cards for continuity.
 const DEFAULT_INSTALLED_MARKETPLACE_IDS = new Set();
+const AGENT_SQUARE_PLACEHOLDER_AGENTS = Object.freeze([
+  Object.freeze({
+    id: "mkt-tiktok-acquisition",
+    displayName: "Tiktok获客管家",
+    displayTitle: "Tiktok获客能力即将开放",
+    category: "找人",
+    desc: "Tiktok 获客能力正在准备中，敬请期待。",
+    skills: ["发现潜在客户", "筛选互动信号", "沉淀获客线索"]
+  })
+]);
 
 function isFirstReleaseAgent(agent) {
   if (!isMarketplaceAgentAvailable(agent)) return false;
@@ -1477,7 +1489,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       analysisResult: saved?.analysisResult ? structuredClone(saved.analysisResult) : null,
       intentCandidates: Array.isArray(saved?.intentCandidates) ? structuredClone(saved.intentCandidates) : [],
       intentSelectedIds: Array.isArray(saved?.intentSelectedIds) ? [...saved.intentSelectedIds] : [],
-      intentGoal: saved?.intentGoal || "判断这些已找到的用户是否值得继续跟进，并给出可回查的依据和下一步建议。",
+      intentFocus: saved?.intentFocus || "",
+      intentGoal: saved?.intentGoal || "结合用户账号画像、互动原文和来源证据，自动判断每位用户是否值得继续跟进，并给出意向等级、判断依据和下一步建议。",
       analysisScope: "user_intent",
       intentResult: null,
       prefilledFromFinder: saved?.prefilledFromFinder === true,
@@ -2910,6 +2923,13 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   }
 
   // ── Agent市场卡片 ──
+  function buildUnavailableButton(label = "即将开放") {
+    const button = el("button", "sb-as-hire sb-disabled", label);
+    button.type = "button";
+    button.disabled = true;
+    return button;
+  }
+
   function buildHireButton(agent) {
     const enabled = isFirstReleaseAgent(agent);
     const acquisitionCard = getAcquisitionCardViewModel(agent);
@@ -7612,7 +7632,11 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       text: evidence[0]?.quote || record.profile || "",
       source: { ...(record.source || {}), type: record.source?.type || "作品评论" },
       evidence,
-      profileUrl: record.profileUrl || ""
+      profileUrl: record.profileUrl || "",
+      profileData: record.profileData || (record.profile && typeof record.profile === "object" ? { ...record.profile } : null),
+      contentEvidence: Array.isArray(record.contentEvidence)
+        ? record.contentEvidence.map((item) => ({ ...item }))
+        : Array.isArray(record.recentWorks) ? record.recentWorks.map((item) => ({ ...item })) : []
     };
   }
 
@@ -7679,7 +7703,11 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       },
       sourceScope,
       evidence,
-      profileUrl: entry.profileUrl || entry.profile_url || entry.userUrl || entry.user_url || ""
+      profileUrl: entry.profileUrl || entry.profile_url || entry.userUrl || entry.user_url || "",
+      profileData: entry.profileData || (entry.profile && typeof entry.profile === "object" ? { ...entry.profile } : entry.account?.profile || null),
+      contentEvidence: Array.isArray(entry.contentEvidence)
+        ? entry.contentEvidence.map((item) => ({ ...item }))
+        : Array.isArray(entry.recentWorks) ? entry.recentWorks.map((item) => ({ ...item })) : []
     };
   }
 
@@ -7705,7 +7733,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       agentId: analyst.id,
       intentCandidates: candidates,
       intentSelectedIds: candidates.map((candidate) => candidate.sourceRecordId || candidate.leadId),
-      intentGoal: "判断这些已找到的用户是否值得继续跟进，并给出可回查的依据和下一步建议。",
+      intentGoal: intentAnalystDefaultGoal(),
       analysisScope: "user_intent",
       sourceResultId: run.resultId,
       sourceTaskId: run.taskId,
@@ -7746,6 +7774,16 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       })
       .slice(0, 500)
       .map(intentCandidateFromRecord);
+  }
+
+  function intentAnalystDefaultGoal() {
+    return "结合用户账号画像、互动原文和来源证据，自动判断每位用户是否值得继续跟进，并给出意向等级、判断依据和下一步建议。";
+  }
+
+  function buildIntentAnalysisGoal(flow = {}) {
+    const focus = String(flow.intentFocus || "").trim();
+    const base = intentAnalystDefaultGoal();
+    return focus ? `${base}\n用户补充的特殊侧重点：${focus}` : base;
   }
 
   function renderIntentAnalystModeChooser(panel, flow) {
@@ -7832,7 +7870,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     }
     const title = el("div", "sb-as-use-panel-title", candidates.length ? "选择待判断对象" : "先完成找客，再分析客户");
     const copy = el("div", "sb-as-use-panel-copy", candidates.length
-      ? "客户分析员只判断已有候选人的购买意向，会保留原始表达、来源和可确认信息；不会重新找人或自动发送私信。"
+      ? "AI 会结合用户账号画像、互动原文和来源证据自动完成判断，不需要你预先定义潜客类型；不会重新找人或自动发送私信。"
       : "找客专员先汇总互动用户，再由客户分析员判断购买意向；客户分析员不会重新搜索对象。");
     panel.append(title, copy);
     if (!candidates.length) {
@@ -7863,21 +7901,22 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     if (flow.prefilledFromFinder) sourceCopy.appendChild(el("small", null, "已自动接收找客专员的最新名单"));
     source.append(sourceCopy, el("span", "sb-as-intent-source-count", `${candidates.length} 位待判断`));
     panel.appendChild(source);
-    const intentGoal = "判断这些已找到的用户是否值得继续跟进，并给出可回查的依据和下一步建议。";
-    mountTaskChoices(panel, {
-      flow,
-      group: "audience",
-      field: "intentGoal",
-      title: "你想找什么样的潜客？",
-      defaults: ["purchase"],
-      initialText: flow.intentGoal === intentGoal ? "" : flow.intentGoal,
-      goalInput: {
-        label: "补充说明（选填）",
-        placeholder: "例如：只保留近期准备购买新能源车、正在比较价格和金融方案的人",
-        quickTitle: "先选择要留意的潜客信号（可多选）"
-      },
-      onChange: () => { flow.analysisScope = "user_intent"; flow.error = null; }
+    const intentGoal = intentAnalystDefaultGoal();
+    flow.intentGoal = intentGoal;
+    const focus = el("div", "sb-as-intent-focus");
+    focus.appendChild(el("label", "sb-as-intent-focus-label", "补充特殊侧重点（选填）"));
+    const focusInput = document.createElement("textarea");
+    focusInput.rows = 3;
+    focusInput.value = String(flow.intentFocus || "");
+    focusInput.placeholder = "例如：特别关注近期准备到店、价格敏感或明确比较方案的人";
+    focusInput.setAttribute("aria-label", "补充特殊侧重点（选填）");
+    focusInput.addEventListener("input", () => {
+      flow.intentFocus = focusInput.value;
+      flow.analysisScope = "user_intent";
+      flow.error = null;
     });
+    focus.appendChild(focusInput);
+    panel.appendChild(focus);
     const delivery = el("div", "sb-as-intent-delivery");
     delivery.append(
       el("strong", null, "本次会输出"),
@@ -7887,50 +7926,16 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       el("small", null, "每位用户都会保留可回查的原始证据和下一步建议；分析过程不会代发私信。")
     );
     panel.appendChild(delivery);
-    const savedIds = Array.isArray(flow.intentSelectedIds) ? flow.intentSelectedIds : [];
     const candidateIds = candidates.map((candidate) => candidate.sourceRecordId || candidate.leadId || candidate.uniqueId || candidate.nickname).filter(Boolean);
-    const selectedIds = new Set(savedIds.length ? savedIds : candidateIds);
-    flow.intentSelectedIds = [...selectedIds];
+    flow.intentSelectedIds = [...candidateIds];
     const listHead = el("div", "sb-as-intent-list-head");
     const tools = el("div", "sb-as-intent-list-tools");
-    const selectedLabel = el("span", null, "");
-    const selectAll = el("button", null, "");
-    selectAll.type = "button";
-    tools.append(selectedLabel, selectAll);
+    tools.appendChild(el("span", null, `${candidateIds.length} 位全部纳入判断`));
     listHead.append(el("strong", null, "待判断对象"), tools);
     panel.appendChild(listHead);
     const list = el("div", "sb-as-intent-candidate-list");
-    const checkboxes = [];
-    let start = null;
-    const syncSelection = () => {
-      flow.intentSelectedIds = [...selectedIds];
-      selectedLabel.textContent = `已选 ${selectedIds.size} 位`;
-      selectAll.textContent = selectedIds.size === candidateIds.length ? "取消全选" : "全选";
-      if (start) {
-        start.disabled = selectedIds.size === 0 || !String(flow.intentGoal || "").trim();
-        start.textContent = selectedIds.size ? `开始判断 ${selectedIds.size} 位潜客` : "开始判断潜客";
-      }
-    };
-    selectAll.addEventListener("click", () => {
-      if (selectedIds.size === candidateIds.length) selectedIds.clear();
-      else candidateIds.forEach((id) => selectedIds.add(id));
-      checkboxes.forEach(({ id, checkbox }) => { checkbox.checked = selectedIds.has(id); });
-      syncSelection();
-    });
     candidates.forEach((candidate) => {
-      const id = candidate.sourceRecordId || candidate.leadId || candidate.uniqueId || candidate.nickname;
-      const row = el("label", "sb-as-intent-candidate");
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.value = id;
-      checkbox.checked = selectedIds.has(id);
-      checkbox.setAttribute("aria-label", `选择${candidate.nickname || "用户"}`);
-      checkbox.addEventListener("change", () => {
-        if (checkbox.checked) selectedIds.add(id);
-        else selectedIds.delete(id);
-        syncSelection();
-      });
-      checkboxes.push({ id, checkbox });
+      const row = el("div", "sb-as-intent-candidate");
       const body = el("span", "sb-as-intent-candidate-copy");
       const rawSourceType = String(candidate.source?.type || "").trim();
       const sourceType = /direct|直接触达|私信/.test(rawSourceType) ? "用户指定对象" : rawSourceType || "来源已保留";
@@ -7940,30 +7945,18 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         : rawText || "原始表达已保留，等待完成意向判断。";
       const meta = [sourceType, candidate.source?.videoTitle || candidate.source?.videoId, "待判断"].filter(Boolean).join(" · ");
       body.append(el("strong", null, candidate.nickname || "抖音用户"), el("span", null, text), el("small", null, meta));
-      row.append(checkbox, body);
+      row.appendChild(body);
       list.appendChild(row);
     });
     panel.appendChild(list);
     const actions = el("div", "sb-as-use-actions sb-as-intent-actions");
-    const standalone = el("button", null, "单独分析这些用户");
-    standalone.type = "button";
-    standalone.addEventListener("click", () => {
-      flow.analysisMode = "account_report";
-      flow.analysisKind = "account_report";
-      flow.analysisScope = "user_report";
-      flow.analysisAccounts = normalizeAnalysisAccounts(candidates);
-      flow.analysisUrls = "";
-      flow.analysisGoal = "";
-      flow.error = null;
-      render();
-    });
-    actions.appendChild(el("div", "sb-as-intent-start-note", "只对已选对象做购买意向判断。完成后结果会回写成果中心，你再决定是否交给潜客触达专员。"));
-    start = el("button", "primary", "开始判断潜客");
+    actions.appendChild(el("div", "sb-as-intent-start-note", "确认后直接开始判断，结果会回写成果中心；不会自动发送私信。"));
+    const start = el("button", "primary", candidateIds.length ? `开始判断 ${candidateIds.length} 位潜客` : "开始判断潜客");
     start.type = "button";
+    start.disabled = candidateIds.length === 0;
     start.addEventListener("click", () => startUse(getMarketplaceAgent(state.useId)));
-    actions.append(standalone, start);
+    actions.appendChild(start);
     panel.appendChild(actions);
-    syncSelection();
   }
 
   function analysisSpecialistEntries(flow) {
@@ -8137,16 +8130,11 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   async function startIntentAnalyst(agent, flow) {
     if (flow.requesting) return;
     flow.analysisScope = "user_intent";
-    const intentGoal = String(flow.intentGoal || "").trim();
-    if (!intentGoal) {
-      flow.error = { code: "INTENT_ANALYST_GOAL_REQUIRED", message: "请至少选择一种潜客信号，或补充筛选条件。" };
-      flow.step = "setup";
-      render();
-      return;
-    }
+    const intentGoal = buildIntentAnalysisGoal(flow);
+    flow.intentGoal = intentGoal;
     const candidates = Array.isArray(flow.intentCandidates) ? flow.intentCandidates : [];
-    const selectedIds = new Set(Array.isArray(flow.intentSelectedIds) ? flow.intentSelectedIds : []);
-    const selected = candidates.filter((candidate) => selectedIds.has(candidate.sourceRecordId || candidate.leadId || candidate.uniqueId || candidate.nickname)).slice(0, 500);
+    const selected = candidates.slice(0, 500);
+    flow.intentSelectedIds = selected.map((candidate) => candidate.sourceRecordId || candidate.leadId || candidate.uniqueId || candidate.nickname).filter(Boolean);
     if (!selected.length) {
       flow.error = { code: "INTENT_ANALYST_NO_CANDIDATES", message: "请先选择至少一位已经找到的用户。" };
       flow.step = "setup";
@@ -10323,6 +10311,7 @@ async function startPrivateOutreachMock(agent, flow, targets) {
   }
 
   function buildCard(agent) {
+    const { placeholder = false } = arguments[1] || {};
     const { name, title } = presentationOf(agent);
     const category = displayedCategory(agent);
     const [accent, accentSoft, accentBorder] = marketplaceCardAccent(agent, category);
@@ -10339,9 +10328,9 @@ async function startPrivateOutreachMock(agent, flow, targets) {
       employmentStatus: isAgentReadyForUse(agent) ? "已雇佣" : "未雇佣",
       description: agent.desc,
       tags: agent.skills,
-      actionButton: buildHireButton(agent),
-      disabledReason: enabled ? acquisitionGate?.label : "当前版本仅开放获客专家及四个独立能力 Agent",
-      disabled: !enabled
+      actionButton: placeholder ? buildUnavailableButton() : buildHireButton(agent),
+      disabledReason: placeholder ? "即将开放" : enabled ? acquisitionGate?.label : "当前版本仅开放获客专家及四个独立能力 Agent",
+      disabled: placeholder || !enabled
     });
   }
 
@@ -10422,9 +10411,11 @@ async function startPrivateOutreachMock(agent, flow, targets) {
         const rightCategory = workflowCategory(right) ? AGENT_WORKFLOW_DISPLAY_ORDER.indexOf(workflowCategory(right)) : -1;
         return leftCategory - rightCategory;
       });
-    for (const agent of availableAgents) {
+    const placeholderAgents = AGENT_SQUARE_PLACEHOLDER_AGENTS.filter((agent) => !hiddenIds.has(agent.id));
+    for (const agent of [...availableAgents, ...placeholderAgents]) {
       const category = workflowCategory(agent);
-      const allCard = markMarketplaceCard(buildCard(agent), agent);
+      const isPlaceholder = AGENT_SQUARE_PLACEHOLDER_AGENTS.some((item) => item.id === agent.id);
+      const allCard = markMarketplaceCard(buildCard(agent, { placeholder: isPlaceholder }), agent);
       allAgentsGrid.appendChild(allCard);
       if (category && agentsByCategory.has(category)) agentsByCategory.get(category).push(agent);
     }
@@ -10434,7 +10425,8 @@ async function startPrivateOutreachMock(agent, flow, targets) {
       const agents = sortMarketplaceAgentsForDisplay(agentsByCategory.get(category), { isReady: isFirstReleaseAgent });
       if (!agents.length) continue;
       for (const agent of agents) {
-        categoryRows.get(category)?.appendChild(markMarketplaceCard(buildCard(agent), agent));
+        const isPlaceholder = AGENT_SQUARE_PLACEHOLDER_AGENTS.some((item) => item.id === agent.id);
+        categoryRows.get(category)?.appendChild(markMarketplaceCard(buildCard(agent, { placeholder: isPlaceholder }), agent));
       }
     }
 

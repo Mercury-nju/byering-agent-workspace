@@ -1756,7 +1756,7 @@ const CSS = `
 .sb-rw-pause{border:1px solid #e1e8e4;background:#fff;color:#52615b}
 .sb-rw-pause.is-paused{color:#b56a20;border-color:#f0ddc2;background:#fffaf2}
 .sb-rw-team{display:flex;flex-wrap:nowrap;gap:12px;margin-bottom:24px;padding:3px 2px 9px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#cbded5 transparent}
-.sb-rw-team-card{display:flex;flex:0 0 220px;flex-direction:column;align-items:stretch;justify-content:space-between;min-width:220px;min-height:126px;padding:14px 15px;border:1px solid #e6ebe9;border-radius:14px;background:#fff;text-align:left;font:inherit;cursor:pointer;transition:border-color 140ms ease,box-shadow 140ms ease,transform 140ms ease}
+.sb-rw-team-card{position:relative;display:flex;flex:0 0 220px;flex-direction:column;align-items:stretch;justify-content:space-between;min-width:220px;min-height:126px;padding:14px 15px;border:1px solid #e6ebe9;border-radius:14px;background:#fff;text-align:left;font:inherit;cursor:pointer;transition:border-color 140ms ease,box-shadow 140ms ease,transform 140ms ease}
 .sb-rw-team-card:hover{border-color:#a8d9c5;transform:translateY(-1px)}
 .sb-rw-team-card.is-active{border-color:#16b77a;box-shadow:0 0 0 2px rgba(16,185,129,.11)}
 .sb-rw-agent-line{display:flex;align-items:flex-start;gap:10px;min-width:0;text-align:left}
@@ -1769,7 +1769,7 @@ const CSS = `
 .sb-rw-agent-phase{display:block;margin-top:5px;color:#8a9691;font-size:11px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sb-rw-status-dot{width:7px;height:7px;flex:none;border-radius:50%;background:#16b77a;box-shadow:0 0 0 3px rgba(16,183,122,.11)}
 .sb-rw-status-dot.waiting{background:#b6c0bc;box-shadow:none}
-.sb-rw-card-meta{display:flex;align-items:center;justify-content:flex-start;gap:8px;min-height:18px;margin-top:14px;color:#8c9792;font-size:11px;text-align:left}.sb-rw-card-meta.is-attention{color:#c65a38}
+.sb-rw-card-meta{position:absolute;top:12px;right:12px;display:flex;align-items:center;justify-content:flex-end;gap:8px;min-height:18px;margin-top:0;color:#8c9792;font-size:11px;text-align:right}.sb-rw-card-meta.is-attention{color:#c65a38}
 .sb-rw-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid #e7ecea;border-radius:14px;background:#fff;margin-bottom:18px;overflow:hidden}
 .sb-rw-kpi{padding:14px 18px;border-right:1px solid #edf1ef}
 .sb-rw-kpi:last-child{border-right:0;background:#f4fbf7}
@@ -1993,12 +1993,14 @@ const CSS = `
 .sb-rw-account-count{font-size:11px}
 .sb-rw-account-list{gap:8px;padding:2px 1px 4px}
 .sb-rw-account-card{flex-basis:228px;min-height:78px;padding:10px 11px;border-radius:10px;box-shadow:0 1px 2px rgba(35,57,47,.025)}
+.sb-rw-account-name-line{padding-right:58px}
+.sb-rw-account-status{position:absolute;top:12px;right:12px}
 .sb-rw-account-card.is-active{box-shadow:0 0 0 2px rgba(22,183,122,.1),0 3px 8px rgba(35,57,47,.06)}
 .sb-rw-account-thumb{width:50px;height:32px;border-radius:5px}
 .sb-rw-team{gap:8px;margin-bottom:18px;padding:1px 1px 5px}
 .sb-rw-team-card{flex-basis:196px;min-width:196px;min-height:104px;padding:12px;border-radius:10px;box-shadow:0 1px 2px rgba(35,57,47,.025)}
 .sb-rw-team-card.is-active{box-shadow:0 0 0 2px rgba(22,183,122,.1),0 3px 8px rgba(35,57,47,.06)}
-.sb-rw-card-meta{margin-top:11px}
+.sb-rw-card-meta{top:10px;right:10px}
 .sb-rw-kpis{margin-bottom:16px;border-radius:11px;box-shadow:0 1px 2px rgba(35,57,47,.025)}
 .sb-rw-kpi{padding:12px 15px}
 .sb-rw-kpi-value{font-size:22px}
@@ -2084,7 +2086,7 @@ const CSS = `
 .sb-rw-ai-team .sb-rw-team::-webkit-scrollbar{height:4px}
 .sb-rw-ai-team .sb-rw-team::-webkit-scrollbar-track{background:transparent}
 .sb-rw-ai-team .sb-rw-team::-webkit-scrollbar-thumb{border-radius:999px;background:#d4dbe2}
-.sb-rw-team-card{flex:0 0 calc((100% - 16px) / 3);min-width:320px;min-height:96px;padding:12px;border-radius:10px;scroll-snap-align:start;scroll-snap-stop:always}
+.sb-rw-team-card{flex:0 0 calc((100% - 16px) / 3);min-width:320px;min-height:78px;padding:12px;border-radius:10px;scroll-snap-align:start;scroll-snap-stop:always}
 .sb-rw-kpis{display:none}
 @media (max-width:1200px){.sb-rw-main{grid-template-columns:minmax(330px,1.1fr) minmax(240px,.9fr)}.sb-rw-prospect{grid-column:1/-1}.sb-rw-main.is-inbox-work{grid-template-columns:minmax(360px,1fr) minmax(280px,.72fr)}.sb-rw-main.is-comment-acquisition-work{grid-template-columns:minmax(0,1fr)}.sb-rw-main.is-inbox-work .sb-rw-inbox-conversations{grid-column:1/-1;min-height:0}.sb-rw-acquisition-conversations{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}.sb-rw-acquisition-empty.is-conversation{grid-column:1/-1;min-height:190px}.sb-rw-inbox-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}.sb-rw-inbox-empty{grid-column:1/-1;min-height:190px}}
 @media (max-width:1100px){.sb-rw-account-topline{display:block}.sb-rw-account-summary{margin-top:9px;width:max-content;max-width:100%;overflow-x:auto}.sb-rw-account-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -2097,6 +2099,7 @@ const CSS = `
 .sb-rw-account-card.is-active{border-color:#b7c8e5;background:#fff;box-shadow:none}
 .sb-rw-team-card.is-active{border-color:#b7c8e5;background:#fff;box-shadow:none}
 .sb-rw-account-title,.sb-rw-account-name-line{display:flex;align-items:center;gap:7px;min-width:0}
+.sb-rw-account-meta .sb-rw-account-capability-summary{flex:1;min-width:0;margin-top:0}
 .sb-rw-account-name-line .sb-rw-account-name{min-width:0;flex:0 1 auto}
 .sb-rw-mock-badge{display:inline-flex;align-items:center;justify-content:center;flex:none;height:17px;padding:0 5px;border:1px solid #d6e1f3;border-radius:5px;background:#f1f5fb;color:#5f76a0;font-size:8px;font-weight:750;letter-spacing:.04em;line-height:1}
 .sb-rw-panel-title{display:flex;align-items:center;gap:7px;min-width:0}
@@ -7111,9 +7114,9 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
           ? `${ready} 项能力可使用`
           : "尚未接入可运行能力"
         : "尚未接入可运行能力";
-      meta.append(accountStatus, el("span", "sb-rw-account-stat", activeAccountWorks.length ? `${activeAccountWorks.length} 个${item.mock ? "模拟 Agent" : "Agent"}运行中` : item.mock ? "已准备模拟数据" : "暂无实时任务"));
       const capabilityStatus = el("span", "sb-rw-account-capability-summary", capabilitySummary);
       capabilityStatus.title = capabilityMatrix.map(({ name, binding }) => `${name}：${binding === "account_cloud" ? "账号云电脑已就绪" : "未接入"}`).join("\n");
+      meta.append(accountStatus, capabilityStatus, el("span", "sb-rw-account-stat", activeAccountWorks.length ? `${activeAccountWorks.length} 个${item.mock ? "模拟 Agent" : "Agent"}运行中` : item.mock ? "已准备模拟数据" : "暂无实时任务"));
       const foot = item.status === "需重新登录"
         ? "等待授权后恢复"
         : item.mock
@@ -7121,7 +7124,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
         : activeAccountWorks.length
           ? "真实任务已连接"
           : "等待任务启动";
-      copy.append(meta, capabilityStatus, el("span", "sb-rw-account-foot", foot));
+      copy.append(meta, el("span", "sb-rw-account-foot", foot));
       card.append(accountAvatar, copy);
       card.addEventListener("click", () => {
         state.accountId = item.id;

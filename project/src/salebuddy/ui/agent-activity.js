@@ -31,10 +31,10 @@ const activityListeners = new Map();
 
 const CSS = `
 .sb-agent-activity{display:inline-flex;align-items:center;gap:4px;max-width:112px;min-width:0;color:#2F67C8;font-size:10.5px;font-weight:650;line-height:1;white-space:nowrap;vertical-align:middle}
-.sb-agent-activity-dot{width:5px;height:5px;border-radius:50%;background:#3B7BE8;flex:none;animation:sb-agent-activity-pulse 1.6s ease-in-out infinite}
+.sb-agent-activity-dot{width:5px;height:5px;border-radius:50%;background:#3B7BE8;flex:none;animation:sb-agent-activity-pulse 1.45s cubic-bezier(.22,.8,.3,1) infinite;transform-origin:center}
 .sb-agent-activity-label{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .sb-agent-activity-dots{display:inline-block;width:0;overflow:hidden;letter-spacing:1px;animation:sb-agent-activity-dots 1.2s steps(4,end) infinite}
-@keyframes sb-agent-activity-pulse{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+@keyframes sb-agent-activity-pulse{0%,100%{opacity:.42;transform:scale(.76)}42%{opacity:1;transform:scale(1.18)}58%{opacity:.72;transform:scale(.98)}78%{opacity:.5;transform:scale(.84)}}
 @keyframes sb-agent-activity-dots{0%{width:0}65%,100%{width:12px}}
 .sb-as-mate-name-row,.sb-cname-row,.sb-msg-name-row{display:flex;align-items:center;gap:6px;min-width:0}
 .sb-msg-name-row .sb-agent-activity{font-size:10px}

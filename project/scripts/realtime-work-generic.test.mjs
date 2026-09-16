@@ -448,6 +448,25 @@ test("running Agent cards stay in one horizontally scrollable row", () => {
   assert.doesNotMatch(teamRail, /\.sb-rw-team\{display:grid/);
 });
 
+test("running Agent card status is anchored to the top-right corner", () => {
+  assert.match(realtimeWorkSource, /\.sb-rw-team-card\{position:relative;/);
+  assert.match(realtimeWorkSource, /\.sb-rw-card-meta\{position:absolute;top:12px;right:12px;/);
+  assert.match(realtimeWorkSource, /\.sb-rw-card-meta\{top:10px;right:10px\}/);
+});
+
+test("account connection status is anchored to the top-right corner", () => {
+  assert.match(realtimeWorkSource, /\.sb-rw-account-card\{position:relative;/);
+  assert.match(realtimeWorkSource, /\.sb-rw-account-name-line\{padding-right:58px\}/);
+  assert.match(realtimeWorkSource, /\.sb-rw-account-status\{position:absolute;top:12px;right:12px\}/);
+  assert.match(realtimeWorkSource, /\.sb-rw-account-stat\{margin-left:auto;/);
+});
+
+test("account cards keep capability and task metadata on one compact row", () => {
+  assert.match(realtimeWorkSource, /meta\.append\(accountStatus, capabilityStatus, el\("span", "sb-rw-account-stat"/);
+  assert.match(realtimeWorkSource, /\.sb-rw-account-meta \.sb-rw-account-capability-summary\{flex:1;min-width:0;margin-top:0\}/);
+  assert.match(realtimeWorkSource, /\.sb-rw-team-card\{flex:0 0 calc\(\(100% - 16px\) \/ 3\);min-width:320px;min-height:78px;/);
+});
+
 test("running Agent rail keeps its horizontal position across card refreshes", () => {
   assert.equal(clampHorizontalScrollOffset(640, 1600, 960), 640);
   assert.equal(clampHorizontalScrollOffset(900, 1600, 960), 640);

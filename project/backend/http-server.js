@@ -43,6 +43,7 @@ import { createDouyinFinderService } from "./douyin-finder-service.js";
 import { createDouyinAccountActionCoordinator, douyinAccountCoordinationKey } from "./douyin-account-action-coordinator.js";
 import { createOfficeWorkReplayStore } from "./office-work-replay.js";
 import { createManagedDailyReportService } from "./managed-daily-report.js";
+import { createAcquisitionBusinessConversationService } from "./acquisition-business-conversation.js";
 import { createDouyinAgentDataClient, douyinAgentDataConfiguration } from "../src/salebuddy/bridge/douyin-agent-data.js";
 import { publicFinderNeedsBusinessAccount, validatePublicFinderBusinessAccount } from "../src/salebuddy/agents/public-finder-contract.js";
 import {
@@ -680,6 +681,10 @@ export function createControlPlaneHttpServer({
     autoResume: false,
     profileDataClient
   });
+  const acquisitionBusinessConversation = createAcquisitionBusinessConversationService({
+    acquisitionService: authoritativeDouyinAcquisitionService,
+    now
+  });
   // A missing production-only Douyin key must make that capability unavailable,
   // not prevent the whole local control plane from starting.
   const authoritativeDouyinInboxAgentService = douyinInboxAgentService
@@ -1143,6 +1148,7 @@ export function createControlPlaneHttpServer({
         douyinAvatarRefreshes,
         douyinAccountActionCoordinator: authoritativeDouyinAccountActionCoordinator,
         douyinAcquisitionService: authoritativeDouyinAcquisitionService,
+        acquisitionBusinessConversation,
         getDouyinMcpService,
         privateMessageInFlight,
         officeOperations,
@@ -1867,6 +1873,34 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
   }
 
   const acquisitionService = security.douyinAcquisitionService;
+  if (request.method === "GET" && url.pathname === "/v1/douyin/acquisition/tasks") {
+    requireAcquisitionService(acquisitionService);
+    const requestedAgentId = optionalText(url.searchParams.get("agentId") || url.searchParams.get("agent_id"));
+    const requestedTaskId = optionalText(url.searchParams.get("taskId") || url.searchParams.get("task_id"));
+    const requestedTaskRunId = optionalText(url.searchParams.get("taskRunId") || url.searchParams.get("task_run_id"));
+    const requestedConversationId = optionalText(url.searchParams.get("conversationId") || url.searchParams.get("conversation_id"));
+    const requestedAccountId = optionalText(url.searchParams.get("accountId") || url.searchParams.get("account_id"));
+    const tenantId = optionalText(principal?.tenantId);
+    const tasks = acquisitionService.listTasks()
+      .filter((task) => {
+        const context = task?.context || {};
+        const taskTenantId = optionalText(context.tenantId || task.tenantId);
+        return (!tenantId || taskTenantId === tenantId)
+          && (!requestedAgentId || optionalText(context.agentId || task.agentId) === requestedAgentId)
+          && (!requestedTaskId || optionalText(context.taskId || task.taskId) === requestedTaskId)
+          && (!requestedTaskRunId || optionalText(context.taskRunId || task.taskRunId) === requestedTaskRunId)
+          && (!requestedConversationId || optionalText(context.conversationId || task.conversationId) === requestedConversationId)
+          && (!requestedAccountId || optionalText(context.accountId || task.accountId) === requestedAccountId);
+      })
+      .sort((left, right) => {
+        const rightTimestamp = Date.parse(right?.updatedAt || right?.createdAt || "") || 0;
+        const leftTimestamp = Date.parse(left?.updatedAt || left?.createdAt || "") || 0;
+        return rightTimestamp - leftTimestamp;
+      })
+      .map(mapAcquisitionTaskSummary);
+    response.setHeader("Cache-Control", "private, no-store");
+    return sendJson(response, 200, { accepted: true, data: { tasks } });
+  }
   if (request.method === "POST" && url.pathname === "/v1/douyin/acquisition/tasks") {
     requireAcquisitionService(acquisitionService);
     const body = withTenantScope(await readJson(request, bodyLimit), principal);
@@ -3351,6 +3385,35 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
         conversationId: optionalText(body.conversationId),
         metadata
       });
+      const acquisitionBusinessReply = from === "user"
+        && metadata.suppressAutoReply !== true
+        && security.acquisitionBusinessConversation?.supports?.(agentType)
+        ? await security.acquisitionBusinessConversation.handle({
+          agentType,
+          text,
+          context: {
+            ...body,
+            ...metadata,
+            agentId: agentType,
+            tenantId: principal.tenantId || body.tenantId || null
+          },
+          messages: agentStore.listDm(storedId)
+        })
+        : null;
+      if (acquisitionBusinessReply) {
+        const reply = agentStore.appendDm(storedId, {
+          from: agentType,
+          fromName: RECEPTION_STRATEGY_AGENT_NAMES[agentType] || agentType,
+          text: acquisitionBusinessReply.text,
+          conversationId: optionalText(body.conversationId),
+          metadata: {
+            source: "acquisition-business-conversation",
+            ...(acquisitionBusinessReply.metadata || {}),
+            inReplyTo: message.id
+          }
+        });
+        return sendJson(response, 201, { accepted: true, data: { message: { ...message, agentType }, reply: { ...reply, agentType } } });
+      }
       const directAnalysis = from === "user" ? directAccountAnalysisInput(agentType, text) : null;
       if (directAnalysis) {
         startDirectAccountAnalysis({
@@ -3931,6 +3994,36 @@ function mapAcquisitionTask(task) {
   const source = task && typeof task === "object" ? task : {};
   const mapping = normalizeAcquisitionTaskStatus(source.state);
   return redactAcquisition({ ...source, ...(mapping || { taskState: source.state, runtimeState: null, health: source.health || "UNKNOWN" }) });
+}
+
+function mapAcquisitionTaskSummary(task) {
+  const source = task && typeof task === "object" ? task : {};
+  const context = source.context && typeof source.context === "object" ? source.context : {};
+  const mapped = normalizeAcquisitionTaskStatus(source.state);
+  const configurationVersion = Number.isInteger(Number(source.configurationVersion ?? source.configVersion ?? source.configuration?.version))
+    ? Number(source.configurationVersion ?? source.configVersion ?? source.configuration?.version)
+    : null;
+  return redactAcquisition({
+    key: source.key || null,
+    agentId: optionalText(context.agentId || source.agentId) || null,
+    taskId: optionalText(context.taskId || source.taskId) || null,
+    taskRunId: optionalText(context.taskRunId || source.taskRunId) || null,
+    conversationId: optionalText(context.conversationId || source.conversationId) || null,
+    accountId: optionalText(context.accountId || source.accountId) || null,
+    tenantId: optionalText(context.tenantId || source.tenantId) || null,
+    state: source.state || null,
+    taskState: mapped?.taskState || source.state || null,
+    runtimeState: mapped?.runtimeState || null,
+    health: mapped?.health || source.health || "UNKNOWN",
+    version: Number.isInteger(Number(source.version)) ? Number(source.version) : null,
+    eventSeq: Number.isInteger(Number(source.eventSeq)) ? Number(source.eventSeq) : null,
+    configVersion: configurationVersion,
+    configurationVersion,
+    configuration: configurationVersion == null ? null : { version: configurationVersion },
+    accountIdentity: source.accountIdentity || null,
+    createdAt: source.createdAt || null,
+    updatedAt: source.updatedAt || null
+  });
 }
 
 function controlPlaneResultStatus(state) {

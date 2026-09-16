@@ -32,7 +32,7 @@ const CONTROL_PLANE_ACTIONS = new Set([
   "task.cancel", "task.complete", "task.fail", "task.block", "task.followup.send",
   "conversation.reply.request", "conversation.create", "message.send",
   "task.run.snapshot", "task.run.subscribe", "chief.message.decide",
-  "dm.message.list", "dm.message.send"
+  "dm.message.list", "dm.message.send", "douyin.acquisition.tasks.list"
 ]);
 
 export function isControlPlaneAction(action) {
@@ -114,11 +114,25 @@ export class ControlPlaneHttpClient {
     if (actionName === "dm.message.list") {
       const query = new URLSearchParams({
         agentType: String(payload.agentType || "main"),
-        ...(payload.conversationId ? { conversationId: String(payload.conversationId) } : {})
+        ...(payload.conversationId ? { conversationId: String(payload.conversationId) } : {}),
+        ...(payload.accountId ? { accountId: String(payload.accountId) } : {})
       });
       return this.request(`/v1/direct-messages?${query}`, { method: "GET" }, {
         ...options,
         timeoutMs: options.timeoutMs ?? this.directMessageTimeoutMs
+      });
+    }
+    if (actionName === "douyin.acquisition.tasks.list") {
+      const query = new URLSearchParams({
+        ...(payload.agentId ? { agentId: String(payload.agentId) } : {}),
+        ...(payload.taskId ? { taskId: String(payload.taskId) } : {}),
+        ...(payload.taskRunId ? { taskRunId: String(payload.taskRunId) } : {}),
+        ...(payload.conversationId ? { conversationId: String(payload.conversationId) } : {}),
+        ...(payload.accountId ? { accountId: String(payload.accountId) } : {})
+      });
+      return this.request(`/v1/douyin/acquisition/tasks?${query}`, { method: "GET" }, {
+        ...options,
+        timeoutMs: options.timeoutMs ?? this.timeoutMs
       });
     }
     if (actionName === "dm.message.send") {

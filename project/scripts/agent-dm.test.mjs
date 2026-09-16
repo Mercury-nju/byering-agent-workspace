@@ -16,6 +16,7 @@ import {
   mockConversationReply,
   mockConversationTurn
 } from "../src/salebuddy/agents/dm-scenarios.js";
+import { createDemoDmGateway } from "../src/salebuddy/agents/dm-demo-client.js";
 import { isPrivateConversationMessage } from "../src/salebuddy/agents/direct-message-contract.js";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -76,11 +77,16 @@ await run("mock conversation: business memory supports metrics, diagnosis, solut
   const memory = demoMemoryFor("mkt-comment-acquisition");
   assert(memory.account.name === "臻选新能源·上海", "获客管家缺少当前账号记忆");
   assert(memory.yesterday.foundUsers === 138, "获客管家缺少昨日获客数据");
+  assert(memory.yesterday.aLeads === 9, "获客管家缺少昨日 A 级用户数据");
   assert(memory.yesterday.qualifiedLeads === 0, "获客管家缺少昨日转化数据");
 
   const metrics = mockConversationTurn("mkt-comment-acquisition", "昨天的数据怎么样？转化了多少线索？");
   assert(/138/.test(metrics.text) && /0/.test(metrics.text), `昨日数据回复不完整：${metrics.text}`);
   assert(/转化|线索/.test(metrics.text), "昨日数据回复没有说明转化线索");
+  assert(/44\.44%/.test(mockConversationTurn("mkt-comment-acquisition", "昨天的触达率怎么样？").text), "触达率没有按 A 级用户口径计算");
+
+  const improvement = mockConversationTurn("mkt-comment-acquisition", "这个数据表现怎么样可以变得更好？", { state: metrics.state });
+  assert(improvement.proposal?.status === "pending", "自然语言的改善问题没有生成待确认配置");
 
   const diagnosis = mockConversationTurn("mkt-comment-acquisition", "为什么转化率低？", { state: metrics.state });
   assert(/触达|窗口|原因/.test(diagnosis.text), `低转化原因没有结合业务记忆：${diagnosis.text}`);
@@ -92,7 +98,7 @@ await run("mock conversation: business memory supports metrics, diagnosis, solut
   const cancelled = mockConversationTurn("mkt-comment-acquisition", "先不要生效", { state: solution.state });
   assert(!cancelled.appliedConfig && cancelled.state.pendingProposal, "取消配置后不应生效");
 
-  const applied = mockConversationTurn("mkt-comment-acquisition", "可以，立即生效", { state: cancelled.state });
+  const applied = mockConversationTurn("mkt-comment-acquisition", "ok，我觉得可以，就这样调整", { state: cancelled.state });
   assert(applied.appliedConfig?.touchWindow === "2 小时内", "确认后没有应用首触窗口配置");
   assert(!applied.state.pendingProposal, "确认后仍保留待确认配置");
   assert(/已生效/.test(applied.text), `确认后的回复没有说明已生效：${applied.text}`);
@@ -108,6 +114,26 @@ await run("mock conversation: every investor-demo Agent has domain memory and an
     assert(result.proposal?.changes?.length > 0, `${agentType} 没有给出可执行配置提案`);
     assert(/确认|生效/.test(result.text), `${agentType} 没有请求配置生效确认`);
   }
+});
+
+await run("demo gateway: confirmed strategy persists at Agent level across conversations", async () => {
+  const gateway = createDemoDmGateway({ delayMs: 5 });
+  const agentType = "mkt-comment-acquisition";
+  const send = async (conversationId, text) => {
+    await gateway.action("dm.message.send", { agentType, from: "user", fromName: "我", text, conversationId });
+    await sleep(20);
+    const messages = (await gateway.action("dm.message.list", { agentType }))?.data?.messages || [];
+    return messages.filter((message) => message.conversationId === conversationId).at(-1);
+  };
+
+  await send("config-persistence-flow", "后面要怎么解决？");
+  const applied = await send("config-persistence-flow", "ok，就这样调整");
+  assert(applied?.metadata?.demoConfigApplied?.touchWindow === "2 小时内", "网关没有保存 Agent 级策略");
+  assert(gateway.getDemoConfig(agentType).priorityRule === "价格 + 到店信号优先", "网关没有暴露已生效的 Agent 配置");
+
+  const nextConversation = await send("new-conversation-after-config", "后面怎么优化？");
+  assert(/2 小时内/.test(nextConversation?.text || ""), "新会话没有读取已生效的 Agent 配置");
+  gateway.dispose();
 });
 
 // ── agent-store 私聊与工作区单元 ─────────────────────────────

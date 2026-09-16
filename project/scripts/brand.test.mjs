@@ -282,7 +282,7 @@ test("real employee avatars map by role and every employee surface mounts them",
   assert.doesNotMatch(drawer, /sb-team-switcher/);
   assert.match(cloud, /else openProgressFor\(hit\.type\)/);
   assert.match(cloud, /if \(hit\.kind === "monitor"\) openFor\(hit\.type\)/);
-  assert.match(contacts, /mountAgentAvatar/);
+  assert.match(contacts, /mountGrokBotAvatar/);
   assert.match(contacts, /sb-cgroup-recruit/);
   assert.match(contacts, /onRecruit/);
   assert.match(square, /mountAgentAvatar/);
@@ -330,7 +330,7 @@ test("active employee surfaces use member avatar compositions instead of text in
   const avatar = readFileSync(path.join(projectRoot, "src/salebuddy/ui/agent-avatar.js"), "utf8");
   assert.match(avatar, /mountGroupAvatar/);
   assert.match(sourceFor("agent-square.js"), /mountAgentAvatar/);
-  assert.match(sourceFor("contacts-page.js"), /mountAgentAvatar/);
+  assert.match(sourceFor("contacts-page.js"), /mountGrokBotAvatar/);
 });
 
 test("contacts page stays focused on one-to-one Agent conversations", () => {

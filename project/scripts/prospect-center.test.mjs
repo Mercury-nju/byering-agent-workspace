@@ -111,6 +111,21 @@ test("found people separates authorized-account interactions from public finder 
   assert.equal(model.tasks[0].items[0].origin, "public");
 });
 
+test("authorized account source cards use a compact fluid layout", () => {
+  assert.match(prospectCenterSource, /const list = el\("div", `sb-discovery-task-list\$\{ownView \? " sb-discovery-task-list--accounts" : ""\}`\)/);
+  assert.match(prospectCenterSource, /sb-discovery-task-list--accounts\{[^}]*max-width:760px;[^}]*grid-template-columns:repeat\(2,minmax\(260px,1fr\)\)/);
+  assert.match(prospectCenterSource, /sb-discovery-task-kind/);
+});
+
+test("authorized account source cards omit redundant type labels", () => {
+  const sourceStart = prospectCenterSource.indexOf("function renderDiscoverySourceBrowser");
+  const sourceEnd = prospectCenterSource.indexOf("\n  function renderDiscoveredDetail", sourceStart);
+  const sourceBlock = prospectCenterSource.slice(sourceStart, sourceEnd);
+  assert.match(sourceBlock, /allMeta\.append\(el\("span", "sb-discovery-task-count", `\$\{allCount\} 位`\)\)/);
+  assert.doesNotMatch(sourceBlock, /sb-discovery-task-kind", "全部"/);
+  assert.match(sourceBlock, /if \(!ownView\) meta\.append\(el\("span", "sb-discovery-task-kind"/);
+});
+
 test("selected own discovered users enter intent analysis instead of public account analysis", () => {
   const start = prospectCenterSource.indexOf("  function openDiscoveredPeopleAnalysis");
   const end = prospectCenterSource.indexOf("\n  function openDiscoveredOutreach", start);
@@ -853,7 +868,7 @@ test("standalone discovery presents source-specific actions", () => {
   assert.match(prospectCenterSource, /公域找人/);
   assert.match(prospectCenterSource, /按来源抖音账号筛选，可分析、可触达/);
   assert.match(prospectCenterSource, /按找人任务筛选，仅查看与分析/);
-  assert.match(prospectCenterSource, /来源抖音账号 · 已授权/);
+  assert.doesNotMatch(prospectCenterSource, /来源抖音账号 · 已授权/);
   assert.match(prospectCenterSource, /已授权抖音账号 · 评论、直播和账号互动/);
   assert.match(prospectCenterSource, /未命名抖音账号/);
   assert.match(prospectCenterSource, /分析这个账号/);
@@ -867,6 +882,25 @@ test("standalone discovery keeps its two panels aligned and scrolls the result l
   assert.match(prospectCenterSource, /\.sb-discovery-list-content\{display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden\}/);
   assert.match(prospectCenterSource, /\.sb-discovery-list-content \.sb-prospect-table-wrap\{flex:1;min-height:0;overflow:auto\}/);
   assert.match(prospectCenterSource, /const content = el\("div", "sb-discovery-list-content"\)/);
+});
+
+test("standalone discovery fills the available viewport without a fixed bottom dead zone", () => {
+  assert.match(
+    prospectCenterSource,
+    /\.sb-page--prospect-center>\.sb-page-body:has\(\.sb-prospect-page--standalone-discovery\)\{padding-bottom:0!important\}/
+  );
+  assert.match(
+    prospectCenterSource,
+    /\.sb-prospect-page--standalone-discovery\{height:100%;min-height:0;box-sizing:border-box;padding:16px 42px\}/
+  );
+  assert.match(
+    prospectCenterSource,
+    /@media\(min-width:821px\)\{\.sb-page--prospect-center>\.sb-page-body:has\(\.sb-prospect-page--standalone-discovery\)\{overflow:hidden\}\}/
+  );
+  assert.match(
+    prospectCenterSource,
+    /@media\(max-width:820px\)\{\.sb-prospect-page--standalone-discovery\{display:block;height:auto;min-height:100%;padding:16px;overflow:auto\}/
+  );
 });
 
 test("contactable prospects route to comprehensive analysis while public discovery stays account analysis", () => {
@@ -892,6 +926,24 @@ test("discovered people only enables batch analysis after accounts are selected"
   assert.match(list, /已选 \$\{selectedItems\.length\} 位/);
   assert.doesNotMatch(prospectCenterSource, /function renderDiscoveryContext/);
   assert.doesNotMatch(prospectCenterSource, /分析这批账号/);
+});
+
+test("discovery analysis opens a prospect-or-report choice before routing", () => {
+  assert.match(prospectCenterSource, /\.sb-analysis-choice-modal/);
+  assert.match(prospectCenterSource, /function openAnalysisChoiceModal/);
+  assert.match(prospectCenterSource, /挖掘潜客/);
+  assert.match(prospectCenterSource, /用户行为数据分析/);
+  assert.match(prospectCenterSource, /analyze\.addEventListener\("click", \(\) => openAnalysisChoiceModal\(selectedItems\)\)/);
+  assert.match(prospectCenterSource, /analyze\.addEventListener\("click", \(\) => openAnalysisChoiceModal\(\[item\]\)\)/);
+
+  const choiceStart = prospectCenterSource.indexOf("function openAnalysisChoiceModal");
+  assert.match(prospectCenterSource.slice(choiceStart), /openIntentAnalysisFromProspects/);
+  assert.match(prospectCenterSource.slice(choiceStart), /openAccountAnalysis/);
+});
+
+test("background renders do not remove an open analysis choice dialog", () => {
+  assert.match(prospectCenterSource, /const modal = el\("div", "[^"]*sb-task-composer-modal[^"]*"\)/);
+  assert.match(prospectCenterSource, /wrap\.querySelector\("\.sb-task-composer-modal"\)\?\.remove\(\)/);
 });
 
 test("discovery export action stays on one line in the result header", () => {
