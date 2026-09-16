@@ -10,6 +10,7 @@ import {
   GOLD_CUSTOMER_SERVICE_AGENT_ID,
   DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS,
   MARKETPLACE_STANDALONE_AGENT_IDS,
+  MARKETPLACE_LATEST_AGENT_IDS,
   getMarketplaceAgent
 } from "../agents/marketplace.js";
 import { listWorks, subscribeWork } from "../agents/work-live.js";
@@ -80,8 +81,8 @@ export function createRealtimeMockPreviewAccounts() {
     computer: "模拟在线",
     source: "mock",
     accountKey: scenario.id,
-    agentIds: [...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS],
-    agents: DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.length,
+    agentIds: [...MARKETPLACE_LATEST_AGENT_IDS],
+    agents: MARKETPLACE_LATEST_AGENT_IDS.length,
     capabilityMatrix: buildDouyinAcquisitionAccountCapabilityMatrix({
       agentIds: DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS
     }),
@@ -422,6 +423,13 @@ const REALTIME_MOCK_SPECIALIST_DEFINITIONS = Object.freeze([
     phase: "直播触达",
     task: "监听新弹幕并逐一发送首次私信",
     activities: ["持续读取直播间新弹幕", "逐一发送私信并归档平台回执"]
+  },
+  {
+    id: "viral-work-analysis",
+    agentType: "mkt-viral-work-analysis",
+    phase: "作品分析",
+    task: "拆解公开作品的内容结构与流量抓手",
+    activities: ["读取公开作品内容与数据", "整理可验证的创作测试方向"]
   }
 ]);
 const ACQUISITION_CLOUD_LABELS = Object.freeze({
@@ -1120,7 +1128,7 @@ export function realtimeMockAgentIdsForAccount(account = {}) {
   const configuredIds = Array.isArray(account.agentIds)
     ? [...new Set(account.agentIds.map((agentId) => String(agentId || "").trim()).filter(Boolean))]
     : [DOUYIN_ACQUISITION_COMPLETE_AGENT_ID];
-  if (configuredIds.includes(DOUYIN_ACQUISITION_COMPLETE_AGENT_ID)) return [...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS];
+  if (configuredIds.includes(DOUYIN_ACQUISITION_COMPLETE_AGENT_ID)) return [...MARKETPLACE_LATEST_AGENT_IDS];
   return DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS.filter((agentId) => configuredIds.includes(agentId));
 }
 
@@ -3184,11 +3192,12 @@ export function realtimeTaskControlPayload(agentId, action, work = {}) {
 }
 
 export function liveAgentsForWorks(agents = [], works = []) {
-  const liveIds = new Set((Array.isArray(works) ? works : [])
+  const liveIds = [...new Set((Array.isArray(works) ? works : [])
     .filter((work) => work?.projectId !== "demo-office" && work?.metadata?.simulated !== true)
     .map((work) => work?.agentType)
-    .filter(Boolean));
-  return (Array.isArray(agents) ? agents : []).filter((agent) => liveIds.has(agent?.id));
+    .filter(Boolean))];
+  const agentsById = new Map((Array.isArray(agents) ? agents : []).map((agent) => [agent?.id, agent]));
+  return liveIds.map((agentId) => agentsById.get(agentId)).filter(Boolean);
 }
 
 export function partitionRealtimeWorks(works = []) {
@@ -3919,7 +3928,13 @@ export function liveDanmakuAnalysisRealtimeView(work = {}) {
       || snapshot.danmakuAnalysis
       || work?.metadata?.danmakuAnalysis
   );
-  const rawUsers = acquisitionArray(analysis.users || result.leads || snapshot.leads);
+  const collection = acquisitionObject(result.collectionSnapshot || snapshot.collectionSnapshot || work?.metadata?.collectionSnapshot);
+  const taskState = acquisitionText(snapshot.taskState, result.taskState, work?.metadata?.taskState).toLowerCase();
+  const resultStatus = acquisitionText(result.status, snapshot.status).toLowerCase();
+  const isFinal = resultStatus === "collecting"
+    ? false
+    : Boolean(analysis.users?.length || ["completed", "succeeded", "success", "done"].includes(taskState) || collection.state === "ended");
+  const rawUsers = isFinal ? acquisitionArray(analysis.users || result.leads || snapshot.leads) : [];
   const people = rawUsers.map((user, index) => {
     const evidence = acquisitionArray(user?.evidence).map((item) => ({
       quote: acquisitionText(item?.quote, item?.text, item?.content, item?.message),
@@ -3960,14 +3975,17 @@ export function liveDanmakuAnalysisRealtimeView(work = {}) {
     people,
     topics,
     counts: {
-      danmaku: acquisitionNumber(counts.danmaku, counts.total, snapshot.lastScan?.counts?.danmaku),
-      questions: acquisitionNumber(counts.questions),
-      highIntent: acquisitionNumber(counts.highIntent, counts.high_intent),
-      uniqueUsers: acquisitionNumber(counts.uniqueUsers, counts.unique_users, people.length)
+      danmaku: acquisitionNumber(collection.totalDanmaku, counts.danmaku, counts.total, snapshot.lastScan?.counts?.danmaku),
+      questions: isFinal ? acquisitionNumber(counts.questions) : 0,
+      highIntent: isFinal ? acquisitionNumber(counts.highIntent, counts.high_intent) : 0,
+      uniqueUsers: acquisitionNumber(collection.uniqueUsers, counts.uniqueUsers, counts.unique_users, people.length)
     },
     goal: acquisitionText(analysis.goal, work?.metadata?.configuration?.audienceRules?.goal, work?.metadata?.goal),
     liveSourceState: acquisitionText(snapshot.lastScan?.sources?.live?.state, result.sources?.live?.state) || "waiting",
-    hasSnapshot: Boolean(Object.keys(snapshot).length || Object.keys(analysis).length)
+    collection,
+    isFinal,
+    status: acquisitionText(result.status, taskState, "collecting"),
+    hasSnapshot: Boolean(Object.keys(snapshot).length || Object.keys(analysis).length || Object.keys(collection).length)
   };
 }
 
@@ -4818,7 +4836,9 @@ function renderLiveDanmakuLiveRoomPanel(selected, state, title, subtitle) {
   const wrap = el("div", "sb-rw-cloud-live-wrap");
   wrap.appendChild(renderCommentAcquisitionLiveRoomStage(replay, replayPresentation, work));
   const status = el("div", "sb-rw-live-danmaku-room-status");
-  status.append(el("i"), el("span", null, work.lastError ? "数据源需要处理" : "当前直播间持续监听中"));
+  const sourceState = acquisitionText(work?.taskSnapshot?.lastScan?.sources?.live?.state, work?.resultSnapshot?.sources?.live?.state, work?.metadata?.liveSourceState).toLowerCase();
+  const statusText = work.lastError ? "数据源需要处理" : sourceState === "ended" ? "直播已结束，正在整理整场弹幕" : sourceState === "waiting" ? "等待直播开始" : "当前直播间持续监听中";
+  status.append(el("i"), el("span", null, statusText));
   wrap.appendChild(status);
   panel.appendChild(wrap);
   return panel;
@@ -4836,14 +4856,14 @@ function renderLiveDanmakuAnalysisQueuePanel(view, activePerson, state, onChange
   const panel = el("article", "sb-rw-panel sb-rw-acquisition-queue-panel sb-rw-live-danmaku-analysis-queue-panel");
   const head = el("div", "sb-rw-panel-head sb-rw-acquisition-head");
   const running = el("span", "sb-rw-acquisition-running");
-  running.append(el("i"), el("span", null, view.people.length ? `${view.people.length} 位用户已分析` : "等待新弹幕"));
+  running.append(el("i"), el("span", null, view.isFinal ? `${view.people.length} 位用户已分析` : `${view.counts.danmaku} 条弹幕已采集`));
   head.append(el("div", "sb-rw-panel-title", "弹幕分析队列"), running);
   panel.appendChild(head);
   const body = el("div", `sb-rw-acquisition-queue-body${view.people.length ? "" : " is-empty"}`);
   const list = el("div", "sb-rw-acquisition-people");
   if (!view.people.length) {
     const empty = el("div", "sb-rw-acquisition-empty");
-    empty.append(el("i"), el("strong", null, "等待直播间新弹幕"), el("span", null, "收到弹幕后，会先归纳问题与主题，再展示用户意向和原始证据。"));
+    empty.append(el("i"), el("strong", null, view.isFinal ? "整场暂无可分析弹幕" : "持续采集直播间弹幕"), el("span", null, view.isFinal ? "本场没有可用于分析的文字弹幕。" : "直播结束后，我会基于整场弹幕统一分析。"));
     list.appendChild(empty);
   } else {
     view.people.slice(0, 30).forEach((person) => {
@@ -4875,11 +4895,11 @@ function renderLiveDanmakuAnalysisQueuePanel(view, activePerson, state, onChange
 function renderLiveDanmakuAnalysisDetailPanel(view, person) {
   const panel = el("article", "sb-rw-panel sb-rw-acquisition-detail-panel sb-rw-live-danmaku-analysis-detail-panel");
   const head = el("div", "sb-rw-panel-head");
-  head.append(el("div", "sb-rw-panel-title", "意向与原始证据"), el("span", "sb-rw-panel-sub", person ? liveDanmakuIntentLabel(person) : "等待用户"));
+  head.append(el("div", "sb-rw-panel-title", person ? "意向与原始证据" : "采集进度"), el("span", "sb-rw-panel-sub", person ? liveDanmakuIntentLabel(person) : view.isFinal ? "已完成" : "持续采集中"));
   panel.appendChild(head);
   if (!person) {
     const empty = el("div", "sb-rw-acquisition-detail-empty");
-    empty.append(el("i"), el("strong", null, "选择一个弹幕用户"), el("span", null, "用户原话、主题和分析判断会显示在这里。"));
+    empty.append(el("i"), el("strong", null, view.isFinal ? "本场暂无可分析用户" : `${view.counts.danmaku} 条弹幕已采集`), el("span", null, view.isFinal ? "直播结束后没有返回可分析的文字弹幕。" : "直播结束后，我会在这里展示整场分析结果。"));
     panel.appendChild(empty);
     return panel;
   }
@@ -4916,7 +4936,7 @@ function renderLiveDanmakuAnalysisWorksite(selected, state, onChange) {
   const view = liveDanmakuAnalysisRealtimeView(selected.liveWork || {});
   const person = acquisitionSelectedPerson({ people: view.people }, state);
   return {
-    liveRoomPanel: renderLiveDanmakuLiveRoomPanel(selected, state, "直播间分析现场", "接收弹幕 · 归纳主题 · 判断意向"),
+    liveRoomPanel: renderLiveDanmakuLiveRoomPanel(selected, state, "直播间分析现场", "持续采集弹幕 · 直播结束后统一 AI 分析"),
     queuePanel: renderLiveDanmakuAnalysisQueuePanel(view, person, state, onChange),
     detailPanel: renderLiveDanmakuAnalysisDetailPanel(view, person)
   };

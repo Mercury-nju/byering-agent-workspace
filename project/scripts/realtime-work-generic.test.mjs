@@ -7,7 +7,8 @@ const realtimeWork = await import("../src/salebuddy/ui/realtime-work.js");
 import {
   DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
   DOUYIN_ACQUISITION_COMPLETE_AGENT_ID,
-  DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS
+  DOUYIN_ACQUISITION_SINGLE_CAPABILITY_AGENT_IDS,
+  MARKETPLACE_LATEST_AGENT_IDS
 } from "../src/salebuddy/agents/marketplace.js";
 
 import {
@@ -118,17 +119,17 @@ test("style preview provides isolated mock accounts with different domain data",
   assert.equal(accounts.length, 3);
   assert.ok(accounts.every((account) => account.mock === true));
   assert.deepEqual(accounts.map((account) => account.mockScenario), ["automotive", "education", "home"]);
-  assert.ok(accounts.every((account) => account.agentIds.length === DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.length));
+  assert.ok(accounts.every((account) => account.agentIds.length === MARKETPLACE_LATEST_AGENT_IDS.length));
   assert.ok(accounts.every((account) => account.agentIds[0] === DOUYIN_ACQUISITION_COMPLETE_AGENT_ID));
-  assert.ok(accounts.every((account) => account.agents === DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.length));
+  assert.ok(accounts.every((account) => account.agents === MARKETPLACE_LATEST_AGENT_IDS.length));
   assert.equal(new Set(accounts.map((account) => account.id)).size, accounts.length);
-  assert.equal(works.length, accounts.length * DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.length);
+  assert.equal(works.length, accounts.length * MARKETPLACE_LATEST_AGENT_IDS.length);
   assert.ok(works.every((work) => work.metadata?.mock === true));
-  assert.deepEqual(new Set(works.map((work) => work.agentType)), new Set(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS));
+  assert.deepEqual(new Set(works.map((work) => work.agentType)), new Set(MARKETPLACE_LATEST_AGENT_IDS));
   for (const account of accounts) {
     const accountWorks = works.filter((work) => work.metadata?.accountId === account.id);
-    assert.equal(accountWorks.length, DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS.length);
-    assert.deepEqual(accountWorks.map((work) => work.agentType), DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS);
+    assert.equal(accountWorks.length, MARKETPLACE_LATEST_AGENT_IDS.length);
+    assert.deepEqual(accountWorks.map((work) => work.agentType), MARKETPLACE_LATEST_AGENT_IDS);
   }
   assert.deepEqual(new Set(works.map((work) => work.metadata?.mockScenario)), new Set(["automotive", "education", "home"]));
   assert.equal(new Set(works.map((work) => work.metadata?.mockLiveRoomImage)).size, 3);
@@ -144,6 +145,17 @@ test("style preview provides isolated mock accounts with different domain data",
   assert.match(educationPeople[0].profileEvidence.dynamicTraits[0]?.[1] || "", /中考/);
   assert.match(homePeople[0].profileEvidence.dynamicTraits[0]?.[1] || "", /89㎡/);
   assert.notEqual(educationPeople[0].quote, homePeople[0].quote);
+});
+
+test("style preview keeps the latest five Agent cards in product order", () => {
+  const accounts = realtimeWork.createRealtimeMockPreviewAccounts();
+  const works = realtimeWork.createRealtimeMockPreviewWorks([accounts[0]]);
+  const agents = MARKETPLACE_LATEST_AGENT_IDS.map((id) => ({ id }));
+
+  assert.deepEqual(
+    realtimeWork.liveAgentsForWorks(agents, works).map((agent) => agent.id),
+    MARKETPLACE_LATEST_AGENT_IDS
+  );
 });
 
 test("mock accounts without the complete acquisition Agent can run selected single capabilities", () => {
@@ -288,6 +300,29 @@ test("remaining realtime views preserve provider snapshots without inventing wor
   assert.equal(viralView.goal, "拆解开头抓手");
   assert.equal(viralView.metrics.views, 12000);
   assert.equal(viralView.steps.at(-1).status, "completed");
+});
+
+test("live danmaku realtime view keeps collecting state free of premature intent judgments", () => {
+  const liveView = realtimeWork.liveDanmakuAnalysisRealtimeView({
+    metadata: {
+      taskState: "running",
+      acquisitionSnapshot: {
+        taskState: "running",
+        resultSnapshot: {
+          status: "collecting",
+          collectionSnapshot: { state: "collecting", totalDanmaku: 8, uniqueUsers: 4 },
+          counts: { danmaku: 8, uniqueUsers: 4, highIntent: 3 },
+          danmakuAnalysis: { users: [{ userId: "premature", nickname: "不应提前展示", intentTier: "重点" }] }
+        },
+        lastScan: { sources: { live: { state: "receiving" } } }
+      }
+    }
+  });
+  assert.equal(liveView.isFinal, false);
+  assert.equal(liveView.people.length, 0);
+  assert.equal(liveView.counts.danmaku, 8);
+  assert.equal(liveView.counts.uniqueUsers, 4);
+  assert.equal(liveView.counts.highIntent, 0);
 });
 
 test("outreach specialist separates queued and completed prospects from the successful-work replay", () => {

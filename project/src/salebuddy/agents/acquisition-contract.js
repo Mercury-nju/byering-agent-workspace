@@ -6,7 +6,8 @@ export const TASK_STATES = Object.freeze({
   PAUSED: "paused",
   DEGRADED: "degraded",
   ERROR: "error",
-  STOPPED: "stopped"
+  STOPPED: "stopped",
+  COMPLETED: "completed"
 });
 
 export const CLOUD_STATES = Object.freeze({
@@ -66,8 +67,8 @@ export const CAPABILITY_PROBE_STATES = Object.freeze({
   EXPIRED: "expired"
 });
 
-export const ACQUISITION_TASK_TO_RUNTIME_STATE = Object.freeze({ configuring: RUNTIME_TASK_STATES.CREATED, running: RUNTIME_TASK_STATES.RUNNING, paused: RUNTIME_TASK_STATES.PAUSED, degraded: RUNTIME_TASK_STATES.RUNNING, error: RUNTIME_TASK_STATES.FAILED, stopped: RUNTIME_TASK_STATES.CANCELLED });
-export const RUNTIME_TO_ACQUISITION_TASK_STATE = Object.freeze({ CREATED: "configuring", RUNNING: "running", PAUSED: "paused", FAILED: "error", CANCELLED: "stopped" });
+export const ACQUISITION_TASK_TO_RUNTIME_STATE = Object.freeze({ configuring: RUNTIME_TASK_STATES.CREATED, running: RUNTIME_TASK_STATES.RUNNING, paused: RUNTIME_TASK_STATES.PAUSED, degraded: RUNTIME_TASK_STATES.RUNNING, error: RUNTIME_TASK_STATES.FAILED, stopped: RUNTIME_TASK_STATES.CANCELLED, completed: RUNTIME_TASK_STATES.SUCCEEDED });
+export const RUNTIME_TO_ACQUISITION_TASK_STATE = Object.freeze({ CREATED: "configuring", RUNNING: "running", PAUSED: "paused", SUCCEEDED: "completed", FAILED: "error", CANCELLED: "stopped" });
 const TOUCH_TRANSITIONS = Object.freeze({ draft: ["pending_approval", "stopped"], pending_approval: ["approved", "rejected", "stopped"], approved: ["submitted", "stopped"], rejected: [], submitted: ["accepted", "unknown", "failed"], accepted: ["delivered"], delivered: [], unknown: ["delivery_checking", "stopped"], delivery_checking: ["delivered", "failed", "unknown"], failed: ["retry_queued", "stopped"], retry_queued: ["pending_approval", "approved", "submitted", "stopped"], stopped: [] });
 const CLOUD_TRANSITIONS = Object.freeze({ provisioning: ["online", "disconnected", "recovering"], online: ["connecting", "disconnected", "recovering"], connecting: ["online", "disconnected", "recovering"], disconnected: ["recovering"], recovering: ["online", "disconnected"] });
 const CAPABILITY_PROBE_TRANSITIONS = Object.freeze({ not_started: ["running"], running: ["passed", "failed"], passed: ["expired", "running"], failed: ["running"], expired: ["running"] });
@@ -76,7 +77,7 @@ function canTransition(graph, from, to) {
   return graph[from]?.includes(to) === true;
 }
 
-const TASK_COMMANDS = Object.freeze({ "configuring->running": { type: COMMAND_TYPES.TASK_START, payload: { requirementsConfirmed: true } }, "running->paused": COMMAND_TYPES.PAUSE, "degraded->paused": COMMAND_TYPES.PAUSE, "paused->running": COMMAND_TYPES.RESUME, "running->error": COMMAND_TYPES.FAIL, "degraded->error": COMMAND_TYPES.FAIL, "running->stopped": COMMAND_TYPES.CANCEL, "degraded->stopped": COMMAND_TYPES.CANCEL, "paused->stopped": COMMAND_TYPES.CANCEL, "configuring->stopped": COMMAND_TYPES.CANCEL });
+const TASK_COMMANDS = Object.freeze({ "configuring->running": { type: COMMAND_TYPES.TASK_START, payload: { requirementsConfirmed: true } }, "running->paused": COMMAND_TYPES.PAUSE, "degraded->paused": COMMAND_TYPES.PAUSE, "paused->running": COMMAND_TYPES.RESUME, "running->error": COMMAND_TYPES.FAIL, "degraded->error": COMMAND_TYPES.FAIL, "running->stopped": COMMAND_TYPES.CANCEL, "degraded->stopped": COMMAND_TYPES.CANCEL, "paused->stopped": COMMAND_TYPES.CANCEL, "configuring->stopped": COMMAND_TYPES.CANCEL, "running->completed": COMMAND_TYPES.COMPLETE, "degraded->completed": COMMAND_TYPES.COMPLETE });
 export function toRuntimeTaskState(state) { return ACQUISITION_TASK_TO_RUNTIME_STATE[state] || null; }
 export function fromRuntimeTaskState(state) { return RUNTIME_TO_ACQUISITION_TASK_STATE[state] || null; }
 export function normalizeAcquisitionTaskStatus(state) {

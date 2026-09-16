@@ -1458,7 +1458,7 @@ test("live danmaku analysis has a dedicated account-scoped setup with a danmaku-
   assert.match(setup, /直播弹幕/);
   assert.doesNotMatch(setup, /我只分析当前直播间的新弹幕/);
   assert.doesNotMatch(setup, /不会读取点赞、送礼、关注或进场/);
-  assert.match(source, /本 Agent 只分析当前直播间的新弹幕/);
+  assert.match(source, /本 Agent 会持续采集直播间弹幕/);
   assert.match(setup, /sb-as-live-shell/);
   assert.match(setup, /sb-as-gold-hero/);
   assert.match(source, /sb-as-gold-composer/);
@@ -1505,7 +1505,7 @@ test("live danmaku outreach has a dedicated no-analysis setup and durable runnin
   assert.match(source, /flow\.analysisKind = "live_danmaku_outreach"/);
   assert.match(source, /flow\.liveDanmakuSignals = \["danmaku"\]/);
   assert.match(source, /仅针对当前直播间的新弹幕/);
-  assert.match(source, /逐位完成首次私信触达/);
+  assert.match(source, /逐位完成首次触达/);
   assert.match(source, /不判断成交状态或购买意向/);
   assert.match(source, /同一用户只触达一次/);
   const setupStart = source.indexOf("function renderLiveDanmakuOutreachSetup");

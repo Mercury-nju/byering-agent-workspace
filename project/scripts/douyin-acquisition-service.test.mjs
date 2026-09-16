@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { acquisitionTaskFingerprint, createDouyinAcquisitionService } from "../backend/douyin-acquisition-service.js";
 import { startControlPlaneServer } from "../backend/http-server.js";
 import { DOUYIN_AUTO_AUDIENCE_GOAL } from "../src/salebuddy/agents/acquisition-contract.js";
+import { analyzeLiveDanmakuSignals } from "../src/salebuddy/agents/live-danmaku-analysis.js";
 
 function context(overrides = {}) {
   return {
@@ -1387,7 +1388,7 @@ test("finder-owned live discovery keeps finder ownership and routes execution to
   assert.equal(service.status(task.key).resultSnapshot.counts.candidates, 1);
 });
 
-test("live danmaku analysis only processes danmaku and ignores like and gift signals", async t => {
+test("live danmaku analysis only collects during the livestream", async t => {
   const directory = await mkdtemp(join(tmpdir(), "byering-live-danmaku-analysis-"));
   let scanInput = null;
   const interactionSource = {
@@ -1395,6 +1396,11 @@ test("live danmaku analysis only processes danmaku and ignores like and gift sig
       scanInput = input;
       return {
         leads: [],
+        liveSignals: [
+          { userId: "user-question", nickname: "问价用户", type: "live_chat", text: "多少钱？有现货吗", roomId: "room-1" },
+          { userId: "user-like", nickname: "点赞用户", type: "like", roomId: "room-1" },
+          { userId: "user-gift", nickname: "送礼用户", type: "gift", roomId: "room-1" }
+        ],
         profiles: {
           "user-question": {
             userId: "user-question",
@@ -1450,20 +1456,68 @@ test("live danmaku analysis only processes danmaku and ignores like and gift sig
   assert.equal(scanInput.includeLive, true);
   assert.equal(scanInput.includeNotifications, false);
   assert.equal(scanInput.analysisMode, "collect");
+  assert.equal(snapshot.resultSnapshot.status, "collecting");
+  assert.equal(snapshot.resultSnapshot.danmakuAnalysis, undefined);
+  assert.equal(snapshot.resultSnapshot.collectionSnapshot.totalDanmaku, 1);
+  assert.equal(snapshot.resultSnapshot.collectionSnapshot.uniqueUsers, 1);
+  assert.equal(snapshot.approvalQueue.length, 0);
+  assert.equal(snapshot.state, "running");
+});
+
+test("live danmaku analysis finalizes once after livestream ends with all collected signals", async t => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-live-danmaku-finalize-"));
+  let scanCount = 0;
+  const finalizerCalls = [];
+  const interactionSource = {
+    async scan() {
+      scanCount += 1;
+      return scanCount === 1 ? {
+        leads: [],
+        liveSignals: [{ userId: "user-1", nickname: "问价用户", type: "live_chat", text: "多少钱？", roomId: "room-1" }],
+        profiles: {},
+        nextCursor: { live: 1, notifications: 0 },
+        snapshot: { sources: { live: { state: "receiving", count: 1 } }, counts: { signals: 1 } }
+      } : {
+        leads: [],
+        liveSignals: [{ userId: "user-2", nickname: "库存用户", type: "live_chat", text: "有现货吗？", roomId: "room-1" }],
+        profiles: {},
+        nextCursor: { live: 2, notifications: 0 },
+        snapshot: { sources: { live: { state: "ended", count: 1, reason: "live_ended" } }, counts: { signals: 1 } }
+      };
+    },
+    async finalizeLiveDanmakuAnalysis({ signals, goal }) {
+      finalizerCalls.push({ signals, goal });
+      return analyzeLiveDanmakuSignals({ signals, goal, now: "2026-09-16T10:00:00.000Z" });
+    }
+  };
+  const { service } = build(directory, { interactionSource, prospect: null });
+  t.after(() => service.close());
+  const task = await service.createTask(
+    context({ agentId: "mkt-live-danmaku-analysis", executionAgentId: "mkt-comment-acquisition", taskId: "live-danmaku-finalize-task", taskRunId: "live-danmaku-finalize-run" }),
+    config({ sourceScope: { kind: "authorized_account_live" }, discoveryOnly: true, analysisOnly: true, analysisKind: "live_danmaku", liveSignals: ["danmaku"], autoStartCloud: false, audienceRules: { goal: "识别价格和库存问题", minScore: 0 } })
+  );
+
+  await service.start(task.key, { runImmediately: false });
+  await service.runOnce(task.key);
+  await service.runOnce(task.key);
+
+  const snapshot = service.status(task.key);
+  assert.equal(finalizerCalls.length, 1);
+  assert.equal(finalizerCalls[0].signals.length, 2);
+  assert.equal(finalizerCalls[0].goal, "识别价格和库存问题");
+  assert.equal(snapshot.state, "completed");
+  assert.equal(snapshot.resultSnapshot.status, "completed");
   assert.deepEqual(snapshot.resultSnapshot.danmakuAnalysis.counts, {
-    total: 1,
-    danmaku: 1,
-    uniqueUsers: 1,
-    questions: 1,
-    highIntent: 1,
+    total: 2,
+    danmaku: 2,
+    uniqueUsers: 2,
+    questions: 2,
+    highIntent: 2,
     mediumIntent: 0,
     behaviorOnly: 0
   });
-  assert.equal(snapshot.resultSnapshot.leads.find((user) => user.userId === "user-question").intentTier, "重点");
-  assert.equal(snapshot.resultSnapshot.leads.some((user) => user.userId === "user-like"), false);
-  assert.equal(snapshot.resultSnapshot.leads.some((user) => user.userId === "user-gift"), false);
-  assert.equal(snapshot.approvalQueue.length, 0);
-  assert.equal(snapshot.resultSnapshot.danmakuAnalysis.roomId, "room-1");
+  assert.equal(snapshot.resultSnapshot.collectionSnapshot.totalDanmaku, 2);
+  assert.equal(snapshot.resultSnapshot.leads.length, 2);
 });
 
 test("live danmaku outreach touches every unique danmaku user without intent analysis", async t => {

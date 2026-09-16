@@ -15,6 +15,7 @@ const CSS = `
 .sb-page-body{flex:1;overflow-y:auto;background:var(--sb-app-page-bg)}
 .sb-page-body>:where(.sb-as,.sb-chat,.sb-cs,.sb-files,.sb-memory-map,.sb-prospect-page,.sb-realtime-page){background:var(--sb-app-page-bg)}
 .sb-page-body>.sb-realtime-page .sb-rw-cloud-wrap,.sb-page-body>.sb-realtime-page .sb-rw-cloud-live-wrap{background:var(--sb-app-subtle-bg)}
+html[data-sb-custom-page-active="1"] #route_inner_content_id > [class*="_layoutContainer_"] > [class*="_mainContent_"],html[data-sb-custom-page-active="1"] #route_inner_content_id [class*="_rightPanel_"]{display:none!important}
 `;
 
 let styleInjected = false;
@@ -104,6 +105,7 @@ export function getCurrentPage() {
 export function openPage({ title = "", onBack = null, onClose = null } = {}) {
   ensureStyle();
   closeCurrentPage();
+  document.documentElement.dataset.sbCustomPageActive = "1";
 
   const root = el("div", "sb-page");
   const stopDocking = dockToSidebar(root);
@@ -159,7 +161,10 @@ export function openPage({ title = "", onBack = null, onClose = null } = {}) {
       stopDocking();
       window.removeEventListener("resize", onResize);
       root.remove();
-      if (currentPage === page) currentPage = null;
+      if (currentPage === page) {
+        currentPage = null;
+        delete document.documentElement.dataset.sbCustomPageActive;
+      }
       onClose?.();
     }
   };

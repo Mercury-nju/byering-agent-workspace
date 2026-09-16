@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { ACQUISITION_TASK_UPDATE_ACTION, acquisitionActionPayload, acquisitionContextFor, acquisitionMemberActions, acquisitionTaskUpdatePayload, chiefDecisionPresentation, conversationModeForAgent, isAcquisitionMember, isContactAgentAvailable, memberAvatarStateForStatus, memberConversationAvatarStateForStatus, mergeAgentConversationMessages, sortContactFriendEntries, specialistConversationMetadata } from "../src/salebuddy/ui/contacts-page.js";
+import { ACQUISITION_TASK_UPDATE_ACTION, acquisitionActionPayload, acquisitionContextFor, acquisitionMemberActions, acquisitionTaskUpdatePayload, chiefDecisionPresentation, conversationModeForAgent, isAcquisitionMember, isContactAgentAvailable, memberAvatarStateForStatus, memberConversationAvatarStateForStatus, memberStatusPresentation, mergeAgentConversationMessages, sortContactFriendEntries, specialistConversationMetadata } from "../src/salebuddy/ui/contacts-page.js";
 
 const contactsSource = readFileSync(new URL("../src/salebuddy/ui/contacts-page.js", import.meta.url), "utf8");
 const appSource = readFileSync(new URL("../src/salebuddy/index.js", import.meta.url), "utf8");
@@ -82,6 +82,49 @@ test("member avatar state follows the live team and work status", () => {
   assert.equal(memberAvatarStateForStatus({ state: "idle" }), "idle");
 });
 
+test("member status presentation prefers the authoritative office state", () => {
+  const working = memberStatusPresentation({
+    status: { state: "idle", currentTask: null },
+    work: { state: "done", phase: "旧阶段" },
+    authoritativeWork: { state: "working", phase: "读取评论", metadata: { officeStatus: "working", officeStatusPhase: "ready" } }
+  });
+  assert.equal(working.status.state, "working");
+  assert.equal(working.label, "工作中");
+  assert.equal(working.work.phase, "读取评论");
+
+  const blocked = memberStatusPresentation({
+    status: { state: "working" },
+    authoritativeWork: { state: "attention", metadata: { officeStatus: "attention", officeStatusPhase: "ready", error: { code: "DOUYIN_AUTH_EXPIRED" } } }
+  });
+  assert.equal(blocked.status.state, "blocked");
+  assert.equal(blocked.label, "已掉线");
+
+  const loading = memberStatusPresentation({
+    status: { state: "idle" },
+    authoritativeWork: { state: "unknown", metadata: { officeStatus: "unknown", officeStatusPhase: "loading" } }
+  });
+  assert.equal(loading.status.state, "unknown");
+  assert.equal(loading.label, "待同步");
+});
+
+test("contacts and office share the authoritative office status snapshot", () => {
+  assert.match(contactsSource, /createOfficeStatusStore\(/);
+  assert.match(contactsSource, /getLocalWorks:\s*listWorks/);
+  assert.match(contactsSource, /officeStatusStore\.getWork\(agentType\)/);
+  assert.match(contactsSource, /officeStatusStore\.subscribe\(handleMemberStateUpdate\)/);
+  assert.match(contactsSource, /officeStatusStore\.dispose\(\)/);
+});
+
+test("non-office member status presentation keeps the legacy fallback", () => {
+  const result = memberStatusPresentation({
+    status: { state: "working", currentTask: "处理会话" },
+    work: { state: "working", phase: "处理会话" }
+  });
+  assert.equal(result.status.state, "working");
+  assert.equal(result.label, "正在执行");
+  assert.equal(result.work.phase, "处理会话");
+});
+
 test("member conversation uses DMG event states without changing the work-status mapping", () => {
   assert.equal(memberConversationAvatarStateForStatus({ state: "idle" }), "idle");
   assert.equal(memberConversationAvatarStateForStatus({ state: "working" }), "thinking");
@@ -109,7 +152,7 @@ test("member status refresh preserves mounted avatar instances", () => {
   assert.ok(refreshStart >= 0 && refreshEnd > refreshStart);
   const refreshSource = contactsSource.slice(refreshStart, refreshEnd);
   assert.match(refreshSource, /mountGrokBotAvatar\(/);
-  assert.match(refreshSource, /getStatusOf/);
+  assert.match(refreshSource, /memberPresentationFor\(/);
   assert.doesNotMatch(refreshSource, /renderList\(\)/);
 });
 
@@ -211,7 +254,7 @@ test("contact friends put available entries before unavailable entries", () => {
 test("member list status never falls back to member identity or role descriptions", () => {
   assert.doesNotMatch(contactsSource, /sbContactFallback/);
   assert.doesNotMatch(contactsSource, /relationshipLabel\s*=\s*activatedIds\.has/);
-  assert.match(contactsSource, /workLabel\(agent\.id, status\)/);
+  assert.match(contactsSource, /presentation\.label/);
 });
 
 test("conversation history keeps activity out of direct chat by default", () => {

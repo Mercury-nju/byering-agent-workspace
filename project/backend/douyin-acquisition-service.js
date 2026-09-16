@@ -256,6 +256,7 @@ export function createDouyinAcquisitionService({
       candidateProfiles: {},
       suppressedRecipients: {},
       replies: [],
+      liveDanmakuSignals: [],
       events: [],
       eventSeq: 0,
       retryCounts: { scan: 0, touch: 0, receipt: 0 },
@@ -323,6 +324,7 @@ export function createDouyinAcquisitionService({
       throw acquisitionError("直播间互动能力尚未通过真实探测，暂不可启动", "DOUYIN_LIVE_CAPABILITY_NOT_READY", 409);
     }
     if (task.state === TASK_STATES.STOPPED) throw acquisitionError("任务已关闭，请创建新任务", "DOUYIN_ACQUISITION_STOPPED", 409);
+    if (task.state === TASK_STATES.COMPLETED) throw acquisitionError("任务已完成，请创建新任务", "DOUYIN_ACQUISITION_COMPLETED", 409);
     if (task.state === TASK_STATES.ERROR) {
       if (options.retry !== true) throw acquisitionError("任务处于异常状态，请先重试或创建新任务", "DOUYIN_ACQUISITION_ERROR", 409);
       task.state = TASK_STATES.RUNNING;
@@ -458,16 +460,22 @@ export function createDouyinAcquisitionService({
       if (scheduleRun) schedule(task.key);
       return { ...scan, task: clone(task) };
     }
-    const draftResult = await processCandidates(task, scan.leads, executionConfig, executionConfigVersion);
-    const danmakuAnalysis = isLiveDanmakuAnalysis(task)
-      ? analyzeLiveDanmakuSignals({
-        signals: Object.values(scan.profiles || task.candidateProfiles || {}).length
-          ? Object.values(scan.profiles || task.candidateProfiles || {})
-          : scan.leads,
-        goal: executionConfig.audienceRules.goal,
-        now: now()
-      })
-      : null;
+    const liveAnalysisTask = isLiveDanmakuAnalysis(task);
+    const draftResult = liveAnalysisTask
+      ? { newCandidates: 0, duplicates: 0, drafts: [] }
+      : await processCandidates(task, scan.leads, executionConfig, executionConfigVersion);
+    let danmakuAnalysis = null;
+    let collectionSnapshot = null;
+    if (liveAnalysisTask) {
+      task.liveDanmakuSignals = appendLiveDanmakuSignals(task.liveDanmakuSignals, scan.liveSignals || []);
+      collectionSnapshot = buildLiveCollectionSnapshot(task.liveDanmakuSignals, scan.snapshot?.sources?.live, now());
+      const liveEnded = scan.snapshot?.sources?.live?.state === "ended";
+      if (liveEnded) {
+        danmakuAnalysis = typeof comprehensiveSource?.finalizeLiveDanmakuAnalysis === "function"
+          ? await comprehensiveSource.finalizeLiveDanmakuAnalysis({ signals: task.liveDanmakuSignals, goal: executionConfig.audienceRules.goal, account, now: now() })
+          : analyzeLiveDanmakuSignals({ signals: task.liveDanmakuSignals, goal: executionConfig.audienceRules.goal, now: now() });
+      }
+    }
     if (isComprehensive(task) || usesAuthorizedInteractionListener(task)) {
       task.cursor = scan.nextCursor ?? task.cursor;
       task.candidateProfiles = scan.profiles || task.candidateProfiles;
@@ -482,16 +490,18 @@ export function createDouyinAcquisitionService({
     task.counters.scans += 1;
     task.lastSuccessfulScan = now();
     task.lastScan = clone(scan.snapshot || {});
-    task.lastAnalysis = clone(task.lastScan.analysis || null);
+    task.lastAnalysis = clone(danmakuAnalysis || task.lastScan.analysis || null);
     task.resultSnapshot = {
       ...clone(task.lastScan),
-      status: "completed",
+      status: liveAnalysisTask && !danmakuAnalysis ? "collecting" : "completed",
       leads: danmakuAnalysis ? clone(danmakuAnalysis.users) : clone(scan.leads),
+      ...(collectionSnapshot ? { collectionSnapshot: clone(collectionSnapshot) } : {}),
       ...(danmakuAnalysis ? { danmakuAnalysis: clone(danmakuAnalysis) } : {}),
       counts: {
         ...(task.lastScan.counts || {}),
         ...(danmakuAnalysis ? danmakuAnalysis.counts : {}),
-        candidates: danmakuAnalysis ? danmakuAnalysis.users.length : scan.leads.length,
+        ...(collectionSnapshot ? { danmaku: collectionSnapshot.totalDanmaku, uniqueUsers: collectionSnapshot.uniqueUsers } : {}),
+        candidates: danmakuAnalysis ? danmakuAnalysis.users.length : liveAnalysisTask ? 0 : scan.leads.length,
         drafts: draftResult.drafts.length,
         newCandidates: draftResult.newCandidates,
         duplicates: draftResult.duplicates
@@ -500,19 +510,23 @@ export function createDouyinAcquisitionService({
     };
     const degradedSources = Object.entries(scan.snapshot?.sources || {}).filter(([, source]) => source.state === "degraded");
     task.lastError = degradedSources.length ? { code: "DOUYIN_SOURCE_DEGRADED", message: "部分数据源暂不可用，其他来源继续运行", sources: Object.fromEntries(degradedSources) } : null;
-    if (task.state === TASK_STATES.DEGRADED) task.state = TASK_STATES.RUNNING;
+    if (danmakuAnalysis && [TASK_STATES.RUNNING, TASK_STATES.DEGRADED].includes(task.state)) {
+      task.state = transitionTask(task.state, TASK_STATES.COMPLETED);
+      task.completionReason = "live_ended";
+    } else if (task.state === TASK_STATES.DEGRADED) task.state = TASK_STATES.RUNNING;
     task.health = degradedSources.length ? "DEGRADED" : "OK";
     task.updatedAt = now();
     persist();
     emit(task, EVENT_TYPES.SCAN_WINDOW, {
       cursor: task.cursor,
-      candidates: danmakuAnalysis ? danmakuAnalysis.users.length : scan.leads.length,
+      candidates: danmakuAnalysis ? danmakuAnalysis.users.length : liveAnalysisTask ? 0 : scan.leads.length,
       newCandidates: draftResult.newCandidates,
       duplicates: draftResult.duplicates,
       observedAt: task.lastSuccessfulScan,
       scan: task.lastScan,
       analysis: task.lastAnalysis,
-      resultSnapshot: task.resultSnapshot
+      resultSnapshot: task.resultSnapshot,
+      collectionSnapshot
     }, `scan:${task.counters.scans}`);
     if (scheduleRun) schedule(task.key);
     return {
@@ -2621,6 +2635,42 @@ function isLiveDanmakuAnalysis(task) {
   return task?.context?.agentId === LIVE_DANMAKU_ANALYSIS_AGENT_ID;
 }
 
+function liveSignalIdentity(signal = {}) {
+  const explicit = signal.eventId || signal.event_id || signal.msgId || signal.msg_id || signal.messageId || signal.message_id || signal.id;
+  if (explicit) return String(explicit);
+  const evidence = Array.isArray(signal.evidence) ? signal.evidence : [];
+  const evidenceIds = evidence.map(item => item?.eventId || item?.event_id || item?.id).filter(Boolean);
+  return evidenceIds.length ? evidenceIds.join("|") : stable(signal);
+}
+
+function appendLiveDanmakuSignals(previous = [], next = []) {
+  const merged = new Map();
+  for (const signal of Array.isArray(previous) ? previous : []) merged.set(liveSignalIdentity(signal), signal);
+  for (const signal of Array.isArray(next) ? next : []) merged.set(liveSignalIdentity(signal), signal);
+  return [...merged.values()];
+}
+
+function liveSignalEvents(signals = []) {
+  return (Array.isArray(signals) ? signals : []).flatMap(signal => {
+    const evidence = Array.isArray(signal?.evidence) && signal.evidence.length ? signal.evidence : [signal];
+    return evidence.filter(item => String(item?.type || item?.eventType || signal?.source?.type || signal?.type || "").toLowerCase().replace(/[ -]/g, "_") === "live_chat");
+  });
+}
+
+function buildLiveCollectionSnapshot(signals = [], source = {}, observedAt = null) {
+  const events = liveSignalEvents(signals);
+  const users = new Set(events.map(item => item?.userId || item?.user_id || item?.secUid || item?.sec_uid || item?.secId || item?.sec_id).filter(Boolean));
+  return {
+    state: source?.state === "ended" ? "ended" : "collecting",
+    totalDanmaku: events.length,
+    uniqueUsers: users.size,
+    lastBatchDanmaku: Number(source?.count || 0),
+    lastCollectedAt: observedAt,
+    sourceState: source?.state || "waiting",
+    ...(source?.reason ? { reason: source.reason } : {})
+  };
+}
+
 function isLiveDanmakuOutreach(task) {
   return task?.context?.agentId === LIVE_DANMAKU_OUTREACH_AGENT_ID
     && task?.config?.liveDanmakuOutreach === true;
@@ -2843,6 +2893,7 @@ function taskStateSnapshot(task) {
       : taskState === "running" ? "RUNNING"
         : taskState === "paused" ? "PAUSED"
           : taskState === "error" ? "FAILED"
+            : taskState === "completed" ? "SUCCEEDED"
             : taskState === "stopped" ? "CANCELLED" : null;
   const health = taskState === "error" ? "ERROR" : taskState === "stopped" && task?.health === "OK"
     ? "UNKNOWN" : task?.health || "UNKNOWN";

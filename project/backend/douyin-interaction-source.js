@@ -2,11 +2,13 @@ import { createHash } from "node:crypto";
 import { createDouyinCommentNotificationSource, normalizeDouyinInteractionNotification } from "./douyin-comment-notification-source.js";
 import { createLeadIntentAnalysisService } from "./lead-intent-analysis.js";
 import { buildDouyinProspectFacts, mergeDouyinProspectFacts } from "./douyin-prospect-facts.js";
+import { analyzeLiveDanmakuSignals } from "../src/salebuddy/agents/live-danmaku-analysis.js";
 
 const keyOf = lead => String(lead.secUid || lead.secId || lead.externalUserId || lead.userId || "");
 const eventKey = evidence => evidence.eventId || createHash("sha256").update(JSON.stringify(evidence)).digest("hex");
 const failure = error => ({ state: "degraded", error: { code: error?.code || error?.error?.code || "DOUYIN_SOURCE_UNAVAILABLE", message: error?.message || error?.error?.message || "数据源暂不可用" } });
-const NO_LIVE_STATES = new Set(["offline", "not_live", "not-live", "ended", "stopped"]);
+const NO_LIVE_STATES = new Set(["offline", "not_live", "not-live"]);
+const ENDED_LIVE_STATES = new Set(["ended", "stopped"]);
 const NO_LIVE_ERROR_CODES = new Set(["LIVE_NOT_STARTED", "DOUYIN_LIVE_OFFLINE", "DOUYIN_LIVE_NOT_ACTIVE", "live_polling_start_timeout"]);
 function check(response) {
   if (!response || response.ok === false || response.error || response.error_code) {
@@ -19,10 +21,20 @@ function liveIsNotActive(status) {
   const state = String(status.live_state || status.liveState || status.live_status || status.liveStatus || status.state || status.status || "").trim().toLowerCase();
   return status.is_live === false || status.isLive === false || NO_LIVE_STATES.has(state);
 }
+function liveIsEnded(status) {
+  if (!status || status.ok === false || status.error) return false;
+  const state = String(status.live_state || status.liveState || status.live_status || status.liveStatus || status.state || status.status || "").trim().toLowerCase();
+  return ENDED_LIVE_STATES.has(state) || Boolean(status.terminal_reason || status.terminalReason);
+}
 function liveErrorMeansNotActive(error) {
   const code = String(error?.code || error?.error?.code || "").trim();
   const message = String(error?.message || error?.error?.message || "");
   return NO_LIVE_ERROR_CODES.has(code) || /未开播|当前没有直播|直播已结束|直播间不存在/.test(message);
+}
+function liveErrorMeansEnded(error) {
+  const code = String(error?.code || error?.error?.code || "").trim().toLowerCase();
+  const message = String(error?.message || error?.error?.message || "");
+  return code.includes("live_ended") || /直播已结束|直播间已结束|直播结束/.test(message);
 }
 function liveItems(response) {
   if (Array.isArray(response)) return response;
@@ -369,7 +381,11 @@ export function createDouyinInteractionSource({
       if (!service?.startLivePolling || !service?.pullLiveMessages) throw Object.assign(new Error("直播接口尚未接入"), { code: "DOUYIN_LIVE_UNAVAILABLE" });
       // No live stream is a normal idle state. Keep the task listening to
       // notifications and revisit the live channel on the next scan window.
-      if (typeof service.livePollingStatus === "function" && liveIsNotActive(await service.livePollingStatus())) {
+      const pollingStatus = typeof service.livePollingStatus === "function" ? await service.livePollingStatus() : null;
+      if (liveIsEnded(pollingStatus)) {
+        liveSessions.delete(scopeKey);
+        sources.live = { state: "ended", count: 0, reason: "live_ended" };
+      } else if (liveIsNotActive(pollingStatus)) {
         liveSessions.delete(scopeKey);
         sources.live = { state: "waiting", count: 0, reason: "not_live" };
       } else {
@@ -381,7 +397,9 @@ export function createDouyinInteractionSource({
       }
       const response = check(await service.pullLiveMessages({ cursor: nextCursor.live, limit, waitMs: 0 }));
       const raw = liveItems(response);
-      if (["stopped", "ended", "error"].includes(String(response.live_polling || "").toLowerCase()) || response.terminal_reason) liveSessions.delete(scopeKey);
+      const pollingState = String(response.live_polling || "").toLowerCase();
+      const ended = ENDED_LIVE_STATES.has(pollingState) || Boolean(response.terminal_reason || response.terminalReason);
+      if (ended || pollingState === "error") liveSessions.delete(scopeKey);
       const selectedLiveSignals = new Set((Array.isArray(liveSignals) ? liveSignals : [])
         .map(value => String(value || "").trim().toLowerCase())
         .filter(Boolean));
@@ -398,11 +416,15 @@ export function createDouyinInteractionSource({
         ));
       signals.push(...normalizedLiveSignals);
       nextCursor.live = response.next_cursor ?? response.nextCursor ?? response.data?.next_cursor ?? nextCursor.live;
-      sources.live = { state: raw.length ? "receiving" : "waiting", count: raw.length };
-      }
+      sources.live = ended
+        ? { state: "ended", count: raw.length, reason: "live_ended" }
+        : { state: raw.length ? "receiving" : "waiting", count: raw.length };
+    }
     } catch (error) {
       liveSessions.delete(scopeKey);
-      sources.live = liveErrorMeansNotActive(error)
+      sources.live = liveErrorMeansEnded(error)
+        ? { state: "ended", count: 0, reason: "live_ended" }
+        : liveErrorMeansNotActive(error)
         ? { state: "waiting", count: 0, reason: "not_live" }
         : failure(error);
     }
@@ -492,7 +514,51 @@ export function createDouyinInteractionSource({
         ...(accountContext ? { accountContext } : {}),
         analysis,
         counts: { signals: signals.length, candidates: leads.length }
+      },
+      liveSignals: signals.filter(signal => signal?.source?.type === "live_chat" || signal?.type === "live_chat" || signal?.evidence?.some(item => item?.type === "live_chat"))
+    };
+  }
+  async function finalizeLiveDanmakuAnalysis({ signals = [], goal = "", account = null, now: observedAt = now() } = {}) {
+    const base = analyzeLiveDanmakuSignals({ signals, goal, now: observedAt });
+    const userIndexes = [];
+    const comments = [];
+    base.users.forEach((user, index) => {
+      const text = (user.evidence || []).map(item => item.quote).filter(Boolean).join("\n");
+      if (!text) return;
+      userIndexes.push(index);
+      comments.push({ index: comments.length, text, evidence: user.evidence });
+    });
+    let model = { source: "none", items: [] };
+    let modelError = null;
+    if (comments.length && typeof analyzer?.analyze === "function") {
+      try {
+        model = await analyzer.analyze({ mode: "intent", goal, account, comments });
+      } catch (error) {
+        modelError = sourceError(error);
       }
+    }
+    const modelByUser = new Map((model.items || []).map(item => [userIndexes[Number(item.index)], item]));
+    const users = base.users.map((user, index) => {
+      const item = modelByUser.get(index);
+      if (!item) return user;
+      return {
+        ...user,
+        aiIntent: {
+          tier: item.tier,
+          score: item.score,
+          confidence: item.confidence,
+          reason: item.reason,
+          signals: item.signals || []
+        }
+      };
+    });
+    return {
+      ...base,
+      users,
+      analysisSource: model.source === "model" ? "ai" : modelError ? "heuristic_fallback" : "heuristic",
+      ...(modelError ? { aiAnalysisError: modelError } : {}),
+      aiAnalysis: model,
+      summary: `本场直播已结束，共采集${base.counts.danmaku}条弹幕，覆盖${base.counts.uniqueUsers}位用户，已基于整场弹幕完成分析报告。`
     };
   }
   async function stop({ agentId, accountId = null, accountIdentity = null, tenantId = null, listenerKey = null, stopLive = true } = {}) {
@@ -503,7 +569,7 @@ export function createDouyinInteractionSource({
     const service = cloudRegistry.getService(agentId, cloudScope);
     if (service?.stopLivePolling) check(await service.stopLivePolling());
   }
-  return Object.freeze({ scan, stop });
+  return Object.freeze({ scan, stop, finalizeLiveDanmakuAnalysis });
 }
 
 function cloudScopeKey(agentId, scope = {}) {

@@ -68,6 +68,29 @@ test("an offline livestream is waiting, not a degraded acquisition source", asyn
   assert.deepEqual(result.snapshot.sources.live, { state: "waiting", count: 0, reason: "not_live" });
 });
 
+test("an ended livestream exposes a terminal live source and raw danmaku signals", async () => {
+  const source = createDouyinInteractionSource({
+    cloudRegistry: { getService: () => ({
+      livePollingStatus: async () => ({ ok: true, live_state: "live" }),
+      startLivePolling: async () => ({ ok: true }),
+      pullLiveMessages: async () => ({
+        messages: [{ msg_id: "ended-1", sender, content: { text: "多少钱？" }, room_id: "room-1" }],
+        next_cursor: 7,
+        live_polling: "ended",
+        terminal_reason: "stream_finished"
+      })
+    }) },
+    commentSource: { scan: async () => ({ nextCursor: 2, leads: [] }) },
+    analyzer: { analyze: async () => ({ source: "none", items: [] }) }
+  });
+  const result = await source.scan({ agentId: context.agentId, account, liveSignals: ["danmaku"] });
+  assert.equal(result.snapshot.sources.live.state, "ended");
+  assert.equal(result.snapshot.sources.live.reason, "live_ended");
+  assert.equal(result.liveSignals.length, 1);
+  assert.equal(result.liveSignals[0].source.type, "live_chat");
+  assert.equal(result.liveSignals[0].evidence[0].quote, "多少钱？");
+});
+
 test("non-verbal interaction alone cannot become high intent even when a model over-scores it", async () => {
   const source = createDouyinInteractionSource({
     cloudRegistry: { getService: () => ({}) },

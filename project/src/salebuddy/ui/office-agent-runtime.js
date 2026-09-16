@@ -251,7 +251,7 @@ function agentIdentity(agentId, { teamLive, work = null, works = [], accounts = 
   const profile = teamLive?.getProfiles?.().get(agentId);
   const marketplace = getMarketplaceAgent(agentId);
   const liveStatus = teamLive?.getStatusOf?.(agentId) || null;
-  const state = normalizedStatus(work, liveStatus);
+  const state = normalizedStatus(work);
   const fallbackName = agentId === "main" ? "Byering · 幕僚长" : marketplace?.displayName || marketplace?.name || agentId;
   const profileName = String(profile?.identity?.name || "").trim();
   const name = marketplace?.displayName || marketplace?.name || (profileName && profileName !== agentId ? profileName : fallbackName);

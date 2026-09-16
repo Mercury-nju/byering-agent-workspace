@@ -42,6 +42,9 @@ test("acquisition contract exposes canonical states and rejects illegal task tra
   assert.equal(canTransitionTask("configuring", "running"), true);
   assert.equal(canTransitionTask("configuring", "paused"), false);
   assert.equal(transitionTask("configuring", "running"), "running");
+  assert.equal(TASK_STATES.COMPLETED, "completed");
+  assert.equal(canTransitionTask("running", "completed"), true);
+  assert.equal(transitionTask("running", "completed"), "completed");
   assert.throws(() => transitionTask("configuring", "paused"), /Illegal task transition/);
   assert.throws(() => transitionTask("error", "stopped"), /Illegal task transition/);
   assert.deepEqual(normalizeAcquisitionTaskStatus("degraded"), { taskState: "degraded", runtimeState: "RUNNING", health: "DEGRADED" });

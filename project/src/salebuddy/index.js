@@ -19,10 +19,8 @@ import { mountCloudDesktop } from "./ui/cloud-desktop.js";
 import { mountToolboxFirst } from "./ui/toolbox-first.js";
 import { mountSalesSkills } from "./ui/sales-skills.js";
 import { mountSidebarCustomization } from "./ui/sidebar-customization.js";
-import { mountTaskRunner } from "./ui/task-runner.js";
 import { mountShellFullscreen } from "./ui/shell-fullscreen.js";
 import { mountAiShubanTheme } from "./ui/ai-shuban-theme.js";
-import { mountHomeSalesFeed } from "./ui/home-sales-feed.js?v=20260913-inbox-start-gate-1";
 import { mountSharePage } from "./ui/share-page.js";
 import { mountOfficeAgentRuntime } from "./ui/office-agent-runtime.js";
 import { buildAccountAnalysisResumeFlow } from "./agents/account-analysis-contract.js";
@@ -492,28 +490,11 @@ const salesSkillsReady = Promise.all([gatewayReady.catch(() => null), teamLiveRe
     return null;
   });
 
-// 任务运行：接管首页任务提交（Enter / 发送按钮），由服务端控制面驱动
-const taskRunnerReady = Promise.all([gatewayReady.catch(() => null), teamLiveReady])
-  .then(([client, live]) => mountTaskRunner({ teamLive: live, gateway: client }))
-  .catch((error) => {
-    console.warn("[SaleBuddy] 任务运行挂载失败", error);
-    return null;
-  });
-
 // 应用外壳全屏化：根容器圆角归 0，铺满整个视口
 const shellFullscreenReady = Promise.resolve()
   .then(() => mountShellFullscreen())
   .catch((error) => {
     console.warn("[SaleBuddy] 外壳全屏化挂载失败", error);
-    return null;
-  });
-
-// 首页推荐区销售业务化：隐藏原生热词区，原位注入销售场景任务卡
-const homeSalesFeedReady = gatewayReady
-  .catch(() => null)
-  .then((client) => mountHomeSalesFeed({ gateway: client }))
-  .catch((error) => {
-    console.warn("[SaleBuddy] 首页销售推荐区挂载失败", error);
     return null;
   });
 
@@ -545,9 +526,7 @@ const api = {
   cloudDesktopReady,
   toolboxFirstReady,
   salesSkillsReady,
-  taskRunnerReady,
   shellFullscreenReady,
-  homeSalesFeedReady,
   bridge: { SaleBuddyGatewayClient, ControlPlaneHttpClient, SB_ACTIONS, detectIntegrationPoints },
   auth: { createAuthFeature, renderLoginPage },
   agents: registry,

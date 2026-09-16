@@ -102,6 +102,15 @@ export const MARKETPLACE_STANDALONE_AGENT_IDS = Object.freeze([
   "mkt-viral-work-analysis"
 ]);
 
+/** The five newest product Agents shown in the realtime-work style preview. */
+export const MARKETPLACE_LATEST_AGENT_IDS = Object.freeze([
+  DOUYIN_ACQUISITION_COMPLETE_AGENT_ID,
+  "mkt-live-danmaku-analysis",
+  "mkt-viral-work-analysis",
+  "mkt-live-danmaku-outreach",
+  GOLD_CUSTOMER_SERVICE_AGENT_ID
+]);
+
 /**
  * One Douyin account owns one cloud desktop. Product Agents use that account
  * carrier to execute RPA work; they never own separate desktops by hierarchy.

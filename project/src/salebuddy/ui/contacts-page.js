@@ -15,7 +15,9 @@ import { renderAgentProfile } from "./agent-profile.js";
 import { openFileCenterPage } from "./file-center.js";
 import { prospectStore } from "./prospect-store.js";
 import { displayAgentName, displayAgentTitle, projectMessage } from "../brand.js";
-import { getWork, subscribeWork } from "../agents/work-live.js";
+import { getWork, listWorks, subscribeWork } from "../agents/work-live.js";
+import { createOfficeStatusStore } from "../bridge/office-status.js";
+import { officeWorkState } from "./office-workspace-state.js";
 import { listAgentActivity, recordAgentActivity } from "../agents/agent-activity-journal.js";
 import { mountAgentAvatar } from "./agent-avatar.js";
 import { grokStateForTeamStatus, mountGrokBotAvatar } from "./grok-bot-avatar.js";
@@ -45,6 +47,29 @@ export function memberAvatarStateForStatus(status, work = null) {
   if (work?.lastError || workStates.some((value) => ["blocked", "failed", "error"].includes(value))) return "alerting";
   if (status?.state === TEAM_STATES.WORKING || work?.state === "working") return "working";
   return grokStateForTeamStatus(status);
+}
+
+export function memberStatusPresentation({ status = { state: TEAM_STATES.IDLE }, work = null, authoritativeWork = null } = {}) {
+  const fallbackStatus = { ...(status || {}), state: status?.state || TEAM_STATES.IDLE };
+  if (authoritativeWork?.metadata?.officeStatus) {
+    const officeState = officeWorkState(authoritativeWork);
+    const state = officeState.kind === "attention" ? TEAM_STATES.BLOCKED : officeState.kind;
+    const labels = { unknown: "待同步", working: "工作中", blocked: "已掉线", idle: "空闲中" };
+    return {
+      status: { ...fallbackStatus, state },
+      work: authoritativeWork,
+      label: labels[state] || "空闲中"
+    };
+  }
+
+  let state = fallbackStatus.state;
+  const workState = String(work?.state || work?.runtimeState || work?.metadata?.taskState || "").toLowerCase();
+  if (work?.lastError || ["blocked", "failed", "error"].includes(workState)) state = TEAM_STATES.BLOCKED;
+  else if (workState === TEAM_STATES.WORKING) state = TEAM_STATES.WORKING;
+  const label = work?.state === "done"
+    ? "已完成本阶段"
+    : TEAM_STATE_LABELS[state] || "空闲";
+  return { status: { ...fallbackStatus, state }, work, label };
 }
 
 export function memberConversationAvatarStateForStatus(status, work = null) {
@@ -398,18 +423,27 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   let disposed = false;
   const cloudNoticeInFlight = new Set();
   const DOUYIN_AGENT_IDS = new Set(["mkt-dm-inbox", "mkt-gold-customer-service", "mkt-cold-writer"]);
+  const officeStatusStore = createOfficeStatusStore({
+    getLocalWorks: listWorks,
+    getAgentIds: () => listActivatedMarketplaceAgents().map(({ id }) => id)
+  });
+
+  function memberPresentationFor(agentType) {
+    const status = teamLive?.getStatusOf?.(agentType) || { agentType, state: TEAM_STATES.IDLE };
+    const work = getWork(agentType);
+    const officeAgentIds = new Set(listActivatedMarketplaceAgents().map(({ id }) => id));
+    const authoritativeWork = officeAgentIds.has(agentType) ? officeStatusStore.getWork(agentType) : null;
+    return memberStatusPresentation({ status, work, authoritativeWork });
+  }
+
+  function memberStatusFor(agentType) {
+    return memberPresentationFor(agentType).status;
+  }
 
   try {
     await refreshEmploymentContracts();
   } catch {
     // The last in-memory projection remains usable while the control plane reconnects.
-  }
-
-  function workLabel(agentType, status) {
-    const work = getWork(agentType);
-    if (work?.state === "done") return "已完成本阶段";
-    if (work) return work.phase || work.task || "工作中";
-    return TEAM_STATE_LABELS[status.state] || "空闲";
   }
 
   function currentMemberRosterSignature() {
@@ -429,7 +463,8 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     if (disposed) return;
     for (const row of listCol.querySelectorAll("[data-sb-contact-agent]")) {
       const agentType = row.dataset.sbContactAgent;
-      const status = teamLive?.getStatusOf?.(agentType) || { state: TEAM_STATES.IDLE };
+      const presentation = memberPresentationFor(agentType);
+      const { status, work } = presentation;
       const profile = profileOf(agentType);
       const agentName = profile.identity?.name || agentType;
       const implemented = row.dataset.sbContactImplemented === "true";
@@ -437,7 +472,6 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       const name = row.querySelector(".sb-cname");
       const dot = row.querySelector(".sb-cdot");
       const statusText = row.querySelector(".sb-cstatus-text");
-      const work = getWork(agentType);
       const isWorking = status.state === TEAM_STATES.WORKING || work?.state === "working";
       const nameRow = row.querySelector(".sb-cname-row");
       const activity = nameRow?.querySelector(".sb-agent-activity");
@@ -452,7 +486,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       if (name) name.textContent = agentName;
       if (dot) dot.className = `sb-cdot ${dotClass(status.state)}`;
       if (statusText) statusText.textContent = implemented
-        ? workLabel(agentType, status)
+        ? presentation.label
         : "暂未开放";
       if (isWorking && nameRow && !activity) {
         const nextActivity = createAgentActivityBadge(agentType, { status, work });
@@ -528,7 +562,8 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     listCol.appendChild(friendTitle);
     const appendProfileFriend = (agentType) => {
       const profile = profileOf(agentType);
-      const status = teamLive.getStatusOf(agentType);
+      const presentation = memberPresentationFor(agentType);
+      const { status, work } = presentation;
       const implemented = isContactAgentAvailable(agentType);
       const row = el("div", `sb-crow${state.selected?.kind === "friend" && state.selected.id === agentType ? " sb-on" : ""}${implemented ? "" : " sb-disabled"}`);
       row.dataset.sbContactAgent = agentType;
@@ -537,7 +572,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       const avatar = el("div", `sb-cavatar${agentType === "main" ? " sb-main" : ""}`, avatarInitial(profile.identity?.name));
       mountGrokBotAvatar(avatar, agentType, {
         alt: profile.identity?.name || agentType,
-        state: memberAvatarStateForStatus(status, getWork(agentType)),
+        state: memberAvatarStateForStatus(status, work),
         trackPointer: false,
         mode: "members"
       });
@@ -545,11 +580,11 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       const text = el("div", "sb-ctext");
       const nameRow = el("div", "sb-cname-row");
       nameRow.appendChild(el("div", "sb-cname", profile.identity?.name || agentType));
-      const activity = createAgentActivityBadge(agentType, { status });
+      const activity = createAgentActivityBadge(agentType, { status, work });
       if (activity) nameRow.appendChild(activity);
       text.appendChild(nameRow);
       const sub = el("div", "sb-csub");
-      sub.append(el("span", `sb-cdot ${dotClass(status.state)}`), el("span", "sb-cstatus-text", implemented ? workLabel(agentType, status) : "暂未开放"));
+      sub.append(el("span", `sb-cdot ${dotClass(status.state)}`), el("span", "sb-cstatus-text", implemented ? presentation.label : "暂未开放"));
       text.appendChild(sub);
       row.appendChild(text);
       if (implemented) row.addEventListener("click", () => select({ kind: "friend", id: agentType }));
@@ -559,16 +594,17 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       const profile = profileOf(agent.id);
       const agentName = profile.identity?.name || agent.id;
       const implemented = isContactAgentAvailable(agent);
+      const presentation = memberPresentationFor(agent.id);
+      const { status, work } = presentation;
       const row = el("div", `sb-crow${state.selected?.kind === "friend" && state.selected.id === agent.id ? " sb-on" : ""}${implemented ? "" : " sb-disabled"}`);
       row.dataset.sbContactAgent = agent.id;
       row.dataset.sbContactImplemented = String(implemented);
       if (!implemented) row.setAttribute("aria-disabled", "true");
-      const status = teamLive?.getStatusOf?.(agent.id) || { state: TEAM_STATES.IDLE };
       const ava = el("div", "sb-cavatar", avatarInitial(agentName));
       ava.style.background = agent.color;
       mountGrokBotAvatar(ava, agent.id, {
         alt: agentName,
-        state: memberAvatarStateForStatus(status, getWork(agent.id)),
+        state: memberAvatarStateForStatus(status, work),
         trackPointer: false,
         mode: "members"
       });
@@ -576,11 +612,11 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       const text = el("div", "sb-ctext");
       const nameRow = el("div", "sb-cname-row");
       nameRow.appendChild(el("div", "sb-cname", agentName));
-      const activity = createAgentActivityBadge(agent.id, { status: teamLive?.getStatusOf?.(agent.id) });
+      const activity = createAgentActivityBadge(agent.id, { status, work });
       if (activity) nameRow.appendChild(activity);
       text.appendChild(nameRow);
       const sub = el("div", "sb-csub");
-      sub.append(el("span", `sb-cdot ${dotClass(status.state)}`), el("span", "sb-cstatus-text", implemented ? workLabel(agent.id, status) : "暂未开放"));
+      sub.append(el("span", `sb-cdot ${dotClass(status.state)}`), el("span", "sb-cstatus-text", implemented ? presentation.label : "暂未开放"));
       text.appendChild(sub);
       row.appendChild(text);
       if (implemented) row.addEventListener("click", () => select({ kind: "friend", id: agent.id }));
@@ -769,7 +805,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
         : "我可以根据当前项目目标拆解一项具体工作，并在完成后向你汇报。",
       actions: [["查看实时工作", "realtime", true], ["打开我的配置", "settings"]]
     };
-    const work = getWork(agentType);
+    const work = memberPresentationFor(agentType).work;
     const latestActivity = listAgentActivity(agentType).at(-1);
     if (isAcquisitionMember(agentType) && !work && !latestActivity) {
       const name = profile.identity?.name || agentType;
@@ -859,7 +895,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     if (!state.proactiveEl || state.selected?.kind !== "friend" || state.tab !== "chat") return;
     const agentType = state.selected.id;
     const profile = profileOf(agentType);
-    const status = teamLive.getStatusOf(agentType);
+    const status = memberStatusFor(agentType);
     const next = buildProactiveBrief(agentType, profile, status);
     state.proactiveEl.replaceWith(next);
     state.proactiveEl = next;
@@ -898,8 +934,9 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     stopDmPoll();
     stopCloudFeed();
     const profile = profileOf(agentType);
-    const status = teamLive.getStatusOf(agentType);
-    // 记录状态签名：teamLive 轮询触发重渲染时，签名没变就跳过（避免快照/配置页被反复重建）
+    const presentation = memberPresentationFor(agentType);
+    const { status, work } = presentation;
+    // Track the status signature so non-chat views only rebuild when their state changes.
     state.lastStatusSig = `${agentType}|${status.state}|${status.currentTask || ""}|${profile.identity?.name || ""}`;
     detailCol.textContent = "";
 
@@ -910,7 +947,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     if (marketAgent) headAvatar.style.background = marketAgent.color;
     mountGrokBotAvatar(headAvatar, agentType, {
       alt: profile.identity?.name || agentType,
-      state: memberAvatarStateForStatus(status, getWork(agentType)),
+      state: memberAvatarStateForStatus(status, work),
       trackPointer: false,
       mode: "members"
     });
@@ -924,7 +961,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     const headText = el("div", "sb-chead-text");
     headText.appendChild(el("div", "sb-chead-name", profile.identity?.name || agentType));
     const statusLine = el("div", "sb-chead-status");
-    statusLine.append(el("span", `sb-cdot ${dotClass(status.state)}`), el("span", null, workLabel(agentType, status)));
+    statusLine.append(el("span", `sb-cdot ${dotClass(status.state)}`), el("span", null, presentation.label));
     const ownedProspects = prospectStore.list().filter((item) => item.source?.agentId === agentType);
     if (ownedProspects.length) statusLine.append(el("span", null, ` · 负责 ${ownedProspects.length} 位潜客`));
     headText.appendChild(statusLine);
@@ -1032,7 +1069,8 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     updateTransportState();
     const applyConversationBaseAvatar = () => {
       if (state.conversationAvatarTransientUntil > Date.now()) return;
-      state.conversationAvatarUpdate?.(memberConversationAvatarStateForStatus(teamLive?.getStatusOf?.(agentType), getWork(agentType)));
+      const presentation = memberPresentationFor(agentType);
+      state.conversationAvatarUpdate?.(memberConversationAvatarStateForStatus(presentation.status, presentation.work));
     };
     const showConversationAvatarState = (nextState, duration = 0) => {
       clearTimeout(state.conversationAvatarTimer);
@@ -1099,7 +1137,8 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       if (!displayedMessages.has(message.id)) { row.className += " sb-companion-arrive"; displayedMessages.add(message.id); }
       const messageAvatar = el("div", `sb-msg-avatar${message.from === "main" ? " sb-main" : ""}`, avatarInitial(message.fromName));
       const agentType = message.agentType || message.from;
-      const status = teamLive?.getStatusOf?.(agentType) || { state: TEAM_STATES.IDLE };
+      const presentation = memberPresentationFor(agentType);
+      const { status, work } = presentation;
       mine
         ? mountAgentAvatar(messageAvatar, agentType, { alt: message.fromName || message.from })
         : mountGrokBotAvatar(messageAvatar, agentType, {
@@ -1112,7 +1151,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       const body = el("div", "sb-msg-body");
       const nameRow = el("div", "sb-msg-name-row");
       nameRow.appendChild(el("div", "sb-msg-name", message.fromName || ""));
-      const activity = createAgentActivityBadge(agentType, { status, work: getWork(agentType) });
+      const activity = createAgentActivityBadge(agentType, { status, work });
       if (activity) nameRow.appendChild(activity);
       body.appendChild(nameRow);
       body.appendChild(el("div", "sb-msg-bubble", message.text || ""));
@@ -1151,7 +1190,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       if (notice) list.appendChild(notice);
     }
 
-    state.proactiveEl = buildProactiveBrief(agentType, profile, teamLive.getStatusOf(agentType));
+    state.proactiveEl = buildProactiveBrief(agentType, profile, memberStatusFor(agentType));
     list.appendChild(state.proactiveEl);
     appendCloudNotice();
 
@@ -1191,7 +1230,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
           awaitingAgentReply = false;
           clearLocalCompanionPhase();
           showConversationAvatarState("sending", 1400);
-        } else if (awaitingAgentReply && (teamLive?.getStatusOf?.(agentType)?.state === TEAM_STATES.WORKING || getWork(agentType)?.state === "working")) {
+        } else if (awaitingAgentReply && memberStatusFor(agentType).state === TEAM_STATES.WORKING) {
           showConversationAvatarState("thinking");
         }
         if (supportsConversationStatus) {
@@ -1212,7 +1251,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
         state.dmLastId = messageSig;
         disposeCards.splice(0).forEach(dispose => dispose());
         list.textContent = "";
-        state.proactiveEl = buildProactiveBrief(agentType, profile, teamLive.getStatusOf(agentType));
+        state.proactiveEl = buildProactiveBrief(agentType, profile, memberStatusFor(agentType));
         list.appendChild(state.proactiveEl);
         appendCloudNotice();
         for (const message of messages) list.appendChild(bubble(message));
@@ -1391,9 +1430,26 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     renderDetail();
   }
 
+  function handleMemberStateUpdate() {
+    refreshMembersFromLive();
+    updateProactiveBrief();
+    if (state.selected?.kind !== "friend") return;
+    const presentation = memberPresentationFor(state.selected.id);
+    if (state.tab === "chat" && state.conversationAvatarTransientUntil <= Date.now()) {
+      state.conversationAvatarUpdate?.(memberConversationAvatarStateForStatus(presentation.status, presentation.work));
+    }
+    // Rebuild non-chat detail views only when the effective status changes.
+    if (state.tab !== "chat") {
+      const profile = profileOf(state.selected.id);
+      const sig = `${state.selected.id}|${presentation.status.state}|${presentation.status.currentTask || ""}|${presentation.label}|${profile.identity?.name || ""}`;
+      if (sig !== state.lastStatusSig) renderDetail();
+    }
+  }
+
   // ── 启动与订阅 ──
   renderList();
   renderDetail();
+  void officeStatusStore.refresh();
   // 外部入口指定了成员（如办公室卡片「沟通」）：直接选中并进入私聊
   const initialProfile = initialFriend
     ? teamLive?.getProfiles?.().has(initialFriend) && isContactAgentAvailable(initialFriend)
@@ -1404,27 +1460,11 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   if (initialFriend && (initialProfile || initialMarketplaceAgent)) {
     select({ kind: "friend", id: initialFriend });
   }
-  const unsubscribe = teamLive?.subscribe?.(() => {
-    refreshMembersFromLive();
-    updateProactiveBrief();
-    if (state.selected?.kind === "friend" && state.tab === "chat" && state.conversationAvatarTransientUntil <= Date.now()) {
-      state.conversationAvatarUpdate?.(memberConversationAvatarStateForStatus(teamLive.getStatusOf(state.selected.id), getWork(state.selected.id)));
-    }
-    // 成员状态真的变化时才重渲染右栏（聊天有独立轮询；快照/配置页不应被心跳重建）
-    if (state.selected?.kind === "friend" && state.tab !== "chat") {
-      const s = teamLive.getStatusOf(state.selected.id);
-      const profile = profileOf(state.selected.id);
-      const sig = `${state.selected.id}|${s.state}|${s.currentTask || ""}|${profile.identity?.name || ""}`;
-      if (sig !== state.lastStatusSig) renderDetail();
-    }
-  }) || (() => {});
+  const unsubscribe = teamLive?.subscribe?.(handleMemberStateUpdate) || (() => {});
   const unsubscribeWork = subscribeWork(() => {
-    refreshMembersFromLive();
-    updateProactiveBrief();
-    if (state.selected?.kind === "friend" && state.tab === "chat" && state.conversationAvatarTransientUntil <= Date.now()) {
-      state.conversationAvatarUpdate?.(memberConversationAvatarStateForStatus(teamLive?.getStatusOf?.(state.selected.id), getWork(state.selected.id)));
-    }
+    handleMemberStateUpdate();
   });
+  const unsubscribeOfficeStatus = officeStatusStore.subscribe(handleMemberStateUpdate);
   const unsubscribeProspects = prospectStore.subscribe(() => {
     renderList();
     if (state.selected?.kind === "prospect") renderDetail();
@@ -1440,10 +1480,12 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   page.close = () => {
     disposed = true;
     stopDmPoll();
-    stopCloudFeed();
-    unsubscribe();
-    unsubscribeWork();
-    unsubscribeProspects();
+        stopCloudFeed();
+        unsubscribe();
+        unsubscribeWork();
+        unsubscribeOfficeStatus();
+        officeStatusStore.dispose();
+        unsubscribeProspects();
     origClose();
   };
   return page;
