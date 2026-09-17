@@ -7,6 +7,7 @@ import { detectIntegrationPoints, waitForIntegrationPoints, listStoreDomains, re
 import { SaleBuddyGatewayClient, SB_ACTIONS } from "./bridge/gateway.js";
 import { ControlPlaneHttpClient, createHybridGateway } from "./bridge/control-plane-http.js";
 import { isStyleMockPreview, previewMockGatewayUrl } from "./bridge/preview-mode.js";
+import { isMockRuntime, runtimeMode, runtimeModeLabel } from "./bridge/runtime-mode.js";
 import * as registry from "./agents/registry.js";
 import { createTeamLive } from "./agents/live.js";
 import { createDouyinInboxActivityMonitor } from "./agents/douyin-inbox-activity-monitor.js";
@@ -38,6 +39,9 @@ import {
 } from "./onboarding/index.js";
 
 const initialPage = new URLSearchParams(location.search).get("page");
+const currentRuntimeMode = runtimeMode(location.search, { envMock: globalThis.__SALEBUDDY_CONFIG__?.runtimeMode === "mock" });
+globalThis.__SALEBUDDY_RUNTIME_MODE__ = currentRuntimeMode;
+document.documentElement.dataset.byeringRuntimeMode = currentRuntimeMode;
 const retiredPageRoute = routeForRetiredPage(initialPage);
 if (retiredPageRoute) globalThis.location?.replace?.(retiredPageRoute);
 const deferNativeRootReveal = ["agent-square", "agents"].includes(initialPage);
@@ -60,7 +64,7 @@ async function connectGateway() {
   if (activeGateway) return activeGateway;
   if (gatewayConnectionInFlight) return gatewayConnectionInFlight;
   gatewayConnectionInFlight = (async () => {
-    const mockPreview = isStyleMockPreview();
+    const mockPreview = isMockRuntime(location.search, { envMock: currentRuntimeMode === "mock" });
     let nativeGateway = null;
     try {
       const configuredUrl = globalThis.__SALEBUDDY_CONFIG__?.agentGatewayUrl
@@ -173,6 +177,18 @@ const visualThemeReady = Promise.resolve()
     console.warn("[SaleBuddy] AI数班视觉主题挂载失败", error);
     return null;
   });
+
+function mountRuntimeModeBadge() {
+  const badge = document.createElement("div");
+  badge.className = `byering-runtime-mode-badge byering-runtime-mode-badge--${currentRuntimeMode}`;
+  const style = document.createElement("style");
+  style.textContent = ".byering-runtime-mode-badge{position:fixed;right:14px;bottom:12px;z-index:9999;padding:6px 10px;border:1px solid #d7dce3;border-radius:999px;background:rgba(255,255,255,.94);color:#5b6572;font:600 11px/1.2 -apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Microsoft YaHei\",sans-serif;box-shadow:0 3px 10px rgba(31,41,55,.08)}.byering-runtime-mode-badge--mock{border-color:#f1c27d;background:#fff8eb;color:#9a641b}.byering-runtime-mode-badge--production{border-color:#b9dec8;background:#f1fbf5;color:#267447}";
+  document.head.appendChild(style);
+  badge.textContent = runtimeModeLabel(currentRuntimeMode);
+  badge.title = currentRuntimeMode === "mock" ? "纯 Mock：用于开发、调试和演示" : "正式本地：真实逻辑，未启用 Mock";
+  document.body.appendChild(badge);
+}
+void Promise.resolve().then(mountRuntimeModeBadge);
 
 const gatewayReady = connectGateway();
 

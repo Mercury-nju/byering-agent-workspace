@@ -12,7 +12,7 @@ function context(overrides = {}) {
     taskId: "task-prospect-1",
     taskRunId: "run-prospect-1",
     conversationId: "conversation-prospect-1",
-    agentId: "lead_miner",
+    agentId: "",
     goal: "找最近问价格和预算的客户",
     uid: 123456,
     tenant: 10001,
@@ -31,7 +31,7 @@ test("public prospect service fails closed when SpiderApi is not configured", as
   );
 });
 
-test("comment lead miner rejects public comment discovery", async () => {
+test("find people rejects public comment discovery", async () => {
   let connectorCalled = false;
   const service = createProspectService({
     connector: {
@@ -42,7 +42,7 @@ test("comment lead miner rejects public comment discovery", async () => {
   });
   await assert.rejects(
     service.discover(context({
-      agentId: "mkt-lead-miner",
+      agentId: "mkt-find-people",
       sourceOwner: "other",
       sourceScope: "public_content",
       analysisOnly: true,
@@ -55,7 +55,7 @@ test("comment lead miner rejects public comment discovery", async () => {
   assert.equal(connectorCalled, false);
 });
 
-test("comment lead miner requires an authorized account id", async () => {
+test("find people requires an authorized account id", async () => {
   const service = createProspectService({
     connector: {
       configured: true,
@@ -65,7 +65,7 @@ test("comment lead miner requires an authorized account id", async () => {
   });
   await assert.rejects(
     service.discover(context({
-      agentId: "mkt-lead-miner",
+      agentId: "mkt-find-people",
       sourceOwner: "own",
       sourceScope: "own_account_comments",
       analysisOnly: false,

@@ -53,7 +53,7 @@ import { publicFinderNeedsBusinessAccount, validatePublicFinderBusinessAccount }
 import {
   buildDouyinAcquisitionAccountCapabilityMatrix,
   DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
-  DOUYIN_ACQUISITION_LEGACY_CLOUD_AGENT_IDS,
+  DOUYIN_ACQUISITION_CLOUD_AGENT_IDS,
   DOUYIN_ACCOUNT_CLOUD_RUNTIME_ID
 } from "../src/salebuddy/agents/marketplace.js";
 
@@ -63,7 +63,7 @@ const DEFAULT_AGENT_STORE_ROOT = resolve(fileURLToPath(new URL("..", import.meta
 const ACQUISITION_AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-people"]);
 const COMPREHENSIVE_ACQUISITION_AGENT_ID = "mkt-comment-acquisition";
 const DOUYIN_ACCOUNT_CLOUD_AGENT_ID = DOUYIN_ACCOUNT_CLOUD_RUNTIME_ID;
-const DOUYIN_LEGACY_CLOUD_AGENT_IDS = DOUYIN_ACQUISITION_LEGACY_CLOUD_AGENT_IDS;
+const DOUYIN_CLOUD_AGENT_IDS = DOUYIN_ACQUISITION_CLOUD_AGENT_IDS;
 const ACTIVE_COMPREHENSIVE_TASK_STATES = new Set(["configuring", "running", "paused", "degraded"]);
 const INBOX_CAPABLE_AGENT_IDS = Object.freeze([
   COMPREHENSIVE_ACQUISITION_AGENT_ID,
@@ -160,7 +160,7 @@ function resolvePersistedDouyinCloudScope(registry, agentId = "", scope = {}) {
 
   const tenantId = optionalText(requestedScope.tenantId) || null;
   const accountId = optionalText(requestedScope.accountId) || null;
-  const compatibleAgentIds = new Set([cloudAgentId, ...DOUYIN_LEGACY_CLOUD_AGENT_IDS]);
+  const compatibleAgentIds = new Set([cloudAgentId, ...DOUYIN_CLOUD_AGENT_IDS]);
   const candidates = registry.list().filter((record) => {
     if (!compatibleAgentIds.has(String(record?.agentId || "").trim())) return false;
     if (!hasAccountIdentity(record?.accountIdentity)) return false;
@@ -185,7 +185,7 @@ function adoptDouyinAccountCloudBinding(registry, agentId = "", scope = {}) {
   const cloudAgentId = resolveDouyinCloudAgentId(agentId);
   if (cloudAgentId !== DOUYIN_ACCOUNT_CLOUD_AGENT_ID || typeof registry?.adopt !== "function") return cloudAgentId;
   const resolvedScope = resolvePersistedDouyinCloudScope(registry, agentId, scope);
-  registry.adopt(cloudAgentId, { ...resolvedScope, fromAgentIds: DOUYIN_LEGACY_CLOUD_AGENT_IDS });
+  registry.adopt(cloudAgentId, { ...resolvedScope, fromAgentIds: DOUYIN_CLOUD_AGENT_IDS });
   return cloudAgentId;
 }
 
@@ -340,7 +340,7 @@ function receptionStrategyContext({ registry, store, agentType, accountId, tenan
   if (!RECEPTION_STRATEGY_AGENT_IDS.has(agentType) || !registry || typeof registry.list !== "function") return null;
   const requestedAccountId = optionalText(accountId);
   const cloudAgentId = resolveDouyinCloudAgentId(agentType);
-  const compatibleCloudRecordIds = new Set([cloudAgentId, ...DOUYIN_LEGACY_CLOUD_AGENT_IDS]);
+  const compatibleCloudRecordIds = new Set([cloudAgentId, ...DOUYIN_CLOUD_AGENT_IDS]);
   const recordAccountIds = (record) => [...new Set([
     record?.accountId,
     record?.agentId && `douyin-agent:${record.agentId}`,

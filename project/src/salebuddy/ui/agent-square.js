@@ -406,6 +406,7 @@ const CSS = `
 .sb-as-hire:disabled:hover,.sb-as-hire.sb-disabled:hover{background:#F1F2F3;border-color:#E1E3E6;color:#9AA0A8}
 .sb-as-hire.sb-hired{background:#EEF4FF;border-color:#D5E3F8;color:#4267A5}
 .sb-as-hire.sb-hired:hover{background:#E2EEFF;border-color:#BFD4F1;color:#34578F}
+.sb-as-employment-error{margin:0 0 16px;padding:11px 13px;border:1px solid #f1d8d1;border-radius:10px;color:#9a5547;background:#fff6f3;font-size:12px;line-height:1.55}
 .sb-as-empty{grid-column:1/-1;padding:40px 28px;font-size:13px;color:#B0B4BB;text-align:center}
 
 .sb-asd-head{display:flex;align-items:center;gap:16px;padding:26px 28px 18px}
@@ -860,6 +861,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     categoryNav: "全部",
     useId: null,
     useFlow: null,
+    employmentError: null,
     remoteOfficeWorks: [],
     remoteOfficeSnapshot: [],
     remoteOfficeStatusAvailable: false
@@ -3034,7 +3036,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const hired = isAgentReadyForUse(agent);
     const btn = el("button", `sb-as-hire${hired ? " sb-hired" : ""}${enabled ? "" : " sb-disabled"}`);
     btn.type = "button";
-    btn.textContent = enabled ? (hired ? "立即使用" : "雇佣并配置") : "暂未开放";
+    btn.textContent = enabled ? (hired ? "立即使用" : "雇佣") : "暂未开放";
     btn.disabled = !enabled;
     const handleClick = async (event) => {
       event.stopPropagation();
@@ -3051,6 +3053,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         employmentSubmitting = true;
         btn.disabled = true;
         try {
+          state.employmentError = null;
           await employMarketplaceAgent(agent.id, {
             dataScope: agent.profile?.scope?.dataAccess,
             budget: agent.profile?.budget || null
@@ -3066,7 +3069,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     };
     if (getAcquisitionCardViewModel(agent)) {
       bindAcquisitionCardAction(btn, agent, undefined, handleClick, {
-        label: hired ? "立即使用" : "雇佣并配置"
+        label: hired ? "立即使用" : "雇佣"
       });
     } else if (enabled) {
       btn.addEventListener("click", handleClick);
@@ -5396,7 +5399,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
   function renderCommentLeadMinerSetup(panel, flow, agent = getMarketplaceAgent(state.useId)) {
     const filterMode = isCommentFilterAgent(agent);
-    const ownOnly = isCommentLeadMiner(agent);
+    const ownOnly = false;
     const previousAudience = (flow.audienceTypes || []).filter(value => value !== "近期准备下单");
     const initialText = [flow.product, ...previousAudience].filter(Boolean).join("；");
     flow.audienceTypes = [];
@@ -10603,7 +10606,7 @@ async function startPrivateOutreachMock(agent, flow, targets) {
       render();
       return;
     }
-    const requireOwnAccount = isCommentLeadMiner(agent) || isCompositeFinderAgent(agent);
+    const requireOwnAccount = isCompositeFinderAgent(agent);
     const validation = validateLeadMinerSetup(flow, { requireOwnAccount });
     if (validation) { flow.setupError = validation; flow.step = "setup"; render(); return; }
     if (requireOwnAccount) {
@@ -10744,6 +10747,12 @@ async function startPrivateOutreachMock(agent, flow, targets) {
     setPageHeaderVisible(false);
     page.setTitle("Agent市场");
     page.showBack(false);
+
+    if (state.employmentError) {
+      const error = el("div", "sb-as-employment-error", state.employmentError);
+      error.setAttribute("role", "alert");
+      root.appendChild(error);
+    }
 
     const toolbar = el("div", "sb-as-toolbar");
     const cta = el("div", "sb-as-cta");

@@ -117,12 +117,8 @@ export const MARKETPLACE_LATEST_AGENT_IDS = Object.freeze([
  */
 export const DOUYIN_ACCOUNT_CLOUD_RUNTIME_ID = "mkt-douyin-account-runtime";
 
-/** @deprecated Legacy carrier id retained only to adopt persisted sessions. */
-export const DOUYIN_ACQUISITION_CHILD_CLOUD_AGENT_ID = "mkt-douyin-child-capabilities";
-
-export const DOUYIN_ACQUISITION_LEGACY_CLOUD_AGENT_IDS = Object.freeze([
-  ...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
-  DOUYIN_ACQUISITION_CHILD_CLOUD_AGENT_ID
+export const DOUYIN_ACQUISITION_CLOUD_AGENT_IDS = Object.freeze([
+  ...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS
 ]);
 
 /**
@@ -135,7 +131,7 @@ export function buildDouyinAcquisitionAccountCapabilityMatrix({ agentIds = [] } 
       .map((agentId) => String(agentId || "").trim())
       .filter(Boolean)
   );
-  const accountCloudReady = DOUYIN_ACQUISITION_LEGACY_CLOUD_AGENT_IDS
+  const accountCloudReady = DOUYIN_ACQUISITION_CLOUD_AGENT_IDS
     .some((agentId) => connected.has(agentId))
     || connected.has(DOUYIN_ACCOUNT_CLOUD_RUNTIME_ID);
 

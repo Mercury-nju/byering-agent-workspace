@@ -105,21 +105,18 @@ const CONSUMER_CSS = `
 `;
 
 const DISCOVERY_RESULTS_CSS = `
-.sb-page--prospect-center>.sb-page-body:has(.sb-prospect-page--standalone-discovery){padding-bottom:0!important}
-@media(min-width:821px){.sb-page--prospect-center>.sb-page-body:has(.sb-prospect-page--standalone-discovery){overflow:hidden}}
-.sb-prospect-page--standalone-discovery{display:flex;overflow:hidden}.sb-prospect-page--standalone-discovery .sb-prospect-shell{display:flex;flex:1;flex-direction:column;width:100%;min-height:0}.sb-prospect-page--standalone-discovery .sb-prospect-workspace{align-items:stretch;flex:1;min-height:0}.sb-prospect-page--standalone-discovery .sb-discovery-heading{align-items:center;margin:0 0 20px;padding:2px 0}.sb-discovery-heading-copy{display:grid;gap:5px;min-width:0}.sb-prospect-page--standalone-discovery .sb-discovery-heading h1{font-size:31px}.sb-prospect-page--standalone-discovery .sb-discovery-heading p{max-width:none;text-align:left;color:#7c8794;font-size:12px}.sb-discovery-heading-note{display:inline-flex;align-items:center;flex:none;padding:6px 9px;border-radius:6px;color:#687483;background:#eaf0f7;font-size:10px;font-weight:650}
-.sb-prospect-page--standalone-discovery{height:100%;min-height:0;box-sizing:border-box;padding:16px 42px}
+.sb-prospect-page--standalone-discovery{display:block;height:auto;min-height:100%;box-sizing:border-box;padding:16px 42px;overflow:visible}.sb-prospect-page--standalone-discovery .sb-prospect-shell{display:block;width:100%;min-height:0}.sb-prospect-page--standalone-discovery .sb-prospect-workspace{align-items:start;min-height:0}.sb-prospect-page--standalone-discovery .sb-discovery-heading{align-items:center;margin:0 0 20px;padding:2px 0}.sb-discovery-heading-copy{display:grid;gap:5px;min-width:0}.sb-prospect-page--standalone-discovery .sb-discovery-heading h1{font-size:31px}.sb-prospect-page--standalone-discovery .sb-discovery-heading p{max-width:none;text-align:left;color:#7c8794;font-size:12px}.sb-discovery-heading-note{display:inline-flex;align-items:center;flex:none;padding:6px 9px;border-radius:6px;color:#687483;background:#eaf0f7;font-size:10px;font-weight:650}
 .sb-discovery-task-kicker{display:block;margin-bottom:4px;color:#2f80ed;font-size:9px;font-weight:700;line-height:1.2}.sb-discovery-task-kicker+.sb-discovery-task-name{margin-top:0}
-.sb-prospect-page--standalone-discovery .sb-prospect-workspace{grid-template-columns:minmax(0,1.65fr) minmax(310px,.72fr);gap:16px;margin-top:0}.sb-prospect-page--standalone-discovery .sb-prospect-panel{height:100%;min-height:0;overflow:hidden;border-color:#e0e5eb;box-shadow:0 4px 14px rgba(28,39,55,.03)}.sb-prospect-page--standalone-discovery .sb-prospect-panel:first-child{height:auto;max-height:100%;display:flex;flex-direction:column;overflow:hidden;border-radius:13px}.sb-prospect-page--standalone-discovery .sb-prospect-panel:first-child>.sb-discovery-task-browser{display:block;flex:none;width:100%;box-sizing:border-box;margin:0;padding-top:14px;border-radius:12px 12px 0 0;overflow:hidden}
+.sb-prospect-page--standalone-discovery .sb-prospect-workspace{grid-template-columns:minmax(0,1.65fr) minmax(310px,.72fr);gap:16px;margin-top:0}.sb-prospect-page--standalone-discovery .sb-prospect-panel{height:auto;min-height:0;overflow:visible;border-color:#e0e5eb;box-shadow:0 4px 14px rgba(28,39,55,.03)}.sb-prospect-page--standalone-discovery .sb-prospect-panel:first-child{display:block;height:auto;max-height:none;overflow:visible;border-radius:13px}.sb-prospect-page--standalone-discovery .sb-prospect-panel:first-child>.sb-discovery-task-browser{display:block;flex:none;width:100%;box-sizing:border-box;margin:0;padding-top:14px;border-radius:12px 12px 0 0;overflow:hidden}
 .sb-prospect-page--standalone-discovery .sb-discovery-task-browser{padding:14px 16px 15px;background:#fff}.sb-prospect-page--standalone-discovery .sb-discovery-task-browser-title{font-size:12px}.sb-prospect-page--standalone-discovery .sb-discovery-task-list{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px;margin-top:10px}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts{max-width:760px;grid-template-columns:repeat(2,minmax(260px,1fr));gap:8px}.sb-prospect-page--standalone-discovery .sb-discovery-task{padding:10px 12px;border-radius:8px}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;column-gap:16px;row-gap:2px;min-height:0}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-profile{grid-column:1;grid-row:2;margin-top:0}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-meta{grid-column:2;grid-row:1 / span 2;display:grid;justify-items:end;align-self:center;gap:2px;margin-top:0;white-space:nowrap}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-count{font-size:13px;line-height:1.1}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-kind{font-size:9px}.sb-prospect-page--standalone-discovery .sb-discovery-task:hover{transform:none}.sb-prospect-page--standalone-discovery .sb-discovery-task.is-active{border-color:#b9d0f5;background:#f7faff;box-shadow:0 1px 3px rgba(28,39,55,.06)}.sb-prospect-page--standalone-discovery .sb-discovery-task-profile{margin-top:4px}.sb-prospect-page--standalone-discovery .sb-discovery-task-meta{margin-top:7px}
 .sb-discovery-account-heading{display:flex;align-items:center;gap:8px;min-width:0}.sb-discovery-account-heading .sb-discovery-task-name{min-width:0;flex:1}.sb-discovery-account-avatar{display:grid;place-items:center;width:28px;height:28px;flex:none;overflow:hidden;border-radius:8px;color:#35649e;background:#e7f0ff;font-size:11px;font-weight:750}.sb-discovery-account-avatar img{display:block;width:100%;height:100%;object-fit:cover}
 .sb-discovery-source-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:11px}.sb-discovery-source{display:grid;gap:4px;min-width:0;padding:10px 11px;border:1px solid #e1e6ed;border-radius:8px;color:#65707b;background:#fff;font:inherit;text-align:left;cursor:pointer}.sb-discovery-source:hover{border-color:#b8c9e5;background:#f8faff}.sb-discovery-source.is-active{border-color:#b9d0f5;background:#f7faff;box-shadow:0 1px 3px rgba(28,39,55,.06)}.sb-discovery-source-name{overflow:hidden;color:#20252b;font-size:11px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}.sb-discovery-source-copy{color:#7b8794;font-size:9px;line-height:1.45}.sb-discovery-source-meta{color:#2f80ed;font-size:9px;font-weight:700}.sb-discovery-scope-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:16px}.sb-discovery-scope-head strong{color:#3f4954;font-size:11px}.sb-discovery-scope-head span{color:#9aa3ae;font-size:10px}.sb-discovery-task.is-compact{min-height:72px}.sb-discovery-task.is-compact .sb-discovery-task-profile{white-space:normal}.sb-discovery-capability{display:inline-flex;align-items:center;flex:none;padding:5px 8px;border-radius:6px;color:#2f80ed;background:#edf3ff;font-size:10px;font-weight:650}.sb-discovery-capability.is-contactable{color:#157347;background:#eaf8ef}
 .sb-prospect-page--standalone-discovery .sb-result-panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 16px;border-bottom:1px solid #edf0f3}.sb-discovery-results-title{display:grid;gap:3px;min-width:0}.sb-discovery-results-title strong{overflow:hidden;color:#20252b;font-size:15px;font-weight:750;text-overflow:ellipsis;white-space:nowrap}.sb-discovery-results-title span{color:#8b95a1;font-size:10px}.sb-discovery-results-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0}.sb-prospect-page--standalone-discovery .sb-result-toolbar{padding:0;border:0}.sb-prospect-page--standalone-discovery .sb-result-toolbar .sb-prospect-search{width:220px;margin:0}.sb-prospect-page--standalone-discovery .sb-discovery-results-actions .sb-prospect-button{min-width:100px;flex:none;white-space:nowrap}
-.sb-prospect-page--standalone-discovery .sb-prospect-bulk{display:flex;align-items:center;gap:7px;min-height:42px;padding:8px 16px;border-bottom:1px solid #edf0f3;background:#f8fafc}.sb-prospect-page--standalone-discovery .sb-prospect-bulk strong{color:#3f4954;font-size:10px}.sb-prospect-page--standalone-discovery .sb-prospect-bulk button{height:27px;padding:0 9px;border-radius:6px;font-size:10px}.sb-prospect-page--standalone-discovery .sb-prospect-bulk button.primary{border-color:#20252b;color:#fff;background:#20252b}.sb-prospect-page--standalone-discovery .sb-prospect-bulk button:disabled{opacity:.42;cursor:not-allowed}.sb-prospect-page--standalone-discovery .sb-prospect-bulk button.primary:disabled{border-color:#20252b;color:#fff;background:#20252b;opacity:1}.sb-discovery-list-content{display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden}.sb-discovery-list-content .sb-prospect-bulk{flex:none}.sb-discovery-list-content .sb-prospect-table-wrap{flex:1;min-height:0;overflow:auto}
+.sb-prospect-page--standalone-discovery .sb-prospect-bulk{display:flex;align-items:center;gap:7px;min-height:42px;padding:8px 16px;border-bottom:1px solid #edf0f3;background:#f8fafc}.sb-prospect-page--standalone-discovery .sb-prospect-bulk strong{color:#3f4954;font-size:10px}.sb-prospect-page--standalone-discovery .sb-prospect-bulk button{height:27px;padding:0 9px;border-radius:6px;font-size:10px}.sb-prospect-page--standalone-discovery .sb-prospect-bulk button.primary{border-color:#20252b;color:#fff;background:#20252b}.sb-prospect-page--standalone-discovery .sb-prospect-bulk button:disabled{opacity:.42;cursor:not-allowed}.sb-prospect-page--standalone-discovery .sb-prospect-bulk button.primary:disabled{border-color:#20252b;color:#fff;background:#20252b;opacity:1}.sb-discovery-list-content{display:block;min-height:0;overflow:visible}.sb-discovery-list-content .sb-prospect-table-wrap{overflow:auto}
 .sb-prospect-page--standalone-discovery .sb-prospect-table-wrap{margin:0;border:0;border-radius:0}.sb-prospect-page--standalone-discovery .sb-prospect-table{min-width:680px}.sb-prospect-page--standalone-discovery .sb-prospect-table th{height:37px;padding:0 12px;color:#98a1ac;background:#fbfcfd;font-size:9px}.sb-prospect-page--standalone-discovery .sb-prospect-table td{padding:11px 12px;color:#66707c;font-size:10px;vertical-align:middle}.sb-prospect-page--standalone-discovery .sb-prospect-table tr:hover td,.sb-prospect-page--standalone-discovery .sb-prospect-table tr.is-selected td{background:#f7faff}.sb-prospect-page--standalone-discovery .sb-prospect-person{gap:8px}.sb-prospect-page--standalone-discovery .sb-prospect-avatar{width:32px;height:32px;border-radius:9px}.sb-discovery-profile{max-width:220px;color:#66707c;font-variant-numeric:tabular-nums;line-height:1.55}.sb-discovery-evidence{min-width:180px}.sb-discovery-evidence .sb-prospect-status{margin-bottom:5px}.sb-discovery-evidence-copy{display:block;max-width:250px;color:#56616d;line-height:1.5}.sb-discovery-evidence.is-pending .sb-discovery-evidence-copy{color:#98a1ac}.sb-prospect-page--standalone-discovery .sb-prospect-status{font-size:9px}
-.sb-prospect-page--standalone-discovery .sb-prospect-panel:last-child{position:static;display:flex;flex-direction:column;align-self:stretch}.sb-prospect-page--standalone-discovery .sb-prospect-panel:last-child>.sb-prospect-panel-head{flex:none;padding:15px 17px}.sb-prospect-page--standalone-discovery .sb-prospect-detail{flex:1;min-height:0;overflow:auto;padding:17px}.sb-prospect-page--standalone-discovery .sb-prospect-detail-suggestion{background:#f7f9fc;border-color:#e0e7f1}.sb-prospect-page--standalone-discovery .sb-prospect-detail-actions button.primary{border-color:#20252b;background:#20252b}
+.sb-prospect-page--standalone-discovery .sb-prospect-panel:last-child{position:static;display:block;align-self:start}.sb-prospect-page--standalone-discovery .sb-prospect-panel:last-child>.sb-prospect-panel-head{padding:15px 17px}.sb-prospect-page--standalone-discovery .sb-prospect-detail{min-height:0;overflow:visible;padding:17px}.sb-prospect-page--standalone-discovery .sb-prospect-detail-suggestion{background:#f7f9fc;border-color:#e0e7f1}.sb-prospect-page--standalone-discovery .sb-prospect-detail-actions button.primary{border-color:#20252b;background:#20252b}
 @media(max-width:1100px){.sb-prospect-page--standalone-discovery .sb-prospect-workspace{grid-template-columns:minmax(0,1fr) 310px}.sb-prospect-page--standalone-discovery .sb-result-toolbar .sb-prospect-search{width:165px}}
-@media(max-width:820px){.sb-prospect-page--standalone-discovery{display:block;height:auto;min-height:100%;padding:16px;overflow:auto}.sb-prospect-page--standalone-discovery .sb-prospect-shell{display:block;min-height:0}.sb-prospect-page--standalone-discovery .sb-prospect-workspace{display:grid;grid-template-columns:1fr;flex:none;min-height:auto}.sb-prospect-page--standalone-discovery .sb-prospect-panel,.sb-prospect-page--standalone-discovery .sb-prospect-panel:last-child{display:block;height:auto;min-height:0;overflow:visible}.sb-prospect-page--standalone-discovery .sb-prospect-detail{overflow:visible}.sb-discovery-list-content{display:block;overflow:visible}.sb-discovery-list-content .sb-prospect-table-wrap{overflow:auto}.sb-prospect-page--standalone-discovery .sb-result-panel-head{align-items:flex-start;flex-direction:column}.sb-discovery-results-actions{justify-content:flex-start;width:100%}.sb-prospect-page--standalone-discovery .sb-result-toolbar{flex:1}.sb-prospect-page--standalone-discovery .sb-result-toolbar .sb-prospect-search{width:100%}.sb-prospect-page--standalone-discovery .sb-discovery-heading{align-items:flex-start;flex-direction:column;gap:8px}.sb-discovery-source-tabs{grid-template-columns:1fr}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts{max-width:none;grid-template-columns:1fr}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-meta{grid-column:1;grid-row:3;display:flex;justify-content:space-between;justify-items:initial;margin-top:5px}}
+@media(max-width:820px){.sb-prospect-page--standalone-discovery{padding:16px}.sb-prospect-page--standalone-discovery .sb-prospect-workspace{display:grid;grid-template-columns:1fr;min-height:auto}.sb-prospect-page--standalone-discovery .sb-result-panel-head{align-items:flex-start;flex-direction:column}.sb-discovery-results-actions{justify-content:flex-start;width:100%}.sb-prospect-page--standalone-discovery .sb-result-toolbar{flex:1}.sb-prospect-page--standalone-discovery .sb-result-toolbar .sb-prospect-search{width:100%}.sb-prospect-page--standalone-discovery .sb-discovery-heading{align-items:flex-start;flex-direction:column;gap:8px}.sb-discovery-source-tabs{grid-template-columns:1fr}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts{max-width:none;grid-template-columns:1fr}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-meta{grid-column:1;grid-row:3;display:flex;justify-content:space-between;justify-items:initial;margin-top:5px}}
 `;
 
 const AGENT_WORKBENCH_CSS = `
@@ -240,8 +237,12 @@ const RESULT_TIME_FILTER_CSS = `
 `;
 
 const AGENT_RAIL_CSS = `
-.sb-results-agent-team{gap:12px;padding:2px 2px 8px}.sb-results-agent-card{min-height:76px;padding:13px 16px;align-items:flex-start;justify-content:center}.sb-results-agent-line{align-items:center;gap:12px}.sb-results-agent-avatar{width:42px;height:42px;font-size:14px}.sb-results-agent-copy{padding-top:0}.sb-results-agent-name{font-size:15px;line-height:1.3}.sb-results-agent-role{margin-top:4px;font-size:12px;line-height:1.45}
-@media(max-width:760px){.sb-results-agent-card{min-height:72px;padding:12px 14px}.sb-results-agent-avatar{width:38px;height:38px}.sb-results-agent-name{font-size:14px}.sb-results-agent-role{font-size:11px}}
+.sb-results-agent-team{display:flex;flex-wrap:nowrap;gap:12px;margin:0;padding:2px 2px 8px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;touch-action:pan-x}.sb-results-agent-card{flex:0 0 calc((100% - 24px) / 3);min-width:280px;min-height:76px;padding:13px 16px;align-items:flex-start;justify-content:center;scroll-snap-align:start}.sb-results-agent-line{align-items:center;gap:12px}.sb-results-agent-avatar{width:42px;height:42px;font-size:14px}.sb-results-agent-copy{padding-top:0}.sb-results-agent-name{font-size:15px;line-height:1.3}.sb-results-agent-role{margin-top:4px;font-size:12px;line-height:1.45}
+@media(max-width:760px){.sb-results-agent-card{flex-basis:86%;min-width:240px;min-height:72px;padding:12px 14px}.sb-results-agent-avatar{width:38px;height:38px}.sb-results-agent-name{font-size:14px}.sb-results-agent-role{font-size:11px}}
+`;
+
+const GOLD_CUSTOMER_WORKSPACE_CSS = `
+.sb-gold-workbench{margin-top:14px}.sb-gold-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:16px 18px;border:1px solid #e1e7ed;border-radius:12px;background:#fff}.sb-gold-summary-item{padding:8px 10px;border-left:1px solid #edf0f3}.sb-gold-summary-item:first-child{border-left:0}.sb-gold-summary-item strong{display:block;color:#24303a;font-size:22px;font-weight:760}.sb-gold-summary-item span{display:block;margin-top:4px;color:#84909c;font-size:10px}.sb-gold-layout{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(340px,1.35fr) minmax(250px,.82fr);min-height:560px;margin-top:12px;overflow:hidden;border:1px solid #e1e7ed;border-radius:12px;background:#fff}.sb-gold-column{min-width:0;padding:16px}.sb-gold-column+.sb-gold-column{border-left:1px solid #e8edf2}.sb-gold-column.is-list{background:#fafbfd}.sb-gold-column.is-detail{background:#fcfdfe}.sb-gold-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:13px}.sb-gold-head strong{color:#33404c;font-size:13px}.sb-gold-head span{color:#94a0ab;font-size:10px}.sb-gold-list{display:grid;gap:7px}.sb-gold-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;width:100%;padding:11px;border:1px solid #e4e9ef;border-radius:8px;background:#fff;color:inherit;text-align:left;font:inherit;cursor:pointer}.sb-gold-row.is-selected{border-color:#78a9e3;background:#f5faff;box-shadow:0 0 0 1px #78a9e3}.sb-gold-row strong{display:block;overflow:hidden;color:#303a44;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.sb-gold-row p{display:-webkit-box;overflow:hidden;margin:4px 0 0;color:#7b8793;font-size:10px;line-height:1.5;-webkit-box-orient:vertical;-webkit-line-clamp:2}.sb-gold-row span{color:#6683a7;font-size:10px;white-space:nowrap}.sb-gold-person{padding-bottom:13px;border-bottom:1px solid #e9edf2}.sb-gold-person strong{display:block;color:#2d3741;font-size:16px}.sb-gold-person span{display:block;margin-top:4px;color:#8b96a2;font-size:10px}.sb-gold-messages{display:grid;gap:9px;margin-top:14px}.sb-gold-message{max-width:88%;padding:10px 11px;border-radius:9px;background:#f2f5f8;color:#4d5c6b;font-size:12px;line-height:1.6}.sb-gold-message.is-outbound{justify-self:end;background:#eaf3ff;color:#326496}.sb-gold-message small{display:block;margin-bottom:3px;color:#8290a0;font-size:10px}.sb-gold-fact{padding:10px 0;border-bottom:1px solid #edf0f3}.sb-gold-fact strong{display:block;color:#7d8995;font-size:10px}.sb-gold-fact span{display:block;margin-top:4px;color:#465361;font-size:12px;line-height:1.55}.sb-gold-empty{display:grid;place-items:center;min-height:260px;color:#9ba5af;font-size:12px;text-align:center}@media(max-width:860px){.sb-gold-layout{grid-template-columns:1fr}.sb-gold-column+.sb-gold-column{border-top:1px solid #e8edf2;border-left:0}.sb-gold-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-gold-summary-item:nth-child(odd){border-left:0}}
 `;
 
 const OUTREACH_MODAL_CSS = `
@@ -258,7 +259,7 @@ const OUTREACH_MODAL_CSS = `
 let styleInjected = false;
 function ensureStyle() {
   if (styleInjected) return;
-  for (const [name, text] of [["base", CSS], ["consumer", CONSUMER_CSS], ["discovery-results", DISCOVERY_RESULTS_CSS], ["agent-workbench", AGENT_WORKBENCH_CSS], ["data", DATA_CSS], ["result-time-filter", RESULT_TIME_FILTER_CSS], ["agent-rail", AGENT_RAIL_CSS], ["outreach-modal", OUTREACH_MODAL_CSS]]) {
+  for (const [name, text] of [["base", CSS], ["consumer", CONSUMER_CSS], ["discovery-results", DISCOVERY_RESULTS_CSS], ["agent-workbench", AGENT_WORKBENCH_CSS], ["data", DATA_CSS], ["result-time-filter", RESULT_TIME_FILTER_CSS], ["agent-rail", AGENT_RAIL_CSS], ["gold-customer-workspace", GOLD_CUSTOMER_WORKSPACE_CSS], ["outreach-modal", OUTREACH_MODAL_CSS]]) {
     const style = document.createElement("style");
     style.dataset.sbProspectStyle = name;
     style.textContent = text;
@@ -668,6 +669,38 @@ function resultSnapshotOf(run = {}) {
   return snapshot && typeof snapshot === "object" ? snapshot : {};
 }
 
+export function goldCustomerConversations({ runs = [], records = [] } = {}) {
+  const recordByIdentity = new Map((Array.isArray(records) ? records : []).flatMap((record) => [record.id, record.secUid, record.secId, record.handle, record.name].filter(Boolean).map((key) => [String(key), record])));
+  const conversations = new Map();
+  (Array.isArray(runs) ? runs : []).filter((run) => run.agentId === "mkt-gold-customer-service").forEach((run) => {
+    const snapshot = resultSnapshotOf(run);
+    const entries = [run.messages, snapshot.messages, run.replies, snapshot.replies].find(Array.isArray) || [];
+    entries.forEach((entry, index) => {
+      const key = textValue(entry?.conversationId, entry?.conversation_id, entry?.recordId, entry?.secUid, entry?.secId, entry?.nickname, entry?.name, `${run.taskId}:${index}`);
+      const prior = conversations.get(key) || { id: key, run, history: [] };
+      const record = recordByIdentity.get(String(entry?.recordId || entry?.secUid || entry?.secId || entry?.nickname || entry?.name || ""));
+      prior.name = textValue(entry?.nickname, entry?.name, record?.name, "抖音用户");
+      prior.handle = textValue(entry?.handle, record?.handle);
+      prior.avatar = personAvatarUrl(entry, record);
+      prior.status = textValue(entry?.status, entry?.conversationMode, prior.status, "跟进中");
+      prior.goal = textValue(entry?.goal, entry?.objective, run.inputs?.goal, snapshot.goal, "回应当前问题并推进下一步");
+      prior.handoffReason = textValue(entry?.handoffReason, entry?.handoff_reason, prior.handoffReason);
+      prior.source = textValue(entry?.source, record?.source?.type, "私信");
+      prior.accountName = textValue(run.accountName, snapshot.accountName, record?.source?.accountName);
+      const history = Array.isArray(entry?.conversationHistory) ? entry.conversationHistory : Array.isArray(entry?.history) ? entry.history : [];
+      if (history.length) prior.history.push(...history);
+      else {
+        const incoming = textValue(entry?.content, entry?.text, entry?.message);
+        const reply = textValue(entry?.replyContent, entry?.reply, entry?.response);
+        if (incoming) prior.history.push({ role: "user", content: incoming, at: entry?.createdAt || entry?.observedAt });
+        if (reply) prior.history.push({ role: entry?.conversationMode === "human" ? "human" : "assistant", content: reply, at: entry?.repliedAt || entry?.updatedAt });
+      }
+      conversations.set(key, prior);
+    });
+  });
+  return [...conversations.values()].map((item) => ({ ...item, history: item.history.filter((entry) => textValue(entry?.content, entry?.text)).slice(-20) }));
+}
+
 function rawFinderAccountsForRun(run = {}) {
   const snapshot = resultSnapshotOf(run);
   const values = [run.accounts, run.items, run.results, snapshot.accounts, snapshot.items, snapshot.results];
@@ -1038,7 +1071,7 @@ export function buildAgentCatalog({ records = [], runs = [], files = [], roster 
   const activeRosterById = new Map();
   (Array.isArray(roster) ? roster : []).forEach((agent) => {
     const id = resultCenterAgentId(agent?.id);
-    if (!id || id === UNASSIGNED_AGENT_ID || activeRosterById.has(id)) return;
+    if (!id || id === UNASSIGNED_AGENT_ID || !isMarketplaceAgentAvailable(id) || activeRosterById.has(id)) return;
     activeRosterById.set(id, { ...agent, id });
   });
   const activeRoster = [...activeRosterById.values()];
@@ -1064,7 +1097,7 @@ export function buildAgentCatalog({ records = [], runs = [], files = [], roster 
   const add = (agentId, rawName = "") => {
     const sourceId = textValue(agentId);
     const id = resultCenterAgentId(sourceId);
-    if (!id || id === UNASSIGNED_AGENT_ID) return;
+    if (!id || id === UNASSIGNED_AGENT_ID || !isMarketplaceAgentAvailable(id)) return;
     ids.add(id);
     if (rawName && sourceId === id && !names.has(id)) names.set(id, textValue(rawName));
   };
@@ -2097,7 +2130,7 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     dashboardDetailId: null,
     agentViewId: "overview",
     resultTimeFilter: "all",
-    agentRailScrollLeft: 0,
+    selectedGoldConversationId: null,
     activeRoster: listHiredAgents().filter(isMarketplaceAgentAvailable),
     privateOutreachModal: null
   };
@@ -4232,7 +4265,6 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     }
     const agentSection = el("section", "sb-results-agent-section");
     const rail = el("div", "sb-results-agent-team");
-    rail.addEventListener("scroll", () => { state.agentRailScrollLeft = rail.scrollLeft; }, { passive: true });
     agents.forEach((agent) => {
       const status = resultAgentStatus(agent.id);
       const card = el("button", `sb-results-agent-card${agent.id === state.selectedAgentId ? " is-active" : ""}`);
@@ -4251,7 +4283,6 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
       rail.appendChild(card);
     });
     agentSection.appendChild(rail);
-    globalThis.requestAnimationFrame?.(() => { rail.scrollLeft = state.agentRailScrollLeft; });
     return agentSection;
   }
 
@@ -4386,21 +4417,34 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
   }
 
   function renderGoldCustomerServiceArtifacts() {
-    const items = runs.map((run) => ({ run, kind: "conversation" }));
-    return renderOutreachArtifactList({
-      title: "会话与目标推进",
-      subtitle: "金牌客服的产物：会话摘要、回复记录、目标达成进展、人工接管事项",
-      emptyTitle: "还没有客服会话产物",
-      emptyCopy: "承接到真实私信后，这里会按会话沉淀摘要和推进结果。",
-      items,
-      renderItem: ({ run }) => {
-        const row = el("button", "sb-agent-workbench-row"); row.type = "button";
-        const counts = run.counts || run.metrics || {};
-        row.append(el("div", null, el("strong", null, run.title || "客服会话记录"), el("p", null, run.summary || `回复 ${counts.sent ?? 0} 条 · 人工接管 ${counts.handoff ?? 0} 条`)), el("span", null, formatResultTime(run.generatedAt)));
-        row.addEventListener("click", () => { state.selectedResultId = resultId(run); render(); });
-        return row;
-      }
+    const conversations = goldCustomerConversations({ runs, records });
+    if (!conversations.some((item) => item.id === state.selectedGoldConversationId)) state.selectedGoldConversationId = conversations[0]?.id || null;
+    const selected = conversations.find((item) => item.id === state.selectedGoldConversationId) || null;
+    const replied = conversations.filter((item) => item.history.some((entry) => entry?.role !== "user")).length;
+    const completed = conversations.filter((item) => /完成|留资|预约|转化/.test(item.status || "")).length;
+    const handoff = conversations.filter((item) => item.handoffReason || /人工/.test(item.status || "")).length;
+    const section = el("section", "sb-gold-workbench");
+    const summary = el("div", "sb-gold-summary");
+    [["会话总量", conversations.length], ["已回复", replied], ["完成目标", completed], ["待人工", handoff]].forEach(([label, value]) => {
+      const item = el("div", "sb-gold-summary-item"); item.append(el("strong", null, String(value)), el("span", null, label)); summary.appendChild(item);
     });
+    const layout = el("div", "sb-gold-layout");
+    const listColumn = el("section", "sb-gold-column is-list");
+    const chatColumn = el("section", "sb-gold-column");
+    const detailColumn = el("aside", "sb-gold-column is-detail");
+    const head = (title, meta = "") => { const node = el("div", "sb-gold-head"); node.append(el("strong", null, title), el("span", null, meta)); return node; };
+    listColumn.appendChild(head("用户会话", conversations.length ? `${conversations.length} 位` : "等待新私信"));
+    const list = el("div", "sb-gold-list");
+    if (!conversations.length) list.appendChild(el("div", "sb-gold-empty", "收到真实私信后，这里会按用户显示会话。"));
+    conversations.forEach((item) => { const row = el("button", `sb-gold-row${item.id === state.selectedGoldConversationId ? " is-selected" : ""}`); row.type = "button"; const latest = item.history.at(-1)?.content || "等待新消息"; const copy = el("div"); copy.append(el("strong", null, item.name), el("p", null, latest)); row.append(copy, el("span", null, item.handoffReason ? "待人工" : item.status)); row.addEventListener("click", () => { state.selectedGoldConversationId = item.id; render(); }); list.appendChild(row); });
+    listColumn.appendChild(list);
+    chatColumn.appendChild(head("对话内容", selected ? "平台回传记录" : "暂无会话"));
+    if (!selected) chatColumn.appendChild(el("div", "sb-gold-empty", "选择左侧用户后查看沟通内容。"));
+    else { const person = el("div", "sb-gold-person"); person.append(el("strong", null, selected.name), el("span", null, selected.goal)); const messages = el("div", "sb-gold-messages"); selected.history.forEach((entry) => { const outbound = entry.role !== "user"; const bubble = el("div", `sb-gold-message${outbound ? " is-outbound" : ""}`); bubble.append(el("small", null, outbound ? (entry.role === "human" ? "人工回复" : "金牌客服") : "用户"), document.createTextNode(textValue(entry.content, entry.text))); messages.appendChild(bubble); }); chatColumn.append(person, messages); }
+    detailColumn.appendChild(head("用户详情"));
+    if (!selected) detailColumn.appendChild(el("div", "sb-gold-empty", "选择一个用户查看来源、目标和接管信息。"));
+    else [["当前状态", selected.handoffReason ? "待人工接管" : selected.status], ["对话目标", selected.goal], ["来源", selected.source], ["承接账号", selected.accountName || "未返回"], ["接管原因", selected.handoffReason || "无"]].forEach(([label, value]) => { const fact = el("div", "sb-gold-fact"); fact.append(el("strong", null, label), el("span", null, value)); detailColumn.appendChild(fact); });
+    layout.append(listColumn, chatColumn, detailColumn); section.append(summary, layout); return section;
   }
 
   function renderLiveDanmakuOutreachArtifacts() {
@@ -4937,7 +4981,7 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     wrap.classList.remove("sb-prospect-page--data");
     wrap.classList.remove("sb-prospect-page--standalone-discovery");
     shell.appendChild(renderAgentScopeHeader());
-    if (!["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis"].includes(state.selectedAgentId)) shell.appendChild(renderAgentSnapshot());
+    if (!["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis", "mkt-gold-customer-service"].includes(state.selectedAgentId)) shell.appendChild(renderAgentSnapshot());
 
     if (state.selectedAgentId === "mkt-comment-acquisition") {
       const prospectWorkspace = renderDataOverview({ showFunnel: false });

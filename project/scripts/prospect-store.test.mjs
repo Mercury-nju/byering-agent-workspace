@@ -684,8 +684,8 @@ test("archives non-lead agent outputs as typed results", () => {
       matches: [{ text: "想问一下什么时候补货", videoId: "v-1" }]
     },
     taskId: "task-comment-1",
-    agentId: "mkt-comment-filter",
-    agentName: "评论筛选专员",
+    agentId: "mkt-comment-acquisition",
+    agentName: "抖音获客管家",
     sourceContext: { source: "作品评论" }
   });
 
@@ -698,27 +698,26 @@ test("archives non-lead agent outputs as typed results", () => {
   assert.equal(store.list().length, 0);
 });
 
-test("archives the composed find-analyze-outreach workflow as one user research result", () => {
+test("archives account research as a customer analyst report", () => {
   const store = createProspectStore({ storage: memoryStorage(), now: () => "2026-09-07T10:00:00.000Z" });
   store.ingestRun({
     resultSnapshot: {
       status: "completed",
-      title: "AI 科普用户调研",
-      survey: { url: "https://example.com/survey", audienceGoal: "近期关注 AI 科普内容的人" },
-      counts: { discovered: 20, matched: 6, selected: 4, sent: 4, failed: 0 },
-      items: [{ nickname: "目标用户", secUid: "sec-research", score: 92, status: "sent", message: "邀请填写问卷" }]
+      analysisKind: "account_report",
+      title: "AI 科普账号研究",
+      counts: { accounts: 4 },
+      accounts: [{ nickname: "目标账号", report: { status: "completed", summary: "账号研究完成" } }]
     },
     taskId: "research-task",
-    agentId: "mkt-user-research",
-    agentName: "用户调研专家",
-    sourceContext: { source: "用户调研" }
+    agentId: "mkt-intent-analyst",
+    agentName: "客户分析员",
+    sourceContext: { source: "账号研究" }
   });
 
   const run = store.listRuns()[0];
-  assert.equal(run.resultType, "用户调研");
-  assert.equal(run.title, "AI 科普用户调研");
-  assert.equal(run.items[0].status, "sent");
-  assert.equal(run.resultSnapshot.survey.url, "https://example.com/survey");
+  assert.equal(run.resultType, "研究简报");
+  assert.equal(run.title, "AI 科普账号研究");
+  assert.equal(run.resultSnapshot.analysisKind, "account_report");
 });
 
 test("classifies live capability, runtime summaries, and failed runs without fabricating completion", () => {

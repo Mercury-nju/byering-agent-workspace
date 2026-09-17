@@ -1,4 +1,5 @@
 const LEGACY_OFFICE_PILOT_SW = "office-pilot-sw.js";
+await import("/runtime-config.js");
 
 async function removeLegacyOfficePilotServiceWorker() {
   const serviceWorker = globalThis.navigator?.serviceWorker;
@@ -41,7 +42,8 @@ async function registerOfficeAssetWorker() {
 void registerOfficeAssetWorker();
 
 const query = new URLSearchParams(globalThis.location?.search || "");
-const standaloneResultsPreview = query.get("page") === "prospects" && query.get("preview") === "style";
+const runtimeMode = globalThis.__SALEBUDDY_CONFIG__?.runtimeMode || "production";
+const standaloneResultsPreview = runtimeMode === "mock" && query.get("page") === "prospects";
 
 await import("../../browser-shim.js?v=20260914-business-memory-demo-1");
 if (standaloneResultsPreview) {

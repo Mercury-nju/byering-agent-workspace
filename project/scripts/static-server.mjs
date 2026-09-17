@@ -65,12 +65,18 @@ export function patchRecoveredBundle(filePath, body) {
 }
 
 export function createStaticServer({ rootDir = root, port = defaultPort, gatewayPort = Number(process.env.MARVIS_GATEWAY_PORT || 5152) } = {}) {
-  // The recovered Gateway mock is a development fixture. Production and
-  // normal local runs must fail closed when no real Agent Gateway is present.
-  if (process.env.MARVIS_ENABLE_GATEWAY_MOCK === "1" && process.env.MARVIS_DISABLE_GATEWAY_MOCK !== "1") {
+  // Mock Gateway is opt-in. Production local runs never start it by accident.
+  if (process.env.BYERING_RUNTIME_MODE === "mock" && process.env.MARVIS_DISABLE_GATEWAY_MOCK !== "1") {
     startGatewayMock({ port: gatewayPort });
   }
   return http.createServer(async (request, response) => {
+    const requestPath = decodeURIComponent((request.url || "/").split("?")[0]);
+    if (requestPath === "/runtime-config.js") {
+      const mode = process.env.BYERING_RUNTIME_MODE === "mock" ? "mock" : "production";
+      response.writeHead(200, { "Content-Type": "text/javascript; charset=utf-8", "Cache-Control": "no-cache" });
+      response.end(`globalThis.__SALEBUDDY_CONFIG__=Object.assign({},globalThis.__SALEBUDDY_CONFIG__,{runtimeMode:${JSON.stringify(mode)}});`);
+      return;
+    }
     const filePath = safePath(rootDir, request.url || "/");
     if (!filePath) {
       response.writeHead(403);

@@ -72,3 +72,12 @@ test("gateway client prefers the native socket behind the recovered demo shim", 
     shimSocket
   );
 });
+
+test("runtime mode is production by default and mock only by explicit environment", async () => {
+  const { runtimeMode, runtimeModeLabel } = await import(`../src/salebuddy/bridge/runtime-mode.js?mode=${Date.now()}`);
+  assert.equal(runtimeMode("?page=prospects", { envMock: false }), "production");
+  assert.equal(runtimeMode("?page=prospects&mode=mock", { envMock: false }), "production");
+  assert.equal(runtimeMode("?page=prospects", { envMock: true }), "mock");
+  assert.equal(runtimeModeLabel("production"), "正式本地 · 真实逻辑");
+  assert.equal(runtimeModeLabel("mock"), "纯 Mock · 开发/演示");
+});

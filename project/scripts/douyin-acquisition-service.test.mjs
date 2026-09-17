@@ -1323,12 +1323,12 @@ test("task fingerprint is stable when config object key order changes", () => {
   assert.equal(second, first);
 });
 
-test("retired live discovery cannot create a new acquisition task", async () => {
+test("unknown acquisition identifiers cannot create a new task", async () => {
   const directory = await mkdtemp(join(tmpdir(), "byering-acquisition-"));
   const { service } = build(directory);
   assert.throws(
-    () => service.createTask(context({ agentId: "mkt-live-lead-miner" }), config({ sourceScope: { type: "live_room", roomId: "room-1" } })),
-    { code: "DOUYIN_ACQUISITION_AGENT_RETIRED" }
+    () => service.createTask(context({ agentId: "unknown-agent" }), config({ sourceScope: { type: "live_room", roomId: "room-1" } })),
+    { code: "DOUYIN_ACQUISITION_AGENT_INVALID" }
   );
   assert.equal(service.listTasks().length, 0);
 });

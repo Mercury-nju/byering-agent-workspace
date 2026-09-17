@@ -317,6 +317,25 @@ const MOCK_RUNS = Object.freeze([
     counts: { discovered: 8, qualified: 8, delivered: 8 },
     items: MOCK_RECORDS,
     generatedAt: MOCK_NOW
+  },
+  {
+    taskId: "mock-gold-customer-service",
+    ownerKey: "mkt-gold-customer-service::mock-gold-customer-service::mock-account-automotive",
+    accountId: "mock-account-automotive",
+    accountName: "臻选新能源 · 上海",
+    agentId: "mkt-gold-customer-service",
+    agentName: "金牌客服",
+    resultType: "触达记录",
+    title: "高意向私信承接",
+    summary: "围绕试驾和留资目标承接 3 位用户私信。",
+    status: "completed",
+    counts: { received: 3, replies: 3, completed: 1, handoff: 1 },
+    generatedAt: MOCK_NOW,
+    messages: [
+      { conversationId: "gold-xu", recordId: "mock-prospect-nanjing-xu", nickname: "南京徐女士", status: "已留资", goal: "确认试驾时间并获取可跟进联系方式", conversationHistory: [{ role: "user", content: "现在有白色现车吗？周末可以试驾吗？" }, { role: "assistant", content: "白色现车和周末试驾我先帮您核对。方便留个微信，我把确认后的颜色和档期发给您。" }, { role: "user", content: "微信是 nanjing_ev_xu，周日下午都可以。" }, { role: "assistant", content: "已记录，我会优先确认周日下午的试驾档期。" }] },
+      { conversationId: "gold-zhao", recordId: "mock-prospect-hefei-zhao", nickname: "合肥赵先生", status: "待人工接管", goal: "引导预约到店", handoffReason: "用户要求确认具体优惠与到店承诺", conversationHistory: [{ role: "user", content: "周六下午两点可以到店，优惠还能按直播间说的吗？" }, { role: "assistant", content: "到店时间我可以先为您保留，具体优惠需要门店确认后再回复您。" }] },
+      { conversationId: "gold-tang", recordId: "mock-prospect-shaoxing-tang", nickname: "绍兴唐女士", status: "跟进中", goal: "解答续航咨询并推进试驾", conversationHistory: [{ role: "user", content: "我通勤加周末回老家，续航够用吗？" }, { role: "assistant", content: "按您的通勤场景，建议先看实际续航和充电条件。我整理一份对比给您，再确认是否安排试驾。" }] }
+    ]
   }
 ]);
 

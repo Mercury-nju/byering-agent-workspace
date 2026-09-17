@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { buildAgentCatalog, buildAgentScopedData, buildConsumerOverviewModel, buildInboxResumeFlow, buildPrivateOutreachResumeFlow, buildProspectDashboardModel, commentResultItems, consumerNavigationItems, dashboardAcquisitionAccount, dashboardLeadLabel, dashboardReplyLabel, discoveredUserItems, discoverySourceGroups, discoveryTaskGroups, filterResultsByTime, isBusinessResult, isDirectOutreachCandidate, leadCaptureContactEntries, normalizePeopleFilter, outreachResultItems, personAvatarHydrationReference, privateOutreachRecipientId, prospectSelectionIds, resultFunnelCounts, selectedResultIdForType } from "../src/salebuddy/ui/prospect-center.js";
+import { buildAgentCatalog, buildAgentScopedData, buildConsumerOverviewModel, buildInboxResumeFlow, buildPrivateOutreachResumeFlow, buildProspectDashboardModel, commentResultItems, consumerNavigationItems, dashboardAcquisitionAccount, dashboardLeadLabel, dashboardReplyLabel, discoveredUserItems, discoverySourceGroups, discoveryTaskGroups, filterResultsByTime, goldCustomerConversations, isBusinessResult, isDirectOutreachCandidate, leadCaptureContactEntries, normalizePeopleFilter, outreachResultItems, personAvatarHydrationReference, privateOutreachRecipientId, prospectSelectionIds, resultFunnelCounts, selectedResultIdForType } from "../src/salebuddy/ui/prospect-center.js";
 import { createResultsMockPreviewData, createResultsMockPreviewFiles, isResultsMockPreview } from "../src/salebuddy/ui/results-mock-preview.js";
 import { finderAccountToOutreach, mergeResolvedFinderAccounts, normalizeDouyinFinderAccount } from "../src/salebuddy/ui/douyin-finder-results.js";
 import { personAvatarUrl } from "../src/salebuddy/ui/person-avatar.js";
@@ -354,8 +354,8 @@ test("style preview provides a complete results-center conversion chain without 
   assert.ok(model.views.touched.items.length > 0);
   assert.ok(model.views.following.items.length > 0);
   assert.ok(model.views.leads.items.length > 0);
-  assert.ok(discoveredUserItems({ records, runs }).length > records.length);
-  assert.ok(discoveryTaskGroups({ records, runs }).some((group) => group.title === "新能源家庭用车兴趣人群"));
+  assert.equal(discoveredUserItems({ records, runs }).length, records.length);
+  assert.equal(discoveryTaskGroups({ records, runs }).length, 0);
   assert.equal(createResultsMockPreviewFiles().length, 3);
   assert.equal(isResultsMockPreview("?page=prospects&preview=style", { hostname: "127.0.0.1" }), true);
   assert.equal(isResultsMockPreview("?page=prospects&preview=style", { hostname: "example.com" }), false);
@@ -440,6 +440,23 @@ test("results center leaves the global page title empty because navigation alrea
   assert.match(prospectCenterSource, /const page = openPage\(\{\s*title: \"\",\s*onClose: \(\) => \{/);
 });
 
+test("gold customer service groups real conversation history by user", () => {
+  const conversations = goldCustomerConversations({
+    records: [{ id: "record-1", name: "测试用户", handle: "test-user" }],
+    runs: [{ agentId: "mkt-gold-customer-service", taskId: "gold-1", messages: [{ conversationId: "conversation-1", recordId: "record-1", nickname: "测试用户", goal: "确认试驾", handoffReason: "优惠需人工确认", conversationHistory: [{ role: "user", content: "周末能试驾吗？" }, { role: "assistant", content: "我先帮您确认档期。" }] }] }]
+  });
+  assert.equal(conversations.length, 1);
+  assert.equal(conversations[0].name, "测试用户");
+  assert.equal(conversations[0].history[1].content, "我先帮您确认档期。");
+  assert.equal(conversations[0].handoffReason, "优惠需人工确认");
+  assert.match(prospectCenterSource, /sb-gold-layout/);
+  assert.match(prospectCenterSource, /用户会话/);
+  assert.match(prospectCenterSource, /对话内容/);
+  assert.match(prospectCenterSource, /用户详情/);
+  assert.match(prospectCenterSource, /const copy = el\("div"\); copy\.append\(el\("strong", null, item\.name\), el\("p", null, latest\)\); row\.append\(copy/);
+  assert.match(prospectCenterSource, /"mkt-gold-customer-service"\]\.?includes\(state\.selectedAgentId\)/);
+});
+
 test("results center opens on one Agent-scoped work surface", () => {
   assert.match(prospectCenterSource, /persistNavigationRoute\("prospects"\)/);
   assert.match(prospectCenterSource, /surface: "work"/);
@@ -455,7 +472,7 @@ test("results center opens on one Agent-scoped work surface", () => {
   assert.match(prospectCenterSource, /function renderAgentBusinessNavigation/);
   assert.doesNotMatch(prospectCenterSource, /RESULT_TYPES\.forEach\(\(type\)/);
   assert.match(prospectCenterSource, /byering:results-center:selected-agent/);
-  assert.match(prospectCenterSource, /agentRailScrollLeft/);
+  assert.doesNotMatch(prospectCenterSource, /agentRailScrollLeft/);
   assert.doesNotMatch(prospectCenterSource, /renderSyncNotice/);
   assert.doesNotMatch(prospectCenterSource, /sb-agent-scope-title/);
   assert.match(prospectCenterSource, /selectedAgentId === "mkt-comment-acquisition"/);
@@ -466,7 +483,7 @@ test("results center opens on one Agent-scoped work surface", () => {
   assert.match(prospectCenterSource, /selectedAgentId === "mkt-find-people"/);
   assert.match(prospectCenterSource, /"找到的人"/);
   assert.match(prospectCenterSource, /renderDiscoveredListContent\(foundContent, foundItems\)/);
-  assert.match(prospectCenterSource, /\["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis"\]\.includes\(state\.selectedAgentId\)/);
+  assert.match(prospectCenterSource, /\["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis", "mkt-gold-customer-service"\]\.includes\(state\.selectedAgentId\)/);
   assert.match(prospectCenterSource, /if \(state\.selectedAgentId === "mkt-find-people"\) \{/);
   assert.match(prospectCenterSource, /is-empty-discovery/);
   assert.match(prospectCenterSource, /function renderSpecialistWorkbench/);
@@ -562,39 +579,28 @@ test("results center never exposes the unassigned placeholder as an Agent", () =
   assert.deepEqual(catalog, [{ id: "mkt-viral-work-analysis", label: "爆款作品分析" }]);
   assert.deepEqual(buildAgentCatalog({ files: [{ id: "legacy-file", name: "历史文件" }] }), []);
   assert.equal(scoped.agentId, "");
-  assert.match(prospectCenterSource, /if \(!id \|\| id === UNASSIGNED_AGENT_ID\) return/);
+  assert.match(prospectCenterSource, /if \(!id \|\| id === UNASSIGNED_AGENT_ID \|\| !isMarketplaceAgentAvailable\(id\)\) return/);
 });
 
-test("legacy capability results are grouped under the active product Agents", () => {
-  const legacyCommentRun = {
-    id: "legacy-comment-filter",
-    taskId: "legacy-comment-filter-task",
-    agentId: "mkt-comment-filter",
-    agentName: "按条件筛评论",
-    resultType: "评论筛选"
-  };
-  const legacyLeadRun = {
-    id: "legacy-comment-lead-miner",
-    taskId: "legacy-comment-lead-miner-task",
-    agentId: "mkt-lead-miner",
-    agentName: "评论区找客户",
-    resultType: "潜客"
-  };
+test("results center does not retain retired Agent aliases", () => {
   const catalog = buildAgentCatalog({ roster: [
-    { id: "mkt-comment-filter", name: "按条件筛评论" },
-    { id: "mkt-lead-miner", name: "评论区找客户" }
+    { id: "mkt-comment-acquisition", name: "抖音获客管家" },
+    { id: "mkt-find-people", name: "找客专员" }
   ] });
-  const commentScoped = buildAgentScopedData({ runs: [legacyCommentRun], agentId: "mkt-comment-acquisition" });
-  const finderScoped = buildAgentScopedData({ runs: [legacyLeadRun], agentId: "mkt-find-people" });
-
   assert.deepEqual(catalog, [
     { id: "mkt-comment-acquisition", label: "抖音获客管家" },
     { id: "mkt-find-people", label: "找客专员" }
   ]);
-  assert.deepEqual(commentScoped.runs.map((run) => run.id), ["legacy-comment-filter"]);
-  assert.deepEqual(finderScoped.runs.map((run) => run.id), ["legacy-comment-lead-miner"]);
-  assert.match(prospectCenterSource, /"mkt-comment-filter": "mkt-comment-acquisition"/);
-  assert.match(prospectCenterSource, /"mkt-lead-miner": "mkt-find-people"/);
+  const retiredFromLegacyContract = buildAgentCatalog({
+    roster: [{ id: "mkt-lead-miner", name: "评论区潜客挖掘专家" }],
+    runs: [{ id: "retired-run", agentId: "mkt-lead-miner" }]
+  });
+  const retiredFromHistoricalResults = buildAgentCatalog({
+    runs: [{ id: "retired-run", agentId: "mkt-lead-miner", agentName: "评论区潜客挖掘专家" }]
+  });
+  assert.deepEqual(retiredFromLegacyContract, []);
+  assert.deepEqual(retiredFromHistoricalResults, []);
+  assert.doesNotMatch(prospectCenterSource, /mkt-(comment-filter|lead-miner|douyin-finder|user-research|research-expert)/);
 });
 
 test("潜客触达专员主界面直接展示已触达潜客列表", () => {
@@ -622,7 +628,7 @@ test("Agent-specific result summaries tolerate empty runtime payloads", () => {
   assert.match(source, /等待候选账号核验/);
   assert.doesNotMatch(source, /作品表现与传播机制/);
   assert.doesNotMatch(source, /直播反馈还不够，先别改话术/);
-  assert.match(prospectCenterSource, /\["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis"\]\.includes\(state\.selectedAgentId\)/);
+  assert.match(prospectCenterSource, /\["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis", "mkt-gold-customer-service"\]\.includes\(state\.selectedAgentId\)/);
 });
 
 test("captured leads expose human sales progression instead of only a final conversion action", () => {
@@ -693,7 +699,7 @@ test("dashboard details stay inside the direct data dashboard", () => {
 });
 
 test("prospect center isolates dashboard styles from legacy result styles", () => {
-  assert.match(prospectCenterSource, /\[\["base", CSS\], \["consumer", CONSUMER_CSS\], \["discovery-results", DISCOVERY_RESULTS_CSS\], \["agent-workbench", AGENT_WORKBENCH_CSS\], \["data", DATA_CSS\], \["result-time-filter", RESULT_TIME_FILTER_CSS\], \["agent-rail", AGENT_RAIL_CSS\], \["outreach-modal", OUTREACH_MODAL_CSS\]\]/);
+  assert.match(prospectCenterSource, /\[\["base", CSS\], \["consumer", CONSUMER_CSS\], \["discovery-results", DISCOVERY_RESULTS_CSS\], \["agent-workbench", AGENT_WORKBENCH_CSS\], \["data", DATA_CSS\], \["result-time-filter", RESULT_TIME_FILTER_CSS\], \["agent-rail", AGENT_RAIL_CSS\], \["gold-customer-workspace", GOLD_CUSTOMER_WORKSPACE_CSS\], \["outreach-modal", OUTREACH_MODAL_CSS\]\]/);
   assert.match(prospectCenterSource, /style\.dataset\.sbProspectStyle = name/);
   assert.match(prospectCenterSource, /\.sb-data-funnel\{display:flex;align-items:stretch;/);
   assert.match(prospectCenterSource, /\.sb-data-funnel-bridge\{position:relative;display:flex;/);
@@ -704,7 +710,11 @@ test("prospect center isolates dashboard styles from legacy result styles", () =
 });
 
 test("results Agent cards use a denser, larger identity treatment", () => {
-  assert.match(prospectCenterSource, /\.sb-results-agent-card\{min-height:76px;padding:13px 16px;align-items:flex-start;justify-content:center\}/);
+  assert.match(prospectCenterSource, /\.sb-prospect-page--standalone-discovery\{display:block;height:auto;min-height:100%;box-sizing:border-box;padding:16px 42px;overflow:visible\}/);
+  assert.doesNotMatch(prospectCenterSource, /\.sb-page--prospect-center>\.sb-page-body:has\(\.sb-prospect-page--standalone-discovery\)\{overflow:hidden\}/);
+  assert.match(prospectCenterSource, /\.sb-results-agent-team\{display:flex;flex-wrap:nowrap;gap:12px;.*overflow-x:auto;overflow-y:hidden;.*touch-action:pan-x/);
+  assert.doesNotMatch(prospectCenterSource, /rail\.addEventListener\("scroll"/);
+  assert.match(prospectCenterSource, /\.sb-results-agent-card\{flex:0 0 calc\(\(100% - 24px\) \/ 3\);min-width:280px;min-height:76px;padding:13px 16px;align-items:flex-start;justify-content:center;scroll-snap-align:start/);
   assert.match(prospectCenterSource, /\.sb-results-agent-avatar\{width:42px;height:42px;font-size:14px\}/);
   assert.match(prospectCenterSource, /\.sb-results-agent-name\{font-size:15px;line-height:1.3\}/);
   assert.match(prospectCenterSource, /\.sb-results-agent-role\{margin-top:4px;font-size:12px;line-height:1.45\}/);
@@ -712,13 +722,13 @@ test("results Agent cards use a denser, larger identity treatment", () => {
 
 test("viral work results omit the duplicate aggregate summary and keep only deliverables", () => {
   assert.doesNotMatch(prospectCenterSource, /title: "作品表现与传播机制"/);
-  assert.match(prospectCenterSource, /\["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis"\]\.includes\(state\.selectedAgentId\)/);
+  assert.match(prospectCenterSource, /\["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis", "mkt-gold-customer-service"\]\.includes\(state\.selectedAgentId\)/);
   assert.match(prospectCenterSource, /if \(state\.selectedAgentId !== "mkt-viral-work-analysis"\) shell\.appendChild\(renderAgentBusinessNavigation\(\)\)/);
 });
 
 test("viral work result detail stays concise and opens the full report separately", () => {
   const start = prospectCenterSource.indexOf('if (run.agentId === "mkt-viral-work-analysis")');
-  const end = prospectCenterSource.indexOf('if (run.agentId === "mkt-research-expert")', start);
+  const end = prospectCenterSource.indexOf('if (run.resultType !== "抖音找人"', start);
   assert.ok(start >= 0 && end > start);
   const detail = prospectCenterSource.slice(start, end);
 
@@ -1135,31 +1145,18 @@ test("standalone discovery source browser has no displaced top edge", () => {
   assert.match(prospectCenterSource, /sb-prospect-panel:first-child>\.sb-discovery-task-browser\{display:block;flex:none;width:100%;box-sizing:border-box;margin:0;padding-top:14px/);
 });
 
-test("standalone discovery keeps its two panels aligned and scrolls the result list internally", () => {
-  assert.match(prospectCenterSource, /\.sb-prospect-page--standalone-discovery\{display:flex;overflow:hidden\}/);
-  assert.match(prospectCenterSource, /\.sb-prospect-page--standalone-discovery \.sb-prospect-workspace\{align-items:stretch;flex:1;min-height:0\}/);
-  assert.match(prospectCenterSource, /\.sb-discovery-list-content\{display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden\}/);
-  assert.match(prospectCenterSource, /\.sb-discovery-list-content \.sb-prospect-table-wrap\{flex:1;min-height:0;overflow:auto\}/);
+test("standalone discovery keeps its two panels aligned while the page owns vertical scrolling", () => {
+  assert.match(prospectCenterSource, /\.sb-prospect-page--standalone-discovery\{display:block;height:auto;min-height:100%;box-sizing:border-box;padding:16px 42px;overflow:visible\}/);
+  assert.match(prospectCenterSource, /\.sb-prospect-page--standalone-discovery \.sb-prospect-workspace\{align-items:start;min-height:0\}/);
+  assert.match(prospectCenterSource, /\.sb-discovery-list-content\{display:block;min-height:0;overflow:visible\}/);
+  assert.match(prospectCenterSource, /\.sb-discovery-list-content \.sb-prospect-table-wrap\{overflow:auto\}/);
   assert.match(prospectCenterSource, /const content = el\("div", "sb-discovery-list-content"\)/);
 });
 
-test("standalone discovery fills the available viewport without a fixed bottom dead zone", () => {
-  assert.match(
-    prospectCenterSource,
-    /\.sb-page--prospect-center>\.sb-page-body:has\(\.sb-prospect-page--standalone-discovery\)\{padding-bottom:0!important\}/
-  );
-  assert.match(
-    prospectCenterSource,
-    /\.sb-prospect-page--standalone-discovery\{height:100%;min-height:0;box-sizing:border-box;padding:16px 42px\}/
-  );
-  assert.match(
-    prospectCenterSource,
-    /@media\(min-width:821px\)\{\.sb-page--prospect-center>\.sb-page-body:has\(\.sb-prospect-page--standalone-discovery\)\{overflow:hidden\}\}/
-  );
-  assert.match(
-    prospectCenterSource,
-    /@media\(max-width:820px\)\{\.sb-prospect-page--standalone-discovery\{display:block;height:auto;min-height:100%;padding:16px;overflow:auto\}/
-  );
+test("standalone discovery never locks desktop page scrolling", () => {
+  assert.doesNotMatch(prospectCenterSource, /\.sb-page--prospect-center>\.sb-page-body:has\(\.sb-prospect-page--standalone-discovery\)\{overflow:hidden\}/);
+  assert.doesNotMatch(prospectCenterSource, /\.sb-prospect-page--standalone-discovery\{height:100%;min-height:0/);
+  assert.match(prospectCenterSource, /@media\(max-width:820px\)\{\.sb-prospect-page--standalone-discovery\{padding:16px\}/);
 });
 
 test("contactable prospects route to comprehensive analysis while public discovery stays account analysis", () => {

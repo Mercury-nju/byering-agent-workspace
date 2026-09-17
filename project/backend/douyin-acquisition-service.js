@@ -22,7 +22,7 @@ import { extractLeadContact } from "../src/salebuddy/agents/lead-capture.js";
 import { analyzeLiveDanmakuSignals } from "../src/salebuddy/agents/live-danmaku-analysis.js";
 import {
   DOUYIN_ACCOUNT_CLOUD_RUNTIME_ID,
-  DOUYIN_ACQUISITION_LEGACY_CLOUD_AGENT_IDS
+  DOUYIN_ACQUISITION_CLOUD_AGENT_IDS
 } from "../src/salebuddy/agents/marketplace.js";
 import { DOUYIN_AUTO_AUDIENCE_GOAL } from "../src/salebuddy/agents/acquisition-contract.js";
 
@@ -50,10 +50,9 @@ const AUTHORIZED_LISTENER_SOURCE_SCOPES = new Set([
   "authorized_account_comments",
   "authorized_account_live"
 ]);
-const RETIRED_LIVE_AGENT_ID = "mkt-live-lead-miner";
 const DOUYIN_ACCOUNT_CLOUD_AGENT_ID = DOUYIN_ACCOUNT_CLOUD_RUNTIME_ID;
 const DOUYIN_RUNTIME_LEGACY_CLOUD_AGENT_IDS = Object.freeze([
-  ...new Set([...DOUYIN_ACQUISITION_LEGACY_CLOUD_AGENT_IDS, RETIRED_LIVE_AGENT_ID])
+  ...new Set(DOUYIN_ACQUISITION_CLOUD_AGENT_IDS)
 ]);
 const TRANSIENT_CODES = new Set([
   "DOUYIN_MCP_TIMEOUT", "NETWORK_ERROR", "ETIMEDOUT", "ECONNRESET",
@@ -1047,7 +1046,6 @@ export function createDouyinAcquisitionService({
   function maintainPersistedTasks() {
     let changed = migrateListenerTaskRuntimeSchedules();
     changed = migrateComprehensiveTaskScopes() || changed;
-    changed = retireLegacyLiveTasks() || changed;
     changed = archiveStaleErrors() || changed;
     changed = consolidateContinuousTasks() || changed;
     if (changed) persist();
@@ -1110,23 +1108,6 @@ export function createDouyinAcquisitionService({
         task.updatedAt = now();
         changed = true;
       }
-    }
-    return changed;
-  }
-
-  function retireLegacyLiveTasks() {
-    let changed = false;
-    for (const task of Object.values(state.tasks)) {
-      if (task?.context?.agentId !== RETIRED_LIVE_AGENT_ID) continue;
-      if (task.state === TASK_STATES.STOPPED && task.resumeBlocked?.reason === "agent_retired") continue;
-      task.state = TASK_STATES.STOPPED;
-      task.nextRunAt = null;
-      task.resumeBlocked = {
-        reason: "agent_retired",
-        message: "直播间找客户已并入找客专员。历史记录仍可查看，不能继续恢复运行。"
-      };
-      task.updatedAt = now();
-      changed = true;
     }
     return changed;
   }
@@ -1883,9 +1864,6 @@ function normalizeContext(value) {
   };
   const executionAgentId = String(source.executionAgentId || source.execution_agent_id || "").trim();
   if (executionAgentId) context.executionAgentId = executionAgentId;
-  if (context.agentId === RETIRED_LIVE_AGENT_ID) {
-    throw acquisitionError("直播间找客户已并入找客专员。请使用找客专员并选择“我的账号直播互动”。", "DOUYIN_ACQUISITION_AGENT_RETIRED", 410);
-  }
   if (!AGENT_IDS.has(context.agentId)) throw acquisitionError("仅支持获客专家、找客专员、直播间弹幕分析或直播间未成交客户触达", "DOUYIN_ACQUISITION_AGENT_INVALID", 400);
   const runtimeAgentId = acquisitionExecutionAgentId(context);
   if (!EXECUTION_AGENT_IDS.has(runtimeAgentId)) {

@@ -203,7 +203,7 @@ test("only durable agents are marked long-running in setup and resume state", ()
 
 test("所有监听任务恢复时都会清理旧版本遗留的历史回看字段", () => {
   const helperStart = source.indexOf("function stripListenerHistoricalFields");
-  const helperEnd = source.indexOf("function isCommentFilterAgent", helperStart);
+  const helperEnd = source.indexOf("function isInboxAgent", helperStart);
   assert.ok(helperStart >= 0 && helperEnd > helperStart);
   const helper = source.slice(helperStart, helperEnd);
 
@@ -1071,7 +1071,7 @@ test("live entry stays blocked until its dedicated channel passes a real readine
   assert.deepEqual(getAcquisitionCardAction("commentAcquisition", { state: "passed", executorReady: false }), { visible: true, hireable: true, startable: true, action: "open", label: "立即使用" });
 });
 
-test("retired live discovery has no launch control while the active acquisition Agent remains available", () => {
+test("active acquisition Agent exposes the only comment-discovery launch control", () => {
   assert.deepEqual(getAcquisitionCardViewModel({ id: "mkt-comment-acquisition" }, { state: "passed", executorReady: false }), {
     agentId: "mkt-comment-acquisition",
     capability: "commentAcquisition",
@@ -1081,13 +1081,11 @@ test("retired live discovery has no launch control while the active acquisition 
     action: "open",
     label: "立即使用"
   });
-  assert.equal(getAcquisitionCardViewModel({ id: "mkt-live-lead-miner" }, { state: "passed", executorReady: false }), null);
   assert.equal(getAcquisitionCardViewModel({ id: "mkt-comment-acquisition" }, { state: "passed", executorReady: true }).startable, true);
   assert.equal(getAcquisitionCardViewModel({ id: "mkt-comment-acquisition" }, { state: "passed", executorReady: true }).action, "open");
-  assert.equal(getAcquisitionCardViewModel({ id: "mkt-lead-miner" }), null);
 });
 
-test("retired live discovery never binds an interactive launch action", () => {
+test("unknown acquisition identifiers never bind an interactive launch action", () => {
   function mockButton() {
     const listeners = new Map();
     return {
@@ -1103,7 +1101,7 @@ test("retired live discovery never binds an interactive launch action", () => {
 
   const blockedButton = mockButton();
   let blockedClicks = 0;
-  const blocked = bindAcquisitionCardAction(blockedButton, "mkt-live-lead-miner", { state: "passed", executorReady: false }, () => { blockedClicks += 1; });
+  const blocked = bindAcquisitionCardAction(blockedButton, "unknown-agent", { state: "passed", executorReady: false }, () => { blockedClicks += 1; });
   blockedButton.dispatchEvent({ type: "click" });
   assert.equal(blocked, null);
   assert.equal(blockedButton.disabled, false);
@@ -1113,7 +1111,7 @@ test("retired live discovery never binds an interactive launch action", () => {
 
   const readyButton = mockButton();
   let opened = null;
-  const ready = bindAcquisitionCardAction(readyButton, "mkt-live-lead-miner", { state: "passed", executorReady: true }, (_event, model) => { opened = model; });
+  const ready = bindAcquisitionCardAction(readyButton, "unknown-agent", { state: "passed", executorReady: true }, (_event, model) => { opened = model; });
   readyButton.dispatchEvent({ type: "click" });
   assert.equal(ready, null);
   assert.equal(readyButton.disabled, false);
@@ -1129,8 +1127,23 @@ test("retired live discovery cannot be opened through a stale use-flow route", (
 });
 
 test("agent square wires acquisition buttons through the gate adapter", () => {
-  assert.match(source, /bindAcquisitionCardAction\(btn, agent, undefined, handleClick, \{\s*label: hired \? "立即使用" : "雇佣并配置"\s*\}\)/);
+  assert.match(source, /bindAcquisitionCardAction\(btn, agent, undefined, handleClick, \{\s*label: hired \? "立即使用" : "雇佣"\s*\}\)/);
+  assert.match(source, /btn\.textContent = enabled \? \(hired \? "立即使用" : "雇佣"\) : "暂未开放"/);
   assert.match(source, /if \(getAcquisitionCardViewModel\(agent\)\) \{/);
+});
+
+test("Agent Square makes employment request failures visible", () => {
+  const homeStart = source.indexOf("function renderHome()");
+  const homeEnd = source.indexOf("function render()", homeStart);
+  const home = source.slice(homeStart, homeEnd);
+  const hireStart = source.indexOf("function buildHireButton(agent)");
+  const hireEnd = source.indexOf("function privateOutreachRecords", hireStart);
+  const hire = source.slice(hireStart, hireEnd);
+
+  assert.match(source, /employmentError: null/);
+  assert.match(source, /\.sb-as-employment-error\{/);
+  assert.match(home, /const error = el\("div", "sb-as-employment-error", state\.employmentError\);\s*error\.setAttribute\("role", "alert"\);\s*root\.appendChild\(error\)/);
+  assert.match(hire, /state\.employmentError = null;\s*await employMarketplaceAgent/);
 });
 
 test("Agent startup uses one global busy-account guard and actionable dialog", () => {
@@ -1197,7 +1210,7 @@ test("comment screening setup is task-first and starts without a redundant revie
   assert.ok(audienceIndex >= 0, "comment screening must render its audience step");
   assert.ok(sourceIndex < audienceIndex, "the source step must come before audience targeting");
   assert.match(setup, /看谁的内容？/);
-  assert.match(setup, /const ownOnly = isCommentLeadMiner\(agent\)/);
+  assert.match(setup, /const ownOnly = false;/);
   assert.match(setup, /if \(!ownOnly\) \{\s*addOwner\("own"/);
   assert.match(setup, /sourceCard\.appendChild\(acquisitionAccountControl\(flow/);
   assert.match(setup, /group: filterMode \? "comments" : "audience"/);
