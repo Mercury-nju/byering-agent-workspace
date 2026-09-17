@@ -94,7 +94,37 @@ export function createAccountReceptionStore({ stateFile = join(homedir(), ".byer
     updatedAt: rec.updatedAt || null,
     privateReception: normalizePrivateReception(rec.privateReception)
   });
-  const conversation = (owner, customer) => record(owner).conversations[customer] || { mode: "auto", history: [], name: "", updatedAt: null };
+  const normalizeConversation = (value = {}) => {
+    const source = value && typeof value === "object" ? value : {};
+    const mode = ["auto", "human", "closed", "done"].includes(source.mode) ? source.mode : "auto";
+    const history = Array.isArray(source.history)
+      ? source.history
+        .filter(entry => entry && typeof entry === "object" && String(entry.content || "").trim())
+        .map(entry => ({
+          ...entry,
+          role: ["user", "assistant", "human", "system"].includes(entry.role) ? entry.role : "user",
+          content: String(entry.content).trim().slice(0, 4000),
+          at: entry.at || null
+        }))
+        .slice(-50)
+      : [];
+    return {
+      ...source,
+      mode,
+      history,
+      name: String(source.name || "").trim(),
+      conversationId: String(source.conversationId || "").trim() || null,
+      secUid: String(source.secUid || "").trim() || null,
+      secId: String(source.secId || "").trim() || null,
+      handoffReason: String(source.handoffReason || "").trim() || null,
+      lastMessage: String(source.lastMessage || "").trim().slice(0, 1000) || null,
+      handoffAt: source.handoffAt || null,
+      resumedAt: source.resumedAt || null,
+      humanLastSentAt: source.humanLastSentAt || null,
+      updatedAt: source.updatedAt || null
+    };
+  };
+  const conversation = (owner, customer) => normalizeConversation(record(owner).conversations[customer]);
   return {
     get: owner => structuredClone(publicRecord(record(owner))),
     accountKey: owner => resolve(read(), owner).id,
@@ -158,26 +188,45 @@ export function createAccountReceptionStore({ stateFile = join(homedir(), ".byer
     conversation,
     conversations: owner => Object.entries(record(owner).conversations).map(([id, value]) => ({ id, ...value })),
     updateConversation(owner, customer, patch) {
-      return mutate(owner, rec => { rec.conversations[customer] = { mode: "auto", history: [], ...rec.conversations[customer], ...patch, updatedAt: now() }; return rec.conversations[customer]; });
+      return mutate(owner, rec => {
+        rec.conversations[customer] = normalizeConversation({
+          ...rec.conversations[customer],
+          ...patch,
+          updatedAt: now()
+        });
+        return rec.conversations[customer];
+      });
     },
-    control(owner, customer, mode) {
+    control(owner, customer, mode, { reason = "" } = {}) {
       if (!["auto", "human", "closed", "done"].includes(mode)) throw Object.assign(new Error("未知接待状态"), { statusCode: 400 });
-      return this.updateConversation(owner, customer, { mode });
+      const at = now();
+      return this.updateConversation(owner, customer, {
+        mode,
+        ...(mode === "human" ? { handoffReason: String(reason || "人工接管").trim(), handoffAt: at } : {}),
+        ...(mode === "auto" ? { resumedAt: at } : {})
+      });
     },
     reserve(owner, requestId) {
       return mutate(owner, rec => {
-        if (rec.deliveries[requestId]) return false;
+        if (["submitted", "sent"].includes(rec.deliveries[requestId]?.state)) return false;
         rec.deliveries[requestId] = { state: "submitted", at: now() }; return true;
       });
     },
     reserveMany(owner, ids) {
       return mutate(owner, rec => {
-        if (ids.some(id => rec.deliveries[id])) return false;
+        if (ids.some(id => ["submitted", "sent"].includes(rec.deliveries[id]?.state))) return false;
         ids.forEach(id => { rec.deliveries[id] = { state: "submitted", at: now() }; }); return true;
       });
     },
     delivered(owner, requestId) { return mutate(owner, rec => { rec.deliveries[requestId] = { state: "sent", at: now() }; return true; }); },
-    wasSubmitted: (owner, requestId) => Boolean(record(owner).deliveries[requestId]),
+    failed(owner, requestId, error = null) {
+      return mutate(owner, rec => {
+        rec.deliveries[requestId] = { state: "failed", at: now(), error: String(error?.message || error || "发送失败").slice(0, 500) };
+        return true;
+      });
+    },
+    delivery: (owner, requestId) => structuredClone(record(owner).deliveries[requestId] || null),
+    wasSubmitted: (owner, requestId) => ["submitted", "sent"].includes(record(owner).deliveries[requestId]?.state),
     clear(owner, expectedRevision) {
       return mutate(owner, rec => {
         if (expectedRevision !== rec.revision) {

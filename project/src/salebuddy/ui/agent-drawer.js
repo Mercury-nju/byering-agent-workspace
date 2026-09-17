@@ -1177,6 +1177,7 @@ export function openAgentDrawer(agentType, profile, status, { teamLive, gateway:
         metadata: {
           chiefDecision: {
             ...decision,
+            chiefData: routedData.chiefData || null,
             taskTitle: null,
             statusText: decision.intent === "status_query"
               ? `执行中 ${routedData?.overview?.running || 0} · 等待处理 ${routedData?.overview?.waiting || 0} · 阻塞 ${routedData?.overview?.blocked || 0}`

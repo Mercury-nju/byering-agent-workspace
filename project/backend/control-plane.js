@@ -22,7 +22,8 @@ import {
   resolveExecutionBoundary,
   selectWorkflowForRequirement
 } from "../src/salebuddy/runtime/workflow-definitions.js";
-import { CHIEF_INTENTS, classifyChiefInput } from "../src/salebuddy/agents/chief-decision-policy.js";
+import { CHIEF_INTENTS, CHIEF_RESPONSE_MODES, classifyChiefInput } from "../src/salebuddy/agents/chief-decision-policy.js";
+import { buildChiefDataOverview, chiefDataMessage, detectChiefDataQuery } from "./chief-data-overview.js";
 
 const API_COMMAND_ALIASES = Object.freeze({
   "task.run.start": COMMAND_TYPES.TASK_START,
@@ -248,7 +249,7 @@ export function findActiveManagedRuntimeTask(tasks = [], {
  * in-memory adapter; a durable adapter may be introduced behind this boundary.
  */
 export class ControlPlane {
-  constructor({ persistence = new MemoryPersistenceAdapter(), idFactory, now = () => new Date().toISOString(), defaultAgentId = "chief_of_staff", requirementService = createRequirementUnderstandingService(), browserWorkspace = null, douyinMcpService = null, taskDispatcher = null } = {}) {
+  constructor({ persistence = new MemoryPersistenceAdapter(), idFactory, now = () => new Date().toISOString(), defaultAgentId = "chief_of_staff", requirementService = createRequirementUnderstandingService(), browserWorkspace = null, douyinMcpService = null, taskDispatcher = null, chiefDataProvider = null } = {}) {
     this.persistence = persistence;
     this.idFactory = typeof idFactory === "function" ? idFactory : () => randomUUID();
     this.now = now;
@@ -257,6 +258,7 @@ export class ControlPlane {
     this.browserWorkspace = browserWorkspace;
     this.douyinMcpService = douyinMcpService;
     this.taskDispatcher = taskDispatcher;
+    this.chiefDataProvider = typeof chiefDataProvider === "function" ? chiefDataProvider : null;
     this.requirementRuns = new Map();
     this.assignmentRuns = new Map();
     this.chiefDecisions = new Map();
@@ -373,15 +375,55 @@ export class ControlPlane {
     const taskSnapshots = this.listTaskSnapshots({ tenantId, includeTerminal: true, limit: 50 });
     const overview = summarizeChiefTasks(taskSnapshots);
     const decision = classifyChiefInput(text);
+    const dataQuery = detectChiefDataQuery(text, { now: this.now(), timeZone: context?.timeZone || "Asia/Shanghai" });
+    const chiefData = dataQuery
+      ? buildChiefDataOverview({
+          query: dataQuery,
+          results: await this.readChiefDataResults({ tenantId, query: dataQuery, taskSnapshots }),
+          observedAt: this.now()
+        })
+      : null;
+    const renderedDecision = chiefData
+      ? {
+          ...decision,
+          intent: CHIEF_INTENTS.DATA_QUERY,
+          responseMode: CHIEF_RESPONSE_MODES.RESULT_CARD,
+          dataQuery
+        }
+      : decision;
     return {
       accepted: true,
       decisionId: null,
-      decision: clone(decision),
+      decision: clone(renderedDecision),
       requirement: null,
       shouldCreateTask: false,
       overview,
-      message: chiefConciergeMessage({ input: text, decision, overview })
+      chiefData,
+      message: chiefData ? chiefDataMessage({ query: dataQuery, overview: chiefData }) : chiefConciergeMessage({ input: text, decision, overview })
     };
+  }
+
+  setChiefDataProvider(provider) {
+    this.chiefDataProvider = typeof provider === "function" ? provider : null;
+    return this;
+  }
+
+  async readChiefDataResults({ tenantId = null, query = {}, taskSnapshots = [] } = {}) {
+    if (this.chiefDataProvider) {
+      const provided = await this.chiefDataProvider({ tenantId, query, limit: 500 });
+      if (Array.isArray(provided)) return provided;
+      if (Array.isArray(provided?.runs)) return provided.runs;
+    }
+    return (Array.isArray(taskSnapshots) ? taskSnapshots : [])
+      .filter((task) => task?.resultSnapshot && typeof task.resultSnapshot === "object")
+      .map((task) => ({
+        taskId: task.taskId,
+        taskRunId: task.taskRunId,
+        agentId: task.agentId,
+        status: task.state,
+        updatedAt: task.updatedAt,
+        resultSnapshot: task.resultSnapshot
+      }));
   }
 
   consumeChiefDecision(decisionId, goal, tenantId = null) {

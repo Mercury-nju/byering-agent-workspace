@@ -138,7 +138,7 @@ try {
     }
     const team = deriveTeamStatus(conversations, (id) => cache.get(id) || [], KNOWN);
     assert(team.get("Browser Agent").state === TEAM_STATES.WORKING, "种子会话的 Browser Agent 应为工作中");
-    assert(team.get("Browser Agent").currentTask === "历史会话（含进行中 subagent）", "任务名应来自会话标题");
+    assert(team.get("Browser Agent").currentTask === "正在恢复历史任务", "任务名应来自会话标题");
     assert(team.get("main").state === TEAM_STATES.WORKING, "主 Agent 应为工作中");
   });
 

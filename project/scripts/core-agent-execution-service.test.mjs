@@ -290,6 +290,35 @@ test("core gateway routes viral work analysis through the public work service wi
   assert.equal(result.events.at(-1).type, "task.completed");
 });
 
+test("core gateway forwards viral work lifecycle checkpoints to the host", async () => {
+  const progress = [];
+  const service = createCoreAgentExecutionService({
+    onViralWorkProgress: (request, snapshot) => progress.push({ request, snapshot }),
+    viralWorkAnalysisService: {
+      async run(input) {
+        await input.onProgress({ phase: "读取公开作品详情", progress: 25, status: "running" });
+        return {
+          status: "completed",
+          analysisKind: "viral_work",
+          summary: "作品分析已完成。"
+        };
+      }
+    }
+  });
+
+  await service.lease({
+    taskId: "viral-progress-task",
+    taskRunId: "viral-progress-run",
+    agentId: "mkt-viral-work-analysis",
+    workUrl: "https://www.douyin.com/video/7345678901234567890"
+  });
+
+  assert.equal(progress.length, 1);
+  assert.equal(progress[0].request.taskId, "viral-progress-task");
+  assert.equal(progress[0].snapshot.phase, "读取公开作品详情");
+  assert.equal(progress[0].snapshot.progress, 25);
+});
+
 test("core gateway removes every historical scan alias from finder listener input", async () => {
   const { service, calls } = createService();
   await service.lease(request({

@@ -45,6 +45,7 @@ export function createCoreAgentExecutionService({
   resolveOutreachLead = null,
   resolveReceptionStrategy = null,
   viralWorkAnalysisService = null,
+  onViralWorkProgress = null,
   now = () => new Date().toISOString()
 } = {}) {
   const capabilityReady = Object.freeze({
@@ -169,7 +170,10 @@ export function createCoreAgentExecutionService({
         workUrl,
         goal: cleanText(request.goal || request.config?.goal) || VIRAL_WORK_ANALYSIS_DEFAULT_GOAL,
         commentLimit: request.commentLimit || request.config?.commentLimit,
-        fresh: request.fresh === true || request.config?.fresh === true
+        fresh: request.fresh === true || request.config?.fresh === true,
+        ...(typeof onViralWorkProgress === "function"
+          ? { onProgress: (snapshot) => onViralWorkProgress(request, snapshot) }
+          : {})
       });
       const resultSnapshot = result?.resultSnapshot || result || null;
       return accepted(request, "viral_work_analysis_completed", {

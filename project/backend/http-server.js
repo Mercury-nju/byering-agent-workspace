@@ -24,6 +24,7 @@ import { createAccountAnalysisService } from "./account-analysis-service.js";
 import { createViralWorkAnalysisService } from "./viral-work-analysis-service.js";
 import { createAccountReceptionStore, receptionAccountKeys } from "./account-reception-store.js";
 import { createProspectRecordStore } from "./prospect-record-store.js";
+import { createAgentResultRunStore } from "./agent-result-run-store.js";
 import { applyReceptionStrategyUpdate, receptionStrategySavedConfirmation } from "./account-reception-conversation.js";
 import { previewReception } from "./account-reception-preview.js";
 import { createClueHunterPrivateOutreachExecutor } from "./cluehunter-private-outreach-executor.js";
@@ -420,6 +421,7 @@ export function createControlPlaneHttpServer({
   accountAnalysisRuns = new Map(),
   accountReceptionStore = null,
   prospectRecordStore = null,
+  agentResultRunStore = null,
   accountResolver = createAccountResolver(),
   cloudDesktopService = null,
   douyinMcpService = null,
@@ -468,6 +470,7 @@ export function createControlPlaneHttpServer({
   const authoritativeAccountAnalysisService = accountAnalysisService || createAccountAnalysisService();
   const receptionStore = accountReceptionStore || createAccountReceptionStore();
   const resolvedProspectRecordStore = prospectRecordStore || createProspectRecordStore();
+  const resolvedAgentResultRunStore = agentResultRunStore || createAgentResultRunStore();
   const resolvedEmploymentStore = employmentStore || createEmploymentStore();
   const authoritativeDouyinAgentCloudRegistry = douyinAgentCloudRegistry;
   const authoritativeDouyinAccountActionCoordinator = douyinAccountActionCoordinator || createDouyinAccountActionCoordinator();
@@ -693,6 +696,30 @@ export function createControlPlaneHttpServer({
     douyinAcquisitionService: authoritativeDouyinAcquisitionService,
     intentAnalysisService: authoritativeIntentAnalysisService,
     viralWorkAnalysisService: authoritativeViralWorkAnalysisService,
+    onViralWorkProgress: (request, progress = {}) => {
+      officeOperations.update({
+        tenantId: request.tenantId || null,
+        agentId: request.agentId,
+        taskId: request.taskId,
+        taskRunId: request.taskRunId || null
+      }, {
+        phase: progress.phase || "分析中",
+        progress: progress.progress,
+        progressSource: "backend",
+        analysisProcess: progress.analysisProcess,
+        ...(progress.resultSnapshot ? { resultSnapshot: progress.resultSnapshot } : {}),
+        metadata: {
+          progressSource: "backend",
+          analysisKind: "viral_work",
+          status: progress.status || "running",
+          sourceUrl: request.workUrl || request.videoUrl || null,
+          goal: request.goal || null,
+          taskId: request.taskId || null,
+          taskRunId: request.taskRunId || null,
+          ...(progress.resultSnapshot ? { resultSnapshot: progress.resultSnapshot } : {})
+        }
+      });
+    },
     getInboxAgentService: getDouyinInboxAgentService,
     inboxExecutor: async ({ request, input }) => {
       const cloudScope = {
@@ -1000,13 +1027,18 @@ export function createControlPlaneHttpServer({
         : null;
       if (!taskId || !agentId || !snapshot) return;
       const sourceContext = entry.sourceContext && typeof entry.sourceContext === "object" ? entry.sourceContext : {};
-      const key = JSON.stringify([taskId, taskRunId || null, agentId]);
+      const accountId = optionalText(snapshot.accountId || snapshot.account_id || entry.accountId || sourceContext.accountId);
+      const key = JSON.stringify([taskId, taskRunId || null, agentId, accountId || null]);
+      const incomingUpdatedAt = optionalText(entry.updatedAt || snapshot.generatedAt || snapshot.generated_at || entry.createdAt);
+      const existing = byTask.get(key);
+      const existingUpdatedAt = optionalText(existing?.updatedAt || existing?.resultSnapshot?.generatedAt);
+      if (existing && existingUpdatedAt && incomingUpdatedAt && Date.parse(existingUpdatedAt) > Date.parse(incomingUpdatedAt)) return;
       byTask.set(key, {
         taskId,
         taskRunId,
         agentId,
         agentName: optionalText(snapshot.agentName || snapshot.agent_name || entry.agentName) || agentId,
-        accountId: optionalText(snapshot.accountId || snapshot.account_id || entry.accountId || sourceContext.accountId),
+        accountId,
         status: optionalText(snapshot.status || entry.status) || "unknown",
         resultSnapshot: {
           ...snapshot,
@@ -1014,14 +1046,14 @@ export function createControlPlaneHttpServer({
           taskRunId: taskRunId || snapshot.taskRunId || snapshot.task_run_id || null,
           agentId,
           agentName: optionalText(snapshot.agentName || snapshot.agent_name || entry.agentName) || agentId,
-          accountId: optionalText(snapshot.accountId || snapshot.account_id || entry.accountId || sourceContext.accountId),
+          accountId,
           status: optionalText(snapshot.status || entry.status) || "unknown",
           generatedAt: optionalText(snapshot.generatedAt || snapshot.generated_at || entry.updatedAt || entry.createdAt) || new Date().toISOString()
         },
         sourceContext: {
           source: optionalText(sourceContext.source || snapshot.source || entry.source) || "Agent 任务",
           sourceScope: sourceContext.sourceScope || snapshot.sourceScope || null,
-          accountId: optionalText(snapshot.accountId || snapshot.account_id || entry.accountId || sourceContext.accountId),
+          accountId,
           accountName: optionalText(sourceContext.accountName || snapshot.accountName || snapshot.account?.nickname),
           accountUrl: optionalText(sourceContext.accountUrl || snapshot.accountUrl || snapshot.account?.profileUrl),
           window: optionalText(sourceContext.window || snapshot.window),
@@ -1062,10 +1094,14 @@ export function createControlPlaneHttpServer({
         });
       }
     }
+    for (const entry of resolvedAgentResultRunStore.list(tenantId, { limit })) add(entry);
     return [...byTask.values()]
       .sort((left, right) => String(right.updatedAt || "").localeCompare(String(left.updatedAt || "")))
       .slice(0, Math.max(1, Math.min(500, limit)));
   };
+  if (!authoritativeControlPlane.chiefDataProvider) {
+    authoritativeControlPlane.setChiefDataProvider?.(({ tenantId, limit }) => listCanonicalResults(tenantId, { limit }));
+  }
 
   async function reconcileCancelledAcquisitionTasks(tenantId = null) {
     const service = authoritativeDouyinAcquisitionService;
@@ -1155,6 +1191,7 @@ export function createControlPlaneHttpServer({
         readOfficeStatus,
         readOfficeStatusLive,
         listCanonicalResults,
+        agentResultRunStore: resolvedAgentResultRunStore,
         officeReplayStore: resolvedOfficeReplayStore,
         managedDailyReportService: resolvedManagedDailyReportService,
         controlPlane: authoritativeControlPlane,
@@ -1201,6 +1238,7 @@ export function createControlPlaneHttpServer({
   server.coreAgentExecutionService = authoritativeCoreAgentExecutionService;
   server.accountResolver = accountResolver;
   server.prospectRecordStore = resolvedProspectRecordStore;
+  server.agentResultRunStore = resolvedAgentResultRunStore;
   server.employmentStore = resolvedEmploymentStore;
   server.cloudDesktopService = cloudDesktopService;
   server.douyinMcpService = douyinMcpService;
@@ -1363,6 +1401,17 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       runs: security.listCanonicalResults?.(principal.tenantId || null, { limit }) || [],
       prospects: security.prospectRecordStore?.list(principal.tenantId || null) || []
     });
+  }
+  if (request.method === "PUT" && url.pathname === "/v1/results/runs") {
+    if (!security.agentResultRunStore || typeof security.agentResultRunStore.upsert !== "function") {
+      throw new ControlPlaneError("Agent 结果账本未配置", { code: "RESULT_RUN_STORE_UNAVAILABLE", statusCode: 503 });
+    }
+    const body = await readJson(request, bodyLimit);
+    if (!Array.isArray(body?.runs)) {
+      throw new ControlPlaneError("runs 必须是数组", { code: "RESULT_RUNS_INVALID", statusCode: 400 });
+    }
+    const accepted = security.agentResultRunStore.upsert(principal.tenantId || null, body.runs);
+    return sendJson(response, 200, { runs: accepted });
   }
   if (url.pathname === "/v1/employment") {
     if (!security.employmentStore || typeof security.employmentStore.list !== "function") {
@@ -2564,6 +2613,73 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       taskId: runtimeTask?.taskId || runtimeStatus?.taskId || null,
       taskState: runtimeTask?.state || null
     });
+  }
+
+  if (url.pathname === "/v1/douyin/inbox-agent/conversation/control" && request.method === "POST") {
+    const body = await readJson(request, bodyLimit);
+    const agentId = douyinAgentId(url, body) || COMPREHENSIVE_ACQUISITION_AGENT_ID;
+    assertCoreGatewayForProductExecution(security, agentId, "conversation_control");
+    const cloudScope = douyinCloudScope(url, body, principal);
+    const service = selectDouyinInboxAgentService(security, agentId, cloudScope);
+    const mcp = selectDouyinMcpService(security, agentId, cloudScope);
+    assertInboxAgentConfigured(service);
+    assertDouyinMcpConfigured(mcp, "控制私信会话");
+    const resumedStatus = typeof mcp.probeRemoteStatus === "function"
+      ? await mcp.probeRemoteStatus()
+      : await resumeDouyinAgent(security, agentId, cloudScope);
+    const authorizedStatus = await requireDouyinAuthorization(mcp, resumedStatus);
+    security.assertDouyinAccountAgentAvailable?.({
+      tenantId: cloudScope.tenantId,
+      agentId,
+      accountIdentity: authorizedStatus.account,
+      accountId: cloudScope.accountId
+    });
+    const action = requiredText(body.action, "action");
+    if (!["takeover", "resume_ai"].includes(action)) {
+      throw new ControlPlaneError("只支持 takeover 或 resume_ai", { code: "DOUYIN_CONVERSATION_ACTION_INVALID", statusCode: 400 });
+    }
+    return sendJson(response, 200, await service.controlConversation({
+      action,
+      reason: optionalText(body.reason),
+      conversationId: optionalText(body.conversationId ?? body.conversation_id),
+      nickname: optionalText(body.nickname),
+      secUid: optionalText(body.secUid ?? body.sec_uid),
+      secId: optionalText(body.secId ?? body.sec_id)
+    }));
+  }
+
+  if (url.pathname === "/v1/douyin/inbox-agent/conversation/message" && request.method === "POST") {
+    const body = await readJson(request, bodyLimit);
+    const agentId = douyinAgentId(url, body) || COMPREHENSIVE_ACQUISITION_AGENT_ID;
+    assertCoreGatewayForProductExecution(security, agentId, "conversation_message");
+    const cloudScope = douyinCloudScope(url, body, principal);
+    const service = selectDouyinInboxAgentService(security, agentId, cloudScope);
+    const mcp = selectDouyinMcpService(security, agentId, cloudScope);
+    assertInboxAgentConfigured(service);
+    assertDouyinMcpConfigured(mcp, "发送人工私信");
+    requireSendConfirmation(body);
+    const resumedStatus = typeof mcp.probeRemoteStatus === "function"
+      ? await mcp.probeRemoteStatus()
+      : await resumeDouyinAgent(security, agentId, cloudScope);
+    const authorizedStatus = await requireDouyinAuthorization(mcp, resumedStatus);
+    security.assertDouyinAccountAgentAvailable?.({
+      tenantId: cloudScope.tenantId,
+      agentId,
+      accountIdentity: authorizedStatus.account,
+      accountId: cloudScope.accountId
+    });
+    const mode = await mcp.startMessageMode();
+    assertDouyinMcpResult(mode, "私信承接模块启动失败");
+    const result = await service.sendHumanMessage({
+      content: requiredText(body.content, "content"),
+      clientMessageId: optionalText(body.clientMessageId ?? body.client_message_id),
+      reqId: optionalText(body.reqId ?? body.req_id),
+      conversationId: optionalText(body.conversationId ?? body.conversation_id),
+      nickname: optionalText(body.nickname),
+      secUid: optionalText(body.secUid ?? body.sec_uid),
+      secId: optionalText(body.secId ?? body.sec_id)
+    });
+    return sendJson(response, 200, { ...result, sender: authorizedStatus.account || null });
   }
 
   const draftMatch = url.pathname.match(/^\/v1\/douyin\/inbox-agent\/drafts\/([^/]+)\/send$/);

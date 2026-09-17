@@ -526,6 +526,31 @@ test("Morgan realtime work only shows acquisition progress", () => {
   assert.doesNotMatch(source, /连续对话动态/);
 });
 
+test("live outreach worksite keeps only the live room visual", () => {
+  const start = source.indexOf("function renderLiveDanmakuOutreachWorksite");
+  const end = source.indexOf("function viralRealtimeMetricValue", start);
+  const worksite = source.slice(start, end);
+  assert.match(worksite, /renderLiveDanmakuLiveRoomPanel\(selected, state, "", "", \{ showHeader: false, showStatus: false \}\)/);
+  assert.doesNotMatch(worksite, /直播间触达现场|接收弹幕 · 逐人触达 · 留存回执/);
+  assert.match(source, /options\.showHeader !== false/);
+  assert.match(source, /options\.showStatus !== false/);
+});
+
+test("live outreach worksite separates pending danmaku from contacted users", () => {
+  const start = source.indexOf("function renderLiveDanmakuOutreachPanels");
+  const end = source.indexOf("function acquisitionLiveRoomVideoUrl", start);
+  const worksite = source.slice(start, end);
+  assert.match(worksite, /const rows = liveDanmakuOutreachRows\(work\)/);
+  assert.match(worksite, /直播弹幕/);
+  assert.match(worksite, /\$\{pending\.length\} 位待触达/);
+  assert.match(worksite, /已触达列表/);
+  assert.match(worksite, /\$\{sent\.length\} 位/);
+  assert.match(worksite, /renderOutreachSpecialistList\(pending/);
+  assert.match(worksite, /renderOutreachSpecialistList\(sent/);
+  assert.doesNotMatch(worksite, /最近成功触达回放|最近成功触达的 15 秒录屏|replayPanel/);
+  assert.doesNotMatch(worksite, /潜客名单|准备触达|最近成功工作的 15 秒录屏/);
+});
+
 test("comment acquisition work scene exposes the three work views without rebuilding the cloud stage", () => {
   const start = source.indexOf("function renderCommentAcquisitionSceneHeader");
   const end = source.indexOf("function renderCommentAcquisitionQueuePanel", start);

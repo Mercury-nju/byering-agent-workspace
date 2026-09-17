@@ -6,6 +6,7 @@ export {
 } from "./control-plane.js";
 export { FilePersistenceAdapter, FilePersistenceError, MemoryPersistenceAdapter, PersistenceAdapter } from "./persistence.js";
 export { createControlPlaneHttpServer, startControlPlaneServer } from "./http-server.js";
+export { createAgentResultRunStore } from "./agent-result-run-store.js";
 export {
   DouyinFinderError,
   createDouyinFinderService

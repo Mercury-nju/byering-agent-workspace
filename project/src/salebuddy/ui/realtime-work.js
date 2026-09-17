@@ -2073,7 +2073,7 @@ const CSS = `
 .sb-rw-account-setup-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 22px 0}
 .sb-rw-account-setup-step{display:flex;align-items:center;gap:7px;color:#a2aca6;font-size:10px}.sb-rw-account-setup-step i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#f0f3f1;color:#87948d;font-style:normal;font-size:10px;font-weight:700}.sb-rw-account-setup-step.is-active{color:#262626;font-weight:650}.sb-rw-account-setup-step.is-active i{background:#262626;color:#fff}.sb-rw-account-setup-step.is-done{color:#2f80ed}.sb-rw-account-setup-step.is-done i{background:#eaf2ff;color:#2f80ed}
 .sb-rw-account-setup-body{padding:20px 22px 22px}.sb-rw-account-setup-copy{color:#4e5b54;font-size:12px;line-height:1.55}.sb-rw-account-setup-form{display:grid;gap:12px;margin-top:16px}.sb-rw-account-setup-field{display:grid;gap:6px;color:#66736b;font-size:11px}.sb-rw-account-setup-field input{height:38px;padding:0 11px;border:1px solid #dfe7e2;border-radius:8px;background:#fbfcfb;color:#25322b;font:inherit;font-size:12px;outline:none}.sb-rw-account-setup-field input:focus{border-color:#2f80ed;box-shadow:0 0 0 3px rgba(47,128,237,.1);background:#fff}.sb-rw-account-setup-error{margin-top:10px;color:#b34d44;font-size:11px}.sb-rw-account-setup-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.sb-rw-account-setup-button{height:34px;padding:0 14px;border:1px solid #d9e2dc;border-radius:8px;background:#fff;color:#53615a;font:inherit;font-size:11px;cursor:pointer}.sb-rw-account-setup-button:hover{background:#f6f8f7}.sb-rw-account-setup-button.is-primary{border-color:#262626;background:#262626;color:#fff}.sb-rw-account-setup-button.is-primary:hover{background:#3d3d3d}.sb-rw-account-setup-button:disabled{opacity:.55;cursor:default}.sb-rw-account-setup-progress{height:7px;margin-top:17px;border-radius:99px;background:#e9eeeb;overflow:hidden}.sb-rw-account-setup-progress i{display:block;height:100%;border-radius:inherit;background:#2f80ed;transition:width .3s ease}.sb-rw-account-setup-progress-meta{display:flex;justify-content:space-between;margin-top:7px;color:#8b9690;font-size:10px}.sb-rw-account-setup-checks{display:grid;gap:9px;margin-top:16px}.sb-rw-account-setup-check{display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid #e5ebe7;border-radius:9px;color:#55635a;font-size:11px}.sb-rw-account-setup-check i{width:14px;height:14px;border:1px solid #ccd8d0;border-radius:50%;background:#fff}.sb-rw-account-setup-check.is-done{border-color:#cfe2f8;background:#f7fbff;color:#2f80ed}.sb-rw-account-setup-check.is-done i{border-color:#2f80ed;background:#2f80ed;box-shadow:inset 0 0 0 3px #fff}
-.sb-rw-ai-team{margin-bottom:18px}
+.sb-rw-ai-team{margin-bottom:12px}
 .sb-rw-ai-team.is-completed{margin-top:2px;margin-bottom:18px}.sb-rw-ai-team.is-completed .sb-rw-ai-team-heading{margin-bottom:8px}.sb-rw-ai-team.is-completed .sb-rw-team-card{background:#fbfcfb}.sb-rw-ai-team.is-completed .sb-rw-card-meta{color:#7f8b84}
 .sb-rw-ai-team-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
 .sb-rw-ai-team-heading-copy{display:flex;align-items:baseline;gap:12px;min-width:0}
@@ -2323,7 +2323,7 @@ const CSS = `
 .sb-rw-task-update-footer button:last-child{border-color:#2f80ed;background:#2f80ed}
 /* Analysis produces an actionable prospect list rather than a separate conclusion document. */
 .sb-rw-analysis-prospects-panel{min-width:0;overflow:hidden}.sb-rw-analysis-prospects-panel>.sb-rw-panel-head{border-bottom:0}.sb-rw-analysis-prospect-list{display:grid;grid-auto-rows:max-content;align-content:start;flex:1;min-height:0;padding:7px 15px 14px;overflow:auto}.sb-rw-analysis-prospect{display:grid;grid-template-columns:44px minmax(0,1fr);gap:11px;width:100%;padding:13px 8px;border:0;border-bottom:1px solid #edf1f5;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}.sb-rw-analysis-prospect:hover{background:#fbfcff}.sb-rw-analysis-prospect.is-selected{background:#f4f4f5;box-shadow:inset 3px 0 #2f80ed}.sb-rw-analysis-prospect:last-child{border-bottom:0}.sb-rw-analysis-prospect .sb-rw-acquisition-avatar{width:44px;height:44px;border-radius:50%}.sb-rw-analysis-prospect-copy{display:grid;min-width:0}.sb-rw-analysis-prospect-top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}.sb-rw-analysis-prospect-top strong{min-width:0;overflow:hidden;color:#27332d;font-size:13px;font-weight:680;text-overflow:ellipsis;white-space:nowrap}.sb-rw-analysis-prospect-tier{flex:none;padding:3px 6px;border-radius:5px;background:#f1f5ff;color:#2f80ed;font-size:9px;font-weight:680;line-height:1.2}.sb-rw-analysis-prospect-tier.is-medium{background:#fff7e8;color:#b6751e}.sb-rw-analysis-prospect-source,.sb-rw-analysis-prospect-quote,.sb-rw-analysis-prospect-evidence,.sb-rw-analysis-prospect-next{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis}.sb-rw-analysis-prospect-source{margin-top:5px;color:#8b969e;font-size:9px;white-space:nowrap}.sb-rw-analysis-prospect-quote{margin-top:6px;color:#34413b;font-size:11px;line-height:1.45;white-space:nowrap}.sb-rw-analysis-prospect-evidence{margin-top:5px;color:#647080;font-size:9px;line-height:1.45;white-space:nowrap}.sb-rw-analysis-prospect-next{margin-top:7px;color:#2f80ed;font-size:9px;font-weight:650;line-height:1.45;white-space:nowrap}
-.sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(300px,.84fr) minmax(360px,1fr) minmax(330px,.96fr);align-items:stretch}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel>.sb-rw-panel-head,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-live-danmaku-room-panel .sb-rw-cloud-live-wrap{display:flex;flex:1;min-height:0;flex-direction:column;padding:0;background:transparent}.sb-rw-live-danmaku-room-panel .sb-rw-live-room-stage{flex:1;width:100%;min-height:0;max-height:none;aspect-ratio:auto;border-radius:14px}.sb-rw-live-danmaku-room-status{display:flex;align-items:center;gap:8px;padding:11px 14px;color:#16885b;font-size:10px}.sb-rw-live-danmaku-room-status i{width:7px;height:7px;border-radius:50%;background:#18a86f;box-shadow:0 0 0 4px rgba(24,168,111,.1)}.sb-rw-live-danmaku-analysis-queue-panel,.sb-rw-live-danmaku-analysis-detail-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-queue-body,.sb-rw-live-danmaku-analysis-detail-panel .sb-rw-acquisition-detail-body{min-height:0}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-meta b{color:#6b55c7}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-top>b{flex:none;padding:3px 6px;border-radius:5px;background:#f0ebff;color:#6b55c7;font-size:9px;font-weight:680}.sb-rw-live-danmaku-facts{display:grid;gap:8px}.sb-rw-live-danmaku-fact{display:grid;grid-template-columns:68px minmax(0,1fr);gap:9px;padding-bottom:9px;border-bottom:1px solid #edf1ef}.sb-rw-live-danmaku-fact span{color:#89948e;font-size:10px}.sb-rw-live-danmaku-fact strong{color:#334039;font-size:10px;line-height:1.5;word-break:break-word}.sb-rw-live-danmaku-evidence{display:grid;gap:7px}.sb-rw-live-danmaku-evidence h3{margin:0;color:#64716b;font-size:10px;font-weight:680}.sb-rw-live-danmaku-evidence p{margin:0;padding:9px 10px;border-left:3px solid #8d70e8;border-radius:0 7px 7px 0;background:#f7f4ff;color:#4b485d;font-size:10px;line-height:1.55;word-break:break-word}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(340px,.86fr) minmax(500px,1.14fr);align-items:stretch}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-viral-source-panel,.sb-rw-viral-report-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-viral-source-body,.sb-rw-viral-report-body{display:grid;align-content:start;gap:15px;flex:1;min-height:0;padding:16px;overflow:auto}.sb-rw-viral-source-link{display:grid;gap:6px;padding:12px;border:1px solid #e1e8f2;border-radius:9px;background:#f8faff}.sb-rw-viral-source-link span{color:#7a8797;font-size:10px}.sb-rw-viral-source-link strong,.sb-rw-viral-source-link a{color:#3a5e99;font-size:11px;line-height:1.5;overflow-wrap:anywhere}.sb-rw-viral-source-link a{text-decoration:none}.sb-rw-viral-goal{padding:11px 12px;border:1px solid #e8edf3;border-radius:8px;color:#596573;font-size:10px;line-height:1.55}.sb-rw-viral-progress{height:7px;overflow:hidden;border-radius:99px;background:#e9eef5}.sb-rw-viral-progress i{display:block;height:100%;border-radius:inherit;background:#527fd0;transition:width .35s ease}.sb-rw-viral-progress-meta{color:#647080;font-size:10px;line-height:1.55}.sb-rw-viral-process{display:grid;gap:7px}.sb-rw-viral-process-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px;border:1px solid #e7ebf1;border-radius:8px;background:#fbfcfe}.sb-rw-viral-process-row i{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#eef2f7;color:#8a96a4;font-size:10px;font-style:normal}.sb-rw-viral-process-row.is-done i{background:#eaf8ef;color:#197e53}.sb-rw-viral-process-row span{color:#3d4b5b;font-size:10px}.sb-rw-viral-process-row small{color:#8a96a4;font-size:9px}.sb-rw-viral-complete{padding:11px 12px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px}.sb-rw-viral-error{padding:11px 12px;border:1px solid #f1d9d9;border-radius:8px;background:#fff7f7;color:#a55454;font-size:10px;line-height:1.55}.sb-rw-viral-report-summary{margin:0;color:#394655;font-size:12px;line-height:1.65}.sb-rw-viral-report-facts{display:grid;gap:7px;padding-top:2px;color:#667382;font-size:10px;line-height:1.55}.sb-rw-viral-artifact{padding:10px 11px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px;line-height:1.5}
+.sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(300px,.84fr) minmax(360px,1fr) minmax(330px,.96fr);align-items:stretch}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel>.sb-rw-panel-head,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-outreach-pending-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-outreach-sent-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-main.is-live-danmaku-outreach-work .sb-rw-outreach-specialist-list{display:grid;align-content:start;gap:16px;flex:1;min-height:0;padding:14px;overflow:auto}.sb-rw-live-danmaku-room-panel .sb-rw-cloud-live-wrap{display:flex;flex:1;min-height:0;flex-direction:column;padding:0;background:transparent}.sb-rw-live-danmaku-room-panel .sb-rw-live-room-stage{flex:1;width:100%;min-height:0;max-height:none;aspect-ratio:auto;border-radius:14px}.sb-rw-live-danmaku-room-status{display:flex;align-items:center;gap:8px;padding:11px 14px;color:#16885b;font-size:10px}.sb-rw-live-danmaku-room-status i{width:7px;height:7px;border-radius:50%;background:#18a86f;box-shadow:0 0 0 4px rgba(24,168,111,.1)}.sb-rw-live-danmaku-analysis-queue-panel,.sb-rw-live-danmaku-analysis-detail-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-queue-body,.sb-rw-live-danmaku-analysis-detail-panel .sb-rw-acquisition-detail-body{min-height:0}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-meta b{color:#6b55c7}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-top>b{flex:none;padding:3px 6px;border-radius:5px;background:#f0ebff;color:#6b55c7;font-size:9px;font-weight:680}.sb-rw-live-danmaku-facts{display:grid;gap:8px}.sb-rw-live-danmaku-fact{display:grid;grid-template-columns:68px minmax(0,1fr);gap:9px;padding-bottom:9px;border-bottom:1px solid #edf1ef}.sb-rw-live-danmaku-fact span{color:#89948e;font-size:10px}.sb-rw-live-danmaku-fact strong{color:#334039;font-size:10px;line-height:1.5;word-break:break-word}.sb-rw-live-danmaku-evidence{display:grid;gap:7px}.sb-rw-live-danmaku-evidence h3{margin:0;color:#64716b;font-size:10px;font-weight:680}.sb-rw-live-danmaku-evidence p{margin:0;padding:9px 10px;border-left:3px solid #8d70e8;border-radius:0 7px 7px 0;background:#f7f4ff;color:#4b485d;font-size:10px;line-height:1.55;word-break:break-word}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(340px,.86fr) minmax(500px,1.14fr);align-items:stretch}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-viral-source-panel,.sb-rw-viral-report-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-viral-source-body,.sb-rw-viral-report-body{display:grid;align-content:start;gap:15px;flex:1;min-height:0;padding:16px;overflow:auto}.sb-rw-viral-source-link{display:grid;gap:6px;padding:12px;border:1px solid #e1e8f2;border-radius:9px;background:#f8faff}.sb-rw-viral-source-link span{color:#7a8797;font-size:10px}.sb-rw-viral-source-link strong,.sb-rw-viral-source-link a{color:#3a5e99;font-size:11px;line-height:1.5;overflow-wrap:anywhere}.sb-rw-viral-source-link a{text-decoration:none}.sb-rw-viral-goal{padding:11px 12px;border:1px solid #e8edf3;border-radius:8px;color:#596573;font-size:10px;line-height:1.55}.sb-rw-viral-progress{height:7px;overflow:hidden;border-radius:99px;background:#e9eef5}.sb-rw-viral-progress i{display:block;height:100%;border-radius:inherit;background:#527fd0;transition:width .35s ease}.sb-rw-viral-progress-meta{color:#647080;font-size:10px;line-height:1.55}.sb-rw-viral-process{display:grid;gap:7px}.sb-rw-viral-process-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px;border:1px solid #e7ebf1;border-radius:8px;background:#fbfcfe}.sb-rw-viral-process-row i{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#eef2f7;color:#8a96a4;font-size:10px;font-style:normal}.sb-rw-viral-process-row.is-done i{background:#eaf8ef;color:#197e53}.sb-rw-viral-process-row span{color:#3d4b5b;font-size:10px}.sb-rw-viral-process-row small{color:#8a96a4;font-size:9px}.sb-rw-viral-complete{padding:11px 12px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px}.sb-rw-viral-error{padding:11px 12px;border:1px solid #f1d9d9;border-radius:8px;background:#fff7f7;color:#a55454;font-size:10px;line-height:1.55}.sb-rw-viral-report-summary{margin:0;color:#394655;font-size:12px;line-height:1.65}.sb-rw-viral-report-facts{display:grid;gap:7px;padding-top:2px;color:#667382;font-size:10px;line-height:1.55}.sb-rw-viral-artifact{padding:10px 11px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px;line-height:1.5}
 @media(max-width:1200px){.sb-rw-main.is-analysis-work>.sb-rw-analysis-prospects-panel{grid-column:1/-1}}
 @media(max-width:1200px){.sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(0,1fr) minmax(300px,.9fr)}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{grid-column:1/-1}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(0,1fr)}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:0}}
 /* Keep the empty state within the page body's available height after the account rail. */
@@ -3923,6 +3923,14 @@ export function commentAcquisitionOutreachRows(work = {}) {
   });
 }
 
+function liveDanmakuOutreachRows(work = {}) {
+  return commentAcquisitionOutreachRows(work).map((person) => ({
+    ...person,
+    sourceLabel: "直播弹幕",
+    workTitle: ""
+  }));
+}
+
 export function liveDanmakuAnalysisRealtimeView(work = {}) {
   const snapshot = acquisitionSnapshotFor(work);
   const result = acquisitionObject(snapshot.resultSnapshot || snapshot.snapshot);
@@ -3998,18 +4006,37 @@ export function viralWorkAnalysisRealtimeView(work = {}) {
   const resultSource = acquisitionObject(rawResult);
   const result = acquisitionObject(resultSource.resultSnapshot || resultSource);
   const status = acquisitionText(metadata.status, result.status, work.state === "done" ? "completed" : work.lastError ? "failed" : "running") || "running";
-  const progress = acquisitionNumber(work.progress);
+  const progress = acquisitionNumber(work.progress, metadata.progress);
   const completed = ["completed", "succeeded", "success", "done", "partial"].includes(status.toLowerCase()) || work.state === "done";
   const process = acquisitionArray(result.analysisProcess);
+  const phase = acquisitionText(work.phase, metadata.phase, metadata.progressPhase);
+  const phaseKey = {
+    "校验作品链接": "link",
+    "读取公开作品详情": "metadata",
+    "整理公开评论": "comments",
+    "解析视频内容": "video",
+    "选择视频代表画面": "frames",
+    "生成分析报告": "synthesis",
+    "分析报告已生成": "synthesis"
+  }[phase] || "";
   const steps = [
     ["link", "校验作品链接"],
     ["metadata", "读取公开作品详情"],
-    ["video", "解析视频内容"],
     ["comments", "整理公开评论"],
+    ["video", "解析视频内容"],
+    ["frames", "选择视频代表画面"],
     ["synthesis", "生成分析报告"]
   ].map(([key, title], index) => {
     const stored = process.find((item) => item?.key === key);
-    const stepStatus = acquisitionText(stored?.status, completed ? "completed" : index === 0 ? "completed" : "running") || "running";
+    const currentIndex = ["link", "metadata", "comments", "video", "frames", "synthesis"].indexOf(phaseKey);
+    const fallbackStatus = completed
+      ? "completed"
+      : currentIndex >= 0
+        ? index < currentIndex ? "completed" : index === currentIndex ? "running" : "queued"
+        : metadata.mock === true
+          ? index === 0 ? "completed" : "running"
+          : "queued";
+    const stepStatus = acquisitionText(stored?.status, fallbackStatus) || fallbackStatus;
     return { key, title, status: stepStatus, detail: acquisitionText(stored?.detail) };
   });
   return {
@@ -4018,6 +4045,7 @@ export function viralWorkAnalysisRealtimeView(work = {}) {
     progress,
     sourceUrl: acquisitionText(metadata.sourceUrl, metadata.source_url, result.sourceUrl, result.inputs?.workUrl),
     goal: acquisitionText(metadata.goal, result.goal),
+    phase,
     title: acquisitionText(result.title, "爆款作品分析报告"),
     summary: acquisitionText(result.summary, work.task, "等待分析服务回传"),
     work: acquisitionObject(result.work),
@@ -4828,21 +4856,25 @@ function renderMockAnalysisWorksite(selected, state, onChange) {
   };
 }
 
-function renderLiveDanmakuLiveRoomPanel(selected, state, title, subtitle) {
+function renderLiveDanmakuLiveRoomPanel(selected, state, title = "", subtitle = "", options = {}) {
   const work = selected.liveWork || {};
   const replay = state?.cloudViewerReplays?.get(selected.id) || null;
   const replayPresentation = cloudReplayPresentation(replay, work);
   const panel = el("article", "sb-rw-panel sb-rw-cloud-panel sb-rw-pure-live-panel sb-rw-live-danmaku-room-panel");
-  const head = el("div", "sb-rw-panel-head");
-  head.append(el("div", "sb-rw-panel-title", title), el("span", "sb-rw-panel-sub", subtitle));
-  panel.appendChild(head);
+  if (options.showHeader !== false && (title || subtitle)) {
+    const head = el("div", "sb-rw-panel-head");
+    head.append(el("div", "sb-rw-panel-title", title), el("span", "sb-rw-panel-sub", subtitle));
+    panel.appendChild(head);
+  }
   const wrap = el("div", "sb-rw-cloud-live-wrap");
   wrap.appendChild(renderCommentAcquisitionLiveRoomStage(replay, replayPresentation, work));
-  const status = el("div", "sb-rw-live-danmaku-room-status");
-  const sourceState = acquisitionText(work?.taskSnapshot?.lastScan?.sources?.live?.state, work?.resultSnapshot?.sources?.live?.state, work?.metadata?.liveSourceState).toLowerCase();
-  const statusText = work.lastError ? "数据源需要处理" : sourceState === "ended" ? "直播已结束，正在整理整场弹幕" : sourceState === "waiting" ? "等待直播开始" : "当前直播间持续监听中";
-  status.append(el("i"), el("span", null, statusText));
-  wrap.appendChild(status);
+  if (options.showStatus !== false) {
+    const status = el("div", "sb-rw-live-danmaku-room-status");
+    const sourceState = acquisitionText(work?.taskSnapshot?.lastScan?.sources?.live?.state, work?.resultSnapshot?.sources?.live?.state, work?.metadata?.liveSourceState).toLowerCase();
+    const statusText = work.lastError ? "数据源需要处理" : sourceState === "ended" ? "直播已结束，正在整理整场弹幕" : sourceState === "waiting" ? "等待直播开始" : "当前直播间持续监听中";
+    status.append(el("i"), el("span", null, statusText));
+    wrap.appendChild(status);
+  }
   panel.appendChild(wrap);
   return panel;
 }
@@ -4946,9 +4978,9 @@ function renderLiveDanmakuAnalysisWorksite(selected, state, onChange) {
 }
 
 function renderLiveDanmakuOutreachWorksite(selected, state, onChange) {
-  const panels = renderOutreachSpecialistWorksite(selected, state, onChange);
+  const panels = renderLiveDanmakuOutreachPanels(selected, state, onChange);
   return {
-    liveRoomPanel: renderLiveDanmakuLiveRoomPanel(selected, state, "直播间触达现场", "接收弹幕 · 逐人触达 · 留存回执"),
+    liveRoomPanel: renderLiveDanmakuLiveRoomPanel(selected, state, "", "", { showHeader: false, showStatus: false }),
     ...panels
   };
 }
@@ -4978,9 +5010,9 @@ function renderViralWorkAnalysisSourcePanel(view) {
   if (view.status === "running") {
     const progress = el("div", "sb-rw-viral-progress");
     const fill = el("i");
-    fill.style.width = `${Math.max(12, Math.min(96, view.progress || 18))}%`;
+    fill.style.width = `${Math.max(0, Math.min(96, view.progress || 0))}%`;
     progress.appendChild(fill);
-    body.append(progress, el("div", "sb-rw-viral-progress-meta", `${Math.max(12, view.progress || 18)}% · ${view.summary}`));
+    body.append(progress, el("div", "sb-rw-viral-progress-meta", `${Math.max(0, view.progress || 0)}% · ${view.phase || view.summary}`));
   } else if (view.status === "failed" || view.status === "error") {
     body.appendChild(el("div", "sb-rw-viral-error", view.summary || "分析失败"));
   } else {
@@ -5100,7 +5132,7 @@ function renderOutreachSpecialistPerson(person, activePerson, state, onChange) {
   mountAcquisitionPersonAvatar(avatar, person);
   const copy = el("span", "sb-rw-outreach-specialist-copy");
   const top = el("span", "sb-rw-outreach-specialist-top");
-  const stateLabel = person.outreachState === "sent" ? "已触达" : "准备触达";
+  const stateLabel = person.outreachState === "sent" ? "已触达" : "待触达";
   top.append(
     el("strong", null, person.nickname || "未命名用户"),
     el("span", `sb-rw-outreach-specialist-state${person.outreachState === "sent" ? " is-sent" : ""}`, stateLabel)
@@ -5126,11 +5158,21 @@ function renderOutreachSpecialistGroup(label, people, activePerson, state, onCha
   heading.append(el("span", null, label), el("b", null, `${people.length} 位`));
   group.appendChild(heading);
   if (!people.length) {
-    group.appendChild(el("div", "sb-rw-outreach-specialist-empty", label === "准备触达" ? "暂时没有等待触达的潜客" : "还没有成功触达记录"));
+    group.appendChild(el("div", "sb-rw-outreach-specialist-empty", label === "待触达" ? "暂时没有等待触达的互动用户" : "还没有成功触达记录"));
     return group;
   }
   people.forEach((person) => group.appendChild(renderOutreachSpecialistPerson(person, activePerson, state, onChange)));
   return group;
+}
+
+function renderOutreachSpecialistList(people, activePerson, state, onChange, emptyText) {
+  const list = el("div", "sb-rw-outreach-specialist-list");
+  if (!people.length) {
+    list.appendChild(el("div", "sb-rw-outreach-specialist-empty", emptyText));
+    return list;
+  }
+  people.forEach((person) => list.appendChild(renderOutreachSpecialistPerson(person, activePerson, state, onChange)));
+  return list;
 }
 
 function renderOutreachSpecialistWorksite(selected, state, onChange) {
@@ -5144,12 +5186,12 @@ function renderOutreachSpecialistWorksite(selected, state, onChange) {
   const prospectHead = el("div", "sb-rw-panel-head");
   prospectHead.append(
     el("div", "sb-rw-panel-title", "潜客名单"),
-    el("span", "sb-rw-panel-sub", `${pending.length} 位准备触达 · ${sent.length} 位已触达`)
+    el("span", "sb-rw-panel-sub", `${pending.length} 位待触达 · ${sent.length} 位已触达`)
   );
   prospectPanel.appendChild(prospectHead);
   const list = el("div", "sb-rw-outreach-specialist-list");
   list.append(
-    renderOutreachSpecialistGroup("准备触达", pending, activePerson, state, onChange),
+    renderOutreachSpecialistGroup("待触达", pending, activePerson, state, onChange),
     renderOutreachSpecialistGroup("已触达", sent, activePerson, state, onChange)
   );
   prospectPanel.appendChild(list);
@@ -5191,7 +5233,7 @@ function renderOutreachSpecialistWorksite(selected, state, onChange) {
     const avatar = el("span", "sb-rw-acquisition-avatar");
     mountAcquisitionPersonAvatar(avatar, activePerson);
     const copy = el("div", "sb-rw-outreach-specialist-focus-copy");
-    const status = activePerson.outreachState === "sent" ? "已触达" : "准备触达";
+    const status = activePerson.outreachState === "sent" ? "已触达" : "待触达";
     copy.append(
       el("strong", null, `当前查看：${activePerson.nickname || "未命名用户"} · ${status}`),
       el("span", null, [activePerson.sourceLabel, activePerson.workTitle].filter(Boolean).join(" · ") || "来源待确认")
@@ -5204,6 +5246,32 @@ function renderOutreachSpecialistWorksite(selected, state, onChange) {
   replayPanel.appendChild(replayWrap);
 
   return { prospectPanel, replayPanel };
+}
+
+function renderLiveDanmakuOutreachPanels(selected, state, onChange) {
+  const work = selected.liveWork || {};
+  const rows = liveDanmakuOutreachRows(work);
+  const pending = rows.filter((person) => person.outreachState !== "sent");
+  const sent = rows.filter((person) => person.outreachState === "sent");
+  const activePerson = acquisitionSelectedPerson({ people: rows }, state);
+
+  const pendingPanel = el("article", "sb-rw-panel sb-rw-live-danmaku-outreach-pending-panel");
+  const pendingHead = el("div", "sb-rw-panel-head");
+  pendingHead.append(
+    el("div", "sb-rw-panel-title", "直播弹幕"),
+    el("span", "sb-rw-panel-sub", `${pending.length} 位待触达`)
+  );
+  pendingPanel.append(pendingHead, renderOutreachSpecialistList(pending, activePerson, state, onChange, "暂无待触达弹幕"));
+
+  const sentPanel = el("article", "sb-rw-panel sb-rw-live-danmaku-outreach-sent-panel");
+  const sentHead = el("div", "sb-rw-panel-head");
+  sentHead.append(
+    el("div", "sb-rw-panel-title", "已触达列表"),
+    el("span", "sb-rw-panel-sub", `${sent.length} 位`)
+  );
+  sentPanel.append(sentHead, renderOutreachSpecialistList(sent, activePerson, state, onChange, "还没有成功触达记录"));
+
+  return { pendingPanel, sentPanel };
 }
 
 function acquisitionLiveRoomVideoUrl(work = {}) {
@@ -7352,7 +7420,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
       main.append(liveAnalysisPanels.liveRoomPanel, liveAnalysisPanels.queuePanel, liveAnalysisPanels.detailPanel);
     } else if (liveDanmakuOutreachWork) {
       const liveOutreachPanels = renderLiveDanmakuOutreachWorksite(selected, state, refreshRealtimeView);
-      main.append(liveOutreachPanels.liveRoomPanel, liveOutreachPanels.prospectPanel, liveOutreachPanels.replayPanel);
+      main.append(liveOutreachPanels.liveRoomPanel, liveOutreachPanels.pendingPanel, liveOutreachPanels.sentPanel);
     } else if (viralWorkAnalysisWork) {
       const viralPanels = renderViralWorkAnalysisWorksite(selected);
       main.append(viralPanels.sourcePanel, viralPanels.reportPanel);

@@ -6,6 +6,7 @@ import { createOfficeStatusStore } from "../src/salebuddy/bridge/office-status.j
 import { buildOfficeAgentRoster } from "../src/salebuddy/ui/office-agent-runtime.js";
 import { officeWorkState } from "../src/salebuddy/ui/office-workspace-state.js";
 import { createOfficeWorkReplayStore } from "../backend/office-work-replay.js";
+import { createEmploymentStore } from "../backend/employment-store.js";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -39,6 +40,51 @@ test("HTTP status keeps legacy finder operations out of the active Douyin workbe
   await new Promise(resolve => setImmediate(resolve));
   assert.equal((await snapshot()).works.find(w => w.agentType === "mkt-douyin-finder"), undefined);
   assert.equal(calls, 1);
+});
+
+test("HTTP office status exposes the live viral analysis checkpoint from the core execution", async t => {
+  const root = mkdtempSync(join(tmpdir(), "viral-office-progress-"));
+  const employmentStore = createEmploymentStore({ stateFile: join(root, "employment.json") });
+  employmentStore.hire(null, { agentId: "mkt-viral-work-analysis", name: "爆款作品分析" });
+  let release;
+  let checkpoint;
+  const checkpointReached = new Promise((resolve) => { checkpoint = resolve; });
+  const viralWorkAnalysisService = {
+    async run(input) {
+      await input.onProgress({ phase: "读取公开作品详情", progress: 25, status: "running" });
+      checkpoint();
+      await new Promise((resolve) => { release = resolve; });
+      return { status: "completed", analysisKind: "viral_work", summary: "完成" };
+    }
+  };
+  const { base, snapshot } = await setup(t, { employmentStore, viralWorkAnalysisService });
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+
+  const execution = fetch(`${base}/v1/core-agent-executions`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      taskId: "viral-office-progress-task",
+      taskRunId: "viral-office-progress-run",
+      agentId: "mkt-viral-work-analysis",
+      workUrl: "https://www.douyin.com/video/7345678901234567890",
+      goal: "验证真实阶段"
+    })
+  });
+
+  await checkpointReached;
+  const status = await snapshot();
+  const work = status.taskWorks.find((item) => item.agentType === "mkt-viral-work-analysis");
+  assert.equal(work.state, "working");
+  assert.equal(work.phase, "读取公开作品详情");
+  assert.equal(work.progress, 25);
+  assert.equal(work.metadata.progressSource, "backend");
+
+  release();
+  const response = await execution;
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).accepted, true);
+  rmSync(root, { recursive: true, force: true });
 });
 
 test("backend state, store, label and workspace agree across start, pause, stop and stale data", async t => {

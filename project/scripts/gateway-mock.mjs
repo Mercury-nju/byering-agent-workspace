@@ -114,7 +114,7 @@ function createGatewayState({ seedOfficeDemo = false } = {}) {
   const conversations = seedOfficeDemo
     ? [
         conversation("recovered-office-1", "恢复版办公室"),
-        conversation("recovered-office-history", "历史会话（含进行中 subagent）", "in_progress")
+        conversation("recovered-office-history", "正在恢复历史任务", "in_progress")
       ]
     : [];
   const messages = seedOfficeDemo

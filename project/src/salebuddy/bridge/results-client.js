@@ -52,3 +52,16 @@ export async function saveCanonicalProspectRecords(records, { signal } = {}) {
   const payload = await response.json();
   return Array.isArray(payload?.prospects) ? payload.prospects : [];
 }
+
+export async function saveCanonicalResultRuns(runs, { signal } = {}) {
+  const response = await fetch(`${receptionBaseUrl()}/v1/results/runs`, {
+    method: "PUT",
+    signal,
+    cache: "no-store",
+    headers: headers({ json: true }),
+    body: JSON.stringify({ runs: Array.isArray(runs) ? runs : [] })
+  });
+  if (!response.ok) throw new Error("Agent results unavailable");
+  const payload = await response.json();
+  return Array.isArray(payload?.runs) ? payload.runs : [];
+}

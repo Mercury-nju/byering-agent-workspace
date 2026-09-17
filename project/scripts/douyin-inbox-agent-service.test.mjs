@@ -6,9 +6,9 @@ import { join } from "node:path";
 import { createDouyinInboxAgentService } from "../backend/douyin-inbox-agent-service.js";
 import { createAccountReceptionStore } from "../backend/account-reception-store.js";
 
-function fakeMcp() {
+function fakeMcp(initialMessages = [{ msg_id: "in-1", conversation_id: "c-1", nickname: "客户", content: "你好" }]) {
   const calls = [];
-  let queue = [{ msg_id: "in-1", conversation_id: "c-1", nickname: "客户", content: "你好" }];
+  let queue = [...initialMessages];
   return {
     calls,
     configured: true,
@@ -663,6 +663,148 @@ test("automatic inbox replies use the account queue even when manual mode is req
   assert.equal(coordinationCalls.length, 1);
   assert.equal(coordinationCalls[0].accountKey, "douyin:sec-sender");
   assert.equal(coordinationCalls[0].metadata.action, "reply");
+});
+
+test("gold customer service supports durable human takeover, RPA replies, and AI resume", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-inbox-human-"));
+  const mcp = fakeMcp([{
+    msg_id: "human-in-1",
+    conversation_id: "conversation-human",
+    sec_uid: "customer-human",
+    nickname: "人工客户",
+    content: "我需要人工帮我处理"
+  }]);
+  const receptionStore = createAccountReceptionStore({ stateFile: join(directory, "reception.json") });
+  const coordinationCalls = [];
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-gold-customer-service",
+    douyinMcpService: mcp,
+    receptionStore,
+    accountActionCoordinator: {
+      async runInbox(accountKey, operation, metadata) {
+        coordinationCalls.push({ accountKey, metadata });
+        return operation();
+      }
+    },
+    stateFile: join(directory, "state.json"),
+    replyGenerator: async () => "这条自动回复不应该发送",
+    env: { BYERING_LLM_API_KEY: "test-key" }
+  });
+  await service.startManaged({
+    ...goldCustomerServiceInput(),
+    accountIdentity: { uid: "account-1", secUid: "sender-1" },
+    startPolling: false,
+    accountCoordinationKey: "douyin:sec:sender-1"
+  });
+
+  const takeover = await service.controlConversation({
+    action: "takeover",
+    conversationId: "conversation-human",
+    secUid: "customer-human",
+    nickname: "人工客户",
+    reason: "客户要求人工"
+  });
+  assert.equal(takeover.conversation.mode, "human");
+
+  const sent = await service.sendHumanMessage({
+    conversationId: "conversation-human",
+    secUid: "customer-human",
+    nickname: "人工客户",
+    content: "您好，我来为您处理。",
+    reqId: "human-reply-1"
+  });
+  assert.equal(sent.status, "human_sent");
+  assert.equal(mcp.calls.find((entry) => entry.send)?.send.content, "您好，我来为您处理。");
+  assert.equal(mcp.calls.find((entry) => entry.send)?.send.reqId, "human-reply-1");
+  assert.equal(coordinationCalls.at(-1).metadata.action, "human_reply");
+  assert.equal(receptionStore.conversation({ account: { uid: "account-1" } }, "customer-human").history.at(-1).role, "human");
+  const duplicate = await service.sendHumanMessage({
+    conversationId: "conversation-human",
+    secUid: "customer-human",
+    nickname: "人工客户",
+    content: "您好，我来为您处理。",
+    reqId: "human-reply-1"
+  });
+  assert.equal(duplicate.duplicate, true);
+  assert.equal(mcp.calls.filter((entry) => entry.send).length, 1);
+
+  const suppressed = await service.pollOnce({ waitMs: 0 });
+  assert.equal(suppressed.outcomes[0].status, "human");
+  assert.equal(mcp.calls.filter((entry) => entry.send).length, 1);
+  const persistedHistory = receptionStore.conversation({ account: { uid: "account-1" } }, "customer-human").history;
+  assert.ok(persistedHistory.some(({ role, content }) => role === "user" && content === "我需要人工帮我处理"));
+  assert.ok(persistedHistory.some(({ role, content }) => role === "human" && content === "您好，我来为您处理。"));
+
+  await service.stop();
+
+  const recreatedMcp = fakeMcp([{
+    msg_id: "human-in-2",
+    conversation_id: "conversation-human",
+    sec_uid: "customer-human",
+    nickname: "人工客户",
+    content: "我还需要继续咨询"
+  }]);
+  let recreatedGenerated = 0;
+  const recreatedReceptionStore = createAccountReceptionStore({ stateFile: join(directory, "reception.json") });
+  const recreated = createDouyinInboxAgentService({
+    agentId: "mkt-gold-customer-service",
+    douyinMcpService: recreatedMcp,
+    receptionStore: recreatedReceptionStore,
+    stateFile: join(directory, "state-recreated.json"),
+    replyGenerator: async () => { recreatedGenerated += 1; return "这条重建后的自动回复不应该发送"; },
+    env: { BYERING_LLM_API_KEY: "test-key" }
+  });
+  await recreated.startManaged({
+    ...goldCustomerServiceInput(),
+    accountIdentity: { uid: "account-1", secUid: "sender-1" },
+    startPolling: false,
+    accountCoordinationKey: "douyin:sec:sender-1"
+  });
+  const persistedTakeover = await recreated.pollOnce({ waitMs: 0 });
+  assert.equal(persistedTakeover.outcomes[0].status, "human");
+  assert.equal(recreatedGenerated, 0);
+  assert.equal(recreatedMcp.calls.filter((entry) => entry.send).length, 0);
+  const recreatedHistory = recreatedReceptionStore.conversation({ account: { uid: "account-1" } }, "customer-human").history;
+  assert.equal(recreatedHistory.at(-1).content, "我还需要继续咨询");
+
+  const resumed = await recreated.controlConversation({ action: "resume_ai", conversationId: "conversation-human", secUid: "customer-human" });
+  assert.equal(resumed.conversation.mode, "auto");
+  await recreated.stop();
+});
+
+test("gold customer service persists an automatic policy handoff for later messages", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-inbox-policy-handoff-"));
+  const mcp = fakeMcp([{
+    msg_id: "policy-handoff-in-1",
+    conversation_id: "conversation-policy-handoff",
+    sec_uid: "customer-policy-handoff",
+    nickname: "边界客户",
+    content: "这个价格可以保证吗？"
+  }]);
+  const receptionStore = createAccountReceptionStore({ stateFile: join(directory, "reception.json") });
+  let generated = 0;
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-gold-customer-service",
+    douyinMcpService: mcp,
+    receptionStore,
+    stateFile: join(directory, "state.json"),
+    replyGenerator: async () => { generated += 1; return "不应发送"; },
+    env: { BYERING_LLM_API_KEY: "test-key" }
+  });
+  await service.startManaged({
+    ...goldCustomerServiceInput(),
+    accountIdentity: { uid: "account-1", secUid: "sender-1" },
+    startPolling: false
+  });
+
+  const result = await service.pollOnce({ waitMs: 0 });
+  const conversation = receptionStore.conversation({ account: { uid: "account-1" } }, "customer-policy-handoff");
+  assert.equal(result.outcomes[0].status, "handoff");
+  assert.equal(generated, 0);
+  assert.equal(conversation.mode, "human");
+  assert.equal(conversation.handoffReason, "price_requires_approved_info");
+  assert.equal(conversation.history.at(-1).role, "user");
+  await service.stop();
 });
 
 test("service refreshes a running inbox account coordination key", async () => {

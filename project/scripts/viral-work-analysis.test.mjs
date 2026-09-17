@@ -110,6 +110,51 @@ test("viral work analysis service fetches detail and keeps comment collection op
   assert.equal(result.comments.collected, 0);
 });
 
+test("viral work analysis reports real lifecycle checkpoints to its caller", async () => {
+  const progress = [];
+  const service = createViralWorkAnalysisService({
+    dataClient: {
+      async videoDetail() {
+        return {
+          aweme_id: "7345678901234567890",
+          desc: "真实阶段回调测试",
+          video_url: "https://video.test/source.mp4"
+        };
+      }
+    },
+    videoContentAnalysisService: {
+      async analyze() {
+        return { status: "completed", source: "video_model", structure: [], keyMoments: [] };
+      }
+    },
+    videoFrameExtractionService: {
+      async extract() {
+        return { status: "completed", source: "video_resource", selectionMode: "content_aware", count: 1, frames: [] };
+      }
+    }
+  });
+
+  const result = await service.run({
+    workUrl: "https://www.douyin.com/video/7345678901234567890",
+    onProgress: (snapshot) => progress.push(snapshot)
+  });
+
+  assert.deepEqual(progress.map((item) => item.phase), [
+    "校验作品链接",
+    "读取公开作品详情",
+    "整理公开评论",
+    "解析视频内容",
+    "选择视频代表画面",
+    "生成分析报告",
+    "分析报告已生成"
+  ]);
+  assert.deepEqual(progress.slice(0, -1).map((item) => item.status), ["running", "running", "running", "running", "running", "running"]);
+  assert.equal(progress.at(-1).status, "completed");
+  assert.deepEqual(progress.map((item) => item.progress), [5, 25, 40, 60, 78, 90, 100]);
+  assert.equal(progress.at(-1).resultSnapshot.status, "completed");
+  assert.equal(result.status, "completed");
+});
+
 test("viral work analysis normalizes jingxuan modal links before upstream access", async () => {
   const calls = [];
   const service = createViralWorkAnalysisService({

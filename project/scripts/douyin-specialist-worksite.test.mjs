@@ -57,3 +57,17 @@ test("conversation worksite keeps selection IDs stable while showing newest mess
   assert.match(renderer, /messages\.map\(\(message, index\) => \(\{ message, index \}\)\)\.reverse\(\)/);
   assert.match(renderer, /specialistRow\(message, index, "conversation"/);
 });
+
+test("conversation worksite exposes real human takeover and RPA message actions", () => {
+  const start = source.indexOf("function renderConversationSpecialistWorksite");
+  const end = source.indexOf("function privateOutreachUsesProspectBoundary", start);
+  const renderer = source.slice(start, end);
+  assert.match(source, /\/v1\/douyin\/inbox-agent\/conversation\/control/);
+  assert.match(source, /\/v1\/douyin\/inbox-agent\/conversation\/message/);
+  assert.match(renderer, /转人工处理/);
+  assert.match(renderer, /恢复 AI 接管/);
+  assert.match(renderer, /人工已接管，AI 不会再自动回复此会话/);
+  assert.match(renderer, /输入人工回复/);
+  assert.match(source, /confirm: "SEND"/);
+  assert.match(renderer, /人工回复/);
+});

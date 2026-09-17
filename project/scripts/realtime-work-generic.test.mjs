@@ -325,7 +325,30 @@ test("live danmaku realtime view keeps collecting state free of premature intent
   assert.equal(liveView.counts.highIntent, 0);
 });
 
-test("outreach specialist separates queued and completed prospects from the successful-work replay", () => {
+test("viral work realtime view reflects backend lifecycle without fabricated progress", () => {
+  const view = realtimeWork.viralWorkAnalysisRealtimeView({
+    state: "working",
+    progress: 0,
+    phase: "读取公开作品详情",
+    metadata: {
+      status: "running",
+      progressSource: "backend",
+      sourceUrl: "https://www.douyin.com/video/123"
+    }
+  });
+
+  assert.equal(view.progress, 0);
+  assert.deepEqual(view.steps.map((step) => step.status), [
+    "completed",
+    "running",
+    "queued",
+    "queued",
+    "queued",
+    "queued"
+  ]);
+});
+
+test("outreach specialist separates queued and completed prospects", () => {
   const works = realtimeWork.createRealtimeMockPreviewWorks([{
     id: "mock-outreach-account",
     name: "独立触达账号",
@@ -338,15 +361,17 @@ test("outreach specialist separates queued and completed prospects from the succ
   assert.equal(rows.filter((person) => person.outreachState === "pending").length, 2);
   assert.equal(rows.filter((person) => person.outreachState === "sent").length, 4);
   assert.match(realtimeWorkSource, /function renderOutreachSpecialistWorksite\(/);
-  assert.match(realtimeWorkSource, /准备触达/);
+  assert.match(realtimeWorkSource, /直播弹幕/);
   assert.match(realtimeWorkSource, /已触达/);
-  assert.match(realtimeWorkSource, /最近成功触达回放/);
-  assert.match(realtimeWorkSource, /最近成功工作的 15 秒录屏/);
+  assert.match(realtimeWorkSource, /已触达列表/);
 
   const outreachStart = realtimeWorkSource.indexOf("function renderOutreachSpecialistWorksite");
-  const outreachEnd = realtimeWorkSource.indexOf("function acquisitionLiveRoomVideoUrl", outreachStart);
+  const outreachEnd = realtimeWorkSource.indexOf("function renderLiveDanmakuOutreachPanels", outreachStart);
   const outreachSource = realtimeWorkSource.slice(outreachStart, outreachEnd);
   assert.doesNotMatch(outreachSource, /douyinCloudViewerUrlFor|<iframe|createElement\("iframe"/);
+  assert.match(outreachSource, /最近成功触达回放/);
+  assert.match(outreachSource, /最近成功工作的 15 秒录屏/);
+  assert.doesNotMatch(outreachSource, /已触达列表/);
 });
 
 test("finder worksite follows the manager search flow without crossing into analysis or outreach", () => {
@@ -437,7 +462,7 @@ test("worksite keeps a fixed header slot when switching between manager and spec
 });
 
 test("running Agent cards stay in one horizontally scrollable row", () => {
-  const teamRailStart = realtimeWorkSource.indexOf(".sb-rw-ai-team{margin-bottom:18px}");
+  const teamRailStart = realtimeWorkSource.indexOf(".sb-rw-ai-team{margin-bottom:12px}");
   const teamRailEnd = realtimeWorkSource.indexOf(".sb-rw-kpis{display:none}", teamRailStart);
   assert.ok(teamRailStart >= 0 && teamRailEnd > teamRailStart);
   const teamRail = realtimeWorkSource.slice(teamRailStart, teamRailEnd);

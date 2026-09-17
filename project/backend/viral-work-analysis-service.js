@@ -260,6 +260,23 @@ export function createViralWorkAnalysisService({
   }
 
   async function run(input = {}) {
+    const onProgress = typeof input.onProgress === "function" ? input.onProgress : null;
+    const progressSnapshot = (phase, progress, extra = {}) => ({
+      taskId: text(input.taskId) || null,
+      taskRunId: text(input.taskRunId) || null,
+      phase,
+      progress,
+      status: "running",
+      ...extra
+    });
+    const reportProgress = async (phase, progress, extra = {}) => {
+      if (!onProgress) return;
+      try {
+        await onProgress(progressSnapshot(phase, progress, extra));
+      } catch {
+        // Progress reporting must never make the analysis itself fail.
+      }
+    };
     const inputUrl = text(input.workUrl || input.videoUrl || input.url);
     const sourceUrl = normalizeDouyinWorkUrl(inputUrl);
     if (!sourceUrl) {
@@ -276,6 +293,8 @@ export function createViralWorkAnalysisService({
       });
     }
 
+    await reportProgress("校验作品链接", 5, { sourceUrl });
+
     let detail;
     try {
       detail = await dataClient.videoDetail({
@@ -290,8 +309,14 @@ export function createViralWorkAnalysisService({
       });
     }
 
+    await reportProgress("读取公开作品详情", 25, { sourceUrl });
+
     const work = findWork(detail);
     const collected = await collectComments(input, sourceUrl, work);
+    await reportProgress("整理公开评论", 40, {
+      sourceUrl,
+      commentCount: Array.isArray(collected.items) ? collected.items.length : 0
+    });
     const videoUrl = firstHttpUrl(work);
     let videoAnalysis = {
       status: "unavailable",
@@ -311,6 +336,10 @@ export function createViralWorkAnalysisService({
         videoAnalysis = unavailableVideoAnalysis(error, work);
       }
     }
+    await reportProgress("解析视频内容", 60, {
+      sourceUrl,
+      videoStatus: videoAnalysis.status
+    });
     let videoFrames = {
       status: "unavailable",
       source: "video_resource",
@@ -332,6 +361,12 @@ export function createViralWorkAnalysisService({
         videoFrames = unavailableVideoFrames(error, work);
       }
     }
+    await reportProgress("选择视频代表画面", 78, {
+      sourceUrl,
+      frameStatus: videoFrames.status,
+      frameCount: videoFrames.count || 0
+    });
+    await reportProgress("生成分析报告", 90, { sourceUrl });
     const analysis = analyzeViralWork({ sourceUrl, work, comments: collected.items, goal: input.goal, videoAnalysis });
     const errors = collected.error ? [{ code: collected.error.code, message: collected.error.message }] : [];
     if (videoAnalysis.status !== "completed") {
@@ -357,7 +392,7 @@ export function createViralWorkAnalysisService({
       source: collected.source,
       note: commentMessage
     };
-    return {
+    const result = {
       ...analysis,
       agentId: VIRAL_WORK_ANALYSIS_AGENT_ID,
       agentName: "爆款作品分析",
@@ -388,6 +423,21 @@ export function createViralWorkAnalysisService({
       },
       summary: `${analysis.summary} ${commentMessage}`
     };
+    if (onProgress) {
+      try {
+        await onProgress({
+          taskId: result.taskId,
+          taskRunId: result.taskRunId,
+          phase: "分析报告已生成",
+          progress: 100,
+          status: result.status === "completed" ? "completed" : "partial",
+          resultSnapshot: result
+        });
+      } catch {
+        // Progress reporting must never make the analysis itself fail.
+      }
+    }
+    return result;
   }
 
   return Object.freeze({

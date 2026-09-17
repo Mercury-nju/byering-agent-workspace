@@ -1308,6 +1308,8 @@ test("viral work analysis closes the loop with realtime work and a result snapsh
   assert.match(start, /goal: flow\.viralWorkGoal/);
   assert.match(start, /const realtimeSnapshot = \{ \.\.\.flow\.viralWorkAnalysis \}/);
   assert.match(start, /resultSnapshot: realtimeSnapshot/);
+  assert.match(source, /syncViralFlowFromRemote/);
+  assert.match(source, /officeStatusWorksToRealtimeWorks\(result\?\.taskWorks \|\| state\.remoteOfficeSnapshot\)/);
 });
 
 test("comment acquisition task brief has dedicated responsive consumer styling", () => {

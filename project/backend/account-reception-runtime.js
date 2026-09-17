@@ -19,16 +19,32 @@ export function createReceptionReplyHandler({ store, getOwner, generate, getTask
   return async function handle({ message, send, active = () => true }) {
     const owner = getOwner();
     if (!owner) throw Object.assign(new Error("当前账号尚未绑定接待配置"), { code: "RECEPTION_ACCOUNT_REQUIRED" });
-    const customer = message.secUid || message.conversationId;
+    const customer = message.secUid || message.secId || message.conversationId;
     if (!customer || !message.content) return { status: "skipped", reason: "identity_or_content_missing" };
     const current = store.get(owner);
     if (!current.revision) return { status: "deferred", reason: "account_policy_not_saved" };
     const settings = current.settings;
     const conversation = store.conversation(owner, customer);
     const decision = receptionDecision(message, settings, conversation, now());
-    const patch = { name: message.nickname || conversation.name, lastMessage: message.content.slice(0, 1000) };
+    const patch = {
+      name: message.nickname || conversation.name,
+      conversationId: message.conversationId || conversation.conversationId || null,
+      secUid: message.secUid || conversation.secUid || null,
+      secId: message.secId || conversation.secId || null,
+      lastMessage: message.content.slice(0, 1000),
+      history: appendConversationHistory(conversation.history, [{
+        role: "user",
+        content: message.content,
+        messageId: message.id || null,
+        at: now()
+      }])
+    };
     if (["closed", "human"].includes(decision.action)) {
-      store.updateConversation(owner, customer, { ...patch, mode: decision.action });
+      store.updateConversation(owner, customer, {
+        ...patch,
+        mode: decision.action,
+        ...(decision.action === "human" ? { handoffReason: decision.reason, handoffAt: now() } : {})
+      });
       return { status: decision.action === "human" ? "handoff" : "skipped", reason: decision.reason };
     }
     if (decision.action === "paused") return { status: "deferred", reason: "account_paused" };
@@ -80,7 +96,26 @@ export function createReceptionReplyHandler({ store, getOwner, generate, getTask
     if (result?.ok === false) throw new Error("私信发送失败，请核对发送记录");
     store.delivered(owner, requestId);
     const latestConversation = store.conversation(owner, customer);
-    store.updateConversation(owner, customer, { ...patch, awayPeriod: null, history: [...(latestConversation.history || []), { role: "user", content: message.content }, { role: "assistant", content }].slice(-20) });
+    store.updateConversation(owner, customer, {
+      ...patch,
+      awayPeriod: null,
+      history: appendConversationHistory(latestConversation.history, [
+        { role: "user", content: message.content, messageId: message.id || null, at: now() },
+        { role: "assistant", content, at: now() }
+      ])
+    });
     return { status: "sent", content, result };
   };
+}
+
+function appendConversationHistory(history, entries) {
+  const next = Array.isArray(history) ? [...history] : [];
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    if (!entry?.content) continue;
+    const duplicate = entry.messageId
+      ? next.some(item => item?.messageId === entry.messageId && item?.role === entry.role)
+      : next.some(item => item?.role === entry.role && item?.content === entry.content);
+    if (!duplicate) next.push(entry);
+  }
+  return next.slice(-50);
 }

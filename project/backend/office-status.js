@@ -1,6 +1,12 @@
-import { DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS } from "../src/salebuddy/agents/marketplace.js";
+import {
+  DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
+  MARKETPLACE_STANDALONE_AGENT_IDS
+} from "../src/salebuddy/agents/marketplace.js";
 
-export const OFFICE_AGENT_IDS = DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS;
+export const OFFICE_AGENT_IDS = Object.freeze([
+  ...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
+  ...MARKETPLACE_STANDALONE_AGENT_IDS
+]);
 const ACTIVE = new Set(["running", "working", "starting", "configuring", "accepted", "queued", "waiting_reply", "listening", "degraded", "retrying"]);
 const rank = { working: 0, listening: 1, attention: 2, unknown: 3, paused: 4, idle: 5 };
 const instant = value => typeof value === "number" ? value : Date.parse(value) || 0;
@@ -162,11 +168,13 @@ function taskState(task) {
 
 function officeTaskWork(agentType, task, state, observedAt) {
   const configuration = acquisitionConfiguration(task);
+  const progress = Number(task.progress);
   return {
     agentType,
     state,
     task: task.goal || task.task || "",
-    phase: task.stage || "",
+    phase: task.phase || task.stage || "",
+    ...(Number.isFinite(progress) ? { progress: Math.max(0, Math.min(100, progress)) } : {}),
     startedAt: instant(task.startedAt),
     updatedAt: instant(task.updatedAt),
     metadata: {
@@ -182,6 +190,9 @@ function officeTaskWork(agentType, task, state, observedAt) {
       outcome: task.state || null,
       result: resultFacts(task.result || task.resultSnapshot || {}),
       resultSnapshot: cloneJson(task.resultSnapshot) || cloneJson(task.result?.resultSnapshot) || null,
+      ...(Number.isFinite(progress) ? { progress: Math.max(0, Math.min(100, progress)) } : {}),
+      ...(task.progressSource ? { progressSource: task.progressSource } : {}),
+      ...(Array.isArray(task.analysisProcess) ? { analysisProcess: cloneJson(task.analysisProcess) } : {}),
       taskState: state,
       taskVersion: task.taskVersion ?? task.version ?? null,
       configVersion: task.configurationVersion ?? task.configVersion ?? task.configuration?.version ?? null,
@@ -229,19 +240,35 @@ export function buildOfficeStatus({ tenantId = null, observedAt = Date.now(), so
 /** In-flight requests remain observed until their server-side operation settles. */
 export function createOfficeOperations({ now = Date.now } = {}) {
   const tasks = new Map();
+  const matches = (task, context = {}) => Object.entries(context).every(([key, value]) => value == null || task[key] === value);
+  const update = (context = {}, patch = {}) => {
+    const task = [...tasks.values()].find((candidate) => matches(candidate, context));
+    if (!task) return false;
+    const nextMetadata = patch.metadata && typeof patch.metadata === "object"
+      ? { ...(task.metadata || {}), ...patch.metadata }
+      : task.metadata;
+    Object.assign(task, patch, { updatedAt: now() });
+    if (nextMetadata) task.metadata = nextMetadata;
+    if (patch.resultSnapshot && typeof patch.resultSnapshot === "object") task.resultSnapshot = cloneJson(patch.resultSnapshot);
+    return true;
+  };
   return {
     list: () => [...tasks.values()],
+    update,
     begin(context) {
       const token = Symbol("office-operation");
       const task = { ...context, state: "working", startedAt: now(), updatedAt: now() };
       tasks.set(token, task);
-      return (state = "completed", result = null) => {
+      const finish = (state = "completed", result = null) => {
         const normalized = String(state).toLowerCase();
         task.state = ACTIVE.has(normalized) ? "unknown" : normalized; task.updatedAt = now();
         if (result) task.result = resultFacts(result);
+        if (result?.resultSnapshot && typeof result.resultSnapshot === "object") task.resultSnapshot = cloneJson(result.resultSnapshot);
         const completed = [...tasks.entries()].filter(([, value]) => value.state !== "working");
         for (const [key] of completed.slice(0, Math.max(0, completed.length - 100))) tasks.delete(key);
       };
+      finish.update = (patch = {}) => update({ taskId: task.taskId, taskRunId: task.taskRunId, agentId: task.agentId, tenantId: task.tenantId }, patch);
+      return finish;
     }
   };
 }

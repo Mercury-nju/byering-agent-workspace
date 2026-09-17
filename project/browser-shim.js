@@ -180,13 +180,13 @@ installOfficeApplicationBridge();
         last_message_preview: "已连接到恢复版办公室。"
       }, {
         id: "recovered-office-history",
-        title: "历史会话（含进行中 subagent）",
+        title: "正在恢复历史任务",
         status: "in_progress",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         metadata: { source: "recovered-office" },
         message_count: 1,
-        last_message_preview: "Browser Agent 正在执行中…"
+        last_message_preview: "正在恢复历史任务上下文…"
       }],
       messages: { "recovered-office-history": [historyMessage] },
       schedules: []

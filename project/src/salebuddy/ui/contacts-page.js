@@ -9,7 +9,7 @@ import { clearNavigationRoute, persistNavigationRoute } from "./navigation-route
 import { TEAM_STATE_LABELS, TEAM_STATES } from "../agents/status.js";
 import { avatarInitial } from "./agent-drawer.js";
 import { createSnapshotScreen, createLiveBadge } from "./cloud-desktop.js";
-import { listActivatedMarketplaceAgents, listHiredAgents, getMarketplaceAgent, isMarketplaceAgentAvailable } from "../agents/marketplace.js";
+import { listHiredAgents, getMarketplaceAgent, isMarketplaceAgentAvailable } from "../agents/marketplace.js";
 import { refreshEmploymentContracts } from "../bridge/employment-client.js";
 import { renderAgentProfile } from "./agent-profile.js";
 import { openFileCenterPage } from "./file-center.js";
@@ -91,12 +91,93 @@ export function chiefDecisionPresentation(decision = {}) {
   if (decision.responseMode === "supplement_card" || decision.blockingMissing?.length) return { kind: "supplement", tone: "attention" };
   if (decision.responseMode === "status_card" || decision.intent === "status_query") return { kind: "status", tone: "neutral" };
   if (decision.responseMode === "approval_card") return { kind: "approval", tone: "attention" };
+  if (decision.responseMode === "result_card" || decision.intent === "data_query") return { kind: "result", tone: "neutral" };
   return { kind: "text", tone: "neutral" };
+}
+
+const CHIEF_RESULT_COUNT_LABELS = Object.freeze({
+  candidates: "候选客户",
+  candidate: "候选客户",
+  leads: "线索",
+  lead: "线索",
+  qualified: "高意向",
+  qualifiedLeads: "高意向线索",
+  discovered: "发现",
+  captured: "捕获",
+  analyzed: "已分析",
+  sent: "已发送",
+  accepted: "已接收",
+  replied: "已回复",
+  replies: "回复",
+  failed: "失败",
+  errors: "错误",
+  comments: "评论",
+  messages: "消息",
+  conversations: "会话",
+  signals: "有效信号",
+  drafts: "草稿",
+  newCandidates: "新增候选",
+  duplicates: "重复项",
+  likes: "点赞",
+  shares: "分享",
+  favorites: "收藏",
+  totalInteractions: "总互动"
+});
+
+const CHIEF_RESULT_METRIC_LABELS = Object.freeze({
+  likes: "点赞",
+  comments: "评论",
+  shares: "分享",
+  favorites: "收藏",
+  totalInteractions: "总互动",
+  engagementRate: "互动率",
+  replyRate: "回复率",
+  touchRate: "触达率",
+  conversionRate: "转化率"
+});
+
+function chiefResultCountsText(counts = {}) {
+  return Object.entries(counts)
+    .slice(0, 6)
+    .map(([key, value]) => `${CHIEF_RESULT_COUNT_LABELS[key] || key} ${value}`)
+    .join(" · ");
+}
+
+function chiefResultMetricsText(metrics = {}) {
+  return Object.entries(metrics)
+    .slice(0, 4)
+    .map(([key, value]) => `${CHIEF_RESULT_METRIC_LABELS[key] || key} ${value}`)
+    .join(" · ");
+}
+
+function appendChiefResultOverview(card, chiefData = {}) {
+  if (!chiefData || !Array.isArray(chiefData.agents)) return;
+  card.appendChild(el("div", "sb-chief-result-summary", `${chiefData.agentCount || 0} 个 Agent · ${chiefData.resultCount || 0} 条结果`));
+  const rows = el("div", "sb-chief-result-list");
+  for (const agent of chiefData.agents.slice(0, 12)) {
+    const row = el("div", "sb-chief-result-row");
+    const title = el("div", "sb-chief-result-name", `${agent.agentName || "未命名 Agent"} · ${agent.resultCount || 0} 条结果`);
+    row.appendChild(title);
+    const counts = chiefResultCountsText(agent.counts);
+    const metrics = chiefResultMetricsText(agent.metrics);
+    const meta = [counts, metrics, agent.itemsCount ? `${agent.itemsCount} 条业务记录` : "", agent.evidenceCount ? `${agent.evidenceCount} 条证据` : ""].filter(Boolean).join(" · ");
+    if (meta) row.appendChild(el("div", "sb-chief-result-meta", meta));
+    const summary = agent.summaries?.[0];
+    if (summary) row.appendChild(el("div", "sb-chief-result-copy", summary));
+    if (agent.artifacts?.length) row.appendChild(el("div", "sb-chief-result-artifacts", `产出：${agent.artifacts.slice(0, 3).join("、")}`));
+    rows.appendChild(row);
+  }
+  if (rows.childElementCount) card.appendChild(rows);
 }
 
 export function isContactAgentAvailable(agentOrId) {
   const id = typeof agentOrId === "string" ? agentOrId : agentOrId?.id;
   return isChiefAgentType(id) || isMarketplaceAgentAvailable(agentOrId);
+}
+
+/** Only active hires are eligible for the internal friends list. */
+export function listContactHiredAgents() {
+  return listHiredAgents().filter((agent) => isContactAgentAvailable(agent));
 }
 
 export const ACQUISITION_MEMBER_IDS = Object.freeze(["mkt-comment-acquisition", "mkt-find-people"]);
@@ -381,8 +462,8 @@ const CSS = `
 .sb-proactive-message-title{font-size:13px;font-weight:650;line-height:1.5}
 .sb-proactive-message-body{margin-top:4px;color:#59636D;font-size:12px;line-height:1.65}
 .sb-proactive-message-meta{margin-top:7px;color:#7C8791;font-size:10.5px;line-height:1.5}
-.sb-proactive-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;padding-top:10px;border-top:1px solid rgba(15,15,15,.06)}
-.sb-proactive-action{border:1px solid #D7E1EE;border-radius:8px;padding:6px 9px;background:#fff;color:#4267A5;font:inherit;font-size:10.5px;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,transform .15s ease}
+.sb-proactive-actions{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 2px 40px}
+.sb-proactive-action{height:30px;border:1px solid #D7E1EE;border-radius:8px;padding:0 11px;background:#fff;color:#4267A5;font:inherit;font-size:11px;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,transform .15s ease}
 .sb-proactive-action:hover{border-color:#9EB8DB;background:#F4F8FF;transform:translateY(-1px)}
 .sb-proactive-action.primary{border-color:#1F2329;background:#1F2329;color:#fff}
 .sb-proactive-action.primary:hover{background:#33373F}
@@ -420,7 +501,7 @@ const CSS = `
 .sb-pane-path{font-size:11px;color:#B0B4BB;margin-bottom:4px;word-break:break-all}
 .sb-chief-card{margin-top:9px;padding:11px 12px;border:1px solid rgba(31,35,41,.09);border-radius:8px;background:#F7F8FA}
 .sb-chief-card.is-attention{border-color:rgba(190,126,30,.22);background:#FFF9EE}.sb-chief-card.is-danger{border-color:rgba(194,64,64,.22);background:#FFF5F5}
-.sb-chief-card-title{font-size:12px;font-weight:700;color:#1F2329}.sb-chief-card-copy{margin-top:5px;font-size:11.5px;line-height:1.6;color:#596270}.sb-chief-card-meta{margin-top:7px;font-size:10.5px;color:#8A8F99}
+.sb-chief-card-title{font-size:12px;font-weight:700;color:#1F2329}.sb-chief-card-copy{margin-top:5px;font-size:11.5px;line-height:1.6;color:#596270}.sb-chief-card-meta{margin-top:7px;font-size:10.5px;color:#8A8F99}.sb-chief-result-summary{margin-top:7px;font-size:11px;color:#4267A5;font-weight:650}.sb-chief-result-list{margin-top:8px;display:flex;flex-direction:column;gap:7px}.sb-chief-result-row{padding-top:7px;border-top:1px solid rgba(31,35,41,.08)}.sb-chief-result-row:first-child{padding-top:0;border-top:0}.sb-chief-result-name{font-size:11.5px;line-height:1.45;color:#1F2329;font-weight:650}.sb-chief-result-meta,.sb-chief-result-artifacts{margin-top:3px;font-size:10.5px;line-height:1.45;color:#7A8491}.sb-chief-result-copy{margin-top:3px;font-size:10.5px;line-height:1.5;color:#596270}
 `;
 
 let styleInjected = false;
@@ -450,6 +531,14 @@ const PROACTIVE_GUIDANCE = Object.freeze({
   "Strategy Agent": {
     idle: "我可以把你的业务目标整理成客户画像、来源范围和筛选规则。",
     actions: [["制定找人策略", "realtime", true], ["查看目标线索", "prospects"], ["打开我的配置", "settings"]]
+  },
+  "mkt-comment-acquisition": {
+    idle: "我会读取已授权账号的评论、直播和互动，筛出值得跟进的潜客，并把证据和下一步建议发给你。",
+    actions: [["查看实时工作", "realtime", true], ["查看成果中心", "prospects"]]
+  },
+  "mkt-find-people": {
+    idle: "我会从评论、直播和互动中发现潜客，保留原始来源，再交给后续 Agent 判断意向。",
+    actions: [["查看实时工作", "realtime", true], ["查看成果中心", "prospects"]]
   },
   "Browser Agent": {
     idle: "我可以从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。",
@@ -561,7 +650,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   const DOUYIN_AGENT_IDS = new Set(["mkt-dm-inbox", "mkt-gold-customer-service", "mkt-cold-writer"]);
   const officeStatusStore = createOfficeStatusStore({
     getLocalWorks: listWorks,
-    getAgentIds: () => listActivatedMarketplaceAgents().map(({ id }) => id)
+    getAgentIds: () => listContactHiredAgents().map(({ id }) => id)
   });
 
   const mockControls = mockPreview ? buildMockControls() : null;
@@ -571,7 +660,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   function memberPresentationFor(agentType) {
     const status = teamLive?.getStatusOf?.(agentType) || { agentType, state: TEAM_STATES.IDLE };
     const work = getWork(agentType);
-    const officeAgentIds = new Set(listActivatedMarketplaceAgents().map(({ id }) => id));
+    const officeAgentIds = new Set(listContactHiredAgents().map(({ id }) => id));
     const authoritativeWork = officeAgentIds.has(agentType) ? officeStatusStore.getWork(agentType) : null;
     return memberStatusPresentation({ status, work, authoritativeWork });
   }
@@ -588,13 +677,9 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
 
   function currentMemberRosterSignature() {
     const profiles = teamLive?.getProfiles?.() || new Map();
-    const activated = listActivatedMarketplaceAgents();
-    const hired = [
-      ...activated,
-      ...listHiredAgents().filter(({ id }) => !activated.some((agent) => agent.id === id))
-    ];
+    const hired = listContactHiredAgents();
     return JSON.stringify({
-      profiles: [...profiles.keys()].sort(),
+      profiles: [...profiles.keys()].filter((agentType) => isChiefAgentType(agentType)).sort(),
       hired: hired.map(({ id }) => id).sort()
     });
   }
@@ -872,14 +957,9 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     listCol.textContent = "";
     // 好友
     const profiles = teamLive?.getProfiles?.() || new Map();
-    const activated = listActivatedMarketplaceAgents();
-    const activatedIds = new Set(activated.map(({ id }) => id));
-    const hired = [
-      ...activated,
-      ...listHiredAgents().filter(({ id }) => !activatedIds.has(id))
-    ];
+    const hired = listContactHiredAgents();
     const hiredIds = new Set(hired.map(({ id }) => id));
-    const visibleProfiles = [...profiles.entries()].filter(([agentType]) => !hiredIds.has(agentType));
+    const visibleProfiles = [...profiles.entries()].filter(([agentType]) => isChiefAgentType(agentType) && !hiredIds.has(agentType));
     const friendTitle = el("div", "sb-cgroup-title", "好友");
     friendTitle.appendChild(el("span", "sb-cgroup-count", `${visibleProfiles.length + hired.length}`));
     const recruitButton = el("button", "sb-cgroup-recruit");
@@ -1043,7 +1123,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     notice.appendChild(marker);
     const body = el("div", "sb-task-update-content");
     const header = el("div", "sb-task-update-header");
-    header.append(el("span", "sb-task-update-label", "任务状态"), el("span", "sb-task-update-agent", name));
+    header.append(el("span", "sb-task-update-label", "云电脑状态"), el("span", "sb-task-update-agent", name));
     body.appendChild(header);
     const card = el("div", "sb-task-update-copy-wrap");
     const title = ready ? "云电脑已准备好" : errored ? "云电脑需要重新检查" : "云电脑正在后台准备";
@@ -1205,7 +1285,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
 
     const actions = el("div", "sb-proactive-actions");
     const options = snapshot.working
-      ? [["查看实时进展", "realtime", true], ["打开云电脑", "cloud"], ["查看当前结果", "prospects"]]
+      ? [["查看实时进展", "realtime", true]]
       : snapshot.completed
         ? [["查看交付结果", "prospects", true], ["查看实时工作", "realtime"]]
         : snapshot.guidance.actions.filter(([, action]) => action !== "settings");
@@ -1215,7 +1295,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       button.addEventListener("click", () => runProactiveAction(agentType, action));
       actions.appendChild(button);
     }
-    if (options.length) messageBubble.appendChild(actions);
+    if (options.length) brief.appendChild(actions);
     return brief;
   }
 
@@ -1520,8 +1600,9 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
         const presentation = chiefDecisionPresentation(decision);
         if (presentation.kind !== "text") {
           const card = el("div", `sb-chief-card${presentation.tone === "attention" ? " is-attention" : presentation.tone === "danger" ? " is-danger" : ""}`);
-          const titles = { status: "当前进展", supplement: "还需要一点信息", approval: "执行前确认", risk: "需要你确认", recovery: "执行未完成" };
+          const titles = { status: "当前进展", result: "Agent 产出汇总", supplement: "还需要一点信息", approval: "执行前确认", risk: "需要你确认", recovery: "执行未完成" };
           card.appendChild(el("div", "sb-chief-card-title", titles[presentation.kind] || "幕僚长"));
+          if (presentation.kind === "result") appendChiefResultOverview(card, decision.chiefData || message.metadata.chiefData);
           const missing = Array.isArray(decision.blockingMissing) ? decision.blockingMissing.filter(Boolean) : [];
           if (missing.length) card.appendChild(el("div", "sb-chief-card-copy", `请补充：${missing.join("、")}`));
           const meta = decision.statusText || decision.taskTitle;
@@ -1649,9 +1730,10 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
             text: responseText || "我还需要你补充一点信息后才能继续。",
             metadata: {
               source: "chief-conversation",
-              chiefDecision: {
-                ...decision,
-                taskTitle: null,
+                chiefDecision: {
+                  ...decision,
+                  chiefData: routedData.chiefData || null,
+                  taskTitle: null,
                 statusText: decision.intent === "status_query"
                   ? `执行中 ${routedData?.overview?.running || 0} · 等待处理 ${routedData?.overview?.waiting || 0} · 阻塞 ${routedData?.overview?.blocked || 0}`
                   : null
@@ -1816,7 +1898,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   }
 
   // ── 启动与订阅 ──
-  if (mockPreview && !initialFriend && isContactAgentAvailable("mkt-comment-acquisition")) {
+  if (mockPreview && !initialFriend && listContactHiredAgents().some(({ id }) => id === "mkt-comment-acquisition")) {
     state.selected = { kind: "friend", id: "mkt-comment-acquisition" };
   }
   renderList();
@@ -1827,8 +1909,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     ? teamLive?.getProfiles?.().has(initialFriend) && isContactAgentAvailable(initialFriend)
     : false;
   const initialMarketplaceAgent = initialFriend
-    && isContactAgentAvailable(initialFriend)
-    && [...listActivatedMarketplaceAgents(), ...listHiredAgents()].some(({ id }) => id === initialFriend);
+    && listContactHiredAgents().some(({ id }) => id === initialFriend);
   if (initialFriend && (initialProfile || initialMarketplaceAgent)) {
     select({ kind: "friend", id: initialFriend });
   }

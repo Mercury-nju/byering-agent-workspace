@@ -6,6 +6,7 @@ import test from "node:test";
 import { createControlPlane } from "../backend/control-plane.js";
 import { createControlPlaneHttpServer } from "../backend/http-server.js";
 import { createProspectRecordStore } from "../backend/prospect-record-store.js";
+import { createAgentResultRunStore } from "../backend/agent-result-run-store.js";
 import { ControlPlaneHttpClient, createHybridGateway, isControlPlaneAction, normalizeControlPlaneTaskSnapshot, toAgUiEvent } from "../src/salebuddy/bridge/control-plane-http.js";
 import { createAgentStore } from "./agent-store.mjs";
 
@@ -243,6 +244,59 @@ test("server wires the unified inbox event bridge into an injected inbox service
   assert.equal(snapshot.resultSnapshot.outreach.lastEvent, "reply.sent");
 });
 
+test("inbox conversation control and human message routes use the authorized Douyin session", async (t) => {
+  const calls = [];
+  const injectedInbox = {
+    agentId: "mkt-gold-customer-service",
+    configured: true,
+    status() { return { runtime: { running: true }, accountId: "account-1" }; },
+    controlConversation(input) {
+      calls.push({ type: "control", input });
+      return Promise.resolve({ ok: true, action: input.action, mode: input.action === "takeover" ? "human" : "auto", conversation: { mode: input.action === "takeover" ? "human" : "auto", history: [] } });
+    },
+    sendHumanMessage(input) {
+      calls.push({ type: "message", input });
+      return Promise.resolve({ ok: true, status: "human_sent", content: input.content, conversation: { mode: "human", history: [{ role: "human", content: input.content }] } });
+    }
+  };
+  const mcpCalls = [];
+  const mcp = {
+    configured: true,
+    async probeRemoteStatus() { return { ok: true, login_state: "logged_in", account: { uid: "account-1", sec_uid: "sender-1" } }; },
+    async startMessageMode() { mcpCalls.push("startMessageMode"); return { ok: true }; }
+  };
+  const server = createControlPlaneHttpServer({
+    auth: false,
+    allowLegacyProductExecution: true,
+    douyinMcpService: mcp,
+    douyinInboxAgentService: injectedInbox
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => new Promise((resolve) => { server.close(resolve); server.closeAllConnections(); }));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const target = { agentId: "mkt-gold-customer-service", accountId: "account-1", conversationId: "conversation-1", secUid: "customer-1", nickname: "客户" };
+
+  const takeover = await fetch(`${base}/v1/douyin/inbox-agent/conversation/control`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ ...target, action: "takeover" })
+  });
+  assert.equal(takeover.status, 200, await takeover.text());
+
+  const message = await fetch(`${base}/v1/douyin/inbox-agent/conversation/message`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ ...target, content: "您好，我来为您处理。", clientMessageId: "human-http-1", confirm: "SEND" })
+  });
+  assert.equal(message.status, 200, await message.text());
+  assert.equal(calls[0].type, "control");
+  assert.equal(calls[0].input.action, "takeover");
+  assert.equal(calls[1].type, "message");
+  assert.equal(calls[1].input.content, "您好，我来为您处理。");
+  assert.equal(calls[1].input.clientMessageId, "human-http-1");
+  assert.deepEqual(mcpCalls, ["startMessageMode"]);
+});
+
 test("direct message actions use an operational timeout separate from health checks", async () => {
   const client = new ControlPlaneHttpClient({
     baseUrl: "http://control-plane.test",
@@ -291,6 +345,40 @@ test("chief message decision endpoint answers consultation without creating a ta
     assert.equal(result.decision.intent, "conversation");
     assert.equal(result.shouldCreateTask, false);
     assert.match(result.message, /全局运营管家/);
+  } finally {
+    client.disconnect();
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("chief message decision endpoint returns real Agent data summaries", async () => {
+  const server = createControlPlaneHttpServer({
+    auth: false,
+    controlPlane: createControlPlane({
+      now: () => "2026-09-16T10:00:00.000Z",
+      chiefDataProvider: async () => [{
+        taskId: "http-result-task",
+        taskRunId: "http-result-run",
+        agentId: "mkt-cold-writer",
+        agentName: "潜客触达专员",
+        status: "completed",
+        updatedAt: "2026-09-15T08:00:00.000Z",
+        resultSnapshot: {
+          generatedAt: "2026-09-15T08:00:00.000Z",
+          summary: "完成首轮触达",
+          counts: { sent: 8, failed: 1 }
+        }
+      }]
+    })
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const client = new ControlPlaneHttpClient({ baseUrl: `http://127.0.0.1:${server.address().port}` });
+  try {
+    const result = await client.action("chief.message.decide", { message: "昨天得到了几条线索？" });
+    assert.equal(result.decision.intent, "data_query");
+    assert.equal(result.chiefData.agents[0].agentId, "mkt-cold-writer");
+    assert.deepEqual(result.chiefData.agents[0].counts, { sent: 8, failed: 1 });
+    assert.match(result.message, /潜客触达专员/);
   } finally {
     client.disconnect();
     await new Promise((resolve) => server.close(resolve));
@@ -558,6 +646,55 @@ test("results endpoint returns only the authenticated tenant's canonical task an
   assert.equal(body.runs.every((run) => run.taskId.endsWith("tenant-a")), true);
   assert.equal(JSON.stringify(body).includes("tenant-b"), false);
   assert.ok(body.runs.every((run) => run.resultSnapshot && run.sourceContext && run.accountId !== undefined));
+});
+
+test("Agent result ingestion is durable and tenant-scoped for the chief data ledger", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-agent-results-"));
+  const resultStore = createAgentResultRunStore({ stateFile: join(directory, "runs.json") });
+  const auth = {
+    authenticate(request) {
+      const tenantId = request.headers["x-test-tenant"];
+      if (!tenantId) throw Object.assign(new Error("Unauthorized"), { statusCode: 401 });
+      return { tenantId, authenticated: true };
+    }
+  };
+  const server = createControlPlaneHttpServer({ auth, agentResultRunStore: resultStore });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(async () => {
+    await new Promise((resolve) => server.close(resolve));
+    await rm(directory, { recursive: true, force: true });
+  });
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const run = {
+    taskId: "browser-result-1",
+    taskRunId: "browser-run-1",
+    agentId: "mkt-viral-work-analysis",
+    agentName: "爆款作品分析",
+    status: "completed",
+    resultSnapshot: {
+      generatedAt: "2026-09-15T08:00:00.000Z",
+      counts: { works: 1 },
+      metrics: [{ key: "totalInteractions", value: 42 }],
+      summary: "完成作品分析"
+    }
+  };
+
+  const put = await fetch(`${base}/v1/results/runs`, {
+    method: "PUT",
+    headers: { "content-type": "application/json", "x-test-tenant": "tenant-a" },
+    body: JSON.stringify({ runs: [run] })
+  });
+  assert.equal(put.status, 200);
+  const stored = await put.json();
+  assert.equal(stored.runs.length, 1);
+  assert.equal(stored.runs[0].resultSnapshot.agentId, "mkt-viral-work-analysis");
+
+  const read = await fetch(`${base}/v1/results?limit=10`, { headers: { "x-test-tenant": "tenant-a" } });
+  const body = await read.json();
+  assert.equal(body.runs.length, 1);
+  assert.equal(body.runs[0].resultSnapshot.counts.works, 1);
+  assert.deepEqual(resultStore.list("tenant-a").map((item) => item.taskId), ["browser-result-1"]);
+  assert.deepEqual(resultStore.list("tenant-b"), []);
 });
 
 test("browser control-plane client creates, starts, snapshots, and replays task events", async () => {

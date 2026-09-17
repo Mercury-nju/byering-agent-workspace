@@ -32,7 +32,10 @@ export function createDouyinInboxAgent({
   maxReplyLength = DEFAULT_MAX_REPLY_LENGTH,
   now = () => Date.now(),
   onEvent = () => {},
-  receptionHandler = null
+  receptionHandler = null,
+  getConversationState = null,
+  onConversationHandoff = null,
+  onConversationMessage = null
 } = {}) {
   if (!douyinMcpService || typeof douyinMcpService.pullMessages !== "function") {
     throw new TypeError("douyinMcpService.pullMessages is required");
@@ -40,6 +43,9 @@ export function createDouyinInboxAgent({
   if (typeof replyGenerator !== "function") throw new TypeError("replyGenerator must be a function");
   if (typeof shouldReply !== "function") throw new TypeError("shouldReply must be a function");
   if (typeof validateReply !== "function") throw new TypeError("validateReply must be a function");
+  if (getConversationState != null && typeof getConversationState !== "function") throw new TypeError("getConversationState must be a function");
+  if (onConversationHandoff != null && typeof onConversationHandoff !== "function") throw new TypeError("onConversationHandoff must be a function");
+  if (onConversationMessage != null && typeof onConversationMessage !== "function") throw new TypeError("onConversationMessage must be a function");
   if (!stateStore || typeof stateStore.load !== "function" || typeof stateStore.save !== "function") {
     throw new TypeError("stateStore.load and stateStore.save are required");
   }
@@ -89,6 +95,30 @@ export function createDouyinInboxAgent({
       onEvent({ type, at: now(), ...payload });
     } catch {
       // Observability must never stop message intake.
+    }
+  }
+
+  async function persistHandoff(message, decision, rawMessage) {
+    if (!onConversationHandoff) return null;
+    try {
+      await onConversationHandoff(message, decision, { state: snapshot(), rawMessage });
+      return null;
+    } catch (error) {
+      const serialized = serializeError(error);
+      emit("reply.error", { messageId: message.id, stage: "handoff_persist", error: serialized });
+      return serialized;
+    }
+  }
+
+  async function persistConversationMessage(message, conversationState, rawMessage) {
+    if (!onConversationMessage) return null;
+    try {
+      await onConversationMessage(message, { conversationState, state: snapshot(), rawMessage });
+      return null;
+    } catch (error) {
+      const serialized = serializeError(error);
+      emit("reply.error", { messageId: message.id, stage: "conversation_persist", error: serialized });
+      return serialized;
     }
   }
 
@@ -198,7 +228,7 @@ export function createDouyinInboxAgent({
         await persist();
         const groups = new Map();
         for (const message of state.pendingMessages) {
-          const key = message.secUid || message.conversationId || message.id;
+          const key = message.secUid || message.secId || message.conversationId || message.id;
           const group = groups.get(key) || []; group.push(message); groups.set(key, group);
         }
         for (const group of groups.values()) {
@@ -268,6 +298,31 @@ export function createDouyinInboxAgent({
 
     state.receivedCount += 1;
     emit("message.received", { messageId, message });
+    let conversationState = null;
+    if (getConversationState) {
+      try {
+        conversationState = await getConversationState(message, { state: snapshot(), rawMessage });
+      } catch (error) {
+        emit("reply.error", { messageId, stage: "conversation_state", error: serializeError(error) });
+        return { status: "error", reason: "conversation_state_failed", messageId };
+      }
+      const messagePersistError = await persistConversationMessage(message, conversationState, rawMessage);
+      if (messagePersistError) return { status: "error", reason: "conversation_persist_failed", messageId, error: messagePersistError };
+      if (conversationState?.mode === "human") {
+        updateConversation(state, message, { reply: false, reason: "human_takeover", conversationMode: "human" });
+        remember(state.processedIds, messageId);
+        emit("reply.skipped", { messageId, reason: "human_takeover" });
+        await persist();
+        return { status: "human", reason: "human_takeover", messageId };
+      }
+      if (conversationState?.mode === "closed") {
+        updateConversation(state, message, { reply: false, reason: "conversation_closed", conversationMode: "closed" });
+        remember(state.processedIds, messageId);
+        emit("reply.skipped", { messageId, reason: "conversation_closed" });
+        await persist();
+        return { status: "skipped", reason: "conversation_closed", messageId };
+      }
+    }
     if (detectsLeadCapture(message.content)) {
       updateConversation(state, message, { reply: false, reason: "lead_captured" });
       remember(state.processedIds, messageId);
@@ -293,6 +348,8 @@ export function createDouyinInboxAgent({
       return { status: "skipped", reason: decision?.reason || "policy", messageId };
     }
     if (decision?.requiresHandoff === true) {
+      const handoffError = await persistHandoff(message, decision, rawMessage);
+      if (handoffError) return { status: "error", reason: "handoff_persist_failed", messageId, error: handoffError };
       updateConversation(state, message, decision);
       remember(state.processedIds, messageId);
       state.handoffCount += 1;
@@ -331,7 +388,36 @@ export function createDouyinInboxAgent({
     }
     updateConversation(state, message, decision);
 
+    // A human can take over while the model is generating. Re-read the durable
+    // conversation state immediately before sending so the old reply cannot
+    // escape after ownership has changed.
+    if (getConversationState) {
+      let latestConversationState;
+      try {
+        latestConversationState = await getConversationState(message, { state: snapshot(), rawMessage, stage: "before_send" });
+      } catch (error) {
+        emit("reply.error", { messageId, stage: "conversation_state_before_send", error: serializeError(error) });
+        return { status: "error", reason: "conversation_state_failed", messageId };
+      }
+      if (latestConversationState?.mode === "human") {
+        updateConversation(state, message, { reply: false, reason: "human_takeover", conversationMode: "human" });
+        remember(state.processedIds, messageId);
+        emit("reply.skipped", { messageId, reason: "human_takeover" });
+        await persist();
+        return { status: "human", reason: "human_takeover", messageId };
+      }
+      if (latestConversationState?.mode === "closed") {
+        updateConversation(state, message, { reply: false, reason: "conversation_closed", conversationMode: "closed" });
+        remember(state.processedIds, messageId);
+        emit("reply.skipped", { messageId, reason: "conversation_closed" });
+        await persist();
+        return { status: "skipped", reason: "conversation_closed", messageId };
+      }
+    }
+
     if (draft.send === false) {
+      const handoffError = await persistHandoff(message, { ...decision, reason: decision?.reason || "generator_boundary" }, rawMessage);
+      if (handoffError) return { status: "error", reason: "handoff_persist_failed", messageId, error: handoffError };
       remember(state.processedIds, messageId);
       state.handoffCount += 1;
       const reason = decision?.reason || "generator_boundary";

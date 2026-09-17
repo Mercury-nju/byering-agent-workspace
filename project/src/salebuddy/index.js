@@ -24,7 +24,7 @@ import { mountAiShubanTheme } from "./ui/ai-shuban-theme.js";
 import { mountSharePage } from "./ui/share-page.js";
 import { mountOfficeAgentRuntime } from "./ui/office-agent-runtime.js";
 import { buildAccountAnalysisResumeFlow } from "./agents/account-analysis-contract.js";
-import { saveCanonicalProspectRecords } from "./bridge/results-client.js";
+import { saveCanonicalProspectRecords, saveCanonicalResultRuns } from "./bridge/results-client.js";
 import { prospectStore } from "./ui/prospect-store.js";
 import { PRODUCT_VISIBILITY } from "./ui/product-visibility.js";
 import { createAuthFeature, renderLoginPage } from "./auth/index.js";
@@ -50,7 +50,10 @@ let gatewayConnectionInFlight = null;
 let activityMonitorsStarted = false;
 
 // Customer lifecycle data is server-owned; local storage only keeps an offline mirror.
-prospectStore.setRemoteSync((records) => saveCanonicalProspectRecords(records));
+prospectStore.setRemoteSync((records, runs) => Promise.all([
+  saveCanonicalProspectRecords(records),
+  saveCanonicalResultRuns(runs)
+]));
 
 /** Establish the SaleBuddy gateway and inject it into the local registry. */
 async function connectGateway() {

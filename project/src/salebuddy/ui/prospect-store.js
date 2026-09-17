@@ -356,7 +356,8 @@ export function createProspectStore({ storage = globalThis.localStorage, now = (
       return syncInFlight;
     }
     const records = list();
-    syncInFlight = Promise.resolve(remoteWriter(records))
+    const runs = listRuns();
+    syncInFlight = Promise.resolve(remoteWriter(records, runs))
       .then(() => {
         state.sync = { pending: false, attempts: 0, lastError: "", lastSyncedAt: now() };
         saveLocal();

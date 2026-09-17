@@ -86,8 +86,11 @@ test("mock user-side previews do not render Agent avatars", () => {
   assert.match(mockSource, /user \? "我"/);
 });
 
-test("members use the same activated marketplace Agents and names as Agent Center", () => {
-  assert.match(contactsSource, /listActivatedMarketplaceAgents\(\)/);
+test("members use hired marketplace Agents and keep only the chief profile", () => {
+  assert.match(contactsSource, /export function listContactHiredAgents\(\)/);
+  assert.match(contactsSource, /listHiredAgents\(\)\.filter\(\(agent\) => isContactAgentAvailable\(agent\)\)/);
+  assert.match(contactsSource, /filter\(\(\[agentType\]\) => isChiefAgentType\(agentType\) && !hiredIds\.has\(agentType\)\)/);
+  assert.doesNotMatch(contactsSource, /listActivatedMarketplaceAgents\(\)/);
   assert.match(contactsSource, /market\?\.displayName\s*\|\|\s*market\?\.name/);
   assert.match(contactsSource, /market\?\.displayTitle\s*\|\|\s*market\?\.title/);
 });
@@ -307,9 +310,24 @@ test("chief conversation does not expose task-control commands", () => {
 test("chief decisions choose consumer-facing text or action cards", () => {
   assert.deepEqual(chiefDecisionPresentation({ intent: "conversation", responseMode: "text" }), { kind: "text", tone: "neutral" });
   assert.deepEqual(chiefDecisionPresentation({ intent: "status_query", responseMode: "status_card" }), { kind: "status", tone: "neutral" });
+  assert.deepEqual(chiefDecisionPresentation({ intent: "data_query", responseMode: "result_card" }), { kind: "result", tone: "neutral" });
   assert.deepEqual(chiefDecisionPresentation({ responseMode: "supplement_card" }), { kind: "supplement", tone: "attention" });
   assert.deepEqual(chiefDecisionPresentation({ responseMode: "risk_card", riskLevel: "high" }), { kind: "risk", tone: "danger" });
   assert.deepEqual(chiefDecisionPresentation({ intent: "task", responseMode: "task_card" }), { kind: "text", tone: "neutral" });
+});
+
+test("chief data results are persisted with the assistant message for both conversation surfaces", () => {
+  assert.match(contactsSource, /chiefData:\s*routedData\.chiefData\s*\|\|\s*null/);
+  const drawerSource = readFileSync(new URL("../src/salebuddy/ui/agent-drawer.js", import.meta.url), "utf8");
+  assert.match(drawerSource, /chiefData:\s*routedData\.chiefData\s*\|\|\s*null/);
+});
+
+test("chief result presentation renders agent-level output summaries without raw records", () => {
+  assert.match(contactsSource, /titles\s*=\s*\{[^}]*result:\s*["']Agent 产出汇总["']/s);
+  assert.match(contactsSource, /sb-chief-result-row/);
+  assert.match(contactsSource, /agent\.counts/);
+  assert.match(contactsSource, /signals:\s*["']有效信号["']/);
+  assert.doesNotMatch(contactsSource, /JSON\.stringify\(chiefData/);
 });
 
 test("the chief of staff is always available in members even though it is not a marketplace hire", () => {
@@ -382,7 +400,8 @@ test("the proactive first paint is a normal assistant message, not a work-status
   const source = contactsSource.slice(start, end);
   assert.match(source, /setAttribute\("data-sb-message-kind",\s*"assistant-message"\)/);
   assert.match(source, /sb-msg-bubble/);
-  assert.match(source, /messageBubble\.appendChild\(actions\)/);
+  assert.match(source, /brief\.appendChild\(actions\)/);
+  assert.match(source, /snapshot\.working\s*\n\s*\? \[\["查看实时进展", "realtime", true\]\]/);
   assert.doesNotMatch(source, /sb-proactive-options/);
   assert.doesNotMatch(source, /工作状态/);
   assert.doesNotMatch(source, /等待真实任务事件/);
@@ -422,7 +441,7 @@ test("conversation interactions use the shared blue-neutral palette", () => {
 
 test("cloud notices are explicit task status cards", () => {
   assert.match(contactsSource, /const notice = el\("article", `sb-task-update sb-dm-cloud-message/);
-  assert.match(contactsSource, /el\("span", "sb-task-update-label", "任务状态"\)/);
+  assert.match(contactsSource, /el\("span", "sb-task-update-label", "云电脑状态"\)/);
   assert.match(contactsSource, /ready && task\.phase === "running" \? "查看当前进展" : ready \? "继续处理"/);
   assert.doesNotMatch(contactsSource, /sb-msg-bubble sb-dm-cloud-bubble/);
 });

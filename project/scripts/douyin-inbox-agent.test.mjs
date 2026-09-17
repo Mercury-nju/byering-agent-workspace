@@ -96,6 +96,70 @@ test("inbox intake always sends safe replies even when draft mode is requested",
   assert.equal(agent.status().cursor, 1);
 });
 
+test("human takeover stops AI generation and outbound RPA sends for one conversation", async () => {
+  const mcp = createFakeMcp([{
+    msg_id: "m-human",
+    conversation_id: "c-human",
+    sender: { nickname: "客户人工", sec_uid: "u-human" },
+    content: "我想找人工客服"
+  }]);
+  let generated = 0;
+  const events = [];
+  const agent = createDouyinInboxAgent({
+    douyinMcpService: mcp,
+    stateStore: createMemoryStateStore(),
+    getConversationState: async () => ({ mode: "human" }),
+    replyGenerator: async () => { generated += 1; return "这条回复不应该发送"; },
+    onEvent: (event) => events.push(event),
+    pollWaitMs: 0
+  });
+
+  await agent.start({ startPolling: false });
+  const result = await agent.pollOnce({ waitMs: 0 });
+  await agent.stop();
+
+  assert.equal(result.outcomes[0].status, "human");
+  assert.equal(result.outcomes[0].reason, "human_takeover");
+  assert.equal(generated, 0);
+  assert.equal(mcp.calls.filter((call) => call.name === "sendMessage").length, 0);
+  assert.ok(events.some((event) => event.type === "reply.skipped" && event.reason === "human_takeover"));
+});
+
+test("takeover during generation prevents the late AI reply from reaching RPA", async () => {
+  let stateReads = 0;
+  let releaseGeneration;
+  let generationStarted;
+  const started = new Promise(resolve => { generationStarted = resolve; });
+  const mcp = createFakeMcp([{
+    msg_id: "m-race",
+    conversation_id: "c-race",
+    sec_uid: "u-race",
+    content: "请介绍一下"
+  }]);
+  const agent = createDouyinInboxAgent({
+    douyinMcpService: mcp,
+    stateStore: createMemoryStateStore(),
+    getConversationState: async () => ({ mode: ++stateReads >= 2 ? "human" : "auto" }),
+    replyGenerator: async () => {
+      generationStarted();
+      await new Promise(resolve => { releaseGeneration = resolve; });
+      return "这条回复不能在接管后发送";
+    },
+    pollWaitMs: 0
+  });
+
+  await agent.start({ startPolling: false });
+  const poll = agent.pollOnce({ waitMs: 0 });
+  await started;
+  releaseGeneration();
+  const result = await poll;
+  await agent.stop();
+
+  assert.equal(result.outcomes[0].status, "human");
+  assert.equal(result.outcomes[0].reason, "human_takeover");
+  assert.equal(mcp.calls.filter((call) => call.name === "sendMessage").length, 0);
+});
+
 test("policy boundaries hand the conversation to a human without creating a sendable draft", async () => {
   const mcp = createFakeMcp([{
     msg_id: "m-handoff",

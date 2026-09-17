@@ -572,6 +572,7 @@ const CSS = `
 .sb-public-finder-filter-field select:focus{border-color:#7799ca;box-shadow:0 0 0 3px rgba(66,103,165,.1)}
 @media(max-width:640px){.sb-composite-finder-steps.is-public{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice-grid{grid-template-columns:1fr;gap:8px}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice{min-height:76px}.sb-public-finder-limit{align-items:flex-start;flex-direction:column;gap:7px}.sb-public-finder-custom-goal-body,.sb-public-finder-context-body,.sb-public-finder-filters-body{grid-template-columns:1fr}.sb-public-finder-custom-goal>summary,.sb-public-finder-context>summary,.sb-public-finder-filters>summary{min-height:58px}.sb-public-finder-context-copy small{max-width:250px}.sb-public-finder-filters>summary{align-items:flex-start;padding:11px 0}.sb-public-finder-filters>summary span{margin-left:0}.sb-public-finder-filters>summary:after{margin-top:7px}}
 .sb-as-intent-candidate{grid-template-columns:minmax(0,1fr);cursor:default}.sb-as-intent-candidate-copy{min-width:0}.sb-as-intent-candidate-copy span{overflow-wrap:anywhere}
+.sb-as-specialist-human-notice{margin-top:12px;padding:10px 11px;border:1px solid #cce8da;border-radius:8px;background:#f3fbf6;color:#2d7655;font-size:11px;line-height:1.6}.sb-as-specialist-composer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:12px}.sb-as-specialist-composer textarea{width:100%;min-height:70px;box-sizing:border-box;padding:10px 11px;border:1px solid #dce4ed;border-radius:8px;background:#fff;color:#354454;font:inherit;font-size:12px;line-height:1.6;resize:vertical;outline:0}.sb-as-specialist-composer textarea:focus{border-color:#6d9bd2;box-shadow:0 0 0 3px rgba(47,128,237,.1)}.sb-as-specialist-composer textarea::placeholder{color:#9aa6b2}.sb-as-specialist-composer button{align-self:end;height:36px;min-width:64px;padding:0 13px;border:1px solid #2f80ed;border-radius:8px;background:#2f80ed;color:#fff;font:inherit;font-size:11px;font-weight:680;cursor:pointer}.sb-as-specialist-composer button:hover:not(:disabled){background:#246fce;border-color:#246fce}.sb-as-specialist-composer button:disabled{opacity:.55;cursor:wait}
 `;
 
 let styleInjected = false;
@@ -856,6 +857,34 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     return remoteOfficeWorkForAgent(agentId);
   }
 
+  function remoteWorkMatchesFlow(work, flow) {
+    if (!work || !flow || !workMatchesAgent(work, flow.agentId)) return false;
+    const workTaskId = String(work.taskId || work.metadata?.taskId || work.metadata?.task_id || "").trim();
+    const workTaskRunId = String(work.taskRunId || work.metadata?.taskRunId || work.metadata?.task_run_id || "").trim();
+    const flowTaskId = String(flow.taskId || "").trim();
+    const flowTaskRunId = String(flow.taskRunId || "").trim();
+    return Boolean(flowTaskId && workTaskId === flowTaskId && (!flowTaskRunId || workTaskRunId === flowTaskRunId));
+  }
+
+  function syncViralFlowFromRemote() {
+    const flow = state.useFlow;
+    if (!flow || flow.step !== "running" || flow.mockPreview) return false;
+    const remote = state.remoteOfficeWorks.find((work) => remoteWorkMatchesFlow(work, flow));
+    if (!remote) return false;
+    const nextProgress = Number(remote.progress ?? remote.metadata?.progress);
+    const nextPhase = String(remote.phase || remote.metadata?.phase || "").trim();
+    let changed = false;
+    if (Number.isFinite(nextProgress) && nextProgress !== Number(flow.progress)) {
+      flow.progress = Math.max(0, Math.min(100, nextProgress));
+      changed = true;
+    }
+    if (nextPhase && nextPhase !== flow.phase) {
+      flow.phase = nextPhase;
+      changed = true;
+    }
+    return changed;
+  }
+
   async function refreshRemoteOfficeStatus() {
     if (disposed || remoteOfficeRefreshPending) return remoteOfficeRefreshPending;
     remoteOfficeRefreshPending = (async () => {
@@ -869,9 +898,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         if (!response.ok) throw new Error(`Office status request failed: ${response.status}`);
         const result = await response.json();
         state.remoteOfficeSnapshot = Array.isArray(result?.works) ? result.works : [];
-        state.remoteOfficeWorks = officeStatusWorksToRealtimeWorks(state.remoteOfficeSnapshot);
+        state.remoteOfficeWorks = officeStatusWorksToRealtimeWorks(result?.taskWorks || state.remoteOfficeSnapshot);
         state.remoteOfficeStatusAvailable = true;
-        if (!disposed && state.view === "home") render();
+        const flowChanged = syncViralFlowFromRemote();
+        if (!disposed && (state.view === "home" || flowChanged)) render();
       } catch {
         // Keep the in-page work source visible if the control plane cannot be reached.
         state.remoteOfficeStatusAvailable = false;
@@ -4328,6 +4358,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
   function specialistTargetState(item = {}) {
     const state = String(item.status || item.state || "").trim().toLowerCase();
+    if (String(item.conversationMode || "").toLowerCase() === "human" || state === "human") return { label: "人工处理中", tone: "is-success" };
+    if (state === "human_sent") return { label: "已发送", tone: "is-success" };
     if (["sent", "delivered", "success", "succeeded", "completed"].includes(state)) return { label: "已发送", tone: "is-success" };
     if (["sending", "processing", "running"].includes(state)) return { label: "发送中", tone: "" };
     if (["unknown", "pending", "queued", "submitted"].includes(state)) return { label: "等待回执", tone: "" };
@@ -4411,6 +4443,103 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     parent.appendChild(button);
   }
 
+  function inboxTargetPayload(flow, selected) {
+    return {
+      agentId: authorizationAgentId(flow),
+      accountId: flow.accountId || "",
+      conversationId: selected?.conversationId || "",
+      nickname: selected?.nickname || "",
+      secUid: selected?.secUid || "",
+      secId: selected?.secId || ""
+    };
+  }
+
+  function updateInboxConversationMessage(flow, selected, patch) {
+    const messageId = selected?.messageId || selected?.id || "";
+    flow.messages = (Array.isArray(flow.messages) ? flow.messages : []).map((message) => {
+      const currentId = message?.messageId || message?.id || "";
+      return currentId && currentId === messageId ? { ...message, ...patch } : message;
+    });
+  }
+
+  async function controlInboxConversation(flow, selected, action) {
+    if (!selected || flow.inboxActionInFlight) return;
+    if (!selected.conversationId && !selected.nickname && !selected.secUid && !selected.secId) {
+      flow.inboxActionError = "平台没有返回可确认的会话标识，已阻止操作。";
+      render();
+      return;
+    }
+    flow.inboxActionInFlight = true;
+    flow.inboxActionError = "";
+    render();
+    try {
+      const result = await douyinMcpCall("POST", "/v1/douyin/inbox-agent/conversation/control", {
+        ...inboxTargetPayload(flow, selected),
+        action,
+        reason: action === "takeover" ? "用户主动转人工" : "用户恢复 AI 接管"
+      }, 30000);
+      const conversation = result?.conversation || {};
+      updateInboxConversationMessage(flow, selected, {
+        conversationMode: result?.mode || conversation.mode || (action === "takeover" ? "human" : "auto"),
+        conversationHistory: Array.isArray(conversation.history) ? conversation.history : selected.conversationHistory || [],
+        handoffReason: conversation.handoffReason || selected.handoffReason || "",
+        handoffAt: conversation.handoffAt || selected.handoffAt || "",
+        status: action === "takeover" ? "human" : selected.status === "human" ? "received" : selected.status
+      });
+      pushActivity(flow.agentId || "mkt-gold-customer-service", action === "takeover" ? "已接管当前私信，AI 将停止自动回复。" : "已恢复 AI 接管当前私信。");
+    } catch (error) {
+      flow.inboxActionError = error?.message || "会话状态更新失败，请稍后重试。";
+    } finally {
+      flow.inboxActionInFlight = false;
+      render();
+    }
+  }
+
+  async function sendHumanInboxMessage(flow, selected, textarea) {
+    const content = String(textarea?.value || "").trim();
+    if (!selected || !content || flow.inboxActionInFlight) return;
+    if (!selected.conversationId && !selected.nickname && !selected.secUid && !selected.secId) {
+      flow.inboxActionError = "平台没有返回可确认的会话标识，已阻止发送。";
+      render();
+      return;
+    }
+    flow.inboxDraftText = content;
+    flow.inboxActionInFlight = true;
+    flow.inboxActionError = "";
+    render();
+    const draftFingerprint = `${selected.messageId || selected.id || selected.conversationId || selected.secUid || selected.secId}:${content}`;
+    if (flow.inboxDraftFingerprint !== draftFingerprint) {
+      flow.inboxDraftFingerprint = draftFingerprint;
+      flow.inboxDraftMessageId = `ui-human:${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
+    const clientMessageId = flow.inboxDraftMessageId;
+    try {
+      const result = await douyinMcpCall("POST", "/v1/douyin/inbox-agent/conversation/message", {
+        ...inboxTargetPayload(flow, selected),
+        content,
+        clientMessageId,
+        reqId: clientMessageId,
+        confirm: "SEND"
+      }, 120000);
+      const conversation = result?.conversation || {};
+      updateInboxConversationMessage(flow, selected, {
+        conversationMode: "human",
+        conversationHistory: Array.isArray(conversation.history) ? conversation.history : selected.conversationHistory || [],
+        humanLastSentAt: conversation.humanLastSentAt || selected.humanLastSentAt || "",
+        status: "human"
+      });
+      pushActivity(flow.agentId || "mkt-gold-customer-service", "人工回复已通过抖音云电脑发送。");
+      flow.inboxDraftText = "";
+      flow.inboxDraftFingerprint = "";
+      flow.inboxDraftMessageId = "";
+    } catch (error) {
+      flow.inboxActionError = error?.message || "人工回复发送失败，请检查云电脑连接后重试。";
+    } finally {
+      flow.inboxActionInFlight = false;
+      render();
+    }
+  }
+
   function renderConversationSpecialistWorksite(panel, flow) {
     const failed = Boolean(flow.error);
     const runtime = flow.runtime || {};
@@ -4448,17 +4577,44 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       const person = el("div", "sb-as-specialist-person");
       person.append(el("strong", null, specialistPersonName(selected)), el("span", null, selected.createdAt || selected.time || "时间以平台回传为准"));
       const messagesBox = el("div", "sb-as-specialist-messages");
-      if (selected.content) {
-        const inbound = el("div", "sb-as-specialist-message");
-        inbound.append(el("small", null, "用户消息"), document.createTextNode(selected.content));
-        messagesBox.appendChild(inbound);
-      }
-      if (selected.replyContent) {
-        const outbound = el("div", "sb-as-specialist-message outbound");
-        outbound.append(el("small", null, "自动回复"), document.createTextNode(selected.replyContent));
-        messagesBox.appendChild(outbound);
+      const history = Array.isArray(selected.conversationHistory) ? selected.conversationHistory : [];
+      if (history.length) {
+        history.forEach((entry) => {
+          const isUser = entry?.role === "user";
+          const isHuman = entry?.role === "human" || entry?.source === "human";
+          const bubble = el("div", `sb-as-specialist-message${isUser ? "" : " outbound"}`);
+          bubble.append(el("small", null, isUser ? "用户消息" : isHuman ? "人工回复" : "自动回复"), document.createTextNode(entry.content));
+          messagesBox.appendChild(bubble);
+        });
+      } else {
+        if (selected.content) {
+          const inbound = el("div", "sb-as-specialist-message");
+          inbound.append(el("small", null, "用户消息"), document.createTextNode(selected.content));
+          messagesBox.appendChild(inbound);
+        }
+        if (selected.replyContent) {
+          const outbound = el("div", "sb-as-specialist-message outbound");
+          outbound.append(el("small", null, "自动回复"), document.createTextNode(selected.replyContent));
+          messagesBox.appendChild(outbound);
+        }
       }
       conversation.append(person, messagesBox);
+      const humanMode = String(selected.conversationMode || "").toLowerCase() === "human" || selected.status === "human";
+      if (humanMode) {
+        conversation.appendChild(el("div", "sb-as-specialist-human-notice", "人工已接管，AI 不会再自动回复此会话。"));
+        const composer = el("div", "sb-as-specialist-composer");
+        const textarea = el("textarea");
+        textarea.placeholder = "输入人工回复...";
+        textarea.value = flow.inboxDraftText || "";
+        textarea.addEventListener("input", () => { flow.inboxDraftText = textarea.value; });
+        textarea.disabled = Boolean(flow.inboxActionInFlight);
+        const send = el("button", null, flow.inboxActionInFlight ? "发送中" : "发送");
+        send.type = "button";
+        send.disabled = Boolean(flow.inboxActionInFlight);
+        send.addEventListener("click", () => sendHumanInboxMessage(flow, selected, textarea));
+        composer.append(textarea, send);
+        conversation.appendChild(composer);
+      }
     } else {
       specialistEmpty(conversation, "新会话到达后，会显示平台回传的原始消息与实际回复。");
     }
@@ -4471,12 +4627,14 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       specialistFact(facts, "承接账号", flow.account || flow.accountIdentity?.accountName || flow.accountIdentity?.nickname || "账号信息未返回");
       specialistFact(facts, "会话来源", "私信");
       if (selected.handoffReason) specialistFact(facts, "接管原因", selected.handoffReason);
+      if (selected.humanLastSentAt) specialistFact(facts, "最近人工回复", selected.humanLastSentAt);
       if (selected.error) specialistFact(facts, "异常信息", selected.error);
       worksite.detail.appendChild(facts);
     } else {
       specialistEmpty(worksite.detail, "进入会话后，承接状态和人工接管原因会显示在这里。");
     }
     if (flow.statusSyncWarning) worksite.detail.appendChild(el("div", "sb-as-specialist-notice", flow.statusSyncWarning));
+    if (flow.inboxActionError) worksite.detail.appendChild(el("div", "sb-as-specialist-notice is-error", flow.inboxActionError));
     const actions = el("div", "sb-as-specialist-actions");
     if (failed) {
       const retry = el("button", "primary", "重新连接");
@@ -4484,6 +4642,14 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       retry.addEventListener("click", () => { flow.error = null; startUse(getMarketplaceAgent(state.useId)); });
       actions.appendChild(retry);
     } else {
+      if (selected) {
+        const humanMode = String(selected.conversationMode || "").toLowerCase() === "human" || selected.status === "human";
+        const handoff = el("button", humanMode ? null : "primary", humanMode ? "恢复 AI 接管" : "转人工处理");
+        handoff.type = "button";
+        handoff.disabled = Boolean(flow.inboxActionInFlight);
+        handoff.addEventListener("click", () => controlInboxConversation(flow, selected, humanMode ? "resume_ai" : "takeover"));
+        actions.appendChild(handoff);
+      }
       const realtime = el("button", null, "查看实时工作");
       realtime.type = "button";
       realtime.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({ selectedAgentId: flow.agentId, accountId: flow.accountId || null })));
@@ -6507,16 +6673,18 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     if (!result && !failed) {
       const progress = el("div", "sb-as-use-progress");
       const bar = el("i");
-      bar.style.width = `${Math.max(12, Math.min(90, Number(flow.progress) || 18))}%`;
+      bar.style.width = `${Math.max(0, Math.min(90, Number(flow.progress) || 0))}%`;
       progress.appendChild(bar);
       body.appendChild(progress);
       const meta = el("div", "sb-as-use-progress-meta");
-      meta.append(el("span", null, "读取公开作品数据"), el("span", null, `${Math.max(12, Number(flow.progress) || 18)}%`));
+      meta.append(el("span", null, flow.phase || "等待分析服务接收任务"), el("span", null, `${Math.max(0, Number(flow.progress) || 0)}%`));
       body.appendChild(meta);
       const checks = el("div", "sb-as-use-checklist");
-      ["校验作品链接", "读取视频内容", "整理评论需求", "生成分析报告"].forEach((label, index) => {
-        const row = el("div", `sb-as-use-check${index === 0 ? " is-done" : " is-active"}`);
-        row.append(el("i", null, index === 0 ? "✓" : "·"), el("span", null, label));
+      [["校验作品链接", 5], ["读取公开作品详情", 25], ["整理公开评论", 40], ["解析视频内容", 60], ["选择视频代表画面", 78], ["生成分析报告", 90]].forEach(([label, threshold]) => {
+        const isDone = Number(flow.progress) >= threshold;
+        const isActive = !isDone && Number(flow.progress) >= threshold - 15;
+        const row = el("div", `sb-as-use-check${isDone ? " is-done" : isActive ? " is-active" : ""}`);
+        row.append(el("i", null, isDone ? "✓" : isActive ? "·" : ""), el("span", null, label));
         checks.appendChild(row);
       });
       body.appendChild(checks);
@@ -6591,7 +6759,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     flow.status = "running";
     flow.error = null;
     flow.setupError = null;
-    flow.progress = 18;
+    flow.progress = 0;
+    flow.phase = "等待分析服务接收任务";
     flow.taskId = payload.taskId;
     flow.taskRunId = payload.taskRunId;
     flow.analysisKind = "viral_work";
@@ -6601,11 +6770,11 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     flow.configuration = structuredClone(payload.config);
     beginWork(agent.id, {
       task: payload.goal,
-      phase: "读取抖音作品详情",
+      phase: flow.phase,
       progress: flow.progress,
       projectId: null,
       metadata: {
-        progressSource: "none",
+        progressSource: "backend",
         publicDataTask: true,
         analysisKind: "viral_work",
         sourceScope: "public_work_link",
@@ -6615,7 +6784,6 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         taskRunId: flow.taskRunId
       }
     });
-    updateWork(agent.id, { progress: flow.progress, phase: "解析视频内容", metadata: { analysisKind: "viral_work", taskId: flow.taskId, taskRunId: flow.taskRunId } });
     pushActivity(agent.id, "已收到作品链接，正在解析视频画面、口播、字幕和内容结构。");
     render();
     void globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({
@@ -6690,6 +6858,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         phase: flow.status === "partial" ? "部分报告已生成" : "分析报告已生成",
         metadata: {
           status: flow.status,
+          progressSource: "backend",
           analysisKind: "viral_work",
           publicDataTask: true,
           sourceScope: "public_work_link",
@@ -6711,6 +6880,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         phase: "执行失败",
         metadata: {
           status: "failed",
+          progressSource: "backend",
           analysisKind: "viral_work",
           publicDataTask: true,
           sourceScope: "public_work_link",
@@ -9931,9 +10101,16 @@ async function startPrivateOutreachMock(agent, flow, targets) {
       conversationId: message.conversationId || message.conversation_id || "",
       nickname: message.nickname || message.nick_name || message.sender?.nickname || message.sender?.nick_name || "",
       secUid: message.secUid || message.sec_uid || message.sender?.secUid || message.sender?.sec_uid || "",
+      secId: message.secId || message.sec_id || message.sender?.secId || message.sender?.sec_id || "",
       content: message.content || message.text || "",
       replyContent: message.replyContent || message.reply_content || "",
       handoffReason: message.handoffReason || message.handoff_reason || "",
+      conversationMode: message.conversationMode || message.conversation_mode || "",
+      conversationHistory: Array.isArray(message.conversationHistory)
+        ? message.conversationHistory.slice(-50)
+        : Array.isArray(message.conversation_history) ? message.conversation_history.slice(-50) : [],
+      handoffAt: message.handoffAt || message.handoff_at || "",
+      humanLastSentAt: message.humanLastSentAt || message.human_last_sent_at || "",
       status: message.status || "received",
       createdAt: message.createdAt || message.created_at || "",
       receivedAt: message.receivedAt || message.received_at || ""

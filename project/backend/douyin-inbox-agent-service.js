@@ -50,6 +50,7 @@ export function createDouyinInboxAgentService({
   let runtimeAccountKey = null;
   let strategy = createReplyStrategy();
   let receptionOwner = null;
+  let handoffOwner = null;
   let taskObjective = "";
   let executionContext = {
     taskId: null,
@@ -71,6 +72,106 @@ export function createDouyinInboxAgentService({
     store: receptionStore, getOwner: () => receptionOwner, generate,
     getTaskContext: () => ({ explicitObjective: taskObjective }), now
   }) : null;
+
+  function conversationTarget(input = {}) {
+    const target = {
+      conversationId: cleanText(input.conversationId || input.conversation_id),
+      nickname: cleanText(input.nickname || input.nick_name),
+      secUid: cleanText(input.secUid || input.sec_uid),
+      secId: cleanText(input.secId || input.sec_id)
+    };
+    if (target.secUid && target.secId && target.secUid !== target.secId) {
+      throw Object.assign(new Error("secId 与 secUid 不一致，已拒绝操作以避免误触达"), {
+        code: "DOUYIN_RECIPIENT_ID_MISMATCH",
+        statusCode: 400
+      });
+    }
+    if (!target.conversationId && !target.nickname && !target.secUid && !target.secId) {
+      throw Object.assign(new Error("需要 conversationId、nickname 或 secUid 才能定位会话"), {
+        code: "DOUYIN_RECIPIENT_REQUIRED",
+        statusCode: 400
+      });
+    }
+    return target;
+  }
+
+  function conversationKeys(target = {}) {
+    return [...new Set([target.secUid, target.secId, target.conversationId, target.nickname].filter(Boolean))];
+  }
+
+  function readConversation(target = {}) {
+    if (!receptionStore || !handoffOwner) return { key: null, conversation: null };
+    const keys = conversationKeys(target);
+    if (!keys.length) return { key: null, conversation: null };
+    let fallback = null;
+    for (const key of keys) {
+      const conversation = receptionStore.conversation(handoffOwner, key);
+      fallback ||= { key, conversation };
+      if (conversation.mode !== "auto" || conversation.history.length || conversation.name || conversation.handoffAt) {
+        return { key, conversation };
+      }
+    }
+    return fallback || { key: null, conversation: receptionStore.conversation(handoffOwner, keys[0] || "") };
+  }
+
+  function persistConversationHandoff(message = {}, decision = {}) {
+    if (!receptionStore || !handoffOwner) return null;
+    const customer = [message.secUid, message.secId, message.conversationId, message.nickname].find(Boolean);
+    if (!customer) return null;
+    const current = receptionStore.conversation(handoffOwner, customer);
+    return receptionStore.updateConversation(handoffOwner, customer, {
+      mode: "human",
+      name: message.nickname || current.name,
+      conversationId: message.conversationId || current.conversationId || null,
+      secUid: message.secUid || current.secUid || null,
+      secId: message.secId || current.secId || null,
+      lastMessage: String(message.content || current.lastMessage || "").slice(0, 1000),
+      handoffReason: cleanText(decision.reason) || "策略边界转人工",
+      handoffAt: now(),
+      history: appendConversationHistory(current.history, [{
+        role: "user",
+        content: message.content,
+        messageId: message.id || null,
+        at: now()
+      }])
+    });
+  }
+
+  function persistConversationMessage(message = {}) {
+    if (!receptionStore || !handoffOwner) return null;
+    const target = {
+      conversationId: message.conversationId,
+      nickname: message.nickname,
+      secUid: message.secUid,
+      secId: message.secId
+    };
+    const customer = conversationKeys(target)[0];
+    if (!customer) return null;
+    const current = readConversation(target);
+    const key = current.key || customer;
+    const conversation = current.conversation || receptionStore.conversation(handoffOwner, key);
+    return receptionStore.updateConversation(handoffOwner, key, {
+      name: message.nickname || conversation.name,
+      conversationId: message.conversationId || conversation.conversationId || null,
+      secUid: message.secUid || conversation.secUid || null,
+      secId: message.secId || conversation.secId || null,
+      lastMessage: String(message.content || conversation.lastMessage || "").slice(0, 1000),
+      history: appendConversationHistory(conversation.history, [{
+        role: "user",
+        content: message.content,
+        messageId: message.id || null,
+        at: now()
+      }])
+    });
+  }
+
+  function ownerFromConfiguration(options, normalized) {
+    if (!receptionStore) return null;
+    return {
+      tenantId: options.tenantId || null,
+      account: options.accountIdentity || { uid: normalized.accountId }
+    };
+  }
 
   function accountOptions(options) {
     if (!receptionStore) return options;
@@ -150,7 +251,7 @@ export function createDouyinInboxAgentService({
   }
 
   function ensureAgent(options = {}) {
-    const nextKey = receptionStore && receptionOwner ? receptionStore.accountKey(receptionOwner) : null;
+    const nextKey = receptionStore && handoffOwner ? receptionStore.accountKey(handoffOwner) : null;
     if (agent && nextKey !== runtimeAccountKey) {
       if (agent.status().running) throw Object.assign(new Error("请先停止当前账号的接待"), { code: "RECEPTION_ACCOUNT_BUSY", statusCode: 409 });
       agent = null;
@@ -170,6 +271,20 @@ export function createDouyinInboxAgentService({
         batchLimit: options.batchLimit,
         onEvent: recordEvent,
         receptionHandler: receptionOwner ? receptionHandler : null,
+        getConversationState: handoffOwner
+          ? (message) => readConversation({
+              conversationId: message.conversationId,
+              nickname: message.nickname,
+              secUid: message.secUid,
+              secId: message.secId
+            }).conversation
+          : null,
+        onConversationMessage: handoffOwner
+          ? (message) => persistConversationMessage(message)
+          : null,
+        onConversationHandoff: handoffOwner
+          ? (message, decision) => persistConversationHandoff(message, decision)
+          : null,
         now
       });
     } else if (options.autoReply !== undefined) {
@@ -419,6 +534,7 @@ export function createDouyinInboxAgentService({
     } else if (receptionStore) {
       receptionOwner = null;
     }
+    handoffOwner = ownerFromConfiguration(options, normalized);
     if (!hasReplyGenerator && !isModelConfigured(env, fetchImpl)) {
       throw Object.assign(new Error("回复模型未配置，请配置 BYERING_LLM_API_KEY"), { code: "DOUYIN_REPLY_MODEL_NOT_CONFIGURED", statusCode: 503 });
     }
@@ -553,8 +669,171 @@ export function createDouyinInboxAgentService({
     return { ...result, status: statusFrom(runtime, runtime.status()) };
   }
 
+  function requireHandoffOwner() {
+    if (!receptionStore || !handoffOwner) {
+      throw Object.assign(new Error("当前私信承接尚未绑定账号，无法控制会话"), {
+        code: "DOUYIN_INBOX_ACCOUNT_NOT_BOUND",
+        statusCode: 409
+      });
+    }
+  }
+
+  function conversationStatus(target) {
+    const current = readConversation(target);
+    if (!current.key || !current.conversation) {
+      throw Object.assign(new Error("找不到可控制的私信会话"), {
+        code: "DOUYIN_CONVERSATION_NOT_FOUND",
+        statusCode: 404
+      });
+    }
+    return current;
+  }
+
+  async function controlConversation(input = {}) {
+    requireHandoffOwner();
+    const target = conversationTarget(input);
+    const action = cleanText(input.action).toLowerCase();
+    if (!["takeover", "resume_ai"].includes(action)) {
+      throw Object.assign(new Error("只支持 takeover 或 resume_ai"), {
+        code: "DOUYIN_CONVERSATION_ACTION_INVALID",
+        statusCode: 400
+      });
+    }
+    const current = conversationStatus(target);
+    const mode = action === "takeover" ? "human" : "auto";
+    const conversation = receptionStore.control(handoffOwner, current.key, mode, {
+      reason: cleanText(input.reason) || "用户主动转人工"
+    });
+    recordEvent({
+      type: action === "takeover" ? "conversation.handoff" : "conversation.ai_resumed",
+      conversationId: target.conversationId || current.key,
+      secUid: target.secUid || null,
+      reason: conversation.handoffReason || null,
+      mode
+    });
+    return { ok: true, action, mode, target, conversation };
+  }
+
+  async function sendHumanMessage(input = {}) {
+    requireHandoffOwner();
+    const target = conversationTarget(input);
+    const content = cleanText(input.content);
+    if (!content) {
+      throw Object.assign(new Error("人工回复内容不能为空"), {
+        code: "DOUYIN_HUMAN_MESSAGE_EMPTY",
+        statusCode: 400
+      });
+    }
+    const current = conversationStatus(target);
+    if (current.conversation.mode !== "human") {
+      throw Object.assign(new Error("请先接管会话，再发送人工回复"), {
+        code: "DOUYIN_HUMAN_TAKEOVER_REQUIRED",
+        statusCode: 409
+      });
+    }
+    const clientMessageId = cleanText(input.clientMessageId || input.client_message_id || input.reqId || input.req_id);
+    const requestId = clientMessageId || `human:${stableHash([current.key, content, current.conversation.updatedAt || now()])}`;
+    const existing = receptionStore.delivery(handoffOwner, requestId);
+    if (existing?.state === "sent") {
+      return {
+        ok: true,
+        status: "human_sent",
+        duplicate: true,
+        requestId,
+        target,
+        conversation: current.conversation
+      };
+    }
+    if (existing?.state === "submitted") {
+      throw Object.assign(new Error("这条人工回复正在发送，请勿重复提交"), {
+        code: "DOUYIN_HUMAN_MESSAGE_IN_FLIGHT",
+        statusCode: 409
+      });
+    }
+    if (!receptionStore.reserve(handoffOwner, requestId)) {
+      throw Object.assign(new Error("这条人工回复已被其他请求占用，请刷新会话状态"), {
+        code: "DOUYIN_HUMAN_MESSAGE_IN_FLIGHT",
+        statusCode: 409
+      });
+    }
+    const payload = {
+      conversationId: target.conversationId || null,
+      nickname: target.nickname || null,
+      secUid: target.secUid || target.secId || null,
+      content,
+      reqId: requestId
+    };
+    try {
+      if (typeof douyinMcpService.sendMessage !== "function") {
+        throw Object.assign(new Error("Douyin MCP 不支持发送私信"), { code: "DOUYIN_SEND_UNAVAILABLE", statusCode: 503 });
+      }
+      const accountKey = agent?.status?.().accountCoordinationKey || executionContext.accountId;
+      const send = () => douyinMcpService.sendMessage(payload);
+      const result = typeof accountActionCoordinator?.runInbox === "function"
+        ? await accountActionCoordinator.runInbox(accountKey, send, {
+            action: "human_reply",
+            agentId,
+            conversationId: target.conversationId || current.key,
+            secUid: target.secUid || target.secId || null
+          })
+        : await send();
+      if (result?.ok === false) {
+        throw Object.assign(new Error(result.error?.message || "人工回复发送失败"), {
+          code: result.error?.code || "DOUYIN_SEND_FAILED",
+          statusCode: 502,
+          details: result.error || null
+        });
+      }
+      receptionStore.delivered(handoffOwner, requestId);
+      const conversation = receptionStore.conversation(handoffOwner, current.key);
+      const history = appendConversationHistory(conversation.history, [{
+        role: "human",
+        source: "human",
+        content,
+        messageId: requestId,
+        at: now()
+      }]);
+      const updated = receptionStore.updateConversation(handoffOwner, current.key, {
+        history,
+        humanLastSentAt: now(),
+        conversationId: target.conversationId || conversation.conversationId || null,
+        secUid: target.secUid || conversation.secUid || null,
+        secId: target.secId || conversation.secId || null
+      });
+      recordEvent({
+        type: "conversation.human_sent",
+        messageId: requestId,
+        conversationId: target.conversationId || current.key,
+        content,
+        deliveryState: "sent"
+      });
+      return { ok: true, status: "human_sent", requestId, target, content, result, conversation: updated };
+    } catch (error) {
+      receptionStore.failed(handoffOwner, requestId, error);
+      throw error;
+    }
+  }
+
   function statusFrom(runtime, snapshot, record = null) {
     const current = snapshot || runtime?.status?.() || null;
+    const visibleMessages = messages.slice(-50).map((message) => {
+      if (!handoffOwner) return message;
+      const currentConversation = readConversation({
+        conversationId: message.conversationId,
+        nickname: message.nickname,
+        secUid: message.secUid,
+        secId: message.secId
+      }).conversation;
+      if (!currentConversation) return message;
+      return {
+        ...message,
+        conversationMode: currentConversation.mode,
+        conversationHistory: currentConversation.history || [],
+        handoffReason: currentConversation.handoffReason || message.handoffReason || null,
+        handoffAt: currentConversation.handoffAt || null,
+        humanLastSentAt: currentConversation.humanLastSentAt || null
+      };
+    });
     return {
       ok: true,
       agentId,
@@ -567,7 +846,7 @@ export function createDouyinInboxAgentService({
       modelConfigured: hasReplyGenerator || isModelConfigured(env, fetchImpl),
       runtime: current,
       events: events.slice(-50),
-      messages: messages.slice(-50),
+      messages: visibleMessages,
       drafts: []
     };
   }
@@ -595,6 +874,8 @@ export function createDouyinInboxAgentService({
     startStatus,
     stop,
     pollOnce,
+    controlConversation,
+    sendHumanMessage,
     sendDraft,
     setEventSink,
     setAccountCoordinationKey,
@@ -1055,6 +1336,18 @@ function resolveEndpoint(value) {
 }
 
 function cleanText(value) { return typeof value === "string" ? value.trim().slice(0, 4000) : ""; }
+
+function appendConversationHistory(history, entries) {
+  const next = Array.isArray(history) ? [...history] : [];
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    if (!entry?.content) continue;
+    const duplicate = entry.messageId
+      ? next.some(item => item?.messageId === entry.messageId && item?.role === entry.role)
+      : next.some(item => item?.role === entry.role && item?.content === entry.content);
+    if (!duplicate) next.push(entry);
+  }
+  return next.slice(-50);
+}
 
 function sanitizeEvent(event) {
   const { raw, ...safe } = event || {};

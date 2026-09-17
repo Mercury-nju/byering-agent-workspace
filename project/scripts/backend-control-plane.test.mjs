@@ -53,6 +53,42 @@ test("task.create is authoritative and idempotent", () => {
   }), (error) => error instanceof ControlPlaneError && error.code === "IDEMPOTENCY_CONFLICT");
 });
 
+test("chief reads and summarizes real Agent result records", async () => {
+  const plane = createControlPlane({
+    now: () => "2026-09-16T10:00:00.000Z",
+    chiefDataProvider: async ({ tenantId }) => {
+      assert.equal(tenantId, "tenant-a");
+      return [{
+        taskId: "result-task-1",
+        taskRunId: "result-run-1",
+        agentId: "mkt-find-people",
+        agentName: "找客专员",
+        status: "completed",
+        updatedAt: "2026-09-15T08:00:00.000Z",
+        resultSnapshot: {
+          generatedAt: "2026-09-15T08:00:00.000Z",
+          summary: "已保留候选客户和来源证据",
+          counts: { candidates: 12, qualified: 5 },
+          evidence: [{ id: "e-1" }]
+        }
+      }];
+    }
+  });
+
+  const result = await plane.decideChiefMessage({
+    message: "昨天每个 Agent 产生了什么数据？",
+    context: { tenantId: "tenant-a" }
+  });
+
+  assert.equal(result.decision.intent, "data_query");
+  assert.equal(result.decision.responseMode, "result_card");
+  assert.equal(result.shouldCreateTask, false);
+  assert.equal(result.chiefData.agentCount, 1);
+  assert.deepEqual(result.chiefData.agents[0].counts, { candidates: 12, qualified: 5 });
+  assert.match(result.message, /找客专员/);
+  assert.match(result.message, /候选客户 12/);
+});
+
 test("managed runtimes cannot silently replace a supplied terminal task id", () => {
   const plane = fixture();
   const managed = plane.ensureManagedRuntimeTask({

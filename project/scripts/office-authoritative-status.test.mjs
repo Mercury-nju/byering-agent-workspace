@@ -4,8 +4,11 @@ import { buildOfficeStatus, officeReceiptState, OFFICE_AGENT_IDS } from "../back
 import { officeWorkState } from "../src/salebuddy/ui/office-workspace-state.js";
 import { DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS } from "../src/salebuddy/agents/marketplace.js";
 
-test("office status only owns the five active Douyin acquisition Agents", () => {
-  assert.deepEqual(OFFICE_AGENT_IDS, DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS);
+test("office status owns active account Agents and standalone work Agents", () => {
+  assert.deepEqual(OFFICE_AGENT_IDS, [
+    ...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
+    "mkt-viral-work-analysis"
+  ]);
   assert.equal(OFFICE_AGENT_IDS.includes("mkt-live-lead-miner"), false);
   assert.equal(OFFICE_AGENT_IDS.includes("mkt-research-expert"), false);
 });

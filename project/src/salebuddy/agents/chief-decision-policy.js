@@ -2,6 +2,7 @@ import { GOLD_CUSTOMER_SERVICE_AGENT_ID } from "./marketplace.js";
 
 export const CHIEF_INTENTS = Object.freeze({
   CONVERSATION: "conversation",
+  DATA_QUERY: "data_query",
   TASK: "task",
   TASK_UPDATE: "task_update",
   TASK_CONTROL: "task_control",
