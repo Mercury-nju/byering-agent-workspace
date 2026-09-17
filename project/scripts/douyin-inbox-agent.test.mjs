@@ -332,8 +332,9 @@ test("lead capture messages are recorded and never receive an automatic reply", 
 
   assert.equal(result.outcomes[0].status, "captured");
   assert.equal(result.outcomes[0].reason, "lead_captured");
+  assert.deepEqual(result.outcomes[0].leadCapture, { phone: null, email: null, wechat: "wxid_demo123456", source: "私信" });
   assert.equal(mcp.calls.filter((call) => call.name === "sendMessage").length, 0);
-  assert.ok(events.some((event) => event.type === "lead.captured"));
+  assert.deepEqual(events.find((event) => event.type === "lead.captured")?.leadCapture, { phone: null, email: null, wechat: "wxid_demo123456", source: "私信" });
   assert.ok(events.some((event) => event.type === "reply.skipped" && event.reason === "lead_captured"));
 });
 

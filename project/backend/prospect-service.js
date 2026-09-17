@@ -235,7 +235,7 @@ function assertPublicInput(value, path = "input", depth = 0) {
 
 function assertCommentLeadMinerOwnSource(input = {}) {
   const agentId = String(input.agentId || input.agent_id || "").trim();
-  if (!["mkt-lead-miner", "mkt-find-people"].includes(agentId)) return;
+  if (agentId !== "mkt-find-people") return;
   const sourceOwner = String(input.sourceOwner || input.source_owner || "").trim().toLowerCase();
   const sourceScope = String(input.sourceScope || input.source_scope || "").trim().toLowerCase();
   if (sourceOwner !== "own" || sourceScope !== "own_account_comments" || input.analysisOnly === true) {

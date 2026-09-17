@@ -4,7 +4,7 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { acquisitionTaskFingerprint, createDouyinAcquisitionService } from "../backend/douyin-acquisition-service.js";
+import { acquisitionTaskFingerprint, createDouyinAcquisitionService, isProviderOutreachQuotaError } from "../backend/douyin-acquisition-service.js";
 import { startControlPlaneServer } from "../backend/http-server.js";
 import { DOUYIN_AUTO_AUDIENCE_GOAL } from "../src/salebuddy/agents/acquisition-contract.js";
 import { analyzeLiveDanmakuSignals } from "../src/salebuddy/agents/live-danmaku-analysis.js";
@@ -1845,6 +1845,65 @@ test("provider status ok cannot be promoted by a conflicting delivery state", as
   const snapshot = service.status(task.key);
   assert.equal(snapshot.approvalQueue[0].state, "unknown");
   assert.equal(snapshot.counters.sent, 0);
+});
+
+test("live danmaku outreach only stops when the provider reports an account quota", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-live-outreach-quota-"));
+  const quotaError = Object.assign(new Error("账号私信发送频控已达上限"), { code: "DOUYIN_DM_DAILY_LIMIT" });
+  const cloud = fakeCloud({ sendResults: [quotaError] });
+  const { service } = build(directory, { cloud, prospect: fakeProspect({ leads: [eligibleLead()] }) });
+  t.after(() => service.close());
+  const task = await service.createTask(context({
+    agentId: "mkt-live-danmaku-outreach",
+    executionAgentId: "mkt-comment-acquisition",
+    taskId: "live-outreach-quota",
+    taskRunId: "live-outreach-quota-run"
+  }), config({
+    sourceScope: { kind: "authorized_account_live" },
+    liveDanmakuOutreach: true,
+    touchEveryLiveDanmaku: true,
+    frequency: { maxTouchesPerDay: 60 },
+    caps: { dailyMax: null, sendIntervalMs: 0, cooldownMs: 0 }
+  }));
+
+  assert.equal(task.config.caps.dailyMax, null);
+  assert.equal(isProviderOutreachQuotaError(quotaError), true);
+  assert.equal(isProviderOutreachQuotaError({ code: "private_message_failed", message: "对方设置了私信限制" }), false);
+  await service.start(task.key, { runImmediately: false });
+  await service.runOnce(task.key);
+
+  const snapshot = service.status(task.key);
+  assert.equal(snapshot.configuration.frequency.maxTouchesPerDay, null);
+  assert.equal(snapshot.counters.sent, 0);
+  assert.equal(snapshot.state, "paused");
+  assert.equal(snapshot.resumeBlocked.reason, "provider_outreach_quota_reached");
+  assert.equal(snapshot.outreachQuota.reached, true);
+  assert.equal(snapshot.outreachQuota.sentCount, 0);
+});
+
+test("live danmaku outreach rejects attempts to restore a product-side daily cap", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-live-outreach-cap-update-"));
+  const { service } = build(directory);
+  t.after(() => service.close());
+  const task = await service.createTask(context({
+    agentId: "mkt-live-danmaku-outreach",
+    executionAgentId: "mkt-comment-acquisition",
+    taskId: "live-outreach-cap-update",
+    taskRunId: "live-outreach-cap-update-run"
+  }), config({
+    sourceScope: { kind: "authorized_account_live" },
+    liveDanmakuOutreach: true,
+    touchEveryLiveDanmaku: true,
+    caps: { dailyMax: null, sendIntervalMs: 0, cooldownMs: 0 }
+  }));
+
+  assert.throws(() => service.updateTaskConfig(task.key, {
+    baseConfigVersion: 1,
+    configVersion: 2,
+    expectedVersion: task.eventSeq,
+    effectiveScope: "future_only",
+    changes: { frequency: { maxTouchesPerDay: 20 } }
+  }), (error) => error?.code === "DOUYIN_LIVE_OUTREACH_PRODUCT_CAP_FORBIDDEN");
 });
 
 test("concurrent runOnce calls for one owner key execute only once", async () => {

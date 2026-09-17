@@ -59,6 +59,17 @@ const TRANSIENT_CODES = new Set([
   "DOUYIN_MCP_TIMEOUT", "NETWORK_ERROR", "ETIMEDOUT", "ECONNRESET",
   "DOUYIN_NOTIFICATION_MODE_NOT_READY", "DOUYIN_NOTIFICATION_STARTING", "DOUYIN_CLOUD_NOT_READY"
 ]);
+const PROVIDER_OUTREACH_QUOTA_CODES = new Set([
+  "DOUYIN_DM_DAILY_LIMIT",
+  "DOUYIN_MESSAGE_RATE_LIMIT",
+  "DOUYIN_OUTREACH_QUOTA_EXCEEDED",
+  "DOUYIN_PRIVATE_MESSAGE_LIMIT",
+  "MESSAGE_RATE_LIMIT",
+  "PLATFORM_RATE_LIMIT",
+  "QUOTA_EXCEEDED",
+  "RATE_LIMITED",
+  "TOO_MANY_REQUESTS"
+]);
 const HUMAN_TERMS = ["价格", "多少钱", "报价", "优惠", "折扣", "投诉", "退款", "退货", "合同", "承诺", "保证", "效果", "太贵", "赔偿"];
 const TASK_DEDUP_STATES = new Set([
   TASK_STATES.CONFIGURING,
@@ -73,6 +84,35 @@ const TASK_FINGERPRINT_IGNORED_KEYS = new Set(["accountIdentity", "accountRef", 
 const CONTINUOUS_AGENT_IDS = new Set([COMPREHENSIVE_AGENT_ID, FINDER_AGENT_ID, LIVE_DANMAKU_ANALYSIS_AGENT_ID, LIVE_DANMAKU_OUTREACH_AGENT_ID]);
 const SYSTEM_DUPLICATE_PAUSE_REASON = "system_duplicate_consolidation";
 const STALE_ERROR_RETENTION_MS = 72 * 60 * 60 * 1000;
+
+export function isProviderOutreachQuotaError(value) {
+  const queue = [value];
+  const seen = new Set();
+  while (queue.length) {
+    const current = queue.shift();
+    if (!current || (typeof current !== "object" && typeof current !== "string")) continue;
+    if (typeof current === "object") {
+      if (seen.has(current)) continue;
+      seen.add(current);
+      for (const key of ["error", "details", "data", "result", "response"]) {
+        if (current[key]) queue.push(current[key]);
+      }
+      const code = String(current.code || current.errorCode || current.error_code || current.reason || current.status || "").trim().toUpperCase();
+      if (PROVIDER_OUTREACH_QUOTA_CODES.has(code) || Number(current.statusCode || current.status_code) === 429 || code === "429") return true;
+      if (/(?:RATE|LIMIT|QUOTA|FREQUENCY|FREQ|TOO_MANY)/.test(code)) return true;
+      const message = String(current.message || current.detail || current.errorMessage || current.error_message || "");
+      if (code === "PRIVATE_MESSAGE_FAILED" && (
+        /(?:操作频繁|发送频繁|请求过于频繁)/u.test(message)
+        || /(?:账号|账户|每日|今日|当天|频控|额度|配额|上限)/u.test(message) && /(?:私信|消息|触达|发送)/u.test(message)
+      )) return true;
+      queue.push(message);
+      continue;
+    }
+    if (/(?:操作频繁|发送频繁|请求过于频繁)/u.test(current)
+      || /(?:账号|账户|每日|今日|当天|频控|额度|配额|上限)/u.test(current) && /(?:私信|消息|触达|发送)/u.test(current)) return true;
+  }
+  return false;
+}
 
 /**
  * Durable long-running controller for the comment/live acquisition experts.
@@ -874,15 +914,63 @@ export function createDouyinAcquisitionService({
         operatedNickname: task.accountIdentity?.nickname || null
       });
     } catch (error) {
+      if (isLiveDanmakuOutreach(task) && isProviderOutreachQuotaError(error)) {
+        markProviderOutreachQuotaReached(task, error);
+        return touch;
+      }
       if (isTransient(error)) {
         markTouchUnknown(task, touch, error);
       } else markTouchFailed(task, touch, error);
       persist();
       return touch;
     }
+    if (isLiveDanmakuOutreach(task) && isProviderOutreachQuotaError(receipt)) {
+      markProviderOutreachQuotaReached(task, receipt);
+      return touch;
+    }
     applyReceipt(task, touch, receipt, eventSink);
     persist();
     return touch;
+  }
+
+  function markProviderOutreachQuotaReached(task, error) {
+    const providerError = serializeError(error);
+    const sentCount = Number(task.counters?.sent || 0);
+    const nextAt = error?.nextAt || error?.next_at || error?.resetAt || error?.reset_at || error?.error?.nextAt || error?.error?.resetAt || null;
+    const detectedAt = now();
+    task.outreachQuota = {
+      reached: true,
+      source: "provider",
+      sentCount,
+      detectedAt,
+      code: providerError.code,
+      message: providerError.message,
+      ...(nextAt ? { nextAt } : {})
+    };
+    task.lastError = {
+      ...providerError,
+      code: "DOUYIN_ACCOUNT_OUTREACH_QUOTA_REACHED",
+      message: "当前账号的私信触达额度已用尽，后续触达已暂停。",
+      details: { providerCode: providerError.code, providerMessage: providerError.message, sentCount }
+    };
+    task.resumeBlocked = {
+      reason: "provider_outreach_quota_reached",
+      message: task.lastError.message,
+      detectedAt,
+      ...(nextAt ? { nextAt } : {})
+    };
+    if (task.state !== TASK_STATES.PAUSED && canTransitionTask(task.state, TASK_STATES.PAUSED)) {
+      transitionTask(task.state, TASK_STATES.PAUSED);
+    }
+    task.state = TASK_STATES.PAUSED;
+    task.health = "ATTENTION";
+    task.nextRunAt = nextAt || null;
+    task.updatedAt = detectedAt;
+    persist();
+    emit(task, EVENT_TYPES.QUOTA_REACHED, {
+      outreachQuota: task.outreachQuota,
+      error: task.lastError
+    }, `quota:${task.context.accountId}:${sentCount}:${providerError.code}`);
   }
 
   async function pause(keyOrContext) {
@@ -1123,6 +1211,12 @@ export function createDouyinAcquisitionService({
     const requestedApprovalMode = payload.changes?.touchContent?.approvalMode;
     if (task.context.agentId === "mkt-comment-acquisition" && requestedApprovalMode && requestedApprovalMode !== APPROVAL_MODES.AUTO) {
       throw acquisitionError("评论区获客管家固定为自动发送，不能切换为人工确认", "DOUYIN_COMMENT_ACQUISITION_AUTO_SEND_REQUIRED", 400);
+    }
+    const requestedLiveDailyCap = payload.changes?.frequency || {};
+    if (isLiveDanmakuOutreach(task)
+      && (Object.prototype.hasOwnProperty.call(requestedLiveDailyCap, "maxTouchesPerDay")
+        || Object.prototype.hasOwnProperty.call(requestedLiveDailyCap, "dailyMax"))) {
+      throw acquisitionError("直播间私信触达数量由抖音账号实际额度决定，不能设置产品侧固定上限", "DOUYIN_LIVE_OUTREACH_PRODUCT_CAP_FORBIDDEN", 400);
     }
     if (payload.expectedVersion !== null) {
       const currentTaskVersion = Number(task.eventSeq || 0);
@@ -1813,8 +1907,10 @@ function normalizeConfig(value) {
   const sourceScope = { ...(source.sourceScope || {}) };
   const audienceRules = { ...(source.audienceRules || {}) };
   const contentPolicy = { quoteComment: true, maxLength: 120, template: "看到你说：{{comment}}，如果方便我可以继续帮你确认。", strategy: "", ...(source.contentPolicy || {}) };
+  const liveDanmakuOutreach = source.liveDanmakuOutreach === true || source.outreachKind === "live_danmaku_every_user";
   const capSource = source.caps && typeof source.caps === "object" ? source.caps : {};
-  const caps = { dailyMax: 50, sendIntervalMs: 0, cooldownMs: 0, ...capSource };
+  const caps = { dailyMax: liveDanmakuOutreach ? null : 50, sendIntervalMs: 0, cooldownMs: 0, ...capSource };
+  if (liveDanmakuOutreach) caps.dailyMax = null;
   const platformConstraints = {
     ...((source.platformConstraints && typeof source.platformConstraints === "object") ? source.platformConstraints : {}),
     ...((capSource.platformConstraints && typeof capSource.platformConstraints === "object") ? capSource.platformConstraints : {})
@@ -1844,7 +1940,6 @@ function normalizeConfig(value) {
     delete sourceScope.schedule;
     delete sourceScope.timezone;
   }
-  const liveDanmakuOutreach = source.liveDanmakuOutreach === true || source.outreachKind === "live_danmaku_every_user";
   const discoveryOnly = !liveDanmakuOutreach && (source.discoveryOnly === true || sourceScope.kind === "authorized_account_live");
   const normalized = {
     sourceScope,
@@ -1904,6 +1999,7 @@ const CONFIGURATION_UPDATE_WHITELIST = Object.freeze({
 
 function canonicalConfiguration(config = {}) {
   const source = normalizeConfig(config);
+  const liveDanmakuOutreach = source.liveDanmakuOutreach === true;
   const audience = source.audienceRules && typeof source.audienceRules === "object" ? source.audienceRules : {};
   const content = source.contentPolicy && typeof source.contentPolicy === "object" ? source.contentPolicy : {};
   const caps = source.caps && typeof source.caps === "object" ? source.caps : {};
@@ -1940,7 +2036,7 @@ function canonicalConfiguration(config = {}) {
     },
     frequency: {
       mode: frequencyMode,
-      maxTouchesPerDay: caps.dailyMax ?? frequency.maxTouchesPerDay ?? null,
+      maxTouchesPerDay: liveDanmakuOutreach ? null : caps.dailyMax ?? frequency.maxTouchesPerDay ?? null,
       minIntervalMinutes: Number.isFinite(Number(caps.sendIntervalMs)) && Number(caps.sendIntervalMs) > 0
         ? Number(caps.sendIntervalMs) / 60_000
         : frequency.minIntervalMinutes ?? 0,

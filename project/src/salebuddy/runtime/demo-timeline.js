@@ -11,9 +11,6 @@ const RUNTIME_MEMBER_NAMES = new Map([
   ["Search Agent", { name: "线索分析师", title: "线索分析" }],
   ["File Agent", { name: "内容策划", title: "内容整理" }],
   ["App Agent", { name: "触达策略师", title: "触达执行" }],
-  ["mkt-lead-miner", { name: "评论区潜客挖掘专家", title: "评论区潜客挖掘专家" }],
-  ["mkt-follow-up", { name: "潜客跟进专员", title: "潜客跟进专员" }],
-  ["mkt-market-scout", { name: "行业竞品情报研究员", title: "行业竞品情报研究员" }],
   ["mkt-cold-writer", { name: "私信触达专员", title: "私信触达专员" }]
 ]);
 

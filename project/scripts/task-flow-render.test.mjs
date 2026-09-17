@@ -223,8 +223,10 @@ test("composite finder sends all own-account interactions to the analysis queue"
   assert.equal(setup.calls[0].flow.sourceScope, "authorized_account_comments");
 });
 
-test("composite finder exposes public search before account collection and starts it as a finder run", t => {
+test("composite finder starts public search from a natural-language request", t => {
   const setup = harness(t, "mkt-find-people");
+  setup.flow.taskChoices = { finderPublicPurpose: { selected: ["growing"] } };
+  setup.flow.finderGoal = "公域找人\n最近活跃的账号";
   setup.renderers.renderCompositeFinderSetup(setup.panel, setup.flow);
 
   const sourceOptions = setup.panel.all().filter(node => node.tagName === "BUTTON" && node.dataset.finderSource);
@@ -236,22 +238,23 @@ test("composite finder exposes public search before account collection and start
 
   const criteria = new Element("div");
   setup.renderers.renderCompositeFinderSetup(criteria, setup.flow);
-  assert.match(criteria.textContent, /设置找人条件/);
-  assert.match(criteria.textContent, /先选择找人目标/);
-  const preset = criteria.all().find(node => node.tagName === "INPUT" && node.value === "creators");
-  const goal = criteria.all().find(node => node.tagName === "TEXTAREA" && node.attributes["aria-label"] === "自定义找人目标（选填）");
+  assert.match(criteria.textContent, /告诉我你要找谁/);
+  assert.match(criteria.textContent, /直接告诉我你想找什么人/);
+  assert.doesNotMatch(criteria.textContent, /最近活跃的账号/);
+  const goal = criteria.all().find(node => node.tagName === "TEXTAREA" && node.attributes["aria-label"] === "找人需求");
   const business = criteria.all().find(node => node.tagName === "INPUT" && node.attributes["aria-label"] === "我的抖音账号主页链接");
   const references = criteria.all().find(node => node.tagName === "TEXTAREA" && node.attributes["aria-label"] === "参考账号主页链接");
   const resultLimit = criteria.all().find(node => node.tagName === "INPUT" && node.attributes["aria-label"] === "希望找到多少个账号");
-  assert.ok(preset && goal && business && references && resultLimit);
+  assert.ok(goal && business && references && resultLimit);
 
   const start = criteria.all().find(node => node.tagName === "BUTTON" && node.textContent === "开始找人");
   assert.equal(start.disabled, true);
-  preset.checked = true;
-  preset.trigger("change");
+  const prompt = criteria.all().find(node => node.tagName === "BUTTON" && node.dataset.publicFinderPrompt === "true");
+  assert.ok(prompt);
+  prompt.trigger("click");
   assert.equal(start.disabled, false);
-  assert.equal(setup.flow.requirements, "适合合作的创作者");
-  assert.match(setup.flow.finderGoal, /适合合作的创作者/);
+  assert.equal(setup.flow.requirements, "找公开表达过购买、询价或比较需求的人");
+  assert.match(setup.flow.finderGoal, /找公开表达过购买、询价或比较需求的人/);
 
   goal.value = "找上海近期稳定更新、适合家居内容联动的创作者";
   business.value = "https://www.douyin.com/user/my-brand";
@@ -271,7 +274,6 @@ test("composite finder exposes public search before account collection and start
   assert.equal(setup.flow.finderResultLimit, 2000);
   assert.equal(resultLimit.max, undefined);
   assert.doesNotMatch(criteria.textContent, /1-50 个/);
-  assert.match(setup.flow.requirements, /适合合作的创作者/);
   assert.match(setup.flow.requirements, /找上海近期稳定更新/);
   assert.match(setup.flow.finderGoal, /地区：上海/);
   assert.deepEqual(structuredClone(setup.flow.finderAccountContext), {
@@ -289,15 +291,15 @@ test("composite finder opens and requires the business account for competitor di
   Object.assign(setup.flow, { compositeFinderSource: "public", compositeFinderStep: "criteria" });
   setup.renderers.renderCompositeFinderSetup(setup.panel, setup.flow);
 
-  const competitor = setup.panel.all().find(node => node.tagName === "INPUT" && node.value === "industryAccounts");
+  const goal = setup.panel.all().find(node => node.tagName === "TEXTAREA" && node.attributes["aria-label"] === "找人需求");
   const business = setup.panel.all().find(node => node.tagName === "INPUT" && node.attributes["aria-label"] === "我的抖音账号主页链接");
   const context = setup.panel.all().find(node => node.className.split(" ").includes("sb-public-finder-context"));
   const start = setup.panel.all().find(node => node.tagName === "BUTTON" && node.textContent === "开始找人");
-  assert.ok(competitor && business && context && start);
+  assert.ok(goal && business && context && start);
   assert.equal(start.disabled, true);
 
-  competitor.checked = true;
-  competitor.trigger("change");
+  goal.value = "找上海汽车行业的同行和竞品账号";
+  goal.trigger("input");
   assert.equal(context.open, true);
   assert.match(context.textContent, /必填/);
   assert.equal(business.required, true);

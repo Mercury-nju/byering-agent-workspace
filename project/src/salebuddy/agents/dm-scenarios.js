@@ -3,6 +3,7 @@
  * Each core employee owns a distinct conversation and a previewable artifact.
  */
 import { resolveBusinessPrompt } from "../business/prompt-catalog.js";
+import { getConversationScenario } from "./conversation-scenarios.js";
 
 const PROJECT_LEADS = { projectId: "room-lead-expansion", projectName: "潜在客户拓展项目组" };
 const PROJECT_CONTENT = { projectId: "room-content", projectName: "触达内容共创项目组" };
@@ -652,22 +653,9 @@ const ROLE_CAPABILITIES = Object.freeze({
 });
 
 const BUSINESS_REPLIES = Object.freeze({
-  "mkt-lead-miner": "我会从作品评论中找出有需求或购买信号的抖音用户，保留原话、来源作品、评论时间和意向判断，不把推测写成事实。",
-  "mkt-douyin-finder": "我会根据你的自然语言目标搜索真实抖音候选账号，再调用账号解析、账号画像、近期作品、作品详情、直播状态和行业热词能力逐个核验。参考账号或名单不是必填项，只会用于提高搜索和筛选精准度。",
   "mkt-find-people": "我只汇总已授权抖音账号启用后新产生的作品评论、直播互动和账号互动通知，保留全部用户与来源证据，交给客户分析员判断；不会把互动直接当成潜客，也不会自动发私信。",
-  "mkt-live-lead-miner": "我会先按直播场次筛选互动，保留用户原话、商品、时间和来源；仅停留或点赞会标记待分析，不直接判成高意向。",
-  "mkt-market-scout": "我会按行业、竞品和招标主题去重，给每条情报补来源、日期、影响和建议动作。",
   "mkt-cold-writer": "我会解析指定抖音用户主页，确认私信内容后通过已授权云电脑发送一条，并返回真实发送结果。",
   "mkt-gold-customer-service": "我会承接授权账号的新私信，根据用户设定的目标自动设计回复和推进方式；需要人工决定的节点会先交给你。",
-  "mkt-follow-up": "我会按客户阶段和上次反馈排今天的跟进，写清负责人、时间点和停止条件。",
-  "mkt-phone-sdr": "我会按客户类型准备外呼脚本，通话后只根据录音原话记录意向和异议。",
-  "mkt-copywriter": "我会先核对业务素材和渠道规格，再出内容初稿和发布日历，不虚构案例数据。",
-  "mkt-designer": "我会按品牌规范整理尺寸、素材来源和可编辑交付，不使用未授权图片。",
-  "mkt-private-op": "我会按社群目标排内容和负责人，先小范围验证，不直接批量触达成员。",
-  "mkt-cs-manager": "我会按使用、反馈和续约节点识别风险客户，回访建议需人工确认。",
-  "mkt-quote": "我会按已确认产品和价格生成报价初稿，标出信息缺口，不把初稿当正式合同。",
-  "mkt-data-analyst": "我会先统一销售数据口径，标记缺失值和异常，再输出可追溯的漏斗和业绩归因。",
-  "mkt-bid": "我会先核对资格要求和截止时间，列出材料缺口，不伪造资质或业绩。"
 });
 
 export function seedDmMessages(agentType) {
@@ -698,13 +686,18 @@ function hasAny(text, patterns) {
 }
 
 function capabilityReply(agentType) {
+  const conversationScenario = getConversationScenario(agentType);
   return ROLE_CAPABILITIES[agentType]
     || BUSINESS_REPLIES[agentType]
+    || conversationScenario.objective
     || "我可以根据当前项目目标拆解任务、执行对应步骤，并把结果和下一步建议发回这里。";
 }
 
-function demoConversationState(memory, state = {}) {
+function demoConversationState(agentType, memory, state = {}) {
+  const conversationScenario = getConversationScenario(agentType);
   return {
+    conversationScenarioId: conversationScenario.id,
+    conversationFamily: conversationScenario.family,
     appliedConfig: { ...memory.config, ...(state?.appliedConfig || {}) },
     pendingProposal: state?.pendingProposal ? cloneValue(state.pendingProposal) : null,
     lastTopic: state?.lastTopic || null
@@ -806,7 +799,7 @@ function demoSolutionReply(agentType, memory, state) {
 export function mockConversationTurn(agentType, taskText = "", context = {}) {
   const text = String(taskText || "").trim();
   const memory = context.memory ? cloneValue(context.memory) : demoMemoryFor(agentType);
-  const state = demoConversationState(memory, context.state);
+  const state = demoConversationState(agentType, memory, context.state);
 
   if (state.pendingProposal) {
     if (isDemoApproval(text)) {

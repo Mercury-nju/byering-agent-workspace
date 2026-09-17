@@ -20,6 +20,8 @@ import { mountSidebarCustomization } from "../src/salebuddy/ui/sidebar-customiza
 import { closeCurrentPage, getCurrentPage, openPage } from "../src/salebuddy/ui/pages.js";
 import { PRODUCT_VISIBILITY } from "../src/salebuddy/ui/product-visibility.js";
 
+const navSource = await import("node:fs/promises").then(({ readFile }) => readFile(new URL("../src/salebuddy/ui/nav-framework.js", import.meta.url), "utf8"));
+
 test("office is visible while the native task workspace stays hidden", () => {
   assert.equal(PRODUCT_VISIBILITY.office, true);
   assert.equal(PRODUCT_VISIBILITY.conversation, false);
@@ -69,8 +71,8 @@ test("navigation modes include the restored memory route", () => {
 
 test("navigation blueprint matches the approved grouped order", () => {
   assert.deepEqual(navigationBlueprint().map((group) => [group.id, group.items]), [
-    ["work", ["office", "contacts", "agentSquare", "realtimeWork", "prospects", "discoveredPeople", "files"]],
-    ["configuration", ["kbMemory", "conversationStrategy"]]
+    ["work", ["office", "contacts", "agentSquare", "realtimeWork", "prospects"]],
+    ["configuration", ["kbMemory"]]
   ]);
 });
 
@@ -84,15 +86,17 @@ test("mounted navigation restores the office entry as the first work row", () =>
   instance.unmount();
 });
 
-test("mounted work area keeps file center inside the collapsible results group", () => {
+test("mounted work area keeps the unified results center beside realtime work", () => {
   const { document, instance } = mountFixture();
-  const resultsGroup = document.querySelector('[data-sb-results-group="1"]');
-  const fileRow = modeRow(document, "files");
-  assert.equal(fileRow?.textContent, "文件中心");
-  assert.equal(fileRow?.parentElement, resultsGroup?.querySelector(".sb-nav-results-children"));
-  assert.equal(fileRow?.parentElement?.hidden, true);
-  resultsGroup?.querySelector(".sb-nav-results-toggle")?.click();
-  assert.equal(fileRow?.parentElement?.hidden, false);
+  const realtimeGroup = document.querySelector('[data-sb-realtime-group="1"]');
+  const realtimeWork = modeRow(document, "realtimeWork");
+  const prospects = modeRow(document, "prospects");
+  assert.ok(realtimeGroup);
+  assert.equal(realtimeWork?.parentElement, realtimeGroup);
+  assert.equal(prospects?.parentElement, realtimeGroup);
+  assert.equal(prospects?.textContent, "成果中心");
+  assert.equal(modeRow(document, "discoveredPeople"), null);
+  assert.equal(modeRow(document, "files"), null);
   assert.equal(modeRow(document, "resources"), null);
   assert.equal(document.querySelector('[data-sb-group="work"]')?.textContent.includes("资源中心"), false);
   instance.unmount();
@@ -162,7 +166,7 @@ test("navigation persists the active page and selected Agent in the URL", () => 
   assert.equal(currentUrl.searchParams.get("agent"), null);
 
   instance.openFiles();
-  assert.equal(currentUrl.searchParams.get("page"), NAV_PAGE_ROUTES.files);
+  assert.equal(currentUrl.searchParams.get("page"), NAV_PAGE_ROUTES.prospects);
   instance.unmount();
 });
 
@@ -191,19 +195,20 @@ test("closing a custom page clears its persisted route", () => {
   instance.unmount();
 });
 
-test("file center route forwards the selected file to its preview", () => {
+test("legacy file route forwards the selected file to the unified results center", () => {
   const document = installDom();
   buildSidebarFixture(document);
   let received = null;
   const instance = mountNavFramework({
     openers: {
       ...noOpOpeners(),
-      files(options) { received = options; }
+      prospects(options) { received = options; }
     }
   });
   instance.openFiles({ initialFileId: "file-analysis-1" });
   assert.equal(received.initialFileId, "file-analysis-1");
-  assertSingleActive(document, "files");
+  assert.equal(received.initialSurface, "work");
+  assertSingleActive(document, "prospects");
   instance.unmount();
 });
 
@@ -246,7 +251,7 @@ test("contacts navigation only exposes recruitment and conversation entry points
   instance.unmount();
 });
 
-test("conversation strategy navigation opens the integrated strategy workspace", () => {
+test("conversation strategy remains a deep route without becoming a primary navigation row", () => {
   const document = installDom();
   buildSidebarFixture(document);
   let strategyOptions = null;
@@ -258,9 +263,30 @@ test("conversation strategy navigation opens the integrated strategy workspace",
   });
   FakeMutationObserver.flush();
 
-  modeRow(document, "conversationStrategy").click();
+  assert.equal(modeRow(document, "conversationStrategy"), null);
+  instance.openConversationStrategy();
   assert.equal(typeof strategyOptions?.onClose, "function");
-  assert.equal(document.querySelector('[data-sb-mode="conversationStrategy"]')?.classList.contains("sb-nav-on"), true);
+  assert.equal(modeRow(document, "conversationStrategy"), null);
+
+  instance.unmount();
+});
+
+test("realtime work navigation forwards the durable gateway to the workbench", () => {
+  const document = installDom();
+  buildSidebarFixture(document);
+  const gateway = { subscribeTask() {} };
+  let realtimeOptions = null;
+  const instance = mountNavFramework({
+    gateway,
+    openers: {
+      ...noOpOpeners(),
+      realtimeWork(options) { realtimeOptions = options; }
+    }
+  });
+
+  modeRow(document, "realtimeWork").click();
+  assert.equal(realtimeOptions.gateway, gateway);
+  assert.equal("teamLive" in realtimeOptions, true);
 
   instance.unmount();
 });
@@ -279,7 +305,7 @@ test("programmatic conversation strategy navigation uses the same integrated rou
 
   instance.openConversationStrategy();
   assert.equal(typeof strategyOptions?.onClose, "function");
-  assert.equal(document.querySelector('[data-sb-mode="conversationStrategy"]')?.classList.contains("sb-nav-on"), true);
+  assert.equal(document.querySelector('[data-sb-mode="conversationStrategy"]'), null);
 
   instance.unmount();
 });
@@ -303,14 +329,14 @@ test("programmatic memory navigation opens the restored memory page route", () =
   instance.unmount();
 });
 
-test("knowledge area exposes the conversation strategy route", () => {
+test("knowledge area keeps only the knowledge entry in the primary navigation", () => {
   const { document, instance } = mountFixture();
   const configuration = document.querySelector('[data-sb-group="configuration"]');
   const work = document.querySelector('[data-sb-group="work"]');
 
   assert.equal(configuration?.querySelector(".sb-nav-group-label")?.textContent, "知识库");
   assert.ok(configuration?.querySelector('[data-sb-mode="kbMemory"]'));
-  assert.ok(configuration?.querySelector('[data-sb-mode="conversationStrategy"]'));
+  assert.equal(configuration?.querySelector('[data-sb-mode="conversationStrategy"]'), null);
   assert.equal(work?.querySelector('[data-sb-mode="conversationStrategy"]'), null);
 
   instance.unmount();
@@ -1184,7 +1210,7 @@ for (const search of [false, true]) {
         modeRow(document, "contacts"),
         modeRow(document, "agentSquare"),
         modeRow(document, "realtimeWork"),
-        document.querySelector('[data-sb-results-group="1"]'),
+        modeRow(document, "prospects"),
         modeRow(document, "skills"),
         ...(history ? [document.querySelector('[data-sb-nav-slot="history-label"]'), fixture.historyList] : []),
         fixture.pluginSection,
@@ -1298,15 +1324,14 @@ test("office remains visible while mounted and restores cleanly on unmount", () 
   assert.equal(fixture.office.getAttribute("aria-hidden"), null);
 });
 
-test("primary navigation follows office, dialogue, Agent Center, realtime work, results, then knowledge", () => {
+test("primary navigation follows office, dialogue, Agent Center, realtime work, results child, then knowledge", () => {
   const { document, instance } = mountFixture();
   const office = modeRow(document, "office");
   const agentCenter = modeRow(document, "agentSquare");
   const dialogue = modeRow(document, "contacts");
   const realtimeWork = modeRow(document, "realtimeWork");
-  const resultsGroup = document.querySelector('[data-sb-results-group="1"]');
+  const realtimeGroup = document.querySelector('[data-sb-realtime-group="1"]');
   const prospects = modeRow(document, "prospects");
-  const discoveredPeople = modeRow(document, "discoveredPeople");
   const workLabel = document.querySelector('[data-sb-nav-slot="work-label"]');
   const configuration = document.querySelector('[data-sb-group="configuration"]');
 
@@ -1314,61 +1339,44 @@ test("primary navigation follows office, dialogue, Agent Center, realtime work, 
   assert.equal(dialogue.style.order, "12");
   assert.equal(dialogue.textContent, "对话");
   assert.equal(agentCenter.style.order, "13");
+  assert.equal(realtimeWork.parentElement, realtimeGroup);
+  assert.equal(prospects.textContent, "成果中心");
+  assert.equal(prospects.parentElement, realtimeGroup);
   assert.equal(realtimeWork.style.order, "14");
-  assert.equal(resultsGroup.style.order, "15");
-  const resultsToggle = resultsGroup.querySelector(".sb-nav-results-toggle");
-  const resultsChildren = resultsGroup.querySelector(".sb-nav-results-children");
-  assert.equal(resultsToggle.textContent, "成果中心▸");
-  assert.equal(resultsToggle.getAttribute("aria-expanded"), "false");
-  assert.equal(resultsChildren.hidden, true);
-  resultsToggle.click();
-  assert.equal(resultsToggle.textContent, "成果中心▾");
-  assert.equal(resultsToggle.getAttribute("aria-expanded"), "true");
-  assert.equal(resultsChildren.hidden, false);
-  resultsToggle.click();
-  assert.equal(resultsToggle.textContent, "成果中心▸");
-  assert.equal(resultsToggle.getAttribute("aria-expanded"), "false");
-  assert.equal(resultsChildren.hidden, true);
-  assert.equal(prospects.textContent, "潜客线索");
-  assert.equal(discoveredPeople.textContent, "发现的人");
-  const files = modeRow(document, "files");
-  assert.ok(resultsGroup.contains(prospects));
-  assert.ok(resultsGroup.contains(discoveredPeople));
-  assert.equal(files.textContent, "文件中心");
-  assert.ok(resultsGroup.contains(files));
+  assert.equal(prospects.style.order, "15");
+  assert.match(navSource, /\.sb-nav-realtime-group\{display:contents\}/);
+  assert.match(navSource, /\.sb-nav-realtime-group>\[data-sb-extra-mode="realtimeWork"\]\{order:14/);
+  assert.equal(document.querySelector('[data-sb-results-group="1"]'), null);
+  assert.equal(modeRow(document, "discoveredPeople"), null);
+  assert.equal(modeRow(document, "files"), null);
   assert.equal(configuration.style.order, "21");
   assert.equal(workLabel.textContent, "工作");
   assert.notEqual(workLabel.style.display, "none");
   assert.equal(configuration.querySelector(".sb-nav-group-label")?.textContent, "知识库");
   assert.equal(document.querySelector('[data-sb-group="team"]'), null);
-  assert.ok(configuration.contains(modeRow(document, "conversationStrategy")));
+  assert.equal(configuration.contains(modeRow(document, "conversationStrategy")), false);
 
   instance.unmount();
 });
 
-test("results center exposes separate prospect and discovery routes under one group", () => {
+test("legacy discovery route opens the unified results center with the discovery filter", () => {
   const document = installDom();
   buildSidebarFixture(document);
+  const prospects = modeRow(document, "prospects");
   let discoveryOptions = null;
   const instance = mountNavFramework({
     openers: {
       ...noOpOpeners(),
-      discoveredPeople(options) { discoveryOptions = options; }
+      prospects(options) { discoveryOptions = options; }
     }
   });
 
   instance.openDiscoveredPeople();
-  assert.equal(discoveryOptions.initialSurface, "people");
-  assert.equal(discoveryOptions.standaloneDiscovery, true);
-  assertSingleActive(document, "discoveredPeople");
-  const resultsToggle = document.querySelector('[data-sb-results-group="1"] .sb-nav-results-toggle');
-  assert.equal(resultsToggle.classList.contains("sb-nav-on"), false);
-  assert.equal(resultsToggle.getAttribute("aria-expanded"), "true");
-  assert.equal(document.querySelector('[data-sb-results-group="1"] .sb-nav-results-children').hidden, false);
-
-  resultsToggle.click();
-  assert.equal(resultsToggle.getAttribute("aria-expanded"), "false");
-  assert.equal(document.querySelector('[data-sb-results-group="1"] .sb-nav-results-children').hidden, true);
+  assert.equal(discoveryOptions.initialSurface, "work");
+  assert.equal(discoveryOptions.initialResultType, "发现");
+  assert.equal(discoveryOptions.standaloneDiscovery, undefined);
+  assertSingleActive(document, "prospects");
+  assert.equal(document.querySelector('[data-sb-realtime-group="1"] [data-sb-mode="prospects"]'), prospects);
 
   instance.unmount();
 });
@@ -1639,7 +1647,7 @@ test("same sidebar recovers when only its content root is replaced", () => {
     display: "none",
     ariaHidden: "true"
   });
-  assert.equal(document.querySelectorAll("[data-sb-mode]").length, NAV_MODES.length);
+  assert.equal(document.querySelectorAll("[data-sb-mode]").length, NAV_MODES.length - 1);
   modeRow(document, "skills").click();
   assert.equal(skillClicks, 1);
   assert.equal(document.listenerCount(NAV_EVENT), 1);
@@ -1659,7 +1667,7 @@ test("three whole-sidebar replacements repair one clean owner without duplicate 
     FakeMutationObserver.flush();
     assert.equal(document.querySelectorAll("[data-sb-nav-owner]").length, 1);
     assert.equal(document.querySelectorAll("[data-sb-group]").length, 3);
-    assert.equal(document.querySelectorAll("[data-sb-mode]").length, NAV_MODES.length);
+    assert.equal(document.querySelectorAll("[data-sb-mode]").length, NAV_MODES.length - 1);
   }
 
   let clicks = 0;

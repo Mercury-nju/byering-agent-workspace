@@ -16,6 +16,7 @@ import {
   acquisitionDetailFactEntries,
   clampHorizontalScrollOffset,
   douyinCloudViewerUrlFor,
+  liveDanmakuAnalysisProcess,
   normalizeRealtimeOutputContext,
   realtimeWorkSurfaceFor
 } from "../src/salebuddy/ui/realtime-work.js";
@@ -323,6 +324,35 @@ test("live danmaku realtime view keeps collecting state free of premature intent
   assert.equal(liveView.counts.danmaku, 8);
   assert.equal(liveView.counts.uniqueUsers, 4);
   assert.equal(liveView.counts.highIntent, 0);
+});
+
+test("live danmaku analysis process closes the loop after collection", () => {
+  const collecting = liveDanmakuAnalysisProcess({
+    isFinal: false,
+    counts: { danmaku: 0, uniqueUsers: 0 }
+  });
+  assert.deepEqual(collecting.map(({ id, state }) => [id, state]), [
+    ["capture", "running"],
+    ["group", "queued"],
+    ["extract", "queued"],
+    ["friction", "queued"],
+    ["strategy", "queued"]
+  ]);
+  assert.equal(collecting[0].meta, "等待新弹幕");
+  assert.equal(collecting[1].meta, "直播结束后运行");
+
+  const completed = liveDanmakuAnalysisProcess({
+    isFinal: true,
+    counts: { danmaku: 12, uniqueUsers: 5, questions: 4 },
+    optimization: { priorityTopics: [{ key: "price", label: "价格与优惠" }] }
+  });
+  assert.ok(completed.every(({ state }) => state === "done"));
+  assert.equal(completed[0].meta, "12 条已采集");
+  assert.equal(completed[1].meta, "5 位用户已归并");
+  assert.equal(completed[2].meta, "4 条问题已提炼");
+  assert.equal(completed[3].meta, "1 个转化阻力主题");
+  assert.equal(completed[4].meta, "下一场优化策略已生成");
+  assert.match(realtimeWorkSource, /renderLiveDanmakuAnalysisProcessPanel/);
 });
 
 test("viral work realtime view reflects backend lifecycle without fabricated progress", () => {
@@ -787,6 +817,50 @@ test("acquisition execution queue contains only high-intent prospects", () => {
     "mock-lead-jiaxing-zhou"
   ]);
   assert.match(realtimeWorkSource, /function renderCommentAcquisitionDetailPanel\(selected, state\)\s*\{[\s\S]*?const view = \{ people: commentAcquisitionQueueRows\(work\) \};/);
+});
+
+test("acquisition execution queue promotes score-qualified prospects when the provider omits intent tier", () => {
+  const rows = realtimeWork.commentAcquisitionQueueRows({
+    metadata: {
+      acquisitionSnapshot: {
+        resultSnapshot: {
+          leads: [{ leadId: "score-only", nickname: "分数用户", score: 86, comment: "想了解价格" }]
+        },
+        approvalQueue: [{ leadId: "score-only", state: "submitted", lead: { leadId: "score-only" } }]
+      }
+    }
+  });
+
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].id, "score-only");
+  assert.equal(rows[0].intentScore, 86);
+});
+
+test("acquisition rows use the candidate identity instead of a nested touch or message id", () => {
+  const rows = realtimeWork.commentAcquisitionOutreachRows({
+    metadata: {
+      acquisitionSnapshot: {
+        resultSnapshot: {
+          leads: [{ secUid: "sec-precise", nickname: "身份用户", score: 90, intent: { tier: "high" } }]
+        },
+        approvalQueue: [{
+          id: "touch-precise",
+          state: "submitted",
+          lead: { secUid: "sec-precise", nickname: "身份用户" }
+        }]
+      }
+    }
+  });
+
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].id, "sec-precise");
+});
+
+test("realtime work subscribes durable task events instead of relying only on the office polling interval", () => {
+  assert.match(realtimeWorkSource, /\.subscribeTask/);
+  assert.match(realtimeWorkSource, /\.on\("task\.event"/);
+  assert.match(realtimeWorkSource, /scheduleRemoteOfficeRefresh/);
+  assert.match(realtimeWorkSource, /setInterval\?\.\(\(\) => \{ void refreshRemoteOfficeStatus\(\); \}, 3000\)/);
 });
 
 test("style preview keeps the live queue progress states readable after filtering", () => {

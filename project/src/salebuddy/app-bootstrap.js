@@ -40,6 +40,13 @@ async function registerOfficeAssetWorker() {
 
 void registerOfficeAssetWorker();
 
+const query = new URLSearchParams(globalThis.location?.search || "");
+const standaloneResultsPreview = query.get("page") === "prospects" && query.get("preview") === "style";
+
 await import("../../browser-shim.js?v=20260914-business-memory-demo-1");
-await import("../../assets/main-BaWVt8Sl.js");
-await import("./index.js?v=20260916-office-chief-account-fix-2");
+if (standaloneResultsPreview) {
+  await import("./mock-results-preview-entry.js?v=20260917-results-mock-preview-entry-1");
+} else {
+  await import("../../assets/main-BaWVt8Sl.js");
+  await import("./index.js?v=20260917-results-mock-preview-fix-1");
+}

@@ -1,5 +1,5 @@
 const DEFAULT_LIVE_SIGNALS = Object.freeze(["danmaku"]);
-const DEFAULT_LIVE_DANMAKU_GOAL = "梳理直播间高频问题、用户需求、购买意向和反对点。";
+const DEFAULT_LIVE_DANMAKU_GOAL = "梳理直播间高频问题、用户需求和转化阻力，给出下一场直播优化策略。";
 
 function text(value) {
   return String(value ?? "").trim();

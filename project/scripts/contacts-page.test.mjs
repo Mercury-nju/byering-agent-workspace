@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { ACQUISITION_TASK_UPDATE_ACTION, CONTACTS_MOCK_SCENARIOS, acquisitionActionPayload, acquisitionContextFor, acquisitionMemberActions, acquisitionTaskUpdatePayload, chiefDecisionPresentation, conversationModeForAgent, isAcquisitionMember, isContactAgentAvailable, memberAvatarStateForStatus, memberConversationAvatarStateForStatus, memberStatusPresentation, mergeAgentConversationMessages, selectAcquisitionConversationTask, sortContactFriendEntries, specialistConversationMetadata } from "../src/salebuddy/ui/contacts-page.js";
+import { ACQUISITION_TASK_UPDATE_ACTION, CONTACTS_MOCK_SCENARIOS, acquisitionActionPayload, acquisitionContextFor, acquisitionMemberActions, acquisitionTaskUpdatePayload, chiefDecisionPresentation, conversationModeForAgent, conversationScenarioForAgent, isAcquisitionMember, isContactAgentAvailable, memberAvatarStateForStatus, memberConversationAvatarStateForStatus, memberStatusPresentation, mergeAgentConversationMessages, selectAcquisitionConversationTask, shouldRebuildMemberDetail, sortContactFriendEntries, specialistConversationMetadata } from "../src/salebuddy/ui/contacts-page.js";
 
 const contactsSource = readFileSync(new URL("../src/salebuddy/ui/contacts-page.js", import.meta.url), "utf8");
 const companionSource = readFileSync(new URL("../src/salebuddy/ui/agent-companion-ui.js", import.meta.url), "utf8");
@@ -168,6 +168,12 @@ test("contacts and office share the authoritative office status snapshot", () =>
   assert.match(contactsSource, /officeStatusStore\.dispose\(\)/);
 });
 
+test("settings detail does not remount when live status changes", () => {
+  assert.equal(shouldRebuildMemberDetail({ tab: "settings", previousSignature: "idle", nextSignature: "working" }), false);
+  assert.equal(shouldRebuildMemberDetail({ tab: "cloud", previousSignature: "idle", nextSignature: "working" }), true);
+  assert.equal(shouldRebuildMemberDetail({ tab: "settings", previousSignature: "idle", nextSignature: "idle" }), false);
+});
+
 test("non-office member status presentation keeps the legacy fallback", () => {
   const result = memberStatusPresentation({
     status: { state: "working", currentTask: "处理会话" },
@@ -213,6 +219,17 @@ test("member chat routes the chief of staff to the task control plane", () => {
   assert.equal(conversationModeForAgent("main"), "task");
   assert.equal(conversationModeForAgent("chief_of_staff"), "task");
   assert.equal(conversationModeForAgent("mkt-dm-inbox"), "dm");
+});
+
+test("member chat is driven by the Agent conversation contract", () => {
+  const finder = conversationScenarioForAgent("mkt-find-people");
+  const outreach = conversationScenarioForAgent("mkt-cold-writer");
+
+  assert.equal(finder.family, "discovery");
+  assert.equal(outreach.confirmation.mode, "before_each_batch");
+  assert.match(contactsSource, /getConversationScenario/);
+  assert.match(contactsSource, /data-sb-conversation-family/);
+  assert.match(contactsSource, /conversationScenario\.composerPlaceholder/);
 });
 
 test("specialist member conversations stay scoped to the assigned Agent and current task", () => {
@@ -425,25 +442,27 @@ test("conversation motion uses layered entry and direct interaction feedback", (
 });
 
 test("cloud desktop actions stay inside the conversation message stream", () => {
-  assert.match(contactsSource, /sb-dm-cloud-message/);
-  assert.match(contactsSource, /data-sb-message-kind.*system-message/);
-  assert.doesNotMatch(contactsSource, /sb-dm-cloud-notice/);
+  assert.match(contactsSource, /label: "云电脑"/);
+  assert.doesNotMatch(contactsSource, /sb-dm-cloud-message/);
+  assert.doesNotMatch(contactsSource, /sb-task-update/);
+  assert.doesNotMatch(contactsSource, /buildCloudNotice\(/);
+  assert.doesNotMatch(contactsSource, /appendCloudNotice\(/);
 });
 
 test("conversation interactions use the shared blue-neutral palette", () => {
   assert.match(contactsSource, /\.sb-proactive-action\{[^}]*border:1px solid #D7E1EE[^}]*color:#4267A5/);
   assert.match(contactsSource, /\.sb-proactive-action\.primary\{border-color:#1F2329;background:#1F2329;color:#fff\}/);
-  assert.match(contactsSource, /\.sb-task-update\.is-ready\{background:#F5F8FF;border-color:#D9E4F3\}/);
-  assert.match(contactsSource, /\.sb-task-update\.is-ready \.sb-task-update-title\{color:#4267A5\}/);
   assert.doesNotMatch(contactsSource, /\.sb-proactive-action\{[^}]*#(?:16B778|1B8E62|CFE4D8|8BCDAA|F0FAF4)/);
   assert.doesNotMatch(contactsSource, /\.sb-proactive-action\.primary\{[^}]*#(?:16B778|119A64)/);
 });
 
-test("cloud notices are explicit task status cards", () => {
-  assert.match(contactsSource, /const notice = el\("article", `sb-task-update sb-dm-cloud-message/);
-  assert.match(contactsSource, /el\("span", "sb-task-update-label", "云电脑状态"\)/);
-  assert.match(contactsSource, /ready && task\.phase === "running" \? "查看当前进展" : ready \? "继续处理"/);
-  assert.doesNotMatch(contactsSource, /sb-msg-bubble sb-dm-cloud-bubble/);
+test("cloud desktop status remains data-only after removing the inline status card", () => {
+  assert.match(contactsSource, /async function syncDouyinCloudTask\(agentType\)/);
+  assert.match(contactsSource, /isDouyinCloudProvisioningStatus\(status\)/);
+  assert.match(contactsSource, /isDouyinCloudReadyStatus\(status\)/);
+  assert.match(contactsSource, /douyinCloudTaskStore\.update\(agentType/);
+  assert.doesNotMatch(contactsSource, /云电脑正在后台准备/);
+  assert.doesNotMatch(contactsSource, /查看启动状态/);
 });
 
 test("conversation history rejects an Agent message when its conversation metadata is missing", () => {
@@ -480,6 +499,25 @@ test("acquisition member actions only open realtime work", () => {
     action: "realtime",
     disabled: false
   }]);
+});
+
+test("conversation context preserves the selected account when no local task has been hydrated", () => {
+  assert.deepEqual(acquisitionContextFor("mkt-gold-customer-service", {
+    fallback: {
+      accountId: "account-gold",
+      taskId: "task-gold",
+      taskRunId: "run-gold",
+      conversationId: "conversation-gold"
+    }
+  }), {
+    agentId: "mkt-gold-customer-service",
+    taskId: "task-gold",
+    taskRunId: "run-gold",
+    accountId: "account-gold",
+    conversationId: "conversation-gold",
+    taskVersion: null,
+    configVersion: null
+  });
 });
 
 test("listener task adjustment payload excludes historical lookback while carrying future strategy changes", () => {

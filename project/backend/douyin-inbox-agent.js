@@ -1,5 +1,5 @@
 import { conversationForState, updateConversation } from "./douyin-reply-strategy.js";
-import { detectsLeadCapture } from "../src/salebuddy/agents/lead-capture.js";
+import { extractLeadContact } from "../src/salebuddy/agents/lead-capture.js";
 
 const DEFAULT_POLL_INTERVAL_MS = 5000;
 const DEFAULT_POLL_WAIT_MS = 10000;
@@ -323,12 +323,13 @@ export function createDouyinInboxAgent({
         return { status: "skipped", reason: "conversation_closed", messageId };
       }
     }
-    if (detectsLeadCapture(message.content)) {
+    const leadCapture = extractLeadContact(message.content);
+    if (leadCapture) {
       updateConversation(state, message, { reply: false, reason: "lead_captured" });
       remember(state.processedIds, messageId);
-      emit("lead.captured", { messageId, message, reason: "contact_signal_detected" });
+      emit("lead.captured", { messageId, message, leadCapture, reason: "contact_signal_detected" });
       emit("reply.skipped", { messageId, reason: "lead_captured" });
-      return { status: "captured", reason: "lead_captured", messageId };
+      return { status: "captured", reason: "lead_captured", messageId, leadCapture };
     }
     let decision;
     try {

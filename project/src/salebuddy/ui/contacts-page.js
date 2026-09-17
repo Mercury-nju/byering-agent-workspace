@@ -23,6 +23,7 @@ import { grokStateForTeamStatus, mountGrokBotAvatar } from "./grok-bot-avatar.js
 import { createAgentActivityBadge } from "./agent-activity.js";
 import { douyinCloudTaskStore, isDouyinCloudProvisioningStatus, isDouyinCloudReadyStatus } from "../agents/douyin-cloud-state.js";
 import { CHIEF_AGENT_TYPE, dmPayloadFor, isChiefAgentType } from "../agents/chief-conversation.js";
+import { getConversationScenario } from "../agents/conversation-scenarios.js";
 import { isAgentActivityMessage, isPrivateConversationMessage, specialistConversationMetadata } from "../agents/direct-message-contract.js";
 import { ACQUISITION_TASK_UPDATE_ACTION, acquisitionTaskUpdatePayload } from "./realtime-work.js";
 import { listTasks, updateTask } from "../agents/task-store.js";
@@ -34,6 +35,7 @@ import { createDemoDmGateway } from "../agents/dm-demo-client.js";
 
 export { ACQUISITION_TASK_UPDATE_ACTION, acquisitionTaskUpdatePayload };
 export { specialistConversationMetadata };
+export const conversationScenarioForAgent = getConversationScenario;
 
 export function sortContactFriendEntries(entries) {
   return [...entries].sort((left, right) => Number(Boolean(right?.available)) - Number(Boolean(left?.available)));
@@ -69,6 +71,10 @@ export function memberStatusPresentation({ status = { state: TEAM_STATES.IDLE },
     ? "已完成本阶段"
     : TEAM_STATE_LABELS[state] || "空闲";
   return { status: { ...fallbackStatus, state }, work, label };
+}
+
+export function shouldRebuildMemberDetail({ tab = "chat", previousSignature = "", nextSignature = "" } = {}) {
+  return tab !== "settings" && previousSignature !== nextSignature;
 }
 
 export function memberConversationAvatarStateForStatus(status, work = null) {
@@ -186,17 +192,18 @@ export function isAcquisitionMember(agentType) {
   return ACQUISITION_MEMBER_IDS.includes(String(agentType || ""));
 }
 
-export function acquisitionContextFor(agentType, { task = null, work = null } = {}) {
+export function acquisitionContextFor(agentType, { task = null, work = null, fallback = null } = {}) {
   const metadata = work?.metadata || task?.metadata || {};
   const configuration = task?.configuration || work?.configuration || metadata.configuration || {};
+  const fallbackContext = fallback && typeof fallback === "object" ? fallback : {};
   return {
-    agentId: String(agentType || task?.runtimeAgentId || ""),
-    taskId: task?.taskId || task?.id || work?.taskId || metadata.taskId || null,
-    taskRunId: task?.taskRunId || task?.runtimeTaskRunId || work?.taskRunId || metadata.taskRunId || null,
-    accountId: task?.accountId || task?.account_id || work?.accountId || metadata.accountId || null,
-    conversationId: task?.conversationId || task?.conversation_id || metadata.conversationId || null,
-    taskVersion: task?.version ?? work?.version ?? metadata.taskVersion ?? null,
-    configVersion: configuration.version ?? task?.configVersion ?? work?.configVersion ?? metadata.configVersion ?? null
+    agentId: String(agentType || task?.runtimeAgentId || fallbackContext.agentId || fallbackContext.agentType || ""),
+    taskId: task?.taskId || task?.id || work?.taskId || metadata.taskId || fallbackContext.taskId || fallbackContext.task_id || null,
+    taskRunId: task?.taskRunId || task?.runtimeTaskRunId || work?.taskRunId || metadata.taskRunId || fallbackContext.taskRunId || fallbackContext.task_run_id || null,
+    accountId: task?.accountId || task?.account_id || work?.accountId || metadata.accountId || fallbackContext.accountId || fallbackContext.account_id || null,
+    conversationId: task?.conversationId || task?.conversation_id || metadata.conversationId || fallbackContext.conversationId || fallbackContext.conversation_id || null,
+    taskVersion: task?.version ?? work?.version ?? metadata.taskVersion ?? fallbackContext.taskVersion ?? null,
+    configVersion: configuration.version ?? task?.configVersion ?? work?.configVersion ?? metadata.configVersion ?? fallbackContext.configVersion ?? null
   };
 }
 
@@ -467,26 +474,6 @@ const CSS = `
 .sb-proactive-action:hover{border-color:#9EB8DB;background:#F4F8FF;transform:translateY(-1px)}
 .sb-proactive-action.primary{border-color:#1F2329;background:#1F2329;color:#fff}
 .sb-proactive-action.primary:hover{background:#33373F}
-.sb-task-update{display:flex;align-items:flex-start;gap:10px;max-width:520px;margin:0;padding:12px 14px;border:1px solid #D9E4F3;border-radius:12px;background:#F7FAFF;color:#59616B;box-shadow:0 4px 14px rgba(59,107,212,.04);animation:sb-task-update-in .28s cubic-bezier(.22,.8,.3,1) both;transform-origin:left center}
-.sb-task-update.is-ready{background:#F5F8FF;border-color:#D9E4F3}
-.sb-task-update.is-error{background:#FFF8F6;border-color:#F0D7D1}
-.sb-task-update-mark{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:9px;background:#E5EEFC;color:#4267A5}
-.sb-task-update-mark::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px rgba(66,103,165,.12);animation:sb-task-update-pulse 1.8s ease-in-out infinite}
-.sb-task-update.is-error .sb-task-update-mark{background:#FBEAE5;color:#99483D}
-.sb-task-update.is-error .sb-task-update-mark::before{box-shadow:0 0 0 4px rgba(153,72,61,.1);animation:none}
-.sb-task-update-content{min-width:0;flex:1}
-.sb-task-update-header{display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:#7A8797;font-size:10.5px;line-height:1.4}
-.sb-task-update-label{color:#4267A5;font-weight:700}
-.sb-task-update-agent{color:#8A96A4}
-.sb-task-update-title{margin-top:7px;color:#294A7E;font-size:13px;font-weight:700;line-height:1.5}
-.sb-task-update.is-ready .sb-task-update-title{color:#4267A5}
-.sb-task-update.is-error .sb-task-update-title{color:#99483D}
-.sb-task-update-copy{margin-top:5px;color:#6E7D91;font-size:11px;line-height:1.6}
-.sb-task-update-action{margin-top:10px;height:30px;padding:0 10px;border:1px solid #4267A5;border-radius:7px;background:#fff;color:#34578F;font:inherit;font-size:11px;font-weight:650;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,transform .15s ease}
-.sb-task-update-action:hover{background:#EEF4FF;transform:translateY(-1px)}
-@keyframes sb-task-update-pulse{0%,100%{opacity:.45;transform:scale(.78)}50%{opacity:1;transform:scale(1.08)}}
-@keyframes sb-task-update-in{from{opacity:0;transform:translateY(5px) scale(.985)}70%{opacity:1;transform:translateY(-1px) scale(1.003)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(prefers-reduced-motion:reduce){.sb-task-update,.sb-task-update-mark::before{animation:none!important}}
 @media(max-width:760px){.sb-cdetail-topbar{align-items:flex-start;flex-direction:column;gap:8px}.sb-cdetail-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}.sb-cdetail-topbar .sb-chead-friend{width:100%}}
 
 .sb-pane{flex:1;overflow-y:auto;padding:18px 28px}
@@ -636,6 +623,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     proactiveEl: null,
     memberRosterSignature: "",
     conversationAvatarUpdate: null,
+    friendStatusUpdate: null,
     conversationAvatarTimer: null,
     conversationAvatarTransientUntil: 0,
     mockScenarioId: "all",
@@ -1098,52 +1086,6 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     }
   }
 
-  function openCloudResume(agentType) {
-    const task = douyinCloudTaskStore.get(agentType);
-    globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openAgentSquare?.({
-      initialAgentId: agentType,
-      resumeFlow: task?.resumeFlow || null
-    }));
-  }
-
-  function buildCloudNotice(agentType) {
-    const task = douyinCloudTaskStore.get(agentType);
-    if (!task) return null;
-    const ready = task.phase === "ready" || task.phase === "authorized" || task.phase === "running";
-    const errored = task.phase === "error";
-    const market = getMarketplaceAgent(agentType);
-    const name = displayAgentName({ id: agentType, name: market?.name || agentType });
-    const notice = el("article", `sb-task-update sb-dm-cloud-message${ready ? " is-ready" : errored ? " is-error" : ""}`);
-    notice.dataset.state = errored ? "error" : ready ? task.phase === "running" ? "running" : "ready" : "loading";
-    notice.setAttribute("role", "status");
-    notice.setAttribute("data-sb-message-kind", "system-message");
-    notice.setAttribute("aria-label", `${name}的云电脑消息`);
-    const marker = el("span", "sb-task-update-mark");
-    marker.setAttribute("aria-hidden", "true");
-    notice.appendChild(marker);
-    const body = el("div", "sb-task-update-content");
-    const header = el("div", "sb-task-update-header");
-    header.append(el("span", "sb-task-update-label", "云电脑状态"), el("span", "sb-task-update-agent", name));
-    body.appendChild(header);
-    const card = el("div", "sb-task-update-copy-wrap");
-    const title = ready ? "云电脑已准备好" : errored ? "云电脑需要重新检查" : "云电脑正在后台准备";
-    const copy = ready
-      ? task.phase === "running"
-        ? "该账号的云电脑正在运行，私信承接会在后台持续处理。"
-        : "该账号的云电脑已经可以继续使用，可以回到原来的配置流程。"
-      : errored
-        ? (task.error || "启动过程需要重新检查，请查看当前状态。")
-        : "你已退出等待，但启动没有中断。准备完成后，这里会出现继续处理入口。";
-    card.append(el("div", "sb-task-update-title", title), el("div", "sb-task-update-copy", copy));
-    const action = el("button", "sb-task-update-action", ready && task.phase === "running" ? "查看当前进展" : ready ? "继续处理" : "查看启动状态");
-    action.type = "button";
-    action.addEventListener("click", () => openCloudResume(agentType));
-    card.appendChild(action);
-    body.appendChild(card);
-    notice.appendChild(body);
-    return notice;
-  }
-
   async function syncDouyinCloudTask(agentType) {
     if (!DOUYIN_AGENT_IDS.has(agentType) || cloudNoticeInFlight.has(agentType)) return;
     const task = douyinCloudTaskStore.get(agentType);
@@ -1201,7 +1143,11 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   function companionRequestForAgent(agentType) {
     const conversationContext = isChiefAgentType(agentType)
       ? {}
-      : acquisitionContextFor(agentType, { task: taskForAgent(agentType, initialConversationContext || {}), work: getWork(agentType) });
+      : acquisitionContextFor(agentType, {
+        task: taskForAgent(agentType, initialConversationContext || {}),
+        work: getWork(agentType),
+        fallback: initialConversationContext
+      });
     return (method, path, payload = {}) => companionRequest(method, path, {
       ...payload,
       ...(conversationContext.accountId ? { accountId: conversationContext.accountId } : {})
@@ -1209,11 +1155,12 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   }
 
   function proactiveGuidance(agentType, profile, status) {
+    const conversationScenario = getConversationScenario(agentType);
     const responsibilities = profile.role?.responsibilities?.filter(Boolean)?.slice(0, 2) || [];
     const guidance = PROACTIVE_GUIDANCE[agentType] || {
-      idle: responsibilities.length
+      idle: conversationScenario.objective || (responsibilities.length
         ? `我可以负责${responsibilities.join("、")}，完成后给你结果和下一步建议。`
-        : "我可以根据当前项目目标拆解一项具体工作，并在完成后向你汇报。",
+        : "我可以根据当前项目目标拆解一项具体工作，并在完成后向你汇报。"),
       actions: [["查看实时工作", "realtime", true], ["打开我的配置", "settings"]]
     };
     const work = memberPresentationFor(agentType).work;
@@ -1227,7 +1174,8 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
         completed: false,
         title: `${name}：我在，可以开始了`,
         body: guidance.idle,
-        meta: "直接告诉我目标、账号或想看的结果就行。"
+        meta: "直接告诉我目标、账号或想看的结果就行。",
+        conversationScenario
       };
     }
     const working = work?.state === "working" || status.state === TEAM_STATES.WORKING;
@@ -1251,13 +1199,15 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       : completed
         ? "你可以查看结果，也可以继续给我新的要求。"
         : "直接告诉我目标、账号或想看的结果就行。";
-    return { guidance, work, working, completed, title, body, meta };
+    return { guidance, work, working, completed, title, body, meta, conversationScenario };
   }
 
   function buildProactiveBrief(agentType, profile, status) {
     const snapshot = proactiveGuidance(agentType, profile, status);
     const name = profile.identity?.name || agentType;
     const brief = el("section", "sb-proactive");
+    brief.setAttribute("data-sb-conversation-family", snapshot.conversationScenario.family);
+    brief.setAttribute("data-sb-conversation-scenario", snapshot.conversationScenario.id);
     brief.setAttribute("data-sb-message-kind", "assistant-message");
     brief.setAttribute("aria-label", `${name}的消息`);
     const messageRow = el("div", "sb-msg");
@@ -1334,13 +1284,14 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     if (action !== "realtime") return;
     const task = taskForAgent(agentType, initialConversationContext || {});
     const work = getWork(agentType);
-    const context = acquisitionContextFor(agentType, { task, work });
+    const context = acquisitionContextFor(agentType, { task, work, fallback: initialConversationContext });
     await globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({ selectedAgentId: agentType, taskId: context.taskId, taskRunId: context.taskRunId, accountId: context.accountId }));
   }
 
   function renderFriendDetail(agentType) {
     stopDmPoll();
     stopCloudFeed();
+    state.friendStatusUpdate = null;
     const profile = profileOf(agentType);
     const presentation = memberPresentationFor(agentType);
     const { status, work } = presentation;
@@ -1372,6 +1323,15 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     statusLine.append(el("span", `sb-cdot ${dotClass(status.state)}`), el("span", null, presentation.label));
     const ownedProspects = prospectStore.list().filter((item) => item.source?.agentId === agentType);
     if (ownedProspects.length) statusLine.append(el("span", null, ` · 负责 ${ownedProspects.length} 位潜客`));
+    state.friendStatusUpdate = (nextPresentation) => {
+      if (!statusLine.isConnected) return;
+      const nextOwnedProspects = prospectStore.list().filter((item) => item.source?.agentId === agentType);
+      statusLine.replaceChildren(
+        el("span", `sb-cdot ${dotClass(nextPresentation.status.state)}`),
+        el("span", null, nextPresentation.label)
+      );
+      if (nextOwnedProspects.length) statusLine.append(el("span", null, ` · 负责 ${nextOwnedProspects.length} 位潜客`));
+    };
     headText.appendChild(statusLine);
     head.appendChild(headText);
     const topbar = el("div", "sb-cdetail-topbar");
@@ -1441,6 +1401,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     const list = el("div", "sb-chat-list2");
     const inputWrap = el("div", "sb-chat-input2");
     const textarea = document.createElement("textarea");
+    const conversationScenario = getConversationScenario(agentType);
     const chiefTaskMode = conversationModeForAgent(agentType) === "task";
     const hasCompanion = Boolean(companionPersona(agentType));
     const supportsConversationStatus = chiefTaskMode || hasCompanion;
@@ -1454,9 +1415,10 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     const disposeCards = [];
     const displayedMessages = new Set();
     disposeCompanion = () => { active = false; disposeStatus(); disposeCards.splice(0).forEach(dispose => dispose()); };
-    textarea.placeholder = chiefTaskMode
-      ? "问问题，或告诉幕僚长你想完成什么…（Enter 发送）"
-      : `发给 ${profile.identity?.name || agentType}…`;
+    list.setAttribute("data-sb-conversation-family", conversationScenario.family);
+    list.setAttribute("data-sb-conversation-scenario", conversationScenario.id);
+    textarea.placeholder = conversationScenario.composerPlaceholder
+      || (chiefTaskMode ? "问问题，或告诉幕僚长你想完成什么…（Enter 发送）" : `发给 ${profile.identity?.name || agentType}…`);
     const sendBtn = el("button", "sb-chat-send2", "发送");
     sendBtn.type = "button";
     inputWrap.append(textarea, sendBtn);
@@ -1494,7 +1456,11 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     applyConversationBaseAvatar();
     let conversationContext = isChiefAgentType(agentType)
       ? {}
-      : acquisitionContextFor(agentType, { task: taskForAgent(agentType, initialConversationContext || {}), work: getWork(agentType) });
+      : acquisitionContextFor(agentType, {
+        task: taskForAgent(agentType, initialConversationContext || {}),
+        work: getWork(agentType),
+        fallback: initialConversationContext
+      });
     const dmPayload = (extra = {}) => dmPayloadFor(agentType, { ...conversationContext, ...extra });
     const companionRequestForConversation = companionRequestForAgent(agentType);
 
@@ -1615,18 +1581,8 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
       return row;
     }
 
-    let cloudNoticeSig = "";
-
-    function appendCloudNotice() {
-      const task = douyinCloudTaskStore.get(agentType);
-      const notice = buildCloudNotice(agentType);
-      cloudNoticeSig = task ? `${task.phase}|${task.updatedAt || ""}|${task.readyMessageSent ? "sent" : "pending"}` : "";
-      if (notice) list.appendChild(notice);
-    }
-
     state.proactiveEl = buildProactiveBrief(agentType, profile, memberStatusFor(agentType));
     list.appendChild(state.proactiveEl);
-    appendCloudNotice();
 
     function scheduleCloudSync() {
       if (!DOUYIN_AGENT_IDS.has(agentType) || !douyinCloudTaskStore.get(agentType)) return;
@@ -1677,17 +1633,14 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
           } }); }
         }
         const messageSig = messages.map((message) => `${conversationMessageKey(message)}:${JSON.stringify(message.metadata?.companion || null)}`).join("|");
-        const expectedChildren = messages.length + 1 + (douyinCloudTaskStore.get(agentType) ? 1 : 0);
-        const task = douyinCloudTaskStore.get(agentType);
-        const nextCloudNoticeSig = task ? `${task.phase}|${task.updatedAt || ""}|${task.readyMessageSent ? "sent" : "pending"}` : "";
-        if (messageSig === state.dmLastId && list.childElementCount === expectedChildren && cloudNoticeSig === nextCloudNoticeSig) return;
+        const expectedChildren = messages.length + 1;
+        if (messageSig === state.dmLastId && list.childElementCount === expectedChildren) return;
         const stickToBottom = scroll || list.scrollHeight - list.scrollTop - list.clientHeight < 60;
         state.dmLastId = messageSig;
         disposeCards.splice(0).forEach(dispose => dispose());
         list.textContent = "";
         state.proactiveEl = buildProactiveBrief(agentType, profile, memberStatusFor(agentType));
         list.appendChild(state.proactiveEl);
-        appendCloudNotice();
         for (const message of messages) list.appendChild(bubble(message));
         if (stickToBottom) list.scrollTop = list.scrollHeight;
       } catch { /* 保持现状 */ }
@@ -1846,7 +1799,16 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     renderAgentProfile(container, agentType, profile, {
       gateway,
       teamLive,
-      demoConfig: gateway?.getDemoConfig?.(agentType) || null
+      demoConfig: gateway?.getDemoConfig?.(agentType) || null,
+      accountId: initialConversationContext?.accountId || null,
+      onOpenChat: (nextAccountId) => {
+        initialConversationContext = {
+          ...(initialConversationContext || {}),
+          accountId: nextAccountId
+        };
+        state.tab = "chat";
+        renderFriendDetail(agentType);
+      }
     });
   }
 
@@ -1886,6 +1848,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     updateProactiveBrief();
     if (state.selected?.kind !== "friend") return;
     const presentation = memberPresentationFor(state.selected.id);
+    state.friendStatusUpdate?.(presentation);
     if (state.tab === "chat" && state.conversationAvatarTransientUntil <= Date.now()) {
       state.conversationAvatarUpdate?.(memberConversationAvatarStateForStatus(presentation.status, presentation.work));
     }
@@ -1893,7 +1856,13 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     if (state.tab !== "chat") {
       const profile = profileOf(state.selected.id);
       const sig = `${state.selected.id}|${presentation.status.state}|${presentation.status.currentTask || ""}|${presentation.label}|${profile.identity?.name || ""}`;
-      if (sig !== state.lastStatusSig) renderDetail();
+      const shouldRebuild = shouldRebuildMemberDetail({
+        tab: state.tab,
+        previousSignature: state.lastStatusSig,
+        nextSignature: sig
+      });
+      state.lastStatusSig = sig;
+      if (shouldRebuild) renderDetail();
     }
   }
 

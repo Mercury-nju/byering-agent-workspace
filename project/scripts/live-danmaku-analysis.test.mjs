@@ -60,10 +60,15 @@ test("弹幕分析只处理新弹幕并忽略点赞和送礼事件", () => {
     behaviorOnly: 0
   });
   assert.ok(result.topics.some((topic) => topic.key === "price"));
+  assert.equal(result.topics.find((topic) => topic.key === "price")?.userCount, 1);
+  assert.equal(result.optimization.priorityTopics[0].key, "price");
+  assert.match(result.optimization.priorityTopics[0].strategy, /价格|优惠/);
+  assert.ok(result.optimization.nextLiveActions.length >= 1);
   assert.equal(result.users.some((user) => user.userId === "user-like"), false);
   assert.equal(result.users.some((user) => user.userId === "user-gift"), false);
   assert.equal(result.users.find((user) => user.userId === "user-question")?.intentTier, "重点");
   assert.match(result.summary, /新弹幕/);
+  assert.match(result.summary, /下一场/);
   assert.doesNotMatch(result.summary, /点赞|送礼/);
 });
 

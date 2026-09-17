@@ -61,18 +61,17 @@ const MEMBER_METRICS = {
     sampleOutputs: ["首触私信话术 v1.md", "评论区互动话术.md", "14天选题日历.md"]
   },
   "App Agent": {
-    headline: "潜客触达与转化跟进",
+    headline: "潜客触达任务与发送回执",
     stats: [
       { label: "累计触达", value: 410, unit: "人次" },
-      { label: "回复率", value: "22.7", unit: "%" },
-      { label: "意向转化", value: 16, unit: "人" }
+      { label: "发送成功率", value: "—", unit: "" },
+      { label: "待核对回执", value: 0, unit: "人" }
     ],
     series: [
-      { label: "触达", color: "#E8A33D", values: [18, 22, 20, 26, 24, 30, 28, 33, 31, 29, 36, 38, 35, 40] },
-      { label: "回复", color: "#57B26A", values: [3, 4, 4, 6, 5, 7, 6, 8, 7, 7, 9, 9, 8, 10] }
+      { label: "触达", color: "#E8A33D", values: [18, 22, 20, 26, 24, 30, 28, 33, 31, 29, 36, 38, 35, 40] }
     ],
-    chartNote: "近 14 天触达与回复（人次 / 天）",
-    sampleOutputs: ["A级潜客触达排期.csv", "跟进节奏 SOP.md", "回复意向分级记录.csv"]
+    chartNote: "近 14 天触达任务（人次 / 天）",
+    sampleOutputs: []
   },
   "Computer Agent": {
     headline: "自动化脚本与运行保障",

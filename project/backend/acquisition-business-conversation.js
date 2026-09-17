@@ -161,7 +161,7 @@ function countEntities(events, eventTypes, { qualified = false } = {}) {
   return { count: identities.size + anonymousCount, eventFound };
 }
 
-function aggregateMetrics(task, dateKey, timeZone) {
+export function aggregateAcquisitionBusinessMetrics(task, dateKey, timeZone = TIME_ZONE) {
   const events = taskEventsForDate(task, dateKey, timeZone);
   const candidateResult = countEntities(events, CANDIDATE_EVENT_TYPES);
   const qualifiedEvents = countEntities(events, QUALIFIED_EVENT_TYPES);
@@ -331,7 +331,7 @@ export function createAcquisitionBusinessConversationService({ acquisitionServic
       }
 
       const dateKey = yesterdayKey(now, timeZone);
-      const metrics = aggregateMetrics(task, dateKey, timeZone);
+      const metrics = aggregateAcquisitionBusinessMetrics(task, dateKey, timeZone);
       if (isImprovementQuestion(messageText)) {
         const proposalReplyValue = proposalReply(task, metrics);
         if (!proposalReplyValue) {

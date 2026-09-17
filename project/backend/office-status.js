@@ -13,6 +13,9 @@ const instant = value => typeof value === "number" ? value : Date.parse(value) |
 const AUTHORIZATION_ERROR_CODES = new Set(["ACCOUNT_OFFLINE", "AUTHORIZATION_REQUIRED", "DOUYIN_AUTH_EXPIRED", "DOUYIN_CLOUD_OFFLINE", "LOGIN_EXPIRED"]);
 const ACQUISITION_AGENT_IDS = new Set(OFFICE_AGENT_IDS);
 const CONTINUOUS_LISTENER_AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-people", "mkt-live-danmaku-outreach"]);
+const MAX_OFFICE_QUEUE_ITEMS = 200;
+const MAX_OFFICE_PROFILE_ITEMS = 300;
+const MAX_OFFICE_REPLY_ITEMS = 200;
 const CONFIGURATION_FIELDS = Object.freeze({
   findingStrategy: ["sourceScope", "audienceGoal", "requirements", "intentSignals", "minScore", "filters", "scopeExpansion", "expandScope"],
   touchContent: ["channel", "message", "text", "template", "strategy", "replyStyle", "handoffBoundary", "approvalMode", "conversionGoal"],
@@ -28,6 +31,57 @@ function isRecord(value) {
 function cloneJson(value) {
   if (value === undefined) return undefined;
   try { return JSON.parse(JSON.stringify(value)); } catch { return undefined; }
+}
+
+function stripOfficeSecrets(value) {
+  if (Array.isArray(value)) return value.map(stripOfficeSecrets);
+  if (!isRecord(value)) return value;
+  const output = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (/(api[_-]?key|access[_-]?token|refresh[_-]?token|password|passwd|secret|cookie|csrf|authorization|jwt)/i.test(key)) continue;
+    output[key] = stripOfficeSecrets(entry);
+  }
+  return output;
+}
+
+function safeOfficeClone(value) {
+  const cloned = cloneJson(value);
+  return cloned === undefined ? undefined : stripOfficeSecrets(cloned);
+}
+
+function boundedOfficeProfiles(profiles) {
+  if (!isRecord(profiles)) return undefined;
+  const entries = Object.entries(profiles);
+  const bounded = Object.fromEntries(entries.slice(-MAX_OFFICE_PROFILE_ITEMS).map(([key, value]) => [key, safeOfficeClone(value)]));
+  return Object.keys(bounded).length ? bounded : undefined;
+}
+
+/** Keep the realtime workbench on one authoritative, bounded task snapshot. */
+function acquisitionSnapshotForOffice(task) {
+  const resultSnapshot = safeOfficeClone(task?.resultSnapshot || task?.result?.resultSnapshot);
+  const lastScan = safeOfficeClone(task?.lastScan);
+  const lastAnalysis = safeOfficeClone(task?.lastAnalysis);
+  const approvalQueue = Array.isArray(task?.approvalQueue)
+    ? safeOfficeClone(task.approvalQueue.slice(-MAX_OFFICE_QUEUE_ITEMS))
+    : undefined;
+  const candidateProfiles = boundedOfficeProfiles(task?.candidateProfiles);
+  const replies = Array.isArray(task?.replies)
+    ? safeOfficeClone(task.replies.slice(-MAX_OFFICE_REPLY_ITEMS))
+    : undefined;
+  const outreachQuota = safeOfficeClone(task?.outreachQuota);
+  const counters = safeOfficeClone(task?.counters);
+  const snapshot = {
+    ...(isRecord(resultSnapshot) ? { resultSnapshot } : {}),
+    ...(isRecord(lastScan) ? { lastScan } : {}),
+    ...(isRecord(lastAnalysis) ? { lastAnalysis } : {}),
+    ...(approvalQueue?.length ? { approvalQueue } : {}),
+    ...(candidateProfiles ? { candidateProfiles } : {}),
+    ...(replies?.length ? { replies } : {}),
+    ...(isRecord(outreachQuota) ? { outreachQuota } : {}),
+    ...(isRecord(counters) ? { counters } : {}),
+    ...(task?.updatedAt ? { updatedAt: task.updatedAt } : {})
+  };
+  return Object.keys(snapshot).length ? snapshot : null;
 }
 
 function pickConfigurationFields(source, fields) {
@@ -169,6 +223,10 @@ function taskState(task) {
 function officeTaskWork(agentType, task, state, observedAt) {
   const configuration = acquisitionConfiguration(task);
   const progress = Number(task.progress);
+  const resultSnapshot = safeOfficeClone(task.resultSnapshot || task.result?.resultSnapshot) || null;
+  const acquisitionSnapshot = acquisitionSnapshotForOffice(task);
+  const accountIdentity = safeOfficeClone(task.accountIdentity || task.context?.accountIdentity);
+  const accountLabel = task.accountLabel || task.accountName || accountIdentity?.nickname || null;
   return {
     agentType,
     state,
@@ -180,16 +238,21 @@ function officeTaskWork(agentType, task, state, observedAt) {
     metadata: {
       officeStatus: state,
       observedAt,
+      taskKey: task.key || null,
       taskId: task.taskId || null,
       taskRunId: task.taskRunId || null,
       accountId: task.accountKey || task.accountId || null,
       accountKey: task.accountKey || task.accountId || null,
+      ...(accountLabel ? { accountLabel } : {}),
+      ...(accountIdentity ? { accountIdentity } : {}),
       longRunning: task.longRunning === true,
       resumeBlocked: task.resumeBlocked || null,
       error: task.error || task.lastError || null,
+      ...(isRecord(task.outreachQuota) ? { outreachQuota: safeOfficeClone(task.outreachQuota) } : {}),
       outcome: task.state || null,
       result: resultFacts(task.result || task.resultSnapshot || {}),
-      resultSnapshot: cloneJson(task.resultSnapshot) || cloneJson(task.result?.resultSnapshot) || null,
+      resultSnapshot,
+      ...(acquisitionSnapshot ? { acquisitionSnapshot } : {}),
       ...(Number.isFinite(progress) ? { progress: Math.max(0, Math.min(100, progress)) } : {}),
       ...(task.progressSource ? { progressSource: task.progressSource } : {}),
       ...(Array.isArray(task.analysisProcess) ? { analysisProcess: cloneJson(task.analysisProcess) } : {}),

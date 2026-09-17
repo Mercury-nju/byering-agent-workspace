@@ -32,13 +32,6 @@ export const AGENT_DISPLAY_LABELS = Object.freeze({
   "Outreach Agent": { name: "外联专员", title: "外联专员" },
   "Outreach Ops Agent": { name: "触达运营专员", title: "触达运营专员" },
   "File Agent": { name: "内容策划", title: "内容与文档产出" },
-  "mkt-market-scout": { name: "行业竞品情报研究员", title: "行业竞品情报研究员" },
-  "mkt-designer": { name: "商品视觉设计师", title: "商品视觉设计师" },
-  "mkt-private-op": { name: "社群运营专员", title: "社群运营专员" },
-  "mkt-cs-manager": { name: "客户成功跟进专员", title: "客户成功跟进专员" },
-  "mkt-quote": { name: "商品报价方案专员", title: "商品报价方案专员" },
-  "mkt-data-analyst": { name: "销售数据分析师", title: "销售数据分析师" },
-  "mkt-bid": { name: "招投标机会研究员", title: "招投标机会研究员" },
   ...Object.fromEntries(MARKETPLACE_AGENTS.map(agent => [agent.id, { name: agent.displayName, title: agent.displayTitle }]))
 });
 

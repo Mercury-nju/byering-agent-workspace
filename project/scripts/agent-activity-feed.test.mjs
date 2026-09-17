@@ -96,9 +96,47 @@ test("journals real work-live lifecycle events without sending them into the Age
   const sent = [];
   const feed = createAgentActivityFeed();
   feed.attachGateway({ action: async (_action, payload) => { sent.push(payload); return { accepted: true }; } });
-  beginWork("mkt-dm-inbox", { task: "承接新私信", phase: "启动监听" });
+  beginWork("mkt-dm-inbox", { task: "承接新私信", phase: "启动监听", metadata: { longRunning: true } });
   pushActivity("mkt-dm-inbox", "已连接消息承接模块");
   finishWork("mkt-dm-inbox", "私信承接记录");
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(sent.length, 0);
+  endAllWork();
+  feed.dispose();
+});
+
+test("delivers one-off work completion into the Agent conversation", async () => {
+  const sent = [];
+  const feed = createAgentActivityFeed();
+  feed.attachGateway({ action: async (_action, payload) => { sent.push(payload); return { accepted: true }; } });
+  beginWork("mkt-viral-work-analysis", {
+    task: "分析公开作品",
+    phase: "整理分析报告",
+    metadata: { taskId: "one-off-completion", taskRunId: "run-1" }
+  });
+  finishWork("mkt-viral-work-analysis", "作品分析报告", { taskId: "one-off-completion", taskRunId: "run-1" });
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].metadata.deliverToConversation, true);
+  assert.match(sent[0].text, /作品分析报告/);
+  endAllWork();
+  feed.dispose();
+});
+
+test("does not duplicate a dedicated completion report", async () => {
+  const sent = [];
+  const feed = createAgentActivityFeed();
+  feed.attachGateway({ action: async (_action, payload) => { sent.push(payload); return { accepted: true }; } });
+  beginWork("mkt-viral-work-analysis", {
+    task: "分析公开作品",
+    phase: "整理分析报告",
+    metadata: { taskId: "dedicated-report", taskRunId: "run-2" }
+  });
+  finishWork("mkt-viral-work-analysis", "作品分析报告", {
+    taskId: "dedicated-report",
+    taskRunId: "run-2",
+    suppressCompletionNotification: true
+  });
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(sent.length, 0);
   endAllWork();

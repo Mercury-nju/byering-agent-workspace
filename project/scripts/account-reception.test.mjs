@@ -79,6 +79,24 @@ test("account policy survives restart and shares aliases across Agents but not t
   assert.equal(restored.get(owner).settings.knowledge, "营业时间9点至18点");
 });
 
+test("account inbox ownership is claimed durably across store instances", t => {
+  const dir = mkdtempSync(join(tmpdir(), "reception-claim-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const stateFile = join(dir, "reception.json");
+  const owner = { tenantId: "tenant-1", account: { secUid: "sec-1" } };
+  const first = createAccountReceptionStore({ stateFile });
+  const second = createAccountReceptionStore({ stateFile });
+
+  assert.equal(first.claimPrivateReception(owner, { agentId: "mkt-dm-inbox" }).claimed, true);
+  const rejected = second.claimPrivateReception(owner, { agentId: "mkt-gold-customer-service" });
+  assert.equal(rejected.claimed, false);
+  assert.equal(rejected.ownerAgentId, "mkt-dm-inbox");
+
+  const takeover = second.claimPrivateReception(owner, { agentId: "mkt-gold-customer-service", takeover: true });
+  assert.equal(takeover.claimed, true);
+  assert.equal(first.get(owner).privateReception.activeAgentId, "mkt-gold-customer-service");
+});
+
 test("human takeover and sent message reservations are shared across account aliases", t => {
   const dir = mkdtempSync(join(tmpdir(), "reception-control-")); t.after(() => rmSync(dir, { recursive: true, force: true }));
   const store = createAccountReceptionStore({ stateFile: join(dir, "settings.json") });

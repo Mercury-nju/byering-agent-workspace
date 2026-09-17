@@ -5,7 +5,7 @@ import {
 } from "../src/salebuddy/bridge/douyin-agent-data.js";
 import { publicFinderNeedsBusinessAccount, validatePublicFinderBusinessAccount } from "../src/salebuddy/agents/public-finder-contract.js";
 
-const DEFAULT_AGENT_ID = "mkt-douyin-finder";
+const DEFAULT_AGENT_ID = "mkt-find-people";
 const MAX_BATCH_ACCOUNTS = 50;
 const MAX_TASK_RESULT_TARGET = 2_000;
 const DEFAULT_DISCOVERY_LIMIT = 12;

@@ -373,7 +373,6 @@ const REALTIME_MOCK_AUTOMOTIVE_SOURCE_PROFILES = Object.freeze([
 const DOUYIN_CLOUD_AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-people", "mkt-intent-analyst", "mkt-cold-writer", "mkt-dm-inbox", GOLD_CUSTOMER_SERVICE_AGENT_ID, "mkt-live-danmaku-analysis", "mkt-live-danmaku-outreach"]);
 const ACQUISITION_REALTIME_AGENT_IDS = new Set(DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS);
 const STANDALONE_REALTIME_AGENT_IDS = new Set(MARKETPLACE_STANDALONE_AGENT_IDS);
-const LEGACY_ACQUISITION_REALTIME_AGENT_IDS = new Set(["mkt-live-lead-miner"]);
 const REALTIME_MOCK_SPECIALIST_DEFINITIONS = Object.freeze([
   {
     id: "find-people",
@@ -1193,7 +1192,6 @@ export function clampHorizontalScrollOffset(offset, scrollWidth, clientWidth) {
 }
 
 export function realtimeWorkSurfaceFor(agentId, work = null) {
-  if (String(agentId || "").trim() === "mkt-research-expert") return "background";
   return isDouyinCloudAgent(agentId, work) ? "cloud" : "generic";
 }
 
@@ -1969,6 +1967,9 @@ const CSS = `
 .sb-rw-live-work-body{display:grid;gap:12px;padding:16px 14px}.sb-rw-live-work-task{color:#27352e;font-size:13px;line-height:1.5}.sb-rw-live-work-phase{color:#7f8c85;font-size:11px}.sb-rw-live-work-progress{display:flex;align-items:center;gap:10px}.sb-rw-live-work-progress>div{height:6px;flex:1;overflow:hidden;border-radius:99px;background:#e5ece8}.sb-rw-live-work-progress i{display:block;height:100%;border-radius:inherit;background:#2f80ed;transition:width .25s ease}.sb-rw-live-work-progress>span{min-width:42px;color:#6e7a73;font-size:10px;text-align:right}.sb-rw-live-work-activities{display:grid;gap:7px}.sb-rw-live-work-activity{padding:8px 9px;border-left:2px solid #2f80ed;background:#f7faf8;color:#526159;font-size:10px;line-height:1.45}.sb-rw-live-work-activity.is-error{border-left-color:#cf5c53;background:#fff5f3;color:#a24139}.sb-rw-live-work-empty{color:#99a49e;font-size:10px}
 .sb-rw-live-work-progress.is-indeterminate>div{position:relative;overflow:hidden}.sb-rw-live-work-progress.is-indeterminate>div::after{display:block;width:38%;height:100%;border-radius:inherit;background:#2f80ed;content:"";animation:sb-rw-live-progress 1.5s ease-in-out infinite}.sb-rw-acquisition-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.sb-rw-acquisition-meta-item{display:grid;gap:3px;padding:8px 9px;border:1px solid #e4ece7;border-radius:8px;background:#fbfdfc}.sb-rw-acquisition-meta-item span{color:#89968f;font-size:9px}.sb-rw-acquisition-meta-item strong{overflow:hidden;color:#405148;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.sb-rw-acquisition-controls{display:flex;gap:7px;flex-wrap:wrap}.sb-rw-acquisition-control{height:29px;padding:0 11px;border:1px solid #d8e3dc;border-radius:7px;background:#fff;color:#53645a;font:inherit;font-size:10px;cursor:pointer}.sb-rw-acquisition-control:hover{border-color:#2f80ed;color:#2f80ed}.sb-rw-acquisition-control:disabled{cursor:default;opacity:.45}
 .sb-rw-task-update-mask{position:fixed;inset:0;z-index:10020;display:grid;place-items:center;padding:24px;background:rgba(18,25,22,.32)}.sb-rw-task-update-dialog{width:min(920px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;border:1px solid #dfe9e3;border-radius:16px;background:#fff;box-shadow:0 24px 80px rgba(18,39,28,.2);font-family:inherit}.sb-rw-task-update-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:19px 22px 15px;border-bottom:1px solid #edf1ef}.sb-rw-task-update-head h2{margin:0;color:#213028;font-size:18px}.sb-rw-task-update-head p{margin:6px 0 0;color:#7b8981;font-size:11px;line-height:1.5}.sb-rw-task-update-close{width:30px;height:30px;border:0;border-radius:8px;background:#f4f7f5;color:#64726a;font-size:20px;line-height:1;cursor:pointer}.sb-rw-task-update-close:hover{background:#e9f0ec}.sb-rw-task-update-body{display:grid;gap:15px;padding:18px 22px 21px}.sb-rw-task-update-boundary{padding:10px 12px;border:1px solid #d8e9df;border-radius:9px;background:#f5fbf7;color:#547064;font-size:10px;line-height:1.55}.sb-rw-task-update-boundary strong{color:#277a58}.sb-rw-task-update-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:15px}.sb-rw-task-update-section{display:grid;gap:10px;padding:13px;border:1px solid #e7eeea;border-radius:11px;background:#fbfdfc}.sb-rw-task-update-section h3{margin:0;color:#34453c;font-size:12px}.sb-rw-task-update-field{display:grid;gap:5px}.sb-rw-task-update-field label{color:#7d8b83;font-size:10px}.sb-rw-task-update-field input,.sb-rw-task-update-field select,.sb-rw-task-update-field textarea{width:100%;padding:8px 9px;border:1px solid #dce6e0;border-radius:7px;background:#fff;color:#2d3a33;font:inherit;font-size:11px;outline:none}.sb-rw-task-update-field input:focus,.sb-rw-task-update-field select:focus,.sb-rw-task-update-field textarea:focus{border-color:#6cb991;box-shadow:0 0 0 2px rgba(108,185,145,.12)}.sb-rw-task-update-field textarea{min-height:54px;resize:vertical;line-height:1.45}.sb-rw-task-update-readonly{display:grid;gap:2px;min-height:35px;padding:8px 9px;border:1px solid #dce6e0;border-radius:7px;background:#f5f8f6;color:#405148;font-size:11px;line-height:1.4}.sb-rw-task-update-readonly strong{font-weight:600}.sb-rw-task-update-readonly small{color:#829087;font-size:9px}.sb-rw-task-update-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sb-rw-task-update-preview>section{min-width:0;padding:11px;border:1px solid #e5ece8;border-radius:9px;background:#fff}.sb-rw-task-update-preview h4{margin:0 0 7px;color:#66766d;font-size:10px}.sb-rw-task-update-summary{display:grid;gap:10px;max-height:230px;overflow:auto}.sb-rw-task-update-summary-group{display:grid;gap:4px}.sb-rw-task-update-summary-group h5{margin:0 0 2px;color:#34453c;font-size:10px;font-weight:700}.sb-rw-task-update-summary-row{display:grid;grid-template-columns:minmax(82px,auto) minmax(0,1fr);gap:8px;align-items:start;color:#829087;font-size:9px;line-height:1.45}.sb-rw-task-update-summary-row strong{min-width:0;color:#3d5046;font-size:10px;font-weight:500;white-space:pre-wrap;word-break:break-word}.sb-rw-task-update-impact{display:none;padding:10px 12px;border:1px solid #efd9bb;border-radius:9px;background:#fff9f0;color:#8d6438;font-size:10px;line-height:1.55}.sb-rw-task-update-impact.is-visible{display:block}.sb-rw-task-update-confirm{display:none;align-items:center;gap:8px;padding:10px 12px;border:1px solid #efc9c5;border-radius:9px;background:#fff5f3;color:#964941;font-size:10px;line-height:1.5}.sb-rw-task-update-confirm.is-visible{display:flex}.sb-rw-task-update-confirm input{flex:none}.sb-rw-task-update-error{display:none;padding:9px 11px;border-radius:8px;background:#fff3f1;color:#ae463d;font-size:10px}.sb-rw-task-update-error.is-visible{display:block}.sb-rw-task-update-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px}.sb-rw-task-update-footer button{height:32px;padding:0 13px;border:1px solid #d9e4dd;border-radius:8px;background:#fff;color:#53635a;font:inherit;font-size:10px;cursor:pointer}.sb-rw-task-update-footer button:last-child{border-color:#21885f;background:#21885f;color:#fff}.sb-rw-task-update-footer button:hover{filter:brightness(.97)}.sb-rw-task-update-footer button:disabled{cursor:default;opacity:.5}
+.sb-rw-outreach-quota-mask{position:fixed;inset:0;z-index:10040;display:grid;place-items:center;padding:20px;background:rgba(24,31,39,.28)}.sb-rw-outreach-quota-dialog{width:min(460px,calc(100vw - 32px));border:1px solid #dbe3ec;border-radius:14px;background:#fff;box-shadow:0 24px 70px rgba(28,42,61,.18);font-family:inherit}.sb-rw-outreach-quota-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:20px 22px 15px;border-bottom:1px solid #edf0f3}.sb-rw-outreach-quota-head h2{margin:0;color:#242b33;font-size:17px;line-height:1.4}.sb-rw-outreach-quota-close{width:28px;height:28px;border:0;border-radius:7px;background:#f4f6f8;color:#66717c;font-size:19px;line-height:1;cursor:pointer}.sb-rw-outreach-quota-close:hover{background:#eaf0f6}.sb-rw-outreach-quota-body{display:grid;gap:14px;padding:18px 22px 20px}.sb-rw-outreach-quota-copy{margin:0;color:#53606d;font-size:12px;line-height:1.7}.sb-rw-outreach-quota-count{display:flex;align-items:baseline;gap:8px;padding:12px 14px;border:1px solid #e2e9f1;border-radius:9px;background:#f8fafc;color:#6c7885;font-size:11px}.sb-rw-outreach-quota-count strong{color:#2f80ed;font-size:24px;font-weight:720;font-variant-numeric:tabular-nums}.sb-rw-outreach-quota-contact{display:grid;gap:4px;padding:12px 14px;border-left:3px solid #2f80ed;background:#f5f8fd}.sb-rw-outreach-quota-contact strong{color:#385b8e;font-size:11px}.sb-rw-outreach-quota-contact span{color:#5c6d82;font-size:11px;line-height:1.6;overflow-wrap:anywhere}.sb-rw-outreach-quota-actions{display:flex;justify-content:flex-end;gap:8px}.sb-rw-outreach-quota-actions button,.sb-rw-outreach-quota-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 13px;border:1px solid #d7e0ea;border-radius:8px;background:#fff;color:#536171;font:inherit;font-size:11px;text-decoration:none;cursor:pointer}.sb-rw-outreach-quota-actions button:last-child,.sb-rw-outreach-quota-actions a:last-child{border-color:#2f80ed;background:#2f80ed;color:#fff}.sb-rw-outreach-quota-actions button:hover,.sb-rw-outreach-quota-actions a:hover{filter:brightness(.97)}
+.sb-rw-outreach-quota-context{display:grid;gap:8px;padding:12px 14px;border:1px solid #e2e9f1;border-radius:9px;background:#f8fafc}.sb-rw-outreach-quota-context-item{display:grid;grid-template-columns:82px minmax(0,1fr);gap:10px;align-items:baseline}.sb-rw-outreach-quota-context-item span{color:#7b8794;font-size:10px}.sb-rw-outreach-quota-context-item strong{min-width:0;color:#33404d;font-size:11px;line-height:1.45;overflow-wrap:anywhere}.sb-rw-outreach-quota-count{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:12px 14px;border:1px solid #d5e3f5;border-radius:9px;background:#f5f9ff;color:#6c7885;font-size:11px}.sb-rw-outreach-quota-count>span{color:#6c7885;font-size:11px}.sb-rw-outreach-quota-count strong{color:#2f80ed;font-size:24px;font-weight:720;font-variant-numeric:tabular-nums}.sb-rw-outreach-quota-contact{display:grid;gap:5px;padding:12px 14px;border-left:3px solid #2f80ed;background:#f5f8fd}.sb-rw-outreach-quota-contact strong{color:#385b8e;font-size:11px}.sb-rw-outreach-quota-contact span{color:#5c6d82;font-size:11px;line-height:1.6;overflow-wrap:anywhere}.sb-rw-outreach-quota-note{margin:0;color:#687583;font-size:11px;line-height:1.6}.sb-rw-outreach-quota-notice{min-height:18px;color:#2f80ed;font-size:11px;line-height:1.5}.sb-rw-outreach-quota-notice.is-error{color:#b24d45}.sb-rw-outreach-quota-actions{display:flex;justify-content:flex-end;gap:8px}.sb-rw-outreach-quota-actions button{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 14px;border:1px solid #2f80ed;border-radius:8px;background:#2f80ed;color:#fff;font:inherit;font-size:11px;cursor:pointer}.sb-rw-outreach-quota-actions button:hover{filter:brightness(.97)}.sb-rw-outreach-quota-actions button:disabled{cursor:default;opacity:.58}
+.sb-rw-outreach-quota-actions button:last-child{border-color:#d7e0ea;background:#fff;color:#536171}.sb-rw-outreach-quota-actions button:last-child:hover{background:#f6f8fa}
 @media(max-width:680px){.sb-rw-task-update-grid,.sb-rw-task-update-preview{grid-template-columns:1fr}}
 @keyframes sb-rw-live-progress{0%{transform:translateX(-140%)}100%{transform:translateX(360%)}}
 
@@ -2324,6 +2325,8 @@ const CSS = `
 /* Analysis produces an actionable prospect list rather than a separate conclusion document. */
 .sb-rw-analysis-prospects-panel{min-width:0;overflow:hidden}.sb-rw-analysis-prospects-panel>.sb-rw-panel-head{border-bottom:0}.sb-rw-analysis-prospect-list{display:grid;grid-auto-rows:max-content;align-content:start;flex:1;min-height:0;padding:7px 15px 14px;overflow:auto}.sb-rw-analysis-prospect{display:grid;grid-template-columns:44px minmax(0,1fr);gap:11px;width:100%;padding:13px 8px;border:0;border-bottom:1px solid #edf1f5;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}.sb-rw-analysis-prospect:hover{background:#fbfcff}.sb-rw-analysis-prospect.is-selected{background:#f4f4f5;box-shadow:inset 3px 0 #2f80ed}.sb-rw-analysis-prospect:last-child{border-bottom:0}.sb-rw-analysis-prospect .sb-rw-acquisition-avatar{width:44px;height:44px;border-radius:50%}.sb-rw-analysis-prospect-copy{display:grid;min-width:0}.sb-rw-analysis-prospect-top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}.sb-rw-analysis-prospect-top strong{min-width:0;overflow:hidden;color:#27332d;font-size:13px;font-weight:680;text-overflow:ellipsis;white-space:nowrap}.sb-rw-analysis-prospect-tier{flex:none;padding:3px 6px;border-radius:5px;background:#f1f5ff;color:#2f80ed;font-size:9px;font-weight:680;line-height:1.2}.sb-rw-analysis-prospect-tier.is-medium{background:#fff7e8;color:#b6751e}.sb-rw-analysis-prospect-source,.sb-rw-analysis-prospect-quote,.sb-rw-analysis-prospect-evidence,.sb-rw-analysis-prospect-next{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis}.sb-rw-analysis-prospect-source{margin-top:5px;color:#8b969e;font-size:9px;white-space:nowrap}.sb-rw-analysis-prospect-quote{margin-top:6px;color:#34413b;font-size:11px;line-height:1.45;white-space:nowrap}.sb-rw-analysis-prospect-evidence{margin-top:5px;color:#647080;font-size:9px;line-height:1.45;white-space:nowrap}.sb-rw-analysis-prospect-next{margin-top:7px;color:#2f80ed;font-size:9px;font-weight:650;line-height:1.45;white-space:nowrap}
 .sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(300px,.84fr) minmax(360px,1fr) minmax(330px,.96fr);align-items:stretch}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel>.sb-rw-panel-head,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-outreach-pending-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-outreach-sent-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-main.is-live-danmaku-outreach-work .sb-rw-outreach-specialist-list{display:grid;align-content:start;gap:16px;flex:1;min-height:0;padding:14px;overflow:auto}.sb-rw-live-danmaku-room-panel .sb-rw-cloud-live-wrap{display:flex;flex:1;min-height:0;flex-direction:column;padding:0;background:transparent}.sb-rw-live-danmaku-room-panel .sb-rw-live-room-stage{flex:1;width:100%;min-height:0;max-height:none;aspect-ratio:auto;border-radius:14px}.sb-rw-live-danmaku-room-status{display:flex;align-items:center;gap:8px;padding:11px 14px;color:#16885b;font-size:10px}.sb-rw-live-danmaku-room-status i{width:7px;height:7px;border-radius:50%;background:#18a86f;box-shadow:0 0 0 4px rgba(24,168,111,.1)}.sb-rw-live-danmaku-analysis-queue-panel,.sb-rw-live-danmaku-analysis-detail-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-queue-body,.sb-rw-live-danmaku-analysis-detail-panel .sb-rw-acquisition-detail-body{min-height:0}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-meta b{color:#6b55c7}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-top>b{flex:none;padding:3px 6px;border-radius:5px;background:#f0ebff;color:#6b55c7;font-size:9px;font-weight:680}.sb-rw-live-danmaku-facts{display:grid;gap:8px}.sb-rw-live-danmaku-fact{display:grid;grid-template-columns:68px minmax(0,1fr);gap:9px;padding-bottom:9px;border-bottom:1px solid #edf1ef}.sb-rw-live-danmaku-fact span{color:#89948e;font-size:10px}.sb-rw-live-danmaku-fact strong{color:#334039;font-size:10px;line-height:1.5;word-break:break-word}.sb-rw-live-danmaku-evidence{display:grid;gap:7px}.sb-rw-live-danmaku-evidence h3{margin:0;color:#64716b;font-size:10px;font-weight:680}.sb-rw-live-danmaku-evidence p{margin:0;padding:9px 10px;border-left:3px solid #8d70e8;border-radius:0 7px 7px 0;background:#f7f4ff;color:#4b485d;font-size:10px;line-height:1.55;word-break:break-word}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(340px,.86fr) minmax(500px,1.14fr);align-items:stretch}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-viral-source-panel,.sb-rw-viral-report-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-viral-source-body,.sb-rw-viral-report-body{display:grid;align-content:start;gap:15px;flex:1;min-height:0;padding:16px;overflow:auto}.sb-rw-viral-source-link{display:grid;gap:6px;padding:12px;border:1px solid #e1e8f2;border-radius:9px;background:#f8faff}.sb-rw-viral-source-link span{color:#7a8797;font-size:10px}.sb-rw-viral-source-link strong,.sb-rw-viral-source-link a{color:#3a5e99;font-size:11px;line-height:1.5;overflow-wrap:anywhere}.sb-rw-viral-source-link a{text-decoration:none}.sb-rw-viral-goal{padding:11px 12px;border:1px solid #e8edf3;border-radius:8px;color:#596573;font-size:10px;line-height:1.55}.sb-rw-viral-progress{height:7px;overflow:hidden;border-radius:99px;background:#e9eef5}.sb-rw-viral-progress i{display:block;height:100%;border-radius:inherit;background:#527fd0;transition:width .35s ease}.sb-rw-viral-progress-meta{color:#647080;font-size:10px;line-height:1.55}.sb-rw-viral-process{display:grid;gap:7px}.sb-rw-viral-process-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px;border:1px solid #e7ebf1;border-radius:8px;background:#fbfcfe}.sb-rw-viral-process-row i{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#eef2f7;color:#8a96a4;font-size:10px;font-style:normal}.sb-rw-viral-process-row.is-done i{background:#eaf8ef;color:#197e53}.sb-rw-viral-process-row span{color:#3d4b5b;font-size:10px}.sb-rw-viral-process-row small{color:#8a96a4;font-size:9px}.sb-rw-viral-complete{padding:11px 12px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px}.sb-rw-viral-error{padding:11px 12px;border:1px solid #f1d9d9;border-radius:8px;background:#fff7f7;color:#a55454;font-size:10px;line-height:1.55}.sb-rw-viral-report-summary{margin:0;color:#394655;font-size:12px;line-height:1.65}.sb-rw-viral-report-facts{display:grid;gap:7px;padding-top:2px;color:#667382;font-size:10px;line-height:1.55}.sb-rw-viral-artifact{padding:10px 11px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px;line-height:1.5}
+.sb-rw-live-danmaku-analysis-detail-panel .sb-rw-acquisition-detail-body{gap:16px;padding:14px 15px 16px}.sb-rw-live-danmaku-analysis-process{display:grid;gap:14px}.sb-rw-live-danmaku-analysis-process-intro{display:grid;gap:5px;padding:12px 13px;border:1px solid #ebe7fb;border-radius:9px;background:#fbfaff}.sb-rw-live-danmaku-analysis-process-intro strong{color:#4a3b83;font-size:12px;font-weight:700}.sb-rw-live-danmaku-analysis-process-intro span{color:#7b748e;font-size:10px;line-height:1.55}.sb-rw-live-danmaku-analysis-process-steps{display:grid;gap:0;margin:0;padding:0;list-style:none}.sb-rw-live-danmaku-analysis-process-step{position:relative;display:grid;grid-template-columns:23px minmax(0,1fr);gap:10px;padding:0 0 16px}.sb-rw-live-danmaku-analysis-process-step:not(:last-child)::before{position:absolute;top:23px;bottom:0;left:10px;border-left:1px solid #e3dff2;content:""}.sb-rw-live-danmaku-analysis-process-marker{z-index:1;display:grid;place-items:center;width:21px;height:21px;border:1px solid #d8d2ed;border-radius:50%;background:#fff;color:#8b83a6;font-size:9px;font-style:normal;font-weight:700}.sb-rw-live-danmaku-analysis-process-step.is-running .sb-rw-live-danmaku-analysis-process-marker{border-color:#8d70e8;background:#8d70e8;color:#fff;box-shadow:0 0 0 4px rgba(141,112,232,.12)}.sb-rw-live-danmaku-analysis-process-step.is-done .sb-rw-live-danmaku-analysis-process-marker{border-color:#16a571;background:#16a571;color:#fff}.sb-rw-live-danmaku-analysis-process-copy{display:grid;gap:3px;min-width:0;padding-top:1px}.sb-rw-live-danmaku-analysis-process-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}.sb-rw-live-danmaku-analysis-process-top strong{min-width:0;color:#30363a;font-size:11px;font-weight:700}.sb-rw-live-danmaku-analysis-process-top span{flex:none;color:#9a94aa;font-size:9px}.sb-rw-live-danmaku-analysis-process-step.is-running .sb-rw-live-danmaku-analysis-process-top span{color:#765fc0}.sb-rw-live-danmaku-analysis-process-step.is-done .sb-rw-live-danmaku-analysis-process-top span{color:#159965}.sb-rw-live-danmaku-analysis-process-copy>span{color:#8b9195;font-size:9px;line-height:1.45}.sb-rw-live-danmaku-analysis-process-copy small{color:#6f55bd;font-size:9px;line-height:1.4}.sb-rw-live-danmaku-analysis-process-step.is-queued .sb-rw-live-danmaku-analysis-process-copy small{color:#a09aa9}.sb-rw-live-danmaku-analysis-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #edf1ef;border-bottom:1px solid #edf1ef}.sb-rw-live-danmaku-analysis-summary-item{display:grid;gap:3px;padding:10px 8px;text-align:center;border-right:1px solid #edf1ef}.sb-rw-live-danmaku-analysis-summary-item:last-child{border-right:0}.sb-rw-live-danmaku-analysis-summary-item strong{color:#30363a;font-size:17px;font-variant-numeric:tabular-nums}.sb-rw-live-danmaku-analysis-summary-item span{color:#8c9295;font-size:9px}.sb-rw-live-danmaku-analysis-outcome{display:grid;gap:5px;padding:12px 13px;border-top:1px solid #edf1ef}.sb-rw-live-danmaku-analysis-outcome strong{color:#3c4346;font-size:11px}.sb-rw-live-danmaku-analysis-outcome span{color:#8b9195;font-size:10px;line-height:1.55}
+.sb-rw-live-danmaku-analysis-strategy{display:grid;gap:10px;padding-top:2px}.sb-rw-live-danmaku-analysis-strategy h3{margin:0;color:#30363a;font-size:11px;font-weight:700}.sb-rw-live-danmaku-analysis-strategy-headline{margin:0;color:#6e55b9;font-size:10px;line-height:1.5}.sb-rw-live-danmaku-analysis-strategy-topics{display:grid;gap:8px}.sb-rw-live-danmaku-analysis-strategy-topic{display:grid;gap:4px;padding:10px 11px;border:1px solid #ebe7fb;border-radius:8px;background:#fbfaff}.sb-rw-live-danmaku-analysis-strategy-topic-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.sb-rw-live-danmaku-analysis-strategy-topic-top strong{color:#40336b;font-size:10px}.sb-rw-live-danmaku-analysis-strategy-topic-top span{color:#988fb0;font-size:9px}.sb-rw-live-danmaku-analysis-strategy-topic>span{color:#6f7280;font-size:9px;line-height:1.5}.sb-rw-live-danmaku-analysis-strategy-actions{display:grid;gap:5px;margin:0;padding-left:17px;color:#58606b;font-size:9px;line-height:1.5}.sb-rw-live-danmaku-analysis-strategy-actions li::marker{color:#8d70e8}
 @media(max-width:1200px){.sb-rw-main.is-analysis-work>.sb-rw-analysis-prospects-panel{grid-column:1/-1}}
 @media(max-width:1200px){.sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(0,1fr) minmax(300px,.9fr)}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{grid-column:1/-1}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(0,1fr)}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:0}}
 /* Keep the empty state within the page body's available height after the account rail. */
@@ -2371,16 +2374,88 @@ export function authorizationRecoveryForWork(work = {}) {
   };
 }
 
+const LIVE_DANMAKU_OUTREACH_QUOTA_CODES = new Set([
+  "DOUYIN_ACCOUNT_OUTREACH_QUOTA_REACHED",
+  "DOUYIN_DM_DAILY_LIMIT",
+  "DOUYIN_MESSAGE_RATE_LIMIT",
+  "DOUYIN_OUTREACH_QUOTA_EXCEEDED",
+  "DOUYIN_PRIVATE_MESSAGE_LIMIT",
+  "MESSAGE_RATE_LIMIT",
+  "PLATFORM_RATE_LIMIT",
+  "QUOTA_EXCEEDED",
+  "RATE_LIMITED",
+  "TOO_MANY_REQUESTS"
+]);
+
+function quotaSignal(value) {
+  const source = value && typeof value === "object" ? value : {};
+  const code = acquisitionText(source.code, source.errorCode, source.error_code, source.reason, source.status).toUpperCase();
+  const message = acquisitionText(source.message, source.detail, source.errorMessage, source.error_message);
+  return {
+    code,
+    message,
+    matched: LIVE_DANMAKU_OUTREACH_QUOTA_CODES.has(code)
+      || /(?:RATE|LIMIT|QUOTA|FREQUENCY|FREQ|TOO_MANY)/.test(code)
+      || /(?:操作频繁|发送频繁|请求过于频繁)/u.test(message)
+      || /(?:账号|账户|每日|今日|当天|频控|额度|配额|上限)/u.test(message) && /(?:私信|消息|触达|发送)/u.test(message)
+  };
+}
+
+export function liveDanmakuOutreachQuotaFor(work = {}) {
+  const metadata = work?.metadata && typeof work.metadata === "object" ? work.metadata : {};
+  const snapshot = metadata.acquisitionSnapshot && typeof metadata.acquisitionSnapshot === "object"
+    ? metadata.acquisitionSnapshot
+    : metadata.taskSnapshot && typeof metadata.taskSnapshot === "object" ? metadata.taskSnapshot : {};
+  const quota = metadata.outreachQuota && typeof metadata.outreachQuota === "object"
+    ? metadata.outreachQuota
+    : snapshot.outreachQuota && typeof snapshot.outreachQuota === "object"
+      ? snapshot.outreachQuota
+      : work?.outreachQuota && typeof work.outreachQuota === "object" ? work.outreachQuota : {};
+  const error = metadata.error || snapshot.lastError || work?.lastError || work?.error || {};
+  const signal = quotaSignal(error);
+  if (quota.reached !== true && !signal.matched) return null;
+  const accountIdentity = metadata.accountIdentity && typeof metadata.accountIdentity === "object"
+    ? metadata.accountIdentity
+    : work.accountIdentity && typeof work.accountIdentity === "object" ? work.accountIdentity : {};
+  const accountId = acquisitionText(metadata.accountId, snapshot.accountId, work.accountId);
+  const accountHandle = acquisitionText(
+    accountIdentity.uniqueId,
+    accountIdentity.unique_id,
+    accountIdentity.handle,
+    accountIdentity.secId,
+    accountIdentity.sec_id
+  );
+  return {
+    agentId: acquisitionText(work.agentType, metadata.agentType, "mkt-live-danmaku-outreach"),
+    agentLabel: acquisitionText(
+      work.agentName,
+      metadata.agentName,
+      getMarketplaceAgent(work.agentType)?.name,
+      "电商直播间未成交客户触达"
+    ),
+    accountLabel: acquisitionText(metadata.accountLabel, work.accountLabel, "当前抖音账号"),
+    ...(accountId ? { accountId } : {}),
+    ...(accountHandle ? { accountHandle } : {}),
+    sentCount: acquisitionNumber(quota.sentCount, quota.count, snapshot.counters?.sent, metadata.counters?.sent, work.counters?.sent),
+    source: acquisitionText(quota.source, "provider"),
+    code: acquisitionText(quota.code, signal.code, "DOUYIN_ACCOUNT_OUTREACH_QUOTA_REACHED"),
+    message: acquisitionText(quota.message, signal.message, "当前账号的私信触达额度已用尽。"),
+    ...(quota.detectedAt ? { detectedAt: quota.detectedAt } : {}),
+    ...(quota.nextAt ? { nextAt: quota.nextAt } : {})
+  };
+}
+
 export function realtimeWorkDisplayStatus(work = {}) {
   if (authorizationRecoveryForWork(work)) return "auth-expired";
   const taskState = String(work?.metadata?.taskState || work?.metadata?.acquisitionTaskState || "").toLowerCase();
   if (taskState === "paused") return "paused";
   if (taskState === "stopped" || work?.state === "done") return "done";
+  if (isRealtimeWorkStandby(work)) return "idle";
   return work?.lastError ? "error" : "working";
 }
 
 function statusLabel(status) {
-  return status === "working" ? "执行中" : status === "done" ? "已完成" : status === "auth-expired" ? "账号已掉线" : status === "error" ? "异常" : status === "paused" ? "已暂停" : "未开始";
+  return status === "working" ? "执行中" : status === "idle" ? "空闲待命" : status === "done" ? "已完成" : status === "auth-expired" ? "账号已掉线" : status === "error" ? "异常" : status === "paused" ? "已暂停" : "未开始";
 }
 
 function realtimeErrorText(value) {
@@ -2529,6 +2604,7 @@ export function acquisitionTaskUpdatePayload(agentType, context = {}, changes = 
       update.touchContent.channel = "private_message";
     }
   }
+  if (agentType === "mkt-live-danmaku-outreach") delete update.runtimeRules.maxTouchesPerDay;
   if (agentType === "mkt-find-people") update.runtimeRules = {};
   const requestedBaseVersion = Number(options.baseConfigVersion ?? context.configVersion ?? 1);
   const baseConfigVersion = Number.isInteger(requestedBaseVersion) && requestedBaseVersion >= 1 ? requestedBaseVersion : 1;
@@ -2662,6 +2738,10 @@ function taskConfigFrom(source = {}, { agentId = "" } = {}) {
   const runtime = raw.runtimeRules || raw.runtime_rules || raw.runtime || {};
   const rawStopConditions = runtime.stopConditions ?? runtime.stop_conditions
     ?? raw.stopConditions ?? raw.stop_conditions;
+  const liveDanmakuOutreach = agentId === "mkt-live-danmaku-outreach"
+    || taskConfigCandidates(input, metadata).some((candidate) => candidate?.liveDanmakuOutreach === true
+      || candidate?.analysisKind === "live_danmaku_outreach"
+      || candidate?.touchEveryLiveDanmaku === true);
   // Older comprehensive tasks used the interaction-only scope before the
   // listener was expanded. A task with outreach policy is comprehensive even
   // when its persisted scope has not yet been migrated by the backend.
@@ -2675,7 +2755,9 @@ function taskConfigFrom(source = {}, { agentId = "" } = {}) {
     ...(comprehensive ? {} : {
       frequency: valueFrom(runtime.frequency, runtime.frequencyLabel, runtime.frequency_label, raw.frequency?.mode, raw.frequency?.label, raw.frequency?.interval, raw.frequencyLabel, raw.frequency_label, typeof raw.frequency === "string" ? raw.frequency : "")
     }),
-    maxTouchesPerDay: runtime.maxTouchesPerDay ?? runtime.max_touches_per_day ?? raw.frequency?.maxTouchesPerDay ?? raw.frequency?.max_touches_per_day ?? raw.caps?.dailyMax ?? raw.caps?.daily_max ?? raw.maxTouchesPerDay ?? raw.max_touches_per_day ?? ACQUISITION_TASK_CONFIGURATION_DEFAULTS.maxTouchesPerDay,
+    ...(liveDanmakuOutreach ? {} : {
+      maxTouchesPerDay: runtime.maxTouchesPerDay ?? runtime.max_touches_per_day ?? raw.frequency?.maxTouchesPerDay ?? raw.frequency?.max_touches_per_day ?? raw.caps?.dailyMax ?? raw.caps?.daily_max ?? raw.maxTouchesPerDay ?? raw.max_touches_per_day ?? ACQUISITION_TASK_CONFIGURATION_DEFAULTS.maxTouchesPerDay
+    }),
     minIntervalMinutes: runtime.minIntervalMinutes ?? runtime.min_interval_minutes ?? raw.frequency?.minIntervalMinutes ?? raw.frequency?.min_interval_minutes ?? (Number(raw.caps?.sendIntervalMs ?? raw.caps?.send_interval_ms) > 0 ? Number(raw.caps.sendIntervalMs ?? raw.caps.send_interval_ms) / 60000 : raw.minIntervalMinutes ?? raw.min_interval_minutes ?? ACQUISITION_TASK_CONFIGURATION_DEFAULTS.minIntervalMinutes),
     stopConditions: stopConditionsLabel(rawStopConditions) || ACQUISITION_TASK_CONFIGURATION_DEFAULTS.stopConditions
   };
@@ -2783,7 +2865,7 @@ function taskUpdateFixedValue(value, note, name, submittedValue) {
   return control;
 }
 
-function taskUpdateSummarySections(draft = {}, { discoveryOnly = false, comprehensive = false } = {}) {
+function taskUpdateSummarySections(draft = {}, { discoveryOnly = false, comprehensive = false, liveDanmakuOutreach = false } = {}) {
   if (discoveryOnly) {
     return [
       {
@@ -2792,6 +2874,20 @@ function taskUpdateSummarySections(draft = {}, { discoveryOnly = false, comprehe
           ["从哪里监听", draft.strategy?.sourceScope],
           ["想找的人", draft.strategy?.audienceGoal],
           ["额外要求", draft.strategy?.requirements]
+        ]
+      }
+    ];
+  }
+  if (liveDanmakuOutreach) {
+    return [
+      {
+        title: "直播间私信触达",
+        rows: [
+          ["触达对象", "直播间每位新弹幕用户"],
+          ["怎么联系", "私信首触达"],
+          ["发送方式", "自动发送"],
+          ["账号额度", "以抖音账号实际返回为准"],
+          ["两次联系至少间隔", draft.runtimeRules?.minIntervalMinutes ? `${draft.runtimeRules.minIntervalMinutes} 分钟` : "不限制"]
         ]
       }
     ];
@@ -2873,7 +2969,7 @@ function renderTaskUpdateSummary(container, draft, options = {}) {
   });
 }
 
-function taskUpdateFormDraft(form, baseDraft = {}, { discoveryOnly = false, comprehensive = false } = {}) {
+function taskUpdateFormDraft(form, baseDraft = {}, { discoveryOnly = false, comprehensive = false, liveDanmakuOutreach = false } = {}) {
   const base = cloneTaskUpdateDraft(baseDraft);
   if (discoveryOnly) {
     return {
@@ -2919,7 +3015,7 @@ function taskUpdateFormDraft(form, baseDraft = {}, { discoveryOnly = false, comp
     },
     runtimeRules: {
       frequency: comprehensive ? undefined : taskUpdateInput(form, "runtimeRules.frequency")?.value,
-      maxTouchesPerDay: taskUpdateInput(form, "runtimeRules.maxTouchesPerDay")?.value,
+      ...(liveDanmakuOutreach ? {} : { maxTouchesPerDay: taskUpdateInput(form, "runtimeRules.maxTouchesPerDay")?.value }),
       minIntervalMinutes: taskUpdateInput(form, "runtimeRules.minIntervalMinutes")?.value,
       stopConditions: comprehensive ? undefined : taskUpdateInput(form, "runtimeRules.stopConditions")?.value
     }
@@ -2942,7 +3038,13 @@ export function openAcquisitionTaskUpdateDialog({
   ensureStyle();
   const discoveryOnly = agentId === "mkt-find-people" && isDiscoveryOnlyTaskConfig(currentConfig);
   const comprehensive = agentId === "mkt-comment-acquisition";
+  const liveDanmakuOutreach = agentId === "mkt-live-danmaku-outreach"
+    || currentConfig?.metadata?.liveDanmakuOutreach === true
+    || currentConfig?.metadata?.analysisKind === "live_danmaku_outreach"
+    || currentConfig?.liveDanmakuOutreach === true
+    || currentConfig?.analysisKind === "live_danmaku_outreach";
   const current = taskConfigFrom(currentConfig, { agentId });
+  if (liveDanmakuOutreach) delete current.runtimeRules.maxTouchesPerDay;
   const fixedAutoSend = !discoveryOnly && agentId === "mkt-comment-acquisition";
   if (fixedAutoSend) current.touchContent.approvalMode = "auto";
   const initial = cloneTaskUpdateDraft(current);
@@ -2957,6 +3059,8 @@ export function openAcquisitionTaskUpdateDialog({
   title.id = "sb-rw-task-update-title";
   titleCopy.append(title, el("p", null, discoveryOnly
     ? "只调整找人条件；修改仅对未来的新信号生效。"
+    : liveDanmakuOutreach
+      ? "只调整触达方式和消息间隔；账号额度由抖音实际返回。"
     : comprehensive
       ? "账号定位、服务对象和首条私信由后台自动判断；这里只调整接待边界和发送保护。"
       : "只调整找人策略、触达策略和运行规则；修改仅对未来执行生效。"));
@@ -2969,6 +3073,8 @@ export function openAcquisitionTaskUpdateDialog({
   const body = el("div", "sb-rw-task-update-body");
   body.appendChild(el("div", "sb-rw-task-update-boundary", discoveryOnly
     ? "这次调整只会影响后续新产生的评论、直播互动和账号通知。已归档候选和原始证据不会改变。"
+    : liveDanmakuOutreach
+      ? "这次调整只会影响后续新弹幕用户。已经完成的触达记录不会改变，账号额度耗尽时会暂停发送并通知你。"
     : comprehensive
       ? "后台会持续使用授权账号资料和新互动证据识别服务对象；已经处理过的用户、发送记录和历史结果不会改变。"
       : "这次调整只会影响后续找到的人。已经处理过的用户、发送记录和历史结果不会改变。"));
@@ -3022,7 +3128,7 @@ export function openAcquisitionTaskUpdateDialog({
     const runtimeSection = el("section", "sb-rw-task-update-section");
     runtimeSection.appendChild(el("h3", null, comprehensive ? "发送保护" : "运行规则"));
     runtimeSection.append(
-      taskUpdateField("每天最多联系几位", taskUpdateControl("input", "runtimeRules.maxTouchesPerDay", initial.runtimeRules.maxTouchesPerDay, { placeholder: "不填则不限制" })),
+      ...(liveDanmakuOutreach ? [] : [taskUpdateField("每天最多联系几位", taskUpdateControl("input", "runtimeRules.maxTouchesPerDay", initial.runtimeRules.maxTouchesPerDay, { placeholder: "不填则不限制" }))]),
       taskUpdateField("两次联系至少间隔多久", taskUpdateControl("input", "runtimeRules.minIntervalMinutes", initial.runtimeRules.minIntervalMinutes, { placeholder: "不填则不限制，单位：分钟" }))
     );
     if (comprehensive) {
@@ -3043,7 +3149,7 @@ export function openAcquisitionTaskUpdateDialog({
   const after = el("section");
   before.append(el("h4", null, "当前设置"));
   const beforeValue = el("div", "sb-rw-task-update-summary");
-  renderTaskUpdateSummary(beforeValue, current, { discoveryOnly, comprehensive });
+  renderTaskUpdateSummary(beforeValue, current, { discoveryOnly, comprehensive, liveDanmakuOutreach });
   before.appendChild(beforeValue);
   after.append(el("h4", null, "调整后预览"));
   const afterValue = el("div", "sb-rw-task-update-summary");
@@ -3077,8 +3183,8 @@ export function openAcquisitionTaskUpdateDialog({
   let secondStep = false;
   const close = () => mask.remove();
   const refreshPreview = () => {
-    const next = cloneTaskUpdateDraft(taskUpdateFormDraft(form, initial, { discoveryOnly, comprehensive }));
-    renderTaskUpdateSummary(afterValue, next, { discoveryOnly, comprehensive });
+    const next = cloneTaskUpdateDraft(taskUpdateFormDraft(form, initial, { discoveryOnly, comprehensive, liveDanmakuOutreach }));
+    renderTaskUpdateSummary(afterValue, next, { discoveryOnly, comprehensive, liveDanmakuOutreach });
     const highImpact = taskUpdateHighImpact(current, next, { discoveryOnly });
     impact.classList.toggle("is-visible", highImpact);
     confirm.classList.toggle("is-visible", highImpact && secondStep);
@@ -3203,22 +3309,57 @@ export function liveAgentsForWorks(agents = [], works = []) {
   return liveIds.map((agentId) => agentsById.get(agentId)).filter(Boolean);
 }
 
+const TERMINAL_REALTIME_WORK_OUTCOMES = new Set(["completed", "succeeded", "done", "stopped", "cancelled", "canceled", "partial"]);
+const REALTIME_WORK_STANDBY_STATES = new Set(["idle", "paused"]);
+
+export function isLongRunningRealtimeWork(work = {}) {
+  return work?.metadata?.longRunning === true || work?.longRunning === true;
+}
+
+function realtimeWorkLifecycleState(work = {}) {
+  return String(work?.metadata?.officeStatus
+    || work?.metadata?.taskState
+    || work?.metadata?.acquisitionTaskState
+    || work?.state
+    || "").trim().toLowerCase();
+}
+
+function realtimeWorkOutcome(work = {}) {
+  return String(work?.metadata?.outcome || work?.outcome || "").trim().toLowerCase();
+}
+
+export function isRealtimeWorkStandby(work = {}) {
+  if (!isLongRunningRealtimeWork(work) || work?.lastError || work?.metadata?.error) return false;
+  if (TERMINAL_REALTIME_WORK_OUTCOMES.has(realtimeWorkOutcome(work))) return false;
+  return REALTIME_WORK_STANDBY_STATES.has(realtimeWorkLifecycleState(work));
+}
+
 export function partitionRealtimeWorks(works = []) {
   const entries = Array.isArray(works) ? works : [];
   const completed = entries.filter((work) => work?.state === "done"
-    || ["completed", "succeeded"].includes(String(work?.metadata?.taskState || work?.metadata?.acquisitionTaskState || "").toLowerCase()));
+    || TERMINAL_REALTIME_WORK_OUTCOMES.has(String(work?.metadata?.taskState || work?.metadata?.acquisitionTaskState || "").toLowerCase())
+    || TERMINAL_REALTIME_WORK_OUTCOMES.has(realtimeWorkOutcome(work)));
+  const standby = entries.filter((work) => !completed.includes(work) && isRealtimeWorkStandby(work));
   return {
-    active: entries.filter((work) => !completed.includes(work) && !work?.lastError),
+    active: entries.filter((work) => !completed.includes(work) && !standby.includes(work) && !work?.lastError),
     attention: entries.filter((work) => Boolean(work?.lastError)),
+    standby: standby.filter((work) => !work?.lastError),
     completed: completed.filter((work) => !work?.lastError)
   };
 }
 
 const REMOTE_REALTIME_WORK_STATES = new Set(["working", "listening", "attention"]);
+const REMOTE_PERSISTENT_WORK_STATES = new Set(["idle", "paused"]);
 
 export function officeStatusWorksToRealtimeWorks(works = [], accounts = []) {
   return (Array.isArray(works) ? works : [])
-    .filter((work) => REMOTE_REALTIME_WORK_STATES.has(String(work?.state || work?.metadata?.officeStatus || "").toLowerCase()))
+    .filter((work) => {
+      const officeState = String(work?.state || work?.metadata?.officeStatus || "").toLowerCase();
+      if (REMOTE_REALTIME_WORK_STATES.has(officeState)) return true;
+      if (!isLongRunningRealtimeWork(work) || !REMOTE_PERSISTENT_WORK_STATES.has(officeState)) return false;
+      return !TERMINAL_REALTIME_WORK_OUTCOMES.has(realtimeWorkOutcome(work))
+        && !TERMINAL_REALTIME_WORK_OUTCOMES.has(String(work?.metadata?.taskState || "").toLowerCase());
+    })
     .map((work) => {
       const officeState = String(work.state || work.metadata?.officeStatus || "working").toLowerCase();
       const sourceMetadata = work.metadata && typeof work.metadata === "object" ? work.metadata : {};
@@ -3233,7 +3374,7 @@ export function officeStatusWorksToRealtimeWorks(works = [], accounts = []) {
         : null);
       return {
         ...work,
-        state: "working",
+        state: REMOTE_REALTIME_WORK_STATES.has(officeState) ? "working" : officeState,
         lastError,
         metadata: {
           ...sourceMetadata,
@@ -3502,9 +3643,15 @@ function acquisitionLeadKey(value = {}) {
   const lead = acquisitionObject(value.lead);
   const recipient = acquisitionObject(value.recipient);
   return acquisitionText(
-    value.leadId, value.lead_id, value.id, value.secUid, value.sec_uid, value.secId, value.sec_id, value.uid, value.userId, value.user_id,
-    lead.leadId, lead.lead_id, lead.id, lead.secUid, lead.sec_uid, lead.secId, lead.sec_id, lead.uid,
-    recipient.leadId, recipient.id, recipient.secUid, recipient.sec_uid, recipient.secId, recipient.sec_id,
+    value.leadId, value.lead_id, value.secUid, value.sec_uid, value.secId, value.sec_id, value.uid, value.userId, value.user_id,
+    value.externalUserId, value.external_user_id, value.uniqueId, value.unique_id,
+    lead.leadId, lead.lead_id, lead.secUid, lead.sec_uid, lead.secId, lead.sec_id, lead.uid, lead.userId, lead.user_id,
+    lead.externalUserId, lead.external_user_id, lead.uniqueId, lead.unique_id, lead.id,
+    recipient.leadId, recipient.lead_id, recipient.secUid, recipient.sec_uid, recipient.secId, recipient.sec_id,
+    recipient.uid, recipient.userId, recipient.user_id, recipient.externalUserId, recipient.external_user_id,
+    recipient.uniqueId, recipient.unique_id, recipient.id,
+    value.commentId, value.comment_id, lead.commentId, lead.comment_id, recipient.commentId, recipient.comment_id,
+    value.id,
     value.nickname, lead.nickname, recipient.nickname
   );
 }
@@ -3977,12 +4124,14 @@ export function liveDanmakuAnalysisRealtimeView(work = {}) {
     count: acquisitionNumber(topic?.count, topic?.total),
     examples: acquisitionArray(topic?.examples || topic?.quotes).map((item) => acquisitionText(item)).filter(Boolean)
   }));
+  const optimization = acquisitionObject(analysis.optimization || result.optimization || snapshot.optimization);
   const counts = {
     ...acquisitionObject(result.counts),
     ...acquisitionObject(analysis.counts)
   };
   return {
     analysis,
+    optimization,
     people,
     topics,
     counts: {
@@ -3998,6 +4147,53 @@ export function liveDanmakuAnalysisRealtimeView(work = {}) {
     status: acquisitionText(result.status, taskState, "collecting"),
     hasSnapshot: Boolean(Object.keys(snapshot).length || Object.keys(analysis).length || Object.keys(collection).length)
   };
+}
+
+export function liveDanmakuAnalysisProcess(view = {}) {
+  const counts = acquisitionObject(view.counts);
+  const optimization = acquisitionObject(view.optimization || view.analysis?.optimization);
+  const isFinal = view.isFinal === true;
+  const danmaku = acquisitionNumber(counts.danmaku);
+  const uniqueUsers = acquisitionNumber(counts.uniqueUsers, counts.unique_users);
+  const questions = acquisitionNumber(counts.questions);
+  const optimizationTopics = acquisitionArray(optimization.priorityTopics);
+  return [
+    {
+      id: "capture",
+      title: "采集原始弹幕",
+      description: "保留直播间里的问题、需求和异议",
+      state: isFinal ? "done" : "running",
+      meta: isFinal ? `${danmaku} 条已采集` : danmaku ? `${danmaku} 条已采集，持续接收` : "等待新弹幕"
+    },
+    {
+      id: "group",
+      title: "按用户归并表达",
+      description: "去重并合并同一用户的连续发言",
+      state: isFinal ? "done" : "queued",
+      meta: isFinal ? `${uniqueUsers} 位用户已归并` : "直播结束后运行"
+    },
+    {
+      id: "extract",
+      title: "提炼问题、需求与异议",
+      description: "从原话中抽取可验证的关注点",
+      state: isFinal ? "done" : "queued",
+      meta: isFinal ? `${questions} 条问题已提炼` : "等待整场弹幕"
+    },
+    {
+      id: "friction",
+      title: "定位转化阻力",
+      description: "识别反复出现、影响理解和决策的问题",
+      state: isFinal ? "done" : "queued",
+      meta: isFinal ? `${optimizationTopics.length} 个转化阻力主题` : "等待整场分析"
+    },
+    {
+      id: "strategy",
+      title: "生成下一场优化策略",
+      description: "把用户反馈转成内容、话术和节奏调整",
+      state: isFinal ? "done" : "queued",
+      meta: isFinal ? "下一场优化策略已生成" : "等待前置分析完成"
+    }
+  ];
 }
 
 export function viralWorkAnalysisRealtimeView(work = {}) {
@@ -4080,8 +4276,11 @@ function acquisitionQueueSourceLabelFor(person = {}) {
 }
 
 export function commentAcquisitionQueueRows(work = {}) {
+  const configuredThreshold = Number(work?.metadata?.configuration?.findingStrategy?.minScore);
+  const minScore = Number.isFinite(configuredThreshold) ? configuredThreshold : 80;
   return commentAcquisitionOutreachRows(work)
-    .filter((person) => person.intentTier === "high")
+    .filter((person) => person.intentTier === "high"
+      || (!person.intentTier && Number.isFinite(Number(person.intentScore)) && Number(person.intentScore) >= minScore))
     .map((person) => {
       const progress = acquisitionQueueProgressFor(person);
       return {
@@ -4879,26 +5078,18 @@ function renderLiveDanmakuLiveRoomPanel(selected, state, title = "", subtitle = 
   return panel;
 }
 
-function liveDanmakuIntentLabel(person = {}) {
-  const raw = acquisitionText(person.intentTier).toLowerCase();
-  if (raw === "high" || /重点|明确/.test(raw)) return "重点用户";
-  if (raw === "medium" || /待确认|中意向/.test(raw)) return "待确认";
-  if (raw === "low" || /行为/.test(raw)) return "行为信号";
-  return acquisitionText(person.intentTier, "待分析");
-}
-
 function renderLiveDanmakuAnalysisQueuePanel(view, activePerson, state, onChange) {
   const panel = el("article", "sb-rw-panel sb-rw-acquisition-queue-panel sb-rw-live-danmaku-analysis-queue-panel");
   const head = el("div", "sb-rw-panel-head sb-rw-acquisition-head");
   const running = el("span", "sb-rw-acquisition-running");
-  running.append(el("i"), el("span", null, view.isFinal ? `${view.people.length} 位用户已分析` : `${view.counts.danmaku} 条弹幕已采集`));
+    running.append(el("i"), el("span", null, view.isFinal ? `${view.people.length} 位用户反馈已整理` : `${view.counts.danmaku} 条弹幕已采集`));
   head.append(el("div", "sb-rw-panel-title", "弹幕分析队列"), running);
   panel.appendChild(head);
   const body = el("div", `sb-rw-acquisition-queue-body${view.people.length ? "" : " is-empty"}`);
   const list = el("div", "sb-rw-acquisition-people");
   if (!view.people.length) {
     const empty = el("div", "sb-rw-acquisition-empty");
-    empty.append(el("i"), el("strong", null, view.isFinal ? "整场暂无可分析弹幕" : "持续采集直播间弹幕"), el("span", null, view.isFinal ? "本场没有可用于分析的文字弹幕。" : "直播结束后，我会基于整场弹幕统一分析。"));
+    empty.append(el("i"), el("strong", null, view.isFinal ? "整场暂无可整理弹幕" : "持续采集直播间弹幕"), el("span", null, view.isFinal ? "本场没有可用于分析的文字弹幕。" : "直播结束后，我会基于整场弹幕统一生成优化策略。"));
     list.appendChild(empty);
   } else {
     view.people.slice(0, 30).forEach((person) => {
@@ -4909,7 +5100,7 @@ function renderLiveDanmakuAnalysisQueuePanel(view, activePerson, state, onChange
       mountAcquisitionPersonAvatar(avatarNode, person);
       const content = el("span", "sb-rw-acquisition-person-content");
       const top = el("span", "sb-rw-acquisition-person-top");
-      top.append(el("strong", null, person.nickname), el("b", null, liveDanmakuIntentLabel(person)));
+      top.append(el("strong", null, person.nickname));
       const meta = el("span", "sb-rw-acquisition-person-meta");
       meta.append(el("span", null, `${person.danmakuCount} 条弹幕`), el("span", "sb-rw-acquisition-source", person.topics?.slice(0, 2).join("、") || "直播间"));
       content.append(top, meta);
@@ -4927,28 +5118,97 @@ function renderLiveDanmakuAnalysisQueuePanel(view, activePerson, state, onChange
   return panel;
 }
 
+function renderLiveDanmakuAnalysisProcessPanel(view) {
+  const process = liveDanmakuAnalysisProcess(view);
+  const optimization = acquisitionObject(view.optimization || view.analysis?.optimization);
+  const priorityTopics = acquisitionArray(optimization.priorityTopics);
+  const section = el("section", "sb-rw-live-danmaku-analysis-process");
+  const intro = el("div", "sb-rw-live-danmaku-analysis-process-intro");
+  intro.append(
+    el("strong", null, view.isFinal ? "反馈闭环已完成" : "先收集反馈，再生成策略"),
+    el("span", null, view.isFinal
+      ? "已将整场弹幕整理为可回查的用户反馈和下一场直播优化策略。"
+      : "直播进行中只保留原始弹幕，直播结束后统一归纳问题与转化阻力，生成下一场优化动作。")
+  );
+  section.appendChild(intro);
+
+  const steps = el("ol", "sb-rw-live-danmaku-analysis-process-steps");
+  process.forEach((step, index) => {
+    const row = el("li", `sb-rw-live-danmaku-analysis-process-step is-${step.state}`);
+    const marker = el("i", "sb-rw-live-danmaku-analysis-process-marker", step.state === "done" ? "✓" : String(index + 1));
+    const copy = el("div", "sb-rw-live-danmaku-analysis-process-copy");
+    const top = el("div", "sb-rw-live-danmaku-analysis-process-top");
+    top.append(el("strong", null, step.title), el("span", null, step.state === "done" ? "已完成" : step.state === "running" ? "进行中" : "待运行"));
+    copy.append(top, el("span", null, step.description), el("small", null, step.meta));
+    row.append(marker, copy);
+    steps.appendChild(row);
+  });
+  section.appendChild(steps);
+
+  if (view.isFinal) {
+    const summary = el("div", "sb-rw-live-danmaku-analysis-summary");
+    [
+      ["互动用户", acquisitionNumber(view.counts?.uniqueUsers, view.people.length)],
+      ["用户问题", acquisitionNumber(view.counts?.questions)],
+      ["优化重点", priorityTopics.length]
+    ].forEach(([label, value]) => {
+      const item = el("div", "sb-rw-live-danmaku-analysis-summary-item");
+      item.append(el("strong", null, String(value)), el("span", null, label));
+      summary.appendChild(item);
+    });
+    section.appendChild(summary);
+
+    const strategy = el("section", "sb-rw-live-danmaku-analysis-strategy");
+    strategy.appendChild(el("h3", null, "下一场直播优化策略"));
+    if (optimization.headline) strategy.appendChild(el("p", "sb-rw-live-danmaku-analysis-strategy-headline", optimization.headline));
+    if (priorityTopics.length) {
+      const topicList = el("div", "sb-rw-live-danmaku-analysis-strategy-topics");
+      priorityTopics.slice(0, 5).forEach((topic) => {
+        const row = el("div", "sb-rw-live-danmaku-analysis-strategy-topic");
+        const top = el("div", "sb-rw-live-danmaku-analysis-strategy-topic-top");
+        top.append(el("strong", null, acquisitionText(topic.label, "待命名主题")), el("span", null, `${acquisitionNumber(topic.count)} 条弹幕`));
+        row.append(top, el("span", null, acquisitionText(topic.strategy, "把该主题安排到商品讲解的固定环节。")));
+        topicList.appendChild(row);
+      });
+      strategy.appendChild(topicList);
+    }
+    if (optimization.nextLiveActions?.length) {
+      const actionList = el("ul", "sb-rw-live-danmaku-analysis-strategy-actions");
+      optimization.nextLiveActions.slice(0, 5).forEach((action) => actionList.appendChild(el("li", null, action)));
+      strategy.appendChild(actionList);
+    }
+    section.appendChild(strategy);
+  }
+  return section;
+}
+
 function renderLiveDanmakuAnalysisDetailPanel(view, person) {
   const panel = el("article", "sb-rw-panel sb-rw-acquisition-detail-panel sb-rw-live-danmaku-analysis-detail-panel");
   const head = el("div", "sb-rw-panel-head");
-  head.append(el("div", "sb-rw-panel-title", person ? "意向与原始证据" : "采集进度"), el("span", "sb-rw-panel-sub", person ? liveDanmakuIntentLabel(person) : view.isFinal ? "已完成" : "持续采集中"));
+  head.append(el("div", "sb-rw-panel-title", person ? "分析过程与用户反馈" : "分析过程"), el("span", "sb-rw-panel-sub", view.isFinal ? "本场已完成" : "直播结束后统一运行"));
   panel.appendChild(head);
+  const body = el("div", "sb-rw-acquisition-detail-body");
+  body.appendChild(renderLiveDanmakuAnalysisProcessPanel(view));
   if (!person) {
-    const empty = el("div", "sb-rw-acquisition-detail-empty");
-    empty.append(el("i"), el("strong", null, view.isFinal ? "本场暂无可分析用户" : `${view.counts.danmaku} 条弹幕已采集`), el("span", null, view.isFinal ? "直播结束后没有返回可分析的文字弹幕。" : "直播结束后，我会在这里展示整场分析结果。"));
-    panel.appendChild(empty);
+    const empty = el("div", "sb-rw-live-danmaku-analysis-outcome");
+    empty.append(
+      el("strong", null, view.isFinal ? "本场暂无可分析用户" : "分析结果将在直播结束后生成"),
+      el("span", null, view.isFinal ? "本场没有返回可用于分析的文字弹幕。" : "中间列展示采集到的原始弹幕，这里展示 Agent 如何把原始内容整理成结论。")
+    );
+    body.appendChild(empty);
+    panel.appendChild(body);
     return panel;
   }
-  const body = el("div", "sb-rw-acquisition-detail-body");
   const profile = el("div", "sb-rw-acquisition-detail-profile");
   const avatarNode = el("span", "sb-rw-acquisition-avatar");
   mountAcquisitionPersonAvatar(avatarNode, person);
   const profileCopy = el("div");
-  profileCopy.append(el("strong", null, person.nickname), el("span", null, `直播间 · ${person.danmakuCount} 条弹幕`));
+  profileCopy.append(el("strong", null, person.nickname), el("span", null, `用户反馈样本 · ${person.danmakuCount} 条弹幕`));
   profile.append(avatarNode, profileCopy);
   body.appendChild(profile);
 
   const facts = el("div", "sb-rw-live-danmaku-facts");
-  [["意向判断", liveDanmakuIntentLabel(person)], ["涉及主题", person.topics?.join("、") || "尚未归纳"], ["分析目标", view.goal || "按直播间弹幕归纳问题和需求"]].forEach(([label, value]) => {
+  [["弹幕数量", `${person.danmakuCount} 条`], ["涉及主题", person.topics?.join("、") || "尚未归纳"], ["分析目标", view.goal || "按直播间弹幕归纳问题和需求"]].forEach(([label, value]) => {
     const row = el("div", "sb-rw-live-danmaku-fact");
     row.append(el("span", null, label), el("strong", null, value));
     facts.appendChild(row);
@@ -4956,7 +5216,7 @@ function renderLiveDanmakuAnalysisDetailPanel(view, person) {
   body.appendChild(facts);
 
   const evidence = el("section", "sb-rw-live-danmaku-evidence");
-  evidence.appendChild(el("h3", null, "弹幕原话"));
+  evidence.appendChild(el("h3", null, "用户原话"));
   if (person.evidence?.length) {
     person.evidence.slice(-6).forEach((item) => evidence.appendChild(el("p", null, `“${item.quote}”`)));
   } else {
@@ -4971,7 +5231,7 @@ function renderLiveDanmakuAnalysisWorksite(selected, state, onChange) {
   const view = liveDanmakuAnalysisRealtimeView(selected.liveWork || {});
   const person = acquisitionSelectedPerson({ people: view.people }, state);
   return {
-    liveRoomPanel: renderLiveDanmakuLiveRoomPanel(selected, state, "直播间分析现场", "持续采集弹幕 · 直播结束后统一 AI 分析"),
+    liveRoomPanel: renderLiveDanmakuLiveRoomPanel(selected, state, "", "", { showHeader: false }),
     queuePanel: renderLiveDanmakuAnalysisQueuePanel(view, person, state, onChange),
     detailPanel: renderLiveDanmakuAnalysisDetailPanel(view, person)
   };
@@ -5813,10 +6073,6 @@ function renderAccountAnalysisDeliveryPanel(panel, selected) {
 }
 
 function renderRoleOutputPanel(panel, selected, state, onChange) {
-  if (selected.id === "mkt-research-expert" && selected.liveWork) {
-    renderAccountAnalysisDeliveryPanel(panel, selected);
-    return;
-  }
   if (selected.liveWork) {
     renderGenericOutputPanel(panel, selected);
     return;
@@ -6639,6 +6895,8 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     inboxConversationId: null,
     receptionConversations: {},
     receptionConversationLoads: new Set(),
+    outreachQuotaNoticeKey: "",
+    outreachQuotaDialog: null,
     refreshView: null,
     disposed: false,
     agents: configuredAgents.map((agent) => ({ ...agent })),
@@ -6665,6 +6923,10 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
   let unsubscribeLiveWork = null;
   let remoteOfficeTimer = null;
   let remoteOfficeRefreshPending = null;
+  let remoteOfficeRefreshTimer = null;
+  let durableTaskGateway = null;
+  let durableTaskEventUnsubscribe = null;
+  const durableTaskIds = new Set();
   const updateCloudViewerPresentation = (agentId, viewer) => {
     const presentation = state.cloudViewerPresentations.get(agentId);
     if (!presentation?.cloudLive?.isConnected) return;
@@ -6808,17 +7070,17 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
         try { segments.push({ segment, url: await loadOfficeReplayVideo(segment) }); } catch {}
       }
       state.cloudViewerReplays.set(agentId, { status: "ready", taskId: result?.taskId || null, segments });
-      if (!disposed && state.selected === agentId) render();
+      if (!disposed && state.selected === agentId) renderRealtimeViewPreservingScroll();
     }).catch(() => {
       state.cloudViewerReplays.set(agentId, { status: "ready", taskId: null, segments: [], error: true });
-      if (!disposed && state.selected === agentId) render();
+      if (!disposed && state.selected === agentId) renderRealtimeViewPreservingScroll();
     }).finally(() => state.cloudViewerReplayLoads.delete(agentId));
   };
   const refreshCloudReplay = (agentId) => {
     clearCloudReplay(agentId);
     if (!disposed && state.selected === agentId) {
       ensureCloudReplay(agentId);
-      render();
+      renderRealtimeViewPreservingScroll();
     }
   };
   const markReplaySuccess = (agentId, work, recordingId = null) => {
@@ -6950,6 +7212,114 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     }
   }
 
+  function openLiveDanmakuOutreachQuotaDialog(quota) {
+    if (state.outreachQuotaDialog) return;
+    const mask = el("div", "sb-rw-outreach-quota-mask");
+    const dialog = el("section", "sb-rw-outreach-quota-dialog");
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("aria-labelledby", "sb-rw-outreach-quota-title");
+    const head = el("header", "sb-rw-outreach-quota-head");
+    const title = el("h2", null, "今日私信触达额度已达上限");
+    title.id = "sb-rw-outreach-quota-title";
+    const closeButton = el("button", "sb-rw-outreach-quota-close", "×");
+    closeButton.type = "button";
+    closeButton.setAttribute("aria-label", "关闭提示");
+    head.append(title, closeButton);
+
+    const body = el("div", "sb-rw-outreach-quota-body");
+    body.appendChild(el("p", "sb-rw-outreach-quota-copy", `该账号今日的私信触达额度已经达到上限，${quota.agentLabel} 已暂停后续发送。已经完成的触达记录会保留，账号额度恢复后可以继续处理。`));
+
+    const context = el("div", "sb-rw-outreach-quota-context");
+    const addContextItem = (label, value) => {
+      const item = el("div", "sb-rw-outreach-quota-context-item");
+      item.append(el("span", null, label), el("strong", null, value));
+      context.appendChild(item);
+    };
+    addContextItem("触达 Agent", quota.agentLabel);
+    addContextItem("发生账号", quota.accountHandle ? `${quota.accountLabel} · ${quota.accountHandle}` : quota.accountLabel);
+    body.appendChild(context);
+
+    const count = el("div", "sb-rw-outreach-quota-count");
+    count.append(el("span", null, "今日已完成触达"), el("strong", null, `${quota.sentCount} 次`));
+    body.appendChild(count);
+    const contactBox = el("div", "sb-rw-outreach-quota-contact");
+    contactBox.append(
+      el("strong", null, "B 端业务方案"),
+      el("span", null, "如果你有大量触达需求，Byering B 端可以提供账号级、批量触达和持续运营方案，帮助你把这类需求持续跑起来。")
+    );
+    body.appendChild(contactBox);
+
+    const actions = el("div", "sb-rw-outreach-quota-actions");
+    const demandButton = el("button", null, "我有大量触达需求");
+    demandButton.type = "button";
+    const demandNotice = el("span", "sb-rw-outreach-quota-notice");
+    demandNotice.setAttribute("aria-live", "polite");
+    const clientRequestId = `live-outreach-demand-${quota.agentId}-${quota.accountId || quota.accountLabel}-${quota.detectedAt || quota.code}`;
+    let submitting = false;
+    let submitted = false;
+    demandButton.addEventListener("click", async () => {
+      if (submitting || submitted) return;
+      if (!quota.accountId) {
+        demandNotice.classList.add("is-error");
+        demandNotice.textContent = "当前账号标识暂不可用，请刷新后再提交。";
+        return;
+      }
+      submitting = true;
+      demandButton.disabled = true;
+      demandButton.textContent = "正在提交…";
+      demandNotice.classList.remove("is-error");
+      demandNotice.textContent = "正在把你的需求提交给业务团队…";
+      try {
+        const response = await fetch(`${receptionBaseUrl()}/v1/business-demands`, {
+          method: "POST",
+          headers: { accept: "application/json", "content-type": "application/json" },
+          cache: "no-store",
+          body: JSON.stringify({
+            kind: "live_outreach_capacity",
+            agentId: quota.agentId,
+            agentName: quota.agentLabel,
+            accountId: quota.accountId,
+            accountName: quota.accountLabel,
+            sentCount: quota.sentCount,
+            quotaCode: quota.code,
+            clientRequestId
+          })
+        });
+        const result = await response.json().catch(() => null);
+        if (!response.ok || result?.accepted !== true) throw new Error(result?.error?.message || "业务需求提交失败");
+        submitted = true;
+        demandButton.textContent = "需求已收到";
+        demandNotice.textContent = "我们已收到你的需求，业务团队会在后台跟进。";
+      } catch {
+        submitting = false;
+        demandButton.disabled = false;
+        demandButton.textContent = "我有大量触达需求";
+        demandNotice.classList.add("is-error");
+        demandNotice.textContent = "这次提交没有成功，请稍后再试。";
+      }
+    });
+    actions.appendChild(demandButton);
+    body.appendChild(demandNotice);
+    const dismiss = el("button", null, "知道了");
+    dismiss.type = "button";
+    actions.appendChild(dismiss);
+    body.appendChild(actions);
+    dialog.append(head, body);
+    mask.appendChild(dialog);
+
+    const close = () => {
+      mask.remove();
+      if (state.outreachQuotaDialog?.close === close) state.outreachQuotaDialog = null;
+    };
+    closeButton.addEventListener("click", close);
+    dismiss.addEventListener("click", close);
+    mask.addEventListener("mousedown", (event) => { if (event.target === mask) close(); });
+    page.body.appendChild(mask);
+    state.outreachQuotaDialog = { close };
+    closeButton.focus();
+  }
+
   function openRunningAgentManager() {
     if (document.querySelector(".sb-rw-agent-manager-mask")) return;
     syncLiveWorks();
@@ -7049,6 +7419,17 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     if (completedRail) state.completedAgentRailScrollLeft = completedRail.scrollLeft;
   }
 
+  function restoreRealtimePageBodyScroll(scrollTop) {
+    const restore = () => {
+      const body = page.body;
+      if (!body?.isConnected) return;
+      const maxScrollTop = Math.max(0, body.scrollHeight - body.clientHeight);
+      body.scrollTop = Math.min(Math.max(0, Number(scrollTop) || 0), maxScrollTop);
+    };
+    restore();
+    globalThis.requestAnimationFrame?.(restore);
+  }
+
   function restoreAgentRailScroll(team, scrollStateKey) {
     if (!scrollStateKey) return;
     const restore = () => {
@@ -7099,7 +7480,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
   function render() {
     syncLiveWorks();
     const workGroups = partitionRealtimeWorks(state.liveWorks);
-    const liveAgents = liveAgentsForWorks(state.agents, [...workGroups.active, ...workGroups.attention]);
+    const liveAgents = liveAgentsForWorks(state.agents, [...workGroups.active, ...workGroups.attention, ...workGroups.standby]);
     const completedAgents = liveAgentsForWorks(state.agents, workGroups.completed);
     const selected = selectedAgent();
     const managedAccount = selectedAccount();
@@ -7171,7 +7552,10 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
         const itemWorkKey = douyinAccountWorkKey(item.identity, item.id);
         return accountKey ? accountKey === item.id || accountKey === itemWorkKey : item.id === account.id;
       });
-      const activeAccountWorks = accountWorks.filter((work) => work.state !== "done" && !work.lastError);
+      const accountWorkGroups = partitionRealtimeWorks(accountWorks);
+      const activeAccountWorks = accountWorkGroups.active;
+      const attentionAccountWorks = accountWorkGroups.attention;
+      const standbyAccountWorks = accountWorkGroups.standby;
       const accountStatusLabel = realtimeAccountStatusLabel(item, activeAccountWorks);
       const accountStatus = el("span", `sb-rw-account-status${accountStatusLabel === "需重新登录" ? " is-warning" : ""}`);
       accountStatus.append(el("i"), el("span", null, accountStatusLabel));
@@ -7184,13 +7568,26 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
         : "尚未接入可运行能力";
       const capabilityStatus = el("span", "sb-rw-account-capability-summary", capabilitySummary);
       capabilityStatus.title = capabilityMatrix.map(({ name, binding }) => `${name}：${binding === "account_cloud" ? "账号云电脑已就绪" : "未接入"}`).join("\n");
-      meta.append(accountStatus, capabilityStatus, el("span", "sb-rw-account-stat", activeAccountWorks.length ? `${activeAccountWorks.length} 个${item.mock ? "模拟 Agent" : "Agent"}运行中` : item.mock ? "已准备模拟数据" : "暂无实时任务"));
+      const accountStat = activeAccountWorks.length
+        ? `${activeAccountWorks.length} 个${item.mock ? "模拟 Agent" : "Agent"}运行中`
+        : attentionAccountWorks.length
+          ? `${attentionAccountWorks.length} 个${item.mock ? "模拟 Agent" : "Agent"}需处理`
+          : standbyAccountWorks.length
+            ? `${standbyAccountWorks.length} 个${item.mock ? "模拟 Agent" : "Agent"}待命`
+            : item.mock
+              ? "已准备模拟数据"
+              : "暂无实时任务";
+      meta.append(accountStatus, capabilityStatus, el("span", "sb-rw-account-stat", accountStat));
       const foot = item.status === "需重新登录"
         ? "等待授权后恢复"
         : item.mock
           ? "切换查看该账号的模拟数据"
         : activeAccountWorks.length
           ? "真实任务已连接"
+          : attentionAccountWorks.length
+            ? "有任务需要处理"
+          : standbyAccountWorks.length
+            ? "长期托管已保留，当前待命"
           : "等待任务启动";
       copy.append(meta, el("span", "sb-rw-account-foot", foot));
       card.append(accountAvatar, copy);
@@ -7223,7 +7620,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
       }
       const start = el("button", null, managedAccount ? "运行 Agent" : "开始公开找人");
       start.type = "button";
-      start.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openAgentSquare?.(managedAccount ? undefined : { initialAgentId: "mkt-comment-filter" })));
+      start.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openAgentSquare?.(managedAccount ? undefined : { initialAgentId: "mkt-find-people" })));
       inner.append(art, eyebrow, copy, start);
       empty.appendChild(inner);
       root.appendChild(empty);
@@ -7233,12 +7630,15 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     const teamSection = el("section", "sb-rw-ai-team");
     teamSection.dataset.activeCount = String(liveAgents.length);
     teamSection.dataset.attentionCount = String(workGroups.attention.length);
+    teamSection.dataset.standbyCount = String(workGroups.standby.length);
     const teamHeading = el("div", "sb-rw-ai-team-heading");
     const teamHeadingCopy = el("div", "sb-rw-ai-team-heading-copy");
     const teamStatus = erroredLiveCount
-      ? `${erroredLiveCount} 个任务需要处理${activeLiveCount ? ` · ${activeLiveCount} 个正在运行` : ""}`
+      ? `${erroredLiveCount} 个任务需要处理${activeLiveCount ? ` · ${activeLiveCount} 个正在运行` : ""}${workGroups.standby.length ? ` · ${workGroups.standby.length} 个待命` : ""}`
       : activeLiveCount
         ? `${activeLiveCount} 个任务正在运行`
+        : workGroups.standby.length
+          ? `${workGroups.standby.length} 个 Agent 待命`
         : completedAgents.length
           ? "当前没有正在运行的任务"
           : "暂无正在运行的任务";
@@ -7458,8 +7858,30 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
       events.appendChild(eventList); root.appendChild(events);
     }
 
+    const quota = selected?.id === "mkt-live-danmaku-outreach"
+      ? liveDanmakuOutreachQuotaFor(selected.liveWork)
+      : null;
+    if (quota) {
+      const noticeKey = [
+        selected.liveWork?.metadata?.taskId || selected.liveWork?.taskId || "",
+        selected.liveWork?.metadata?.accountId || selected.liveWork?.accountId || "",
+        quota.detectedAt || quota.code,
+        quota.sentCount
+      ].join("|");
+      if (state.outreachQuotaNoticeKey !== noticeKey) {
+        state.outreachQuotaNoticeKey = noticeKey;
+        openLiveDanmakuOutreachQuotaDialog(quota);
+      }
+    }
+
     if (!root.isConnected) page.body.appendChild(root);
   }
+
+  const renderRealtimeViewPreservingScroll = () => {
+    const scrollTop = page.body.scrollTop;
+    render();
+    restoreRealtimePageBodyScroll(scrollTop);
+  };
 
   const refreshMountedRealtimeView = () => {
     const previousSelected = state.selected;
@@ -7482,17 +7904,18 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     if (!main?.isConnected) return false;
 
     const workGroups = partitionRealtimeWorks(state.liveWorks);
-    const activeAgents = liveAgentsForWorks(state.agents, [...workGroups.active, ...workGroups.attention]);
+    const activeAgents = liveAgentsForWorks(state.agents, [...workGroups.active, ...workGroups.attention, ...workGroups.standby]);
     const activeTeam = page.body.querySelector(".sb-rw-ai-team:not(.is-completed)");
     const completedSection = page.body.querySelector(".sb-rw-ai-team.is-completed");
     if (!activeTeam
       || Number(activeTeam.dataset.activeCount) !== activeAgents.length
       || Number(activeTeam.dataset.attentionCount) !== workGroups.attention.length
+      || Number(activeTeam.dataset.standbyCount) !== workGroups.standby.length
       || Boolean(completedSection) !== Boolean(workGroups.completed.length)
       || (completedSection && Number(completedSection.dataset.completedCount) !== workGroups.completed.length)) return false;
 
     if (fullDesktopOutreachWork) {
-      render();
+      renderRealtimeViewPreservingScroll();
       return true;
     }
 
@@ -7580,9 +8003,86 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
 
   const refreshRealtimeView = ({ structural = false } = {}) => {
     if (state.paused || !page.root.isConnected) return;
-    if (structural || !refreshMountedRealtimeView()) render();
+    if (structural || !refreshMountedRealtimeView()) {
+      if (structural) {
+        render();
+        return;
+      }
+      renderRealtimeViewPreservingScroll();
+    }
   };
   state.refreshView = refreshRealtimeView;
+
+  const resolveDurableTaskGateway = async () => {
+    if (state.gateway?.subscribeTask && state.gateway?.on) return state.gateway;
+    const ready = globalThis.__SALEBUDDY__?.gatewayReady;
+    if (!ready || typeof ready.then !== "function") return null;
+    try {
+      const resolved = await ready;
+      if (resolved?.subscribeTask && resolved?.on) state.gateway = resolved;
+      return resolved?.subscribeTask && resolved?.on ? resolved : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const officeTaskIdsFor = (result = {}) => {
+    const ids = new Set();
+    const add = (work) => {
+      const metadata = work?.metadata && typeof work.metadata === "object" ? work.metadata : {};
+      const id = String(metadata.taskId || metadata.task_id || work?.taskId || work?.task_id || "").trim();
+      if (id) ids.add(id);
+    };
+    (Array.isArray(result.taskWorks) ? result.taskWorks : []).forEach(add);
+    (Array.isArray(result.works) ? result.works : []).forEach((work) => {
+      add(work);
+      (Array.isArray(work?.metadata?.tasks) ? work.metadata.tasks : []).forEach(add);
+    });
+    return ids;
+  };
+
+  const scheduleRemoteOfficeRefresh = () => {
+    if (disposed || remoteOfficeRefreshTimer != null) return;
+    remoteOfficeRefreshTimer = globalThis.setTimeout?.(() => {
+      remoteOfficeRefreshTimer = null;
+      void refreshRemoteOfficeStatus();
+    }, 80) || null;
+  };
+
+  const syncDurableTaskSubscriptions = async (result = {}) => {
+    if (disposed) return;
+    const taskGateway = await resolveDurableTaskGateway();
+    if (disposed || !taskGateway?.subscribeTask || !taskGateway?.on) return;
+    if (durableTaskGateway && durableTaskGateway !== taskGateway) {
+      durableTaskEventUnsubscribe?.();
+      durableTaskEventUnsubscribe = null;
+      for (const taskId of durableTaskIds) durableTaskGateway.unsubscribeTask?.(taskId);
+      durableTaskIds.clear();
+    }
+    durableTaskGateway = taskGateway;
+    if (!durableTaskEventUnsubscribe) {
+      durableTaskEventUnsubscribe = taskGateway.on("task.event", (event = {}) => {
+        const eventTaskId = String(event.taskId || event.task_id || "").trim();
+        if (!eventTaskId || !durableTaskIds.has(eventTaskId)) return;
+        scheduleRemoteOfficeRefresh();
+      });
+    }
+    const nextTaskIds = officeTaskIdsFor(result);
+    for (const taskId of nextTaskIds) {
+      if (durableTaskIds.has(taskId)) continue;
+      durableTaskIds.add(taskId);
+      try {
+        taskGateway.subscribeTask(taskId);
+      } catch {
+        durableTaskIds.delete(taskId);
+      }
+    }
+    for (const taskId of [...durableTaskIds]) {
+      if (nextTaskIds.has(taskId)) continue;
+      taskGateway.unsubscribeTask?.(taskId);
+      durableTaskIds.delete(taskId);
+    }
+  };
 
   const refreshRemoteOfficeStatus = async () => {
     if (disposed || remoteOfficeRefreshPending) return remoteOfficeRefreshPending;
@@ -7598,6 +8098,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
         const result = await response.json();
         state.remoteOfficeSnapshot = Array.isArray(result?.works) ? result.works : [];
         state.remoteOfficeWorks = officeStatusWorksToRealtimeWorks(result.taskWorks || state.remoteOfficeSnapshot, state.accounts);
+        void syncDurableTaskSubscriptions(result);
         if (!disposed) refreshRealtimeView();
       } catch {
         // Keep local work visible when the control plane is temporarily unavailable.
@@ -7729,7 +8230,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
       const authorized = applyAuthoritativeManagedAccountDirectory(state, result?.accounts || []);
       if (!page.root.isConnected && disposed) return;
       state.remoteOfficeWorks = officeStatusWorksToRealtimeWorks(result.taskWorks || state.remoteOfficeSnapshot, state.accounts);
-      render();
+      renderRealtimeViewPreservingScroll();
     } catch {
       // Keep the truthful empty state when the account source is unavailable.
     } finally {
@@ -7748,6 +8249,13 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     disposed = true;
     if (state.accountSetup?.timer != null) globalThis.clearInterval(state.accountSetup.timer);
     if (remoteOfficeTimer != null) globalThis.clearInterval(remoteOfficeTimer);
+    if (remoteOfficeRefreshTimer != null) globalThis.clearTimeout(remoteOfficeRefreshTimer);
+    remoteOfficeRefreshTimer = null;
+    durableTaskEventUnsubscribe?.();
+    durableTaskEventUnsubscribe = null;
+    for (const taskId of durableTaskIds) durableTaskGateway?.unsubscribeTask?.(taskId);
+    durableTaskIds.clear();
+    durableTaskGateway = null;
     unsubscribe?.();
     unsubscribe = null;
     unsubscribeLiveWork?.();

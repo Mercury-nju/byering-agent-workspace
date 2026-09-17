@@ -17,6 +17,20 @@
   <script>document.documentElement.dataset.byeringGuard = "pending";</script>
   <script>var byeringPage=new URLSearchParams(location.search).get("page");var byeringCustomPageRoutes=["agent-square","agents","contacts","realtime-work","realtime","prospects","discovered-people","files","memory","conversation-strategy"];if(byeringPage===null||byeringCustomPageRoutes.includes(byeringPage))document.documentElement.dataset.byeringCustomPage="1";if((byeringPage==="marketing"||byeringPage==="landing")&&!location.hash&&!/^\/share\//.test(location.pathname))document.documentElement.dataset.byeringMarketing="1";if(byeringPage==="login"||/^#\/?auth(?:\/login)?$/.test(location.hash))document.documentElement.dataset.byeringAuth="1";if(byeringPage==="onboarding"||/^#\/?onboarding(?:\/(?:identity|goal))?$/.test(location.hash))document.documentElement.dataset.byeringOnboarding="1";</script>
   <script>
+    (function isolateStylePreview() {
+      var params = new URLSearchParams(location.search);
+      if (params.get("preview") !== "style" || params.get("page") !== "prospects") return;
+      var nativeFetch = window.fetch;
+      window.fetch = function previewFetch(input, init) {
+        var url = String(typeof input === "string" ? input : input && input.url || "");
+        if (/^http:\/\/127\.0\.0\.1:5152\/(?:preload|recmd|file\/list|whitelist\/list|privilege\/check)/.test(url)) {
+          return Promise.resolve(new Response(JSON.stringify({ code: 0, data: { list: [], items: [], apps: [], topics: [], whitelistDirs: [], status: 1 }, list: [], items: [], apps: [], topics: [], whitelistDirs: [], status: 1 }), { status: 200, headers: { "content-type": "application/json" } }));
+        }
+        return nativeFetch.call(this, input, init);
+      };
+    })();
+  </script>
+  <script>
     (function installOfficeAtlasFilter() {
       var nativeFetch = window.fetch;
       var retiredFrames = ["main", "App Agent", "Browser Agent", "Computer Agent", "File Agent", "Search Agent"];
@@ -139,7 +153,7 @@
     })();
   </script>
   <!-- Sequential bootstrap: environment adapter -> native app -> Byering business layer. -->
-  <script type="module" src="./src/salebuddy/app-bootstrap.js?v=20260916-office-chief-account-fix-2"></script>
+  <script type="module" src="./src/salebuddy/app-bootstrap.js?v=20260917-results-mock-preview-entry-1"></script>
   <link rel="modulepreload" crossorigin href="./assets/react-vendor-qbxKt1zu.js">
   <link rel="modulepreload" crossorigin href="./assets/eventemitter3-vendor-B0zOWAJX.js">
   <link rel="modulepreload" crossorigin href="./assets/workbench-biG8PRTg.js">

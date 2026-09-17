@@ -128,6 +128,12 @@ export function createCoreAgentExecutionService({
   }
 
   async function startLiveDanmakuOutreach(request) {
+    const requestedAudience = record(request.config?.audienceRules) ? request.config.audienceRules : {};
+    const requestedContent = record(request.config?.contentPolicy) ? request.config.contentPolicy : {};
+    const requestedCaps = record(request.config?.caps) ? request.config.caps : {};
+    const requestedCapsWithoutDailyLimit = Object.fromEntries(
+      Object.entries(requestedCaps).filter(([key]) => !["dailyMax", "maxTouchesPerDay"].includes(key))
+    );
     const config = acquisitionConfig(request, "authorized_account_live", {
       discoveryOnly: false,
       analysisOnly: false,
@@ -141,13 +147,16 @@ export function createCoreAgentExecutionService({
         quoteComment: false,
         maxLength: 120,
         template: "看到你刚才在直播间留言了，方便说说你想了解什么吗？",
-        strategy: "看到你刚才在直播间留言了，方便说说你想了解什么吗？"
+        strategy: "看到你刚才在直播间留言了，方便说说你想了解什么吗？",
+        ...requestedContent,
+        conversionGoal: cleanText(requestedContent.conversionGoal || requestedAudience.goal)
       },
-      caps: { dailyMax: 50, sendIntervalMs: 0, cooldownMs: 0 },
+      caps: { dailyMax: null, sendIntervalMs: 0, cooldownMs: 0, ...requestedCapsWithoutDailyLimit },
       audienceRules: {
-        goal: "直播间出现弹幕的用户都进入触达流程，不判断成交状态或购买意向。",
-        requirements: "",
-        minScore: 0
+        goal: cleanText(requestedAudience.goal) || "承接直播间互动，邀请有兴趣的用户继续了解商品。",
+        requirements: cleanText(requestedAudience.requirements || requestedAudience.goal),
+        minScore: requestedAudience.minScore ?? 0,
+        ...requestedAudience
       },
       autoStartCloud: false
     });

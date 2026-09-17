@@ -151,6 +151,36 @@ export function createAccountReceptionStore({ stateFile = join(homedir(), ".byer
         return publicRecord(rec);
       });
     },
+    claimPrivateReception(owner, { agentId, takeover = false } = {}) {
+      const normalizedAgentId = String(agentId || "").trim();
+      if (!normalizedAgentId) throw Object.assign(new Error("缺少私信承接 Agent"), { code: "PRIVATE_RECEPTION_AGENT_REQUIRED", statusCode: 400 });
+      return mutate(owner, rec => {
+        const current = normalizePrivateReception(rec.privateReception);
+        const previousOwnerAgentId = current.activeAgentId;
+        if (current.runtimeState === "running" && previousOwnerAgentId && previousOwnerAgentId !== normalizedAgentId && takeover !== true) {
+          return {
+            claimed: false,
+            ownerAgentId: previousOwnerAgentId,
+            canTakeover: true,
+            privateReception: publicRecord(rec).privateReception
+          };
+        }
+        rec.privateReception = {
+          enabled: true,
+          enabledAt: current.enabledAt || new Date(now()).toISOString(),
+          agentIds: [...new Set([...current.agentIds, normalizedAgentId])],
+          activeAgentId: normalizedAgentId,
+          runtimeState: "running",
+          runtimeUpdatedAt: new Date(now()).toISOString()
+        };
+        return {
+          claimed: true,
+          ownerAgentId: normalizedAgentId,
+          previousOwnerAgentId: previousOwnerAgentId && previousOwnerAgentId !== normalizedAgentId ? previousOwnerAgentId : null,
+          privateReception: publicRecord(rec).privateReception
+        };
+      });
+    },
     configurePrivateReception(owner, { agentId } = {}) {
       const normalizedAgentId = String(agentId || "").trim();
       if (!normalizedAgentId) throw Object.assign(new Error("缺少私信承接 Agent"), { code: "PRIVATE_RECEPTION_AGENT_REQUIRED", statusCode: 400 });

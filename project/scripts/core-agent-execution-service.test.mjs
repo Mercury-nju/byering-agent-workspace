@@ -255,6 +255,36 @@ test("core gateway routes live danmaku outreach as an automatic touch listener w
   assert.equal("contentPolicy" in config, true);
 });
 
+test("core gateway preserves live danmaku outreach purpose and interval without a product cap", async () => {
+  const { service, calls } = createService();
+  await service.lease(request({
+    taskId: "live-outreach-configured-task",
+    taskRunId: "live-outreach-configured-run",
+    agentId: "mkt-live-danmaku-outreach",
+    config: {
+      sourceScope: { kind: "authorized_account_live" },
+      liveDanmakuOutreach: true,
+      touchEveryLiveDanmaku: true,
+      analysisKind: "live_danmaku_outreach",
+      touchChannel: "private_message",
+      approvalMode: "auto",
+      audienceRules: { goal: "引导用户留下联系方式" },
+      contentPolicy: {
+        strategy: "我可以把详细资料发给你，方便留下联系方式吗？",
+        conversionGoal: "引导用户留下联系方式"
+      },
+      caps: { dailyMax: 18, sendIntervalMs: 180000 }
+    }
+  }));
+
+  const { config } = calls.acquisitionCreate.at(-1);
+  assert.equal(config.audienceRules.goal, "引导用户留下联系方式");
+  assert.equal(config.contentPolicy.strategy, "我可以把详细资料发给你，方便留下联系方式吗？");
+  assert.equal(config.contentPolicy.conversionGoal, "引导用户留下联系方式");
+  assert.equal(config.caps.dailyMax, null);
+  assert.equal(config.caps.sendIntervalMs, 180000);
+});
+
 test("core gateway routes viral work analysis through the public work service without account scope", async () => {
   const calls = [];
   const service = createCoreAgentExecutionService({

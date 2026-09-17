@@ -499,6 +499,84 @@ test("intent analysis updates the existing prospect record without creating a du
   assert.match(store.get(before.id).timeline[0][1], /抖音分析助手/);
 });
 
+test("intent analysis materializes a missing selected interaction user with traceable source data", () => {
+  const store = createProspectStore({ storage: memoryStorage(), now: () => "2026-09-10T10:00:00.000Z" });
+  const changed = store.applyIntentAnalysis({
+    taskId: "intent-task",
+    agentId: "mkt-intent-analyst",
+    agentName: "客户分析员",
+    sourceTaskId: "interaction-source-task",
+    sourceScope: "own_account_comments",
+    sourceAccountId: "account-1",
+    sourceAccountName: "鸿扬的家居号",
+    sourceResultType: "互动用户",
+    sourceCandidates: [{
+      sourceRecordId: "missing-source-record",
+      leadId: "interaction-user-1",
+      nickname: "待回填用户",
+      uniqueId: "interaction_user_1",
+      secUid: "sec-interaction-user-1",
+      text: "想了解价格",
+      sourceScope: "own_account_comments",
+      source: {
+        type: "作品评论",
+        sourceScope: "own_account_comments",
+        accountId: "account-1",
+        accountName: "鸿扬的家居号"
+      },
+      evidence: [{ quote: "想了解价格", videoId: "video-1" }]
+    }],
+    leads: [{
+      sourceRecordId: "missing-source-record",
+      leadId: "interaction-user-1",
+      nickname: "待回填用户",
+      uniqueId: "interaction_user_1",
+      secUid: "sec-interaction-user-1",
+      score: 91,
+      tier: "high",
+      intent: { score: 91, tier: "high", confidence: 0.92, reason: "明确询价", source: "model" },
+      evidence: [{ quote: "想了解价格", videoId: "video-1" }]
+    }]
+  });
+
+  assert.equal(changed.length, 1);
+  assert.equal(store.list().length, 1);
+  const [record] = store.list();
+  assert.equal(record.name, "待回填用户");
+  assert.equal(record.status, "待确认触达");
+  assert.equal(record.score, 91);
+  assert.equal(record.source.sourceTaskId, "interaction-source-task");
+  assert.equal(record.source.accountId, "account-1");
+  assert.equal(record.contactability.sourceScope, "own_account_comments");
+  assert.match(record.evidence[0].quote, /想了解价格/);
+});
+
+test("intent analysis never materializes a public finder account as a contactable prospect", () => {
+  const store = createProspectStore({ storage: memoryStorage() });
+  const changed = store.applyIntentAnalysis({
+    taskId: "public-intent-task",
+    sourceScope: "public_search",
+    sourceResultType: "抖音找人",
+    sourceCandidates: [{
+      sourceRecordId: "public-source-record",
+      leadId: "public-account-1",
+      nickname: "公域账号",
+      profileUrl: "https://www.douyin.com/user/public-account-1",
+      sourceScope: "public_search"
+    }],
+    leads: [{
+      sourceRecordId: "public-source-record",
+      leadId: "public-account-1",
+      nickname: "公域账号",
+      score: 88,
+      tier: "high"
+    }]
+  });
+
+  assert.deepEqual(changed, []);
+  assert.equal(store.list().length, 0);
+});
+
 test("private inbox lead capture moves a touched user into the lead center", () => {
   const store = createProspectStore({ storage: memoryStorage(), now: () => "2026-09-04T10:00:00.000Z" });
   store.ingestRun({

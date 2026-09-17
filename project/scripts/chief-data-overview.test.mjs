@@ -164,6 +164,42 @@ test("returns an explicit no-data result instead of inventing Agent output", () 
   assert.match(chiefDataMessage({ query: overview.query, overview }), /没有找到 2026-09-15 的 Agent 产出记录/);
 });
 
+test("does not count an empty running task placeholder as Agent output", () => {
+  const overview = buildChiefDataOverview({
+    query: { scope: "all", dateKey: "2026-09-15", timeZone: "Asia/Shanghai" },
+    results: [
+      {
+        taskId: "placeholder-task",
+        agentId: "mkt-gold-customer-service",
+        status: "running",
+        updatedAt: "2026-09-15T08:00:00.000Z",
+        resultSnapshot: {
+          generatedAt: "2026-09-15T08:00:00.000Z",
+          status: "running",
+          summary: "等待真实任务产出，当前没有可交付结果。",
+          counts: {},
+          metrics: {}
+        }
+      },
+      {
+        taskId: "zero-result-task",
+        agentId: "mkt-live-danmaku-analysis",
+        status: "completed",
+        updatedAt: "2026-09-15T09:00:00.000Z",
+        resultSnapshot: {
+          generatedAt: "2026-09-15T09:00:00.000Z",
+          status: "completed",
+          summary: "本场没有识别到有效弹幕主题。",
+          counts: { danmaku: 0 }
+        }
+      }
+    ]
+  });
+
+  assert.equal(overview.resultCount, 1);
+  assert.deepEqual(overview.agents.map((agent) => agent.agentId), ["mkt-live-danmaku-analysis"]);
+});
+
 test("a capability question is not treated as a data query", () => {
   assert.equal(detectChiefDataQuery("幕僚长能看到每个 Agent 的数据吗？", { now: NOW }), null);
 });

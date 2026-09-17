@@ -50,24 +50,8 @@ const AVATAR_KEYS = Object.freeze({
   "Outreach Agent": "sales",
   "Outreach Ops Agent": "customerSuccess",
   "File Agent": "professionalServices",
-  "mkt-lead-miner": "recruiting",
-  "mkt-live-lead-miner": "recruiting",
-  "mkt-audience-search": "sales",
-  "mkt-network-miner": "professionalServices",
-  "mkt-trend-insight": "professionalServices",
   "mkt-intent-analyst": "professionalServices",
-  "mkt-market-scout": "professionalServices",
   "mkt-cold-writer": "sales",
-  "mkt-user-research": "professionalServices",
-  "mkt-follow-up": "customerSuccess",
-  "mkt-phone-sdr": "recordingSummary",
-  "mkt-copywriter": "sales",
-  "mkt-designer": "professionalServices",
-  "mkt-private-op": "customerSuccess",
-  "mkt-cs-manager": "customerSuccess",
-  "mkt-quote": "professionalServices",
-  "mkt-data-analyst": "professionalServices",
-  "mkt-bid": "professionalServices"
 });
 
 const NAME_KEYS = Object.freeze({
@@ -120,28 +104,10 @@ const HUMAN_AVATAR_KEYS = Object.freeze({
   "Outreach Agent": "human08",
   "Outreach Ops Agent": "human02",
   "File Agent": "human03",
-  "mkt-comment-filter": "human11",
-  "mkt-lead-miner": "human05",
-  "mkt-live-lead-miner": "human03",
-  "mkt-research-expert": "human09",
-  "mkt-audience-search": "human01",
-  "mkt-network-miner": "human04",
-  "mkt-trend-insight": "human06",
   "mkt-intent-analyst": "human07",
-  "mkt-market-scout": "human06",
   "mkt-cold-writer": "human07",
-  "mkt-user-research": "human13",
   "mkt-dm-inbox": "human10",
   "mkt-gold-customer-service": "human05",
-  "mkt-follow-up": "human08",
-  "mkt-phone-sdr": "human01",
-  "mkt-copywriter": "human02",
-  "mkt-designer": "human03",
-  "mkt-private-op": "human04",
-  "mkt-cs-manager": "human05",
-  "mkt-quote": "human06",
-  "mkt-data-analyst": "human07",
-  "mkt-bid": "human08"
 });
 
 const HUMAN_NAME_KEYS = Object.freeze({

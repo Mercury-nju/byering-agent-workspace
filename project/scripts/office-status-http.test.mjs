@@ -87,6 +87,40 @@ test("HTTP office status exposes the live viral analysis checkpoint from the cor
   rmSync(root, { recursive: true, force: true });
 });
 
+test("HTTP office status exposes the realtime acquisition fields used by the implementation queue", async t => {
+  const task = {
+    key: "acquisition-http-key",
+    context: {
+      tenantId: null,
+      agentId: "mkt-comment-acquisition",
+      taskId: "acquisition-http-task",
+      taskRunId: "acquisition-http-run",
+      accountId: "douyin-http"
+    },
+    state: "running",
+    runtimeAlive: true,
+    updatedAt: "2026-09-17T10:00:00.000Z",
+    approvalQueue: [{ touchId: "touch-http", state: "submitted", lead: { leadId: "lead-http", nickname: "客户乙" } }],
+    candidateProfiles: { "lead-http": { leadId: "lead-http", uid: "uid-http", secUid: "sec-http" } },
+    replies: [{ leadId: "lead-http", content: "我想了解一下", receivedAt: "2026-09-17T10:01:00.000Z" }],
+    outreachQuota: { reached: true, source: "provider", sentCount: 37, code: "DOUYIN_DM_DAILY_LIMIT" },
+    resultSnapshot: { source: "douyin_interactions", apiKey: "must-not-leak", leads: [{ leadId: "lead-http", score: 88 }] }
+  };
+  const { snapshot } = await setup(t, { douyinAcquisitionService: { listRuntimeTasks: () => [task] } });
+  const work = (await snapshot()).taskWorks.find((item) => item.metadata.taskId === task.context.taskId);
+  const acquisition = work.metadata.acquisitionSnapshot;
+
+  assert.equal(work.state, "working");
+  assert.equal(work.metadata.taskKey, task.key);
+  assert.equal(acquisition.approvalQueue[0].touchId, "touch-http");
+  assert.equal(acquisition.candidateProfiles["lead-http"].uid, "uid-http");
+  assert.equal(acquisition.replies[0].content, "我想了解一下");
+  assert.equal(acquisition.outreachQuota.sentCount, 37);
+  assert.equal(work.metadata.outreachQuota.code, "DOUYIN_DM_DAILY_LIMIT");
+  assert.equal(acquisition.resultSnapshot.leads[0].score, 88);
+  assert.equal(JSON.stringify(work).includes("must-not-leak"), false);
+});
+
 test("backend state, store, label and workspace agree across start, pause, stop and stale data", async t => {
   const task = { context: { agentId: "mkt-comment-acquisition", taskId: "office-acquisition", accountId: "account-1" }, state: "running", runtimeAlive: true, listening: false };
   const { snapshot } = await setup(t, { douyinAcquisitionService: { listRuntimeTasks: () => [task] } });

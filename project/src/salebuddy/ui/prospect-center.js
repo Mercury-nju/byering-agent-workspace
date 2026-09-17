@@ -1,14 +1,20 @@
 import { openPage, el } from "./pages.js";
 import { clearNavigationRoute, persistNavigationRoute } from "./navigation-routes.js";
-import { contactabilityFor, isContactableRecord, isManualOutreachReady, prospectStore, PROSPECT_STATUSES } from "./prospect-store.js";
+import { contactabilityFor, isContactableRecord, isManualOutreachReady, normalizeResultSourceScope, prospectStore, PROSPECT_STATUSES, RESULT_SOURCE_SCOPES } from "./prospect-store.js";
 import { openAccountAnalysis, renderAccountAnalysisOverview, renderAccountAnalysisReports } from "./account-analysis.js";
-import { renderViralWorkAnalysisDetails, renderViralWorkAnalysisOverview } from "./viral-work-analysis.js";
+import { renderViralWorkAnalysisOverview } from "./viral-work-analysis.js";
 import { buildAccountAnalysisBatch, buildAccountAnalysisResumeFlow, ACCOUNT_ANALYSIS_LIMIT } from "../agents/account-analysis-contract.js";
 import { mountPersonAvatar, personAvatarUrl } from "./person-avatar.js";
 import { listWorks, subscribeWork } from "../agents/work-live.js";
 import { fetchCanonicalResultRuns } from "../bridge/results-client.js";
-import { createResultsMockPreviewData, isResultsMockPreview } from "./results-mock-preview.js";
+import { createResultsMockPreviewData, createResultsMockPreviewFiles, isResultsMockPreview } from "./results-mock-preview.js";
 import { accountAvatarSource, getAuthorizedManagedAccounts } from "./realtime-work.js";
+import { displayAgentName, localizeAgentText } from "../brand.js";
+import { getMarketplaceAgent, isMarketplaceAgentAvailable, listHiredAgents, MARKETPLACE_LATEST_AGENT_IDS } from "../agents/marketplace.js";
+import { refreshEmploymentContracts } from "../bridge/employment-client.js";
+import { grokStateForTeamStatus, mountGrokBotAvatar } from "./grok-bot-avatar.js";
+import { listFiles, subscribe as subscribeFiles } from "../agents/file-store.js";
+import { openAgentSquarePage } from "./agent-square.js";
 import { PRIVATE_OUTREACH_MODES, isPrivateOutreachRecordCandidate, normalizePrivateOutreachMode, privateOutreachProfileIdentifier } from "../agents/private-outreach-contract.js";
 import {
   finderAccountCsvRows,
@@ -33,7 +39,7 @@ const CSS = `
 .sb-prospect-page{height:100%;box-sizing:border-box;padding:26px 34px 40px;background:#f7f9f7;color:#17231d;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow:auto}
 .sb-prospect-shell{max-width:1260px;margin:0 auto}.sb-prospect-topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}.sb-prospect-kicker{display:flex;align-items:center;gap:8px;color:#159f63;font-size:12px;font-weight:700;letter-spacing:.04em}.sb-prospect-kicker i{width:7px;height:7px;border-radius:50%;background:#12b66d;box-shadow:0 0 0 4px rgba(18,182,109,.12)}.sb-prospect-subtitle{margin:6px 0 0;color:#7a887f;font-size:13px}.sb-prospect-top-actions{display:flex;align-items:center;gap:8px}.sb-prospect-button{height:34px;padding:0 13px;border:1px solid #d6e7dc;border-radius:8px;color:#557064;background:#fff;font:inherit;font-size:11px;font-weight:650;cursor:pointer}.sb-prospect-button:hover{border-color:#8ed3ad;background:#f5fcf7}.sb-prospect-button.primary{border-color:#10ae68;color:#fff;background:#10b56b}.sb-prospect-button.primary:hover{background:#079a59}.sb-prospect-button:disabled{opacity:.5;cursor:not-allowed}
 .sb-prospect-workspace{display:grid;grid-template-columns:minmax(0,1.58fr) minmax(330px,.72fr);gap:14px;margin-top:14px}.sb-prospect-panel{min-width:0;border:1px solid #e1ebe4;border-radius:13px;background:#fff}.sb-prospect-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid #edf2ef}.sb-prospect-panel-title{font-size:14px;font-weight:750}.sb-prospect-panel-meta{color:#9aa59e;font-size:10px}.sb-prospect-panel-actions{display:flex;align-items:center;gap:10px;margin-left:auto}.sb-prospect-toolbar{position:relative;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:11px 16px;border-bottom:1px solid #f0f3f1}.sb-prospect-filter{height:28px;padding:0 10px;border:1px solid transparent;border-radius:7px;color:#7a887f;background:transparent;font:inherit;font-size:11px;cursor:pointer}.sb-prospect-filter:hover{background:#f3f7f4}.sb-prospect-filter.is-active{border-color:#bfe6cf;color:#118f58;background:#effaf4;font-weight:650}.sb-prospect-search{width:156px;height:29px;margin-left:auto;box-sizing:border-box;padding:0 10px;border:1px solid #e1ebe4;border-radius:7px;outline:none;color:#334238;background:#fbfdfb;font:inherit;font-size:11px}.sb-prospect-search:focus{border-color:#7bd1a3;box-shadow:0 0 0 3px rgba(18,182,109,.1)}.sb-prospect-view-toggle{display:flex;gap:2px;padding:3px;border-radius:8px;background:#f1f5f2}.sb-prospect-view{height:25px;padding:0 8px;border:0;border-radius:6px;color:#8b9890;background:transparent;font:inherit;font-size:10px;cursor:pointer}.sb-prospect-view.is-active{color:#1c3025;background:#fff;box-shadow:0 1px 3px rgba(23,45,32,.08);font-weight:650}
-.sb-prospect-sync-notice{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0 0;padding:10px 12px;border:1px solid #d9e3ee;border-radius:9px;color:#536477;background:#f7faff;font-size:11px;line-height:1.5}.sb-prospect-sync-copy{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px;min-width:0}.sb-prospect-sync-copy strong{color:#344456;font-size:12px}.sb-prospect-sync-notice button{height:28px;flex:none;padding:0 10px;border:1px solid #c4d5eb;border-radius:7px;color:#2f6fb9;background:#fff;font:inherit;font-size:11px;font-weight:650;cursor:pointer}.sb-prospect-sync-notice button:hover{border-color:#7ea9dc;background:#f1f7ff}.sb-prospect-sync-notice button:disabled{opacity:.55;cursor:wait}
+.sb-prospect-workspace.is-empty-discovery{align-items:start}.sb-prospect-workspace.is-empty-discovery .sb-prospect-panel:last-child{min-height:0}.sb-prospect-workspace.is-empty-discovery .sb-prospect-detail-empty{min-height:170px}
 .sb-prospect-tag-manager{position:absolute;top:48px;left:16px;z-index:5;width:265px;padding:13px;border:1px solid #dcebe1;border-radius:10px;background:#fff;box-shadow:0 14px 32px rgba(24,65,41,.14)}.sb-prospect-tag-manager[hidden]{display:none}.sb-prospect-tag-manager-title{font-size:11px;font-weight:750}.sb-prospect-tag-cloud{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.sb-prospect-tag-chip{height:24px;padding:0 8px;border:1px solid #dbe9df;border-radius:6px;color:#6c7b72;background:#f8fbf9;font:inherit;font-size:10px;cursor:pointer}.sb-prospect-tag-chip.is-used{border-color:#b4e3c8;color:#138e58;background:#effaf4}.sb-prospect-tag-input{display:flex;gap:5px;margin-top:11px}.sb-prospect-tag-input input{min-width:0;flex:1;height:27px;padding:0 8px;border:1px solid #e1ebe4;border-radius:6px;outline:none;font:inherit;font-size:10px}.sb-prospect-tag-input button{height:27px;padding:0 8px;border:0;border-radius:6px;color:#fff;background:#12ae69;font:inherit;font-size:10px;cursor:pointer}.sb-prospect-tag-ai{width:100%;height:28px;margin-top:8px;border:1px solid #cfe7d9;border-radius:6px;color:#178e58;background:#f1fbf5;font:inherit;font-size:10px;cursor:pointer}
 .sb-prospect-bulk{display:flex;align-items:center;gap:7px;padding:9px 16px;color:#587066;background:#f2faf5;font-size:10px}.sb-prospect-bulk strong{color:#16925a}.sb-prospect-bulk button{height:25px;padding:0 8px;border:1px solid #c7e4d2;border-radius:6px;color:#168d57;background:#fff;font:inherit;font-size:10px;cursor:pointer}.sb-prospect-bulk button:hover{background:#effaf4}.sb-prospect-table-wrap{overflow:auto;padding:7px 9px 12px}.sb-prospect-table{width:100%;border-collapse:collapse;min-width:730px}.sb-prospect-table th{padding:7px 7px;color:#a0aaa3;font-size:10px;font-weight:600;text-align:left;white-space:nowrap}.sb-prospect-table td{padding:10px 7px;border-top:1px solid #f0f3f1;color:#445149;font-size:11px;vertical-align:middle}.sb-prospect-table input[type="checkbox"]{accent-color:#11b56b}.sb-prospect-row{cursor:pointer}.sb-prospect-row:hover td{background:#f8fcf9}.sb-prospect-row.is-selected td{background:#f0faf4}.sb-prospect-person{display:flex;align-items:center;gap:8px;min-width:156px}.sb-prospect-avatar{width:28px;height:28px;display:grid;place-items:center;flex:none;border-radius:8px;color:#168f5b;background:#dff7e9;font-size:11px;font-weight:750}.sb-prospect-person-copy{min-width:0}.sb-prospect-person-name{color:#24332a;font-weight:700}.sb-prospect-person-handle{margin-top:3px;color:#9aa59e;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-prospect-source,.sb-prospect-tag{color:#77847c;white-space:nowrap}.sb-prospect-score{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:21px;border-radius:6px;color:#0c9457;background:#e7f8ed;font-weight:750}.sb-prospect-score.is-mid{color:#9a701f;background:#fff4dc}.sb-prospect-status{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.sb-prospect-status::before{content:"";width:6px;height:6px;border-radius:50%;background:#c8d2cc}.sb-prospect-status.is-hot{color:#149b60}.sb-prospect-status.is-hot::before{background:#16b76d}.sb-prospect-status.is-research{color:#aa7a27}.sb-prospect-status.is-research::before{background:#e2ac4d}.sb-prospect-status.is-archive{color:#9aa59e}
 .sb-prospect-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:12px}.sb-prospect-card{position:relative;padding:13px;border:1px solid #e5eee8;border-radius:10px;cursor:pointer}.sb-prospect-card:hover,.sb-prospect-card.is-selected{border-color:#8ed3ad;background:#f7fcf9}.sb-prospect-card-check{position:absolute;top:11px;right:11px}.sb-prospect-card-top{display:flex;align-items:center;gap:8px}.sb-prospect-card-copy{min-width:0}.sb-prospect-card-name{color:#24332a;font-size:12px;font-weight:750}.sb-prospect-card-handle{margin-top:3px;color:#9aa59e;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-prospect-card-score{margin-left:auto;color:#0c9457;font-size:18px;font-weight:800}.sb-prospect-card-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:11px}.sb-prospect-card-tag{padding:3px 6px;border-radius:5px;color:#5e7468;background:#eef8f1;font-size:9px}.sb-prospect-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:11px;color:#89968e;font-size:9px}
@@ -78,6 +84,8 @@ const CSS = `
 @media(max-width:1250px){.sb-prospect-loop{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-prospect-loop-step{border-bottom:1px solid #e5e7eb}.sb-prospect-loop-step:nth-child(2){border-right:0}.sb-prospect-loop-step:nth-last-child(-n+2){border-bottom:0}}
 @media(max-width:760px){.sb-prospect-loop{grid-template-columns:1fr}.sb-prospect-loop-step{border-right:0;border-bottom:1px solid #ededed}.sb-prospect-loop-step:nth-child(2){border-bottom:1px solid #ededed}.sb-prospect-loop-step:last-child{border-bottom:0}}
 .sb-result-tabs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:18px}.sb-result-tab{height:31px;padding:0 12px;border:1px solid #e5e5e5;border-radius:7px;color:#737373;background:#fff;font:inherit;font-size:10.5px;cursor:pointer}.sb-result-tab:hover{border-color:#b8c7dc;background:#fafafa}.sb-result-tab.is-active{border-color:#262626;color:#fff;background:#262626;font-weight:700}.sb-result-tab-count{margin-left:5px;color:#a0a0a0;font-size:9px}.sb-result-tab.is-active .sb-result-tab-count{color:#d4d4d4}.sb-result-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 16px;border-bottom:1px solid #f0f0f0}.sb-result-toolbar .sb-prospect-search{margin-left:auto}.sb-result-card-list{display:grid;gap:1px;padding:7px 9px 12px}.sb-result-card{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:11px;align-items:start;padding:13px 10px;border:1px solid transparent;border-radius:9px;cursor:pointer}.sb-result-card:hover{background:#fafafa}.sb-result-card.is-selected{border-color:#d4d4d4;background:#f7f9fd}.sb-result-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;color:#fff;background:#262626;font-size:10px;font-weight:750}.sb-result-icon.research{background:#67758d}.sb-result-icon.comment{background:#3f7d9e}.sb-result-icon.content{background:#8c6b47}.sb-result-icon.outreach{background:#587c64}.sb-result-card-copy{min-width:0}.sb-result-card-title{color:#262626;font-size:12px;font-weight:750}.sb-result-card-summary{margin-top:4px;color:#737373;font-size:10px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-result-card-meta{display:flex;gap:8px;margin-top:7px;color:#a0a0a0;font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-result-card-side{text-align:right}.sb-result-type{display:inline-flex;padding:3px 6px;border-radius:5px;color:#2f80ed;background:#edf3ff;font-size:9px;font-weight:650;white-space:nowrap}.sb-result-card-side time{display:block;margin-top:8px;color:#a0a0a0;font-size:9px}.sb-result-counts{display:flex;gap:6px;margin-top:8px}.sb-result-count{padding:3px 6px;border-radius:5px;color:#626262;background:#f0f1f2;font-size:9px}.sb-result-detail-kicker{color:#2f80ed;font-size:9.5px;font-weight:650}.sb-result-detail-title{margin-top:6px;color:#262626;font-size:16px;font-weight:750;line-height:1.35}.sb-result-detail-summary{margin-top:11px;padding:11px;border-radius:8px;color:#525252;background:#f4f4f5;font-size:10.5px;line-height:1.6}.sb-result-detail-section{padding:14px 0;border-top:1px solid #e5e5e5}.sb-result-detail-section-title{display:flex;justify-content:space-between;gap:10px;color:#626262;font-size:11px;font-weight:700}.sb-result-detail-section-title span{color:#a0a0a0;font-size:9.5px;font-weight:500}.sb-result-detail-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:10px}.sb-result-detail-metric{padding:9px;border:1px solid #e5e5e5;border-radius:7px;background:#fafafa}.sb-result-detail-metric strong{display:block;color:#262626;font-size:15px}.sb-result-detail-metric span{display:block;margin-top:3px;color:#858585;font-size:9px}.sb-result-artifacts{display:grid;gap:7px;margin-top:10px}.sb-result-artifact{display:flex;align-items:center;gap:8px;padding:8px;border:1px solid #e5e5e5;border-radius:7px;color:#525252;background:#fff;font-size:10px}.sb-result-artifact i{width:6px;height:6px;border-radius:50%;background:#2f80ed}.sb-result-artifact-copy{min-width:0;flex:1}.sb-result-artifact strong{display:block;color:#262626;font-size:10.5px}.sb-result-artifact span{display:block;margin-top:3px;color:#929292;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-result-detail-actions{display:flex;gap:7px;margin-top:14px}.sb-result-detail-actions button{height:31px;flex:1;border:1px solid #d4d4d4;border-radius:7px;color:#525252;background:#fff;font:inherit;font-size:10px;cursor:pointer}.sb-result-detail-actions button.primary{border-color:#262626;color:#fff;background:#262626}.sb-result-detail-actions button:hover{background:#fafafa}.sb-result-detail-actions button.primary:hover{background:#3a3a3a}.sb-results-empty{padding:46px 18px;color:#a0a0a0;font-size:11px;line-height:1.6;text-align:center}.sb-results-empty strong{display:block;margin-bottom:6px;color:#626262;font-size:13px}@media(max-width:760px){.sb-result-tabs{margin-top:14px}.sb-result-toolbar .sb-prospect-search{margin-left:0}.sb-result-card{grid-template-columns:30px minmax(0,1fr)}.sb-result-icon{width:30px;height:30px}.sb-result-card-side{grid-column:2;text-align:left}.sb-result-card-side time{display:inline-block;margin:6px 0 0 8px}}
+.sb-results-agent-section{padding-bottom:0}.sb-results-agent-heading{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:8px}.sb-results-agent-heading strong{color:#25322b;font-size:13px;font-weight:680}.sb-results-agent-heading span{color:#8c9792;font-size:10px}.sb-results-agent-team{display:flex;flex-wrap:nowrap;gap:8px;margin:0;padding:1px 1px 7px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#d4dbe2 transparent;-webkit-overflow-scrolling:touch;touch-action:pan-x}.sb-results-agent-team::-webkit-scrollbar{height:4px}.sb-results-agent-team::-webkit-scrollbar-track{background:transparent}.sb-results-agent-team::-webkit-scrollbar-thumb{border-radius:999px;background:#d4dbe2}.sb-results-agent-card{position:relative;display:flex;flex:0 0 calc((100% - 16px) / 3);min-width:300px;min-height:104px;padding:12px;border:1px solid #e6ebe9;border-radius:10px;background:#fff;flex-direction:column;align-items:stretch;justify-content:space-between;text-align:left;font:inherit;cursor:pointer;scroll-snap-align:start;scroll-snap-stop:always;transition:border-color 140ms ease,box-shadow 140ms ease,transform 140ms ease}.sb-results-agent-card:hover{border-color:#b7c8e5;transform:translateY(-1px)}.sb-results-agent-card.is-active{border-color:#b7c8e5;background:#fff;box-shadow:0 0 0 2px rgba(59,107,212,.11)}.sb-results-agent-line{display:flex;align-items:flex-start;gap:10px;min-width:0}.sb-results-agent-avatar{display:grid;place-items:center;width:34px;height:34px;flex:none;border-radius:50%;overflow:hidden;background:#edf5f1;color:#0c8e5e;font-size:12px}.sb-results-agent-avatar img{width:100%;height:100%;object-fit:cover}.sb-results-agent-copy{min-width:0;flex:1;padding-top:1px}.sb-results-agent-name{display:block;overflow:hidden;color:#20252b;font-size:13px;font-weight:650;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}.sb-results-agent-role{display:block;margin-top:5px;overflow:hidden;color:#8a9691;font-size:11px;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}.sb-results-agent-status{position:absolute;top:12px;right:12px;color:#8c9792;font-size:11px;white-space:nowrap}.sb-results-agent-status.is-active{color:#159965}.sb-results-agent-status.is-empty{color:#a0aaa5}.sb-results-agent-card-meta{display:flex;align-items:center;gap:6px;margin-top:9px;color:#8c9792;font-size:9px}.sb-results-agent-card-meta strong{color:#159965;font-weight:650}.sb-agent-result-summary{margin-top:14px;padding:18px 20px;border:1px solid #e0e5eb;border-radius:17px;background:#fff;box-shadow:0 5px 18px rgba(28,39,55,.035)}.sb-agent-result-summary-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px}.sb-agent-result-summary-title{color:#20252b;font-size:16px;font-weight:750}.sb-agent-result-summary-subtitle{max-width:680px;color:#87928c;font-size:11px;line-height:1.5;text-align:right}.sb-agent-result-summary-live-analysis{display:grid;grid-template-columns:minmax(340px,.92fr) minmax(0,1.08fr);column-gap:22px;row-gap:14px}.sb-agent-result-summary-live-analysis .sb-agent-result-summary-head{grid-column:1 / -1}.sb-agent-result-summary-live-analysis .sb-agent-result-metrics{align-self:stretch;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:0}.sb-agent-result-summary-live-analysis .sb-agent-result-metric{display:flex;min-height:0;flex-direction:column;justify-content:center}.sb-agent-result-summary-live-analysis .sb-agent-result-highlights{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:0;padding:0}.sb-agent-result-summary-live-analysis .sb-agent-result-highlight{padding:10px 11px;border:1px solid #edf0f3;border-radius:10px;background:#fbfcfd}.sb-agent-result-metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:15px}.sb-agent-result-metric{min-width:0;padding:12px 13px;border:1px solid #edf0f3;border-radius:10px;background:#fbfcfd}.sb-agent-result-metric-value{display:block;overflow:hidden;color:#20252b;font-size:21px;font-weight:780;font-variant-numeric:tabular-nums;text-overflow:ellipsis;white-space:nowrap}.sb-agent-result-metric-label{display:block;margin-top:6px;overflow:hidden;color:#87928c;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.sb-agent-result-highlights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}.sb-agent-result-highlight{min-width:0;padding:10px 11px;border-top:1px solid #edf0f3}.sb-agent-result-highlight-label{display:block;color:#a0aaa5;font-size:9px}.sb-agent-result-highlight-value{display:block;margin-top:5px;overflow:hidden;color:#46544b;font-size:10px;font-weight:600;line-height:1.5;text-overflow:ellipsis;white-space:nowrap}.sb-agent-result-empty{margin-top:12px;padding:11px;border-radius:9px;color:#8b9690;background:#f7f9fb;font-size:10px;line-height:1.5}@media(max-width:760px){.sb-agent-result-summary{padding:16px}.sb-agent-result-summary-head{align-items:flex-start;flex-direction:column;gap:4px}.sb-agent-result-summary-subtitle{text-align:left}.sb-agent-result-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-agent-result-highlights{grid-template-columns:1fr}.sb-agent-result-summary-live-analysis{grid-template-columns:1fr}.sb-agent-result-summary-live-analysis .sb-agent-result-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-agent-result-summary-live-analysis .sb-agent-result-highlights{grid-template-columns:1fr}}
+.sb-agent-files{margin-top:14px;border:1px solid #e1ebe4;border-radius:13px;background:#fff}.sb-agent-files-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid #edf2ef}.sb-agent-files-title{color:#20252b;font-size:14px;font-weight:750}.sb-agent-files-meta{color:#9aa59e;font-size:10px}.sb-agent-file-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:11px 12px}.sb-agent-file{display:flex;align-items:center;gap:10px;min-width:0;padding:10px;border:1px solid #e5eee8;border-radius:9px;background:#fff;color:inherit;text-align:left;cursor:pointer}.sb-agent-file:hover,.sb-agent-file.is-selected{border-color:#b9dfc7;background:#f7fcf9}.sb-agent-file-icon{display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:8px;color:#237243;background:#eaf6ee;font-size:9px;font-weight:750}.sb-agent-file-icon.is-html{color:#5d626b;background:#f3f3f3}.sb-agent-file-icon.is-doc{color:#3f6fd0;background:#edf3ff}.sb-agent-file-copy{min-width:0}.sb-agent-file-name{display:block;overflow:hidden;color:#28352d;font-size:11px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}.sb-agent-file-meta{display:block;margin-top:3px;overflow:hidden;color:#9aa59e;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.sb-agent-file-preview{margin:0 12px 12px;padding:14px;border-top:1px solid #edf2ef;background:#fbfdfb}.sb-agent-file-preview-title{color:#53635a;font-size:10px;font-weight:700}.sb-agent-file-preview iframe{display:block;width:100%;height:520px;margin-top:10px;border:1px solid #e1ebe4;border-radius:8px;background:#fff}.sb-agent-file-preview pre{max-height:520px;overflow:auto;margin:10px 0 0;padding:12px;border:1px solid #e1ebe4;border-radius:8px;color:#46544b;background:#fff;font:11px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap}.sb-agent-files-empty{padding:25px 16px;color:#9aa59e;font-size:11px;text-align:center}@media(max-width:760px){.sb-results-agent-heading{align-items:flex-start;flex-direction:column;gap:4px}.sb-results-agent-card{flex-basis:min(84vw,340px);min-width:min(84vw,340px)}.sb-agent-result-summary-head{align-items:flex-start;flex-direction:column;gap:4px}.sb-agent-result-summary-subtitle{text-align:left}.sb-agent-result-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-agent-result-highlights{grid-template-columns:1fr}.sb-agent-file-list{grid-template-columns:1fr}}
 .sb-result-comment-list{display:grid;gap:8px;margin-top:10px}.sb-result-comment{padding:10px;border:1px solid #e5e5e5;border-radius:8px;background:#fff}.sb-result-comment-head{display:flex;align-items:center;gap:7px}.sb-result-comment-avatar{display:grid;place-items:center;width:25px;height:25px;border-radius:7px;color:#fff;background:#262626;font-size:10px;font-weight:750}.sb-result-comment-user{min-width:0;flex:1}.sb-result-comment-user strong{display:block;color:#262626;font-size:10.5px}.sb-result-comment-user span{display:block;margin-top:2px;color:#929292;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sb-result-comment-confidence{color:#2f80ed;font-size:9px;white-space:nowrap}.sb-result-comment-quote{margin:9px 0 0;color:#343434;font-size:11px;line-height:1.55}.sb-result-comment-meta{display:flex;gap:7px;align-items:center;margin-top:8px;color:#858585;font-size:9px;line-height:1.4}.sb-result-comment-meta a{min-width:0;overflow:hidden;color:#5d78a8;text-decoration:none;text-overflow:ellipsis;white-space:nowrap}.sb-result-comment-meta a:hover{text-decoration:underline}.sb-result-comment-reason{margin-top:7px;color:#737373;font-size:9.5px;line-height:1.45}.sb-result-comment-signals{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}.sb-result-comment-signal{padding:2px 5px;border-radius:4px;color:#626262;background:#f0f1f2;font-size:8.5px}
 .sb-result-outreach-toolbar{display:flex;align-items:center;gap:8px;margin-top:11px;padding:9px;border:1px solid #dbe5f5;border-radius:8px;background:#f7f9fd}.sb-result-outreach-toolbar strong{color:#262626;font-size:10px}.sb-result-outreach-toolbar span{min-width:0;flex:1;color:#737b86;font-size:9px}.sb-result-outreach-toolbar button{height:27px;padding:0 9px;border:1px solid #d4d4d4;border-radius:6px;color:#525252;background:#fff;font:inherit;font-size:10px;cursor:pointer}.sb-result-outreach-toolbar button.primary{border-color:#262626;color:#fff;background:#262626}.sb-result-outreach-toolbar button:disabled{opacity:.45;cursor:not-allowed}.sb-result-comment-check{width:15px;height:15px;flex:none;accent-color:#2f80ed}.sb-result-comment-check:disabled{opacity:.35}.sb-result-comment.is-selected{border-color:#b8cdef;background:#f7f9fd}
 .sb-finder-run-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:12px}.sb-finder-run-stat{padding:9px;border:1px solid #e5e5e5;border-radius:7px;background:#fafafa}.sb-finder-run-stat strong{display:block;color:#262626;font-size:16px}.sb-finder-run-stat span{display:block;margin-top:3px;color:#858585;font-size:9px}.sb-finder-account-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px;padding:9px;border:1px solid #e5e5e5;border-radius:8px;background:#fafafa}.sb-finder-account-filter{height:26px;padding:0 8px;border:1px solid transparent;border-radius:6px;color:#737373;background:transparent;font:inherit;font-size:10px;cursor:pointer}.sb-finder-account-filter.is-active{border-color:#262626;color:#fff;background:#262626}.sb-finder-account-search{min-width:140px;flex:1;height:27px;box-sizing:border-box;padding:0 9px;border:1px solid #e5e5e5;border-radius:6px;outline:none;font:inherit;font-size:10px}.sb-finder-account-search:focus{border-color:#2f80ed;box-shadow:0 0 0 3px rgba(47,128,237,.1)}.sb-finder-account-bulk{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;padding:8px 9px;border:1px solid #dbe5f5;border-radius:7px;background:#f7f9fd;color:#626262;font-size:10px}.sb-finder-account-bulk strong{color:#262626}.sb-finder-account-bulk button{height:25px;padding:0 8px;border:1px solid #d4d4d4;border-radius:6px;color:#525252;background:#fff;font:inherit;font-size:10px;cursor:pointer}.sb-finder-account-bulk button.primary{border-color:#262626;color:#fff;background:#262626}.sb-finder-account-table-wrap{overflow:auto;margin-top:8px;border:1px solid #e5e5e5;border-radius:8px}.sb-finder-account-table{width:100%;min-width:650px;border-collapse:collapse}.sb-finder-account-table th{padding:8px 7px;color:#999;font-size:9px;font-weight:600;text-align:left;white-space:nowrap;background:#fafafa}.sb-finder-account-table td{padding:9px 7px;border-top:1px solid #f0f0f0;color:#525252;font-size:10px;vertical-align:top}.sb-finder-account-table tr{cursor:pointer}.sb-finder-account-table tr:hover td,.sb-finder-account-table tr.is-selected td{background:#f7f9fd}.sb-finder-account-check{width:15px;height:15px;accent-color:#2f80ed}.sb-finder-account-name{display:block;color:#262626;font-weight:700}.sb-finder-account-handle{display:block;margin-top:3px;color:#999;font-size:9px;white-space:nowrap;max-width:145px;overflow:hidden;text-overflow:ellipsis}.sb-finder-account-link{color:#2f80ed;text-decoration:none}.sb-finder-account-link:hover{text-decoration:underline}.sb-finder-account-score{display:inline-flex;min-width:27px;justify-content:center;padding:3px 5px;border-radius:5px;color:#2f80ed;background:#edf3ff;font-weight:750}.sb-finder-account-state{display:inline-flex;padding:3px 6px;border-radius:5px;color:#626262;background:#f0f1f2;white-space:nowrap}.sb-finder-account-state.is-match{color:#16794f;background:#eaf8ef}.sb-finder-account-state.is-review{color:#9a701f;background:#fff4dc}.sb-finder-account-reason{display:block;max-width:220px;color:#737373;line-height:1.45}.sb-finder-account-tags{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}.sb-finder-account-tag{padding:2px 4px;border-radius:4px;color:#626262;background:#f0f1f2;font-size:8px}.sb-finder-account-empty{padding:28px 12px;color:#999;font-size:10px;text-align:center}
@@ -102,7 +110,7 @@ const DISCOVERY_RESULTS_CSS = `
 .sb-prospect-page--standalone-discovery{display:flex;overflow:hidden}.sb-prospect-page--standalone-discovery .sb-prospect-shell{display:flex;flex:1;flex-direction:column;width:100%;min-height:0}.sb-prospect-page--standalone-discovery .sb-prospect-workspace{align-items:stretch;flex:1;min-height:0}.sb-prospect-page--standalone-discovery .sb-discovery-heading{align-items:center;margin:0 0 20px;padding:2px 0}.sb-discovery-heading-copy{display:grid;gap:5px;min-width:0}.sb-prospect-page--standalone-discovery .sb-discovery-heading h1{font-size:31px}.sb-prospect-page--standalone-discovery .sb-discovery-heading p{max-width:none;text-align:left;color:#7c8794;font-size:12px}.sb-discovery-heading-note{display:inline-flex;align-items:center;flex:none;padding:6px 9px;border-radius:6px;color:#687483;background:#eaf0f7;font-size:10px;font-weight:650}
 .sb-prospect-page--standalone-discovery{height:100%;min-height:0;box-sizing:border-box;padding:16px 42px}
 .sb-discovery-task-kicker{display:block;margin-bottom:4px;color:#2f80ed;font-size:9px;font-weight:700;line-height:1.2}.sb-discovery-task-kicker+.sb-discovery-task-name{margin-top:0}
-.sb-prospect-page--standalone-discovery .sb-prospect-workspace{grid-template-columns:minmax(0,1.65fr) minmax(310px,.72fr);gap:16px}.sb-prospect-page--standalone-discovery .sb-prospect-panel{height:100%;min-height:0;overflow:hidden;border-color:#e0e5eb;box-shadow:0 4px 14px rgba(28,39,55,.03)}.sb-prospect-page--standalone-discovery .sb-prospect-panel:first-child{display:flex;flex-direction:column}
+.sb-prospect-page--standalone-discovery .sb-prospect-workspace{grid-template-columns:minmax(0,1.65fr) minmax(310px,.72fr);gap:16px;margin-top:0}.sb-prospect-page--standalone-discovery .sb-prospect-panel{height:100%;min-height:0;overflow:hidden;border-color:#e0e5eb;box-shadow:0 4px 14px rgba(28,39,55,.03)}.sb-prospect-page--standalone-discovery .sb-prospect-panel:first-child{height:auto;max-height:100%;display:flex;flex-direction:column;overflow:hidden;border-radius:13px}.sb-prospect-page--standalone-discovery .sb-prospect-panel:first-child>.sb-discovery-task-browser{display:block;flex:none;width:100%;box-sizing:border-box;margin:0;padding-top:14px;border-radius:12px 12px 0 0;overflow:hidden}
 .sb-prospect-page--standalone-discovery .sb-discovery-task-browser{padding:14px 16px 15px;background:#fff}.sb-prospect-page--standalone-discovery .sb-discovery-task-browser-title{font-size:12px}.sb-prospect-page--standalone-discovery .sb-discovery-task-list{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px;margin-top:10px}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts{max-width:760px;grid-template-columns:repeat(2,minmax(260px,1fr));gap:8px}.sb-prospect-page--standalone-discovery .sb-discovery-task{padding:10px 12px;border-radius:8px}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;align-items:center;column-gap:16px;row-gap:2px;min-height:0}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-profile{grid-column:1;grid-row:2;margin-top:0}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-meta{grid-column:2;grid-row:1 / span 2;display:grid;justify-items:end;align-self:center;gap:2px;margin-top:0;white-space:nowrap}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-count{font-size:13px;line-height:1.1}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-kind{font-size:9px}.sb-prospect-page--standalone-discovery .sb-discovery-task:hover{transform:none}.sb-prospect-page--standalone-discovery .sb-discovery-task.is-active{border-color:#b9d0f5;background:#f7faff;box-shadow:0 1px 3px rgba(28,39,55,.06)}.sb-prospect-page--standalone-discovery .sb-discovery-task-profile{margin-top:4px}.sb-prospect-page--standalone-discovery .sb-discovery-task-meta{margin-top:7px}
 .sb-discovery-account-heading{display:flex;align-items:center;gap:8px;min-width:0}.sb-discovery-account-heading .sb-discovery-task-name{min-width:0;flex:1}.sb-discovery-account-avatar{display:grid;place-items:center;width:28px;height:28px;flex:none;overflow:hidden;border-radius:8px;color:#35649e;background:#e7f0ff;font-size:11px;font-weight:750}.sb-discovery-account-avatar img{display:block;width:100%;height:100%;object-fit:cover}
 .sb-discovery-source-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:11px}.sb-discovery-source{display:grid;gap:4px;min-width:0;padding:10px 11px;border:1px solid #e1e6ed;border-radius:8px;color:#65707b;background:#fff;font:inherit;text-align:left;cursor:pointer}.sb-discovery-source:hover{border-color:#b8c9e5;background:#f8faff}.sb-discovery-source.is-active{border-color:#b9d0f5;background:#f7faff;box-shadow:0 1px 3px rgba(28,39,55,.06)}.sb-discovery-source-name{overflow:hidden;color:#20252b;font-size:11px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}.sb-discovery-source-copy{color:#7b8794;font-size:9px;line-height:1.45}.sb-discovery-source-meta{color:#2f80ed;font-size:9px;font-weight:700}.sb-discovery-scope-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:16px}.sb-discovery-scope-head strong{color:#3f4954;font-size:11px}.sb-discovery-scope-head span{color:#9aa3ae;font-size:10px}.sb-discovery-task.is-compact{min-height:72px}.sb-discovery-task.is-compact .sb-discovery-task-profile{white-space:normal}.sb-discovery-capability{display:inline-flex;align-items:center;flex:none;padding:5px 8px;border-radius:6px;color:#2f80ed;background:#edf3ff;font-size:10px;font-weight:650}.sb-discovery-capability.is-contactable{color:#157347;background:#eaf8ef}
@@ -114,12 +122,17 @@ const DISCOVERY_RESULTS_CSS = `
 @media(max-width:820px){.sb-prospect-page--standalone-discovery{display:block;height:auto;min-height:100%;padding:16px;overflow:auto}.sb-prospect-page--standalone-discovery .sb-prospect-shell{display:block;min-height:0}.sb-prospect-page--standalone-discovery .sb-prospect-workspace{display:grid;grid-template-columns:1fr;flex:none;min-height:auto}.sb-prospect-page--standalone-discovery .sb-prospect-panel,.sb-prospect-page--standalone-discovery .sb-prospect-panel:last-child{display:block;height:auto;min-height:0;overflow:visible}.sb-prospect-page--standalone-discovery .sb-prospect-detail{overflow:visible}.sb-discovery-list-content{display:block;overflow:visible}.sb-discovery-list-content .sb-prospect-table-wrap{overflow:auto}.sb-prospect-page--standalone-discovery .sb-result-panel-head{align-items:flex-start;flex-direction:column}.sb-discovery-results-actions{justify-content:flex-start;width:100%}.sb-prospect-page--standalone-discovery .sb-result-toolbar{flex:1}.sb-prospect-page--standalone-discovery .sb-result-toolbar .sb-prospect-search{width:100%}.sb-prospect-page--standalone-discovery .sb-discovery-heading{align-items:flex-start;flex-direction:column;gap:8px}.sb-discovery-source-tabs{grid-template-columns:1fr}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts{max-width:none;grid-template-columns:1fr}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto}.sb-prospect-page--standalone-discovery .sb-discovery-task-list--accounts .sb-discovery-task-meta{grid-column:1;grid-row:3;display:flex;justify-content:space-between;justify-items:initial;margin-top:5px}}
 `;
 
+const AGENT_WORKBENCH_CSS = `
+.sb-agent-workbench{margin-top:14px}.sb-agent-workbench-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:10px}.sb-agent-workbench-head strong{color:#20252b;font-size:15px}.sb-agent-workbench-head span{color:#8b96a1;font-size:10px}.sb-agent-workbench-grid{display:grid;grid-template-columns:minmax(0,1.28fr) minmax(300px,.72fr);gap:14px}.sb-agent-workbench-panel{border:1px solid #e1e7ed;border-radius:10px;background:#fff;min-width:0;overflow:hidden}.sb-agent-workbench-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;border-bottom:1px solid #edf0f3}.sb-agent-workbench-panel-head strong{color:#303842;font-size:12px}.sb-agent-workbench-panel-head span{color:#929ba6;font-size:10px}.sb-agent-workbench-list{display:grid;gap:0;padding:0 14px}.sb-agent-workbench-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:13px 0;border-bottom:1px solid #edf0f3}.sb-agent-workbench-row:last-child{border-bottom:0}.sb-agent-workbench-row strong{display:block;color:#303842;font-size:11px}.sb-agent-workbench-row p{margin:4px 0 0;color:#7f8995;font-size:10px;line-height:1.5}.sb-agent-workbench-row span{align-self:start;color:#4267a5;font-size:10px;font-weight:700;white-space:nowrap}.sb-agent-workbench-empty{padding:30px 16px;color:#929ba6;font-size:11px;text-align:center}.sb-agent-workbench-empty strong{display:block;margin-bottom:6px;color:#59636e;font-size:12px}.sb-agent-workbench-detail{padding:15px}.sb-agent-workbench-detail h3{margin:0;color:#303842;font-size:16px}.sb-agent-workbench-detail p{margin:8px 0 0;color:#788391;font-size:11px;line-height:1.6}.sb-agent-workbench-kv{display:grid;gap:9px;margin-top:15px;padding-top:14px;border-top:1px solid #edf0f3}.sb-agent-workbench-kv div{display:grid;grid-template-columns:82px minmax(0,1fr);gap:10px;font-size:10px}.sb-agent-workbench-kv span{color:#9aa3ad}.sb-agent-workbench-kv strong{color:#43505d;font-weight:650}.sb-agent-workbench-actions{display:flex;gap:8px;margin-top:16px}.sb-agent-workbench-actions button{height:31px;padding:0 11px;border:1px solid #dbe2e8;border-radius:7px;background:#fff;color:#51606e;font:inherit;font-size:10px;cursor:pointer}.sb-agent-workbench-actions button.primary{border-color:#20252b;background:#20252b;color:#fff}(max-width:860px){.sb-agent-workbench-grid{grid-template-columns:1fr}.sb-agent-workbench-detail{min-height:0}}
+`;
+
 const DATA_CSS = `
 .sb-prospect-page--data{padding:0;background:#f5f6f8;color:#252a31}
 .sb-data-dashboard{max-width:1480px;margin:0 auto;padding:38px 46px 56px}
+.sb-data-dashboard-embedded{max-width:none;margin:0;padding:0 0 34px}.sb-data-dashboard-embedded .sb-data-result-tabs{margin-bottom:0}.sb-data-dashboard-embedded .sb-data-workspace{margin-top:12px}
 .sb-data-title{margin:0;color:#20252b;font-size:32px;line-height:1.18;letter-spacing:0;font-weight:780}
 .sb-data-subtitle{margin:8px 0 0;color:#788391;font-size:14px;line-height:1.55}
-.sb-data-funnel{display:flex;align-items:stretch;margin-top:28px;border:1px solid #e0e5eb;border-radius:17px;background:#fff;box-shadow:0 5px 18px rgba(28,39,55,.035);overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.sb-data-funnel{display:flex;align-items:stretch;margin-top:8px;border:1px solid #e0e5eb;border-radius:17px;background:#fff;box-shadow:0 5px 18px rgba(28,39,55,.035);overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .sb-data-funnel::-webkit-scrollbar{display:none}
 .sb-data-funnel-cell{position:relative;display:flex;flex:1 0 148px;flex-direction:column;justify-content:center;min-width:0;min-height:92px;padding:17px 24px}
 .sb-data-funnel-label{color:#788391;font-size:13px;line-height:1.4;white-space:nowrap}
@@ -138,7 +151,7 @@ const DATA_CSS = `
 .sb-data-result-tab.is-active{color:#20252b;background:#fff;box-shadow:0 1px 5px rgba(28,39,55,.12);font-weight:700}
 .sb-data-result-count{color:#9aa3ae;font-size:12px;font-weight:600}
 .sb-data-result-tab.is-active .sb-data-result-count{color:#2f80ed}
-.sb-data-table-panel{margin-top:28px;border:1px solid #e0e5eb;border-radius:17px;background:#fff;box-shadow:0 5px 18px rgba(28,39,55,.035);overflow:hidden}
+.sb-data-table-panel{margin-top:8px;border:1px solid #e0e5eb;border-radius:17px;background:#fff;box-shadow:0 5px 18px rgba(28,39,55,.035);overflow:hidden}
 .sb-data-table-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:23px 26px 18px;border-bottom:1px solid #e5e8ed}
 .sb-data-table-head strong{color:#20252b;font-size:19px;font-weight:750}
 .sb-data-table-head span{color:#9aa3ae;font-size:13px}
@@ -218,13 +231,34 @@ const DATA_CSS = `
 .sb-data-detail-actions button.primary{border-color:#20252b;color:#fff;background:#20252b}.sb-data-detail-actions button.primary:hover{border-color:#343b44;background:#343b44}
 @media(max-width:1100px){.sb-data-dashboard{padding:30px 28px 44px}.sb-data-funnel-cell{flex-basis:128px;padding-left:15px;padding-right:15px}.sb-data-funnel-bridge{flex-basis:94px}.sb-data-funnel-label{font-size:12px}.sb-data-funnel-value{font-size:21px}.sb-data-funnel-final .sb-data-funnel-value{font-size:22px}}
 @media(max-width:1100px){.sb-data-workspace.has-detail{grid-template-columns:minmax(0,1fr) 320px}.sb-data-detail-body{padding:18px}}
-@media(max-width:760px){.sb-data-dashboard{padding:22px 16px 34px}.sb-data-title{font-size:28px}.sb-data-funnel{border-radius:13px}.sb-data-funnel-cell{flex-basis:132px;min-height:76px;padding:14px 16px}.sb-data-funnel-bridge{flex-basis:88px}.sb-data-funnel-bridge.is-final{flex-basis:42px}.sb-data-funnel-final{flex-basis:138px}.sb-data-funnel-arrow{width:20px;height:20px;font-size:14px}.sb-data-result-tabs{margin-top:20px;overflow:auto;flex-wrap:nowrap}.sb-data-result-tab{height:38px;padding:0 15px;font-size:14px;white-space:nowrap}.sb-data-table-panel{margin-top:20px;border-radius:13px}.sb-data-table-wrap{padding:0 8px 10px}.sb-data-table th,.sb-data-table td{padding-left:10px;padding-right:10px}.sb-data-workspace{display:block;margin-top:20px}.sb-data-detail-panel{position:relative;top:auto;margin-top:20px;border-radius:13px}.sb-data-detail-head{padding:17px 18px 15px}.sb-data-detail-body{padding:18px}}
+@media(max-width:760px){.sb-data-dashboard{padding:22px 16px 34px}.sb-data-title{font-size:28px}.sb-data-funnel{border-radius:13px}.sb-data-funnel-cell{flex-basis:132px;min-height:76px;padding:14px 16px}.sb-data-funnel-bridge{flex-basis:88px}.sb-data-funnel-bridge.is-final{flex-basis:42px}.sb-data-funnel-final{flex-basis:138px}.sb-data-funnel-arrow{width:20px;height:20px;font-size:14px}.sb-data-result-tabs{margin-top:20px;overflow:auto;flex-wrap:nowrap}.sb-data-result-tab{height:38px;padding:0 15px;font-size:14px;white-space:nowrap}.sb-data-table-panel{margin-top:8px;border-radius:13px}.sb-data-table-wrap{padding:0 8px 10px}.sb-data-table th,.sb-data-table td{padding-left:10px;padding-right:10px}.sb-data-workspace{display:block;margin-top:20px}.sb-data-detail-panel{position:relative;top:auto;margin-top:20px;border-radius:13px}.sb-data-detail-head{padding:17px 18px 15px}.sb-data-detail-body{padding:18px}}
+`;
+
+const RESULT_TIME_FILTER_CSS = `
+.sb-result-panel-head .sb-result-time-filter{height:32px;flex:none;box-sizing:border-box;padding:0 28px 0 10px;border:1px solid #d8dee6;border-radius:8px;color:#4e5966;background:#fff;font:inherit;font-size:11px;outline:0;cursor:pointer}.sb-result-panel-head .sb-result-time-filter:focus{border-color:#7799ca;box-shadow:0 0 0 3px rgba(66,103,165,.1)}
+@media(max-width:980px){.sb-result-panel-head{align-items:flex-start;flex-wrap:wrap}.sb-result-panel-head .sb-prospect-panel-meta{margin-left:0;margin-right:auto}.sb-result-panel-head .sb-result-toolbar{min-width:190px;flex:1}.sb-result-panel-head .sb-result-time-filter{order:3}}
+`;
+
+const AGENT_RAIL_CSS = `
+.sb-results-agent-team{gap:12px;padding:2px 2px 8px}.sb-results-agent-card{min-height:76px;padding:13px 16px;align-items:flex-start;justify-content:center}.sb-results-agent-line{align-items:center;gap:12px}.sb-results-agent-avatar{width:42px;height:42px;font-size:14px}.sb-results-agent-copy{padding-top:0}.sb-results-agent-name{font-size:15px;line-height:1.3}.sb-results-agent-role{margin-top:4px;font-size:12px;line-height:1.45}
+@media(max-width:760px){.sb-results-agent-card{min-height:72px;padding:12px 14px}.sb-results-agent-avatar{width:38px;height:38px}.sb-results-agent-name{font-size:14px}.sb-results-agent-role{font-size:11px}}
+`;
+
+const OUTREACH_MODAL_CSS = `
+.sb-private-outreach-modal{z-index:9050}
+.sb-private-outreach-modal-card{display:flex;flex-direction:column;width:min(920px,calc(100vw - 34px));max-height:calc(100vh - 34px);padding:0;overflow:hidden;border-color:#dfe5ec}
+.sb-private-outreach-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:20px 24px 16px;border-bottom:1px solid #edf0f3;background:#fff}
+.sb-private-outreach-modal-head-copy{min-width:0}.sb-private-outreach-modal-title{color:#20252b;font-size:18px;font-weight:780}.sb-private-outreach-modal-copy{margin-top:5px;color:#7a8490;font-size:11px;line-height:1.55}
+.sb-private-outreach-modal-close{width:30px;height:30px;border:0;border-radius:8px;color:#68727e;background:#f3f5f7;font-size:18px;line-height:1;cursor:pointer}.sb-private-outreach-modal-close:hover{background:#e9edf1;color:#20252b}
+.sb-private-outreach-modal-host{flex:1;min-height:0;overflow:auto;background:#f7f8fa}.sb-private-outreach-modal-host>.sb-as{min-height:0;background:#f7f8fa}.sb-private-outreach-modal-host .sb-as-use{min-height:0;padding:20px 24px 26px}.sb-private-outreach-modal-host .sb-as-use-panel{max-width:none;margin:0;border-color:#e1e6ed;box-shadow:none}.sb-private-outreach-modal-host .sb-as-use-panel-title{font-size:17px}.sb-private-outreach-modal-host .sb-as-use-actions{position:static}
+.sb-as-embedded-loading{display:grid;place-items:center;min-height:260px;color:#7d8792;font-size:13px}
+@media(max-width:760px){.sb-private-outreach-modal{padding:10px}.sb-private-outreach-modal-card{width:100%;max-height:calc(100vh - 20px)}.sb-private-outreach-modal-head{padding:16px}.sb-private-outreach-modal-host .sb-as-use{padding:14px 16px 20px}}
 `;
 
 let styleInjected = false;
 function ensureStyle() {
   if (styleInjected) return;
-  for (const [name, text] of [["base", CSS], ["consumer", CONSUMER_CSS], ["discovery-results", DISCOVERY_RESULTS_CSS], ["data", DATA_CSS]]) {
+  for (const [name, text] of [["base", CSS], ["consumer", CONSUMER_CSS], ["discovery-results", DISCOVERY_RESULTS_CSS], ["agent-workbench", AGENT_WORKBENCH_CSS], ["data", DATA_CSS], ["result-time-filter", RESULT_TIME_FILTER_CSS], ["agent-rail", AGENT_RAIL_CSS], ["outreach-modal", OUTREACH_MODAL_CSS]]) {
     const style = document.createElement("style");
     style.dataset.sbProspectStyle = name;
     style.textContent = text;
@@ -260,7 +294,7 @@ function runHasExplicitOrigin(run = {}) {
     || run?.inputs?.sourceScope
     || run?.contactability
     || run?.sourceResultType
-    || ["mkt-douyin-finder", "mkt-find-people"].includes(run?.agentId)
+    || run?.agentId === "mkt-find-people"
     || run?.resultType === "抖音找人"
   );
 }
@@ -406,7 +440,11 @@ function openRealtimeWork(run = null) {
 }
 
 function openFileCenter(fileId = null, artifact = null) {
-  globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openFiles?.({ initialFileId: fileId, artifact }));
+  globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openFiles?.({
+    initialFileId: fileId,
+    initialAgentId: artifact?.agentId || null,
+    artifact
+  }));
 }
 
   function openAgentConversation(run = null) {
@@ -516,6 +554,49 @@ function formatResultTime(value) {
     : new Date(value);
   return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
+
+export const RESULT_TIME_FILTERS = Object.freeze([
+  { id: "all", label: "全部时间" },
+  { id: "today", label: "今天" },
+  { id: "7d", label: "近 7 天" },
+  { id: "30d", label: "近 30 天" },
+  { id: "90d", label: "近 90 天" }
+]);
+
+function resultTimestamp(value) {
+  const numeric = Number(value);
+  const date = Number.isFinite(numeric)
+    ? new Date(numeric < 1e12 ? numeric * 1000 : numeric)
+    : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.getTime();
+}
+
+function localDayStart(value) {
+  const date = new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+export function filterResultsByTime(runs = [], { range = "all", now = new Date() } = {}) {
+  const source = Array.isArray(runs) ? runs : [];
+  if (range === "all") return source;
+  const reference = new Date(now);
+  if (Number.isNaN(reference.getTime())) return source;
+  const start = localDayStart(reference);
+  const nextDay = new Date(start);
+  nextDay.setDate(nextDay.getDate() + 1);
+
+  if (range === "7d") start.setDate(start.getDate() - 6);
+  if (range === "30d") start.setDate(start.getDate() - 29);
+  if (range === "90d") start.setDate(start.getDate() - 89);
+
+  return source.filter((run) => {
+    const timestamp = resultTimestamp(run?.generatedAt || run?.updatedAt || run?.createdAt);
+    if (timestamp == null) return false;
+    if (range === "today") return timestamp >= start.getTime() && timestamp < nextDay.getTime();
+    return timestamp >= start.getTime() && timestamp <= reference.getTime();
+  });
+}
 function resultMetricEntries(run) {
   const source = run?.metrics && Object.keys(run.metrics).length ? run.metrics : run?.counts || {};
   if (run?.resultType === "抖音找人" && !Array.isArray(source)) {
@@ -526,9 +607,256 @@ function resultMetricEntries(run) {
       ["搜索候选", source.discovered ?? 0]
     ];
   }
-  const labels = { input: "参考账号", discovered: "搜索候选", resolved: "已读取", accounts: "账号", videos: "作品", comments: "评论", candidates: "用户", qualified: "合格用户", matched: "匹配用户", selected: "已选择", unmatched: "未匹配", failed: "发送失败", unknown: "等待回执", high: "高意向", medium: "中意向", low: "低意向", sent: "发送成功", delivered: "已送达", replies: "回复" };
-  if (Array.isArray(source)) return source.filter((item) => item && typeof item === "object").map((item) => [item.label || item.key || "指标", item.displayValue ?? item.value ?? "—"]);
+  const labels = { input: "参考账号", discovered: "搜索候选", resolved: "已读取", accounts: "账号", videos: "作品", comments: "评论", candidates: "用户", qualified: "合格用户", matched: "匹配用户", selected: "已选择", unmatched: "未匹配", failed: "发送失败", unknown: "等待回执", high: "高意向", medium: "中意向", low: "低意向", sent: "发送成功", delivered: "已送达", replies: "回复", signals: "有效信号", drafts: "待发送", newCandidates: "新增候选", handoff: "转人工", received: "收到私信" };
+  if (Array.isArray(source)) return source.filter((item) => item && typeof item === "object").map((item) => [labels[item.label] || labels[item.key] || item.label || item.key || "指标", item.displayValue ?? item.value ?? "—"]);
   return Object.entries(source).slice(0, 4).map(([label, value]) => [labels[label] || label, value]);
+}
+
+const RESULT_METRIC_LABELS = Object.freeze({
+  views: "播放量",
+  likes: "点赞",
+  comments: "评论",
+  shares: "分享",
+  favorites: "收藏",
+  total: "总量",
+  danmaku: "弹幕",
+  uniqueUsers: "互动用户",
+  questions: "问题弹幕",
+  topics: "识别主题",
+  candidates: "候选用户",
+  captured: "已留资",
+  totalInteractions: "互动总量"
+});
+
+function resultCardMetrics(run = {}) {
+  if (run.agentId === "mkt-viral-work-analysis") {
+    const snapshot = resultSnapshotOf(run);
+    const metrics = snapshot.metrics || snapshot.work?.metrics || run.metrics || {};
+    return [
+      [RESULT_METRIC_LABELS.views, metrics.views],
+      [RESULT_METRIC_LABELS.likes, metrics.likes],
+      [RESULT_METRIC_LABELS.comments, metrics.comments],
+      [RESULT_METRIC_LABELS.shares, metrics.shares],
+      [RESULT_METRIC_LABELS.favorites, metrics.favorites]
+    ].filter(([, value]) => value != null && value !== "").slice(0, 2);
+  }
+  if (run.agentId === "mkt-live-danmaku-analysis") {
+    const snapshot = resultSnapshotOf(run);
+    const analysis = snapshot.danmakuAnalysis || run.danmakuAnalysis || snapshot.analysis || {};
+    const counts = analysis.counts || snapshot.counts || run.counts || {};
+    return [
+      [RESULT_METRIC_LABELS.danmaku, counts.danmaku ?? counts.total],
+      [RESULT_METRIC_LABELS.uniqueUsers, counts.uniqueUsers],
+      [RESULT_METRIC_LABELS.questions, counts.questions],
+      [RESULT_METRIC_LABELS.topics, Array.isArray(analysis.topics) ? analysis.topics.length : counts.topics]
+    ].filter(([, value]) => value != null && value !== "").slice(0, 2);
+  }
+  return resultMetricEntries(run).slice(0, 2).map(([label, value]) => [label, value]);
+}
+
+function numberFrom(values = []) {
+  for (const value of values) {
+    if (value == null || value === "") continue;
+    const number = Number(value);
+    if (Number.isFinite(number)) return number;
+  }
+  return null;
+}
+
+function resultSnapshotOf(run = {}) {
+  const snapshot = run.resultSnapshot || run.result_snapshot || run.snapshot || {};
+  return snapshot && typeof snapshot === "object" ? snapshot : {};
+}
+
+function rawFinderAccountsForRun(run = {}) {
+  const snapshot = resultSnapshotOf(run);
+  const values = [run.accounts, run.items, run.results, snapshot.accounts, snapshot.items, snapshot.results];
+  return values.find((value) => Array.isArray(value)) || [];
+}
+
+function countContactableRecords(records = []) {
+  return records.filter((item) => Boolean(item?.profileUrl || item?.profile_url || item?.secUid || item?.sec_uid || item?.secId || item?.sec_id || item?.handle || item?.uniqueId || item?.unique_id)).length;
+}
+
+function countQualifiedAccounts(accounts = []) {
+  return accounts.filter((account) => account?.matched === true || account?.finderState?.saved === true || account?.status === "匹配" || account?.status === "已保存").length;
+}
+
+function agentResultViewModel(agentId, { records = [], runs = [], files = [] } = {}) {
+  const scopedRuns = Array.isArray(runs) ? runs : [];
+  const scopedRecords = Array.isArray(records) ? records : [];
+  const scopedFiles = Array.isArray(files) ? files : [];
+  const latest = scopedRuns[0] || {};
+  const latestSnapshot = resultSnapshotOf(latest);
+
+  if (agentId === "mkt-comment-acquisition") {
+    const touched = scopedRecords.filter((item) => ["已触达", "已回复", "跟进中"].includes(item?.status) || ["sent", "delivered", "success"].includes(String(item?.touchStatus || item?.outreachStatus || "").toLowerCase())).length;
+    const replied = scopedRecords.filter((item) => item?.replyReceived === true || ["已回复", "已回应"].includes(item?.status) || ["replied", "responded"].includes(String(item?.replyStatus || "").toLowerCase())).length;
+    const acquired = Math.max(scopedRecords.length, numberFrom(scopedRuns.map((run) => run.counts?.discovered ?? run.counts?.candidates ?? run.counts?.matched)) || 0);
+    const prospects = scopedRecords.filter((item) => item?.tier || item?.intent || ["待触达", "已触达", "已回复", "跟进中", "已留资"].includes(item?.status)).length;
+    const saved = scopedRecords.filter((item) => ["已留资", "已转化"].includes(item?.status) || item?.contactStatus === "已留资").length;
+    const converted = scopedRecords.filter((item) => item?.conversionStatus === "已转化").length;
+    return {
+      kind: "acquisition",
+      title: "获客漏斗与触达进展",
+      subtitle: "从互动用户到潜客、触达和留资，展示抖音获客管家真正推进了哪一步。",
+      metrics: [
+        ["互动用户", acquired, "人"],
+        ["有效潜客", prospects, "人"],
+        ["已触达", touched, "人"],
+        ["已回复", replied, "人"],
+        ["已留资", saved, "人"],
+        ["已转化", converted, "人"]
+      ],
+      highlights: [
+        ["当前阶段", touched ? (replied ? "已有用户回复，进入后续跟进" : "已完成首轮触达，等待用户回复") : "已完成用户识别，等待触达"],
+        ["下一步", saved ? "优先推进已留资用户的成交跟进" : prospects ? "确认潜客后进入首轮触达" : "继续从评论、直播和互动中识别用户"],
+        ["触达边界", "发送成功才计入已触达，未知回执不会被当成成功"],
+        ["归档结果", `${scopedFiles.length} 份文件已归档到当前 Agent`]
+      ],
+      empty: "抖音获客管家开始运行后，这里会展示从互动到转化的完整进展。"
+    };
+  }
+
+  if (agentId === "mkt-find-people") {
+    const accounts = scopedRuns.flatMap(rawFinderAccountsForRun);
+    const qualified = countQualifiedAccounts(accounts);
+    return {
+      kind: "finder",
+      title: "候选账号与来源证据",
+      subtitle: "展示找到的账号、匹配理由和可继续分析的候选，不把公开资料直接当作潜客结论。",
+      metrics: [["找人任务", scopedRuns.length, "项"], ["候选账号", accounts.length, "个"], ["符合条件", qualified, "个"], ["已保存", accounts.filter((account) => account.finderState?.saved).length, "个"]],
+      highlights: [["当前目标", latest.inputs?.goal || latest.query || "找人目标未记录"], ["匹配依据", accounts[0]?.reason || accounts[0]?.rationale || "等待候选账号核验"], ["公开边界", "只读取公开主页和作品，用于查看与分析，不执行触达"], ["下一步", qualified ? "选择账号进入客户分析或触达准备" : "补充目标条件并重新检索"]],
+      empty: "完成一次找人任务后，这里会展示候选账号、匹配依据和来源证据。"
+    };
+  }
+
+  if (agentId === "mkt-intent-analyst") {
+    const analyzed = scopedRecords.filter((item) => item.intent || item.tier || item.reason).length;
+    return {
+      kind: "intent",
+      title: "用户判断与分析报告",
+      subtitle: "把原始表达、来源证据和分析结论分开，明确哪些是事实、哪些是判断、哪些还需要确认。",
+      metrics: [["分析任务", scopedRuns.length, "项"], ["分析用户", analyzed, "人"], ["高意向", scopedRecords.filter((item) => item.tier === "high").length, "人"], ["分析报告", scopedFiles.filter((file) => file.type === "html").length, "份"]],
+      highlights: [["分析目标", latest.inputs?.goal || latest.query || "分析目标未记录"], ["主要判断", scopedRecords[0]?.reason || latest.summary || "等待形成分析结论"], ["证据边界", "每个结论都应能回查到用户原话、来源作品或公开资料"], ["下一步", analyzed ? "复核重点用户，再决定是否交给触达专员" : "等待候选用户和来源证据"]],
+      empty: "完成用户分析后，这里会展示意向判断、分析依据和报告文件。"
+    };
+  }
+
+  if (agentId === "mkt-cold-writer") {
+    const sent = scopedRuns.reduce((total, run) => total + Number(run.counts?.sent ?? run.counts?.delivered ?? 0), 0);
+    const failed = scopedRuns.reduce((total, run) => total + Number(run.counts?.failed ?? 0), 0);
+    const unknown = scopedRuns.reduce((total, run) => total + Number(run.counts?.unknown ?? run.counts?.pending ?? 0), 0);
+    const targets = scopedRuns.reduce((total, run) => total + Number(run.counts?.total ?? run.counts?.targets ?? 0), 0);
+    return {
+      kind: "outreach",
+      title: "触达任务与平台回执",
+      subtitle: "潜客触达专员只负责执行已确认的触达任务，并记录每个目标的发送结果。",
+      metrics: [["触达批次", scopedRuns.length, "项"], ["目标用户", targets, "人"], ["发送成功", sent, "人"], ["发送失败", failed, "人"], ["等待回执", unknown, "人"]],
+      highlights: [["当前状态", sent ? (unknown ? "部分发送完成，等待平台回执" : "发送结果已记录") : "等待发送或平台回执"], ["发送边界", "没有最终平台回执，不标记为成功"], ["失败处理", failed ? "保留失败原因，支持后续重试" : "暂无失败记录"], ["下一步", unknown ? "继续核对平台回执" : "等待新的触达任务"]],
+      empty: "从成果中心选择目标并完成触达后，这里会展示批次、发送结果和平台回执。"
+    };
+  }
+
+  if (agentId === "mkt-dm-inbox" || agentId === "mkt-gold-customer-service" || agentId === "mkt-live-danmaku-outreach") {
+    const sent = scopedRuns.reduce((total, run) => total + Number(run.counts?.sent ?? run.counts?.delivered ?? 0), 0);
+    const replies = scopedRuns.reduce((total, run) => total + Number(run.counts?.replies ?? 0), 0);
+    const failed = scopedRuns.reduce((total, run) => total + Number(run.counts?.failed ?? 0), 0);
+    return {
+      kind: "outreach",
+      title: "触达、回复与人工接管",
+      subtitle: "展示真实发送状态、用户回复和需要人工处理的事项。",
+      metrics: [["任务批次", scopedRuns.length, "项"], ["发送成功", sent, "人"], ["收到回复", replies, "人"], ["发送失败", failed, "人"]],
+      highlights: [["当前状态", sent ? (replies ? "已有回复，进入会话跟进" : "已完成发送，等待回复") : "等待发送或平台回执"], ["发送边界", "没有最终平台回执，不标记为成功"], ["人工接管", "涉及价格、承诺、投诉或敏感信息时交给人工"], ["下一步", replies ? "优先处理已回复会话" : "继续核对平台回执和新消息"]],
+      empty: "完成任务后，这里会展示发送结果、回复和人工接管事项。"
+    };
+  }
+
+  return {
+    kind: "generic",
+    title: "该 Agent 的业务结果",
+    subtitle: "按该 Agent 的实际任务结果展示，不混入其他 Agent 的数据。",
+    metrics: [["成果", scopedRuns.length, "项"], ["文件", scopedFiles.length, "份"]],
+    highlights: [["最近结果", latest.title || "暂无结果"], ["执行说明", latest.summary || "暂无说明"], ["下一步", latest.actions?.[0] || "等待下一次任务"]],
+    empty: "这个 Agent 还没有可展示的业务结果。"
+  };
+}
+
+function displayBusinessMetric(value, unit = "") {
+  if (value == null || value === "") return "—";
+  const number = Number(value);
+  const display = Number.isFinite(number) ? number.toLocaleString("zh-CN") : String(value);
+  return `${display}${unit ? ` ${unit}` : ""}`;
+}
+
+function agentBusinessViews(agentId, { records = [], runs = [] } = {}) {
+  const scopedRuns = Array.isArray(runs) ? runs : [];
+  const scopedRecords = Array.isArray(records) ? records : [];
+  const countRuns = (predicate) => scopedRuns.filter(predicate).length;
+  const countRecords = (predicate) => scopedRecords.filter(predicate).length;
+  const reports = countRuns((run) => ["研究简报", "内容产出"].includes(run.resultType) || Array.isArray(run.artifacts) && run.artifacts.length);
+
+  if (agentId === "mkt-comment-acquisition") {
+    return [
+      { id: "overview", label: "获客总览", resultType: "全部成果", count: scopedRuns.length },
+      { id: "users", label: "互动用户", resultType: "潜客", count: scopedRecords.length },
+      { id: "prospects", label: "有效潜客", resultType: "潜客", count: countRecords((item) => item?.tier || item?.intent || ["待触达", "已触达", "已回复", "跟进中", "已留资"].includes(item?.status)) },
+      { id: "outreach", label: "触达进展", resultType: "触达记录", count: countRecords((item) => ["已触达", "已回复", "跟进中"].includes(item?.status)) },
+      { id: "leads", label: "留资与转化", resultType: "线索", count: countRecords((item) => item?.contactStatus === "已留资" || item?.conversionStatus === "已转化") }
+    ];
+  }
+
+  if (agentId === "mkt-live-danmaku-analysis") {
+    const reportRuns = scopedRuns.filter((run) => {
+      const snapshot = resultSnapshotOf(run);
+      const artifacts = [...(Array.isArray(run.artifacts) ? run.artifacts : []), ...(Array.isArray(snapshot.artifacts) ? snapshot.artifacts : [])];
+      return /直播间弹幕分析报告/.test(String(run.title || "")) || artifacts.some((artifact) => /直播间弹幕分析报告/.test(String(artifact?.name || "")));
+    });
+    return [{ id: "reports", label: "分析报告", resultType: "全部成果", count: reportRuns.length }];
+  }
+
+  if (agentId === "mkt-viral-work-analysis") {
+    return [
+      { id: "overview", label: "作品概览", resultType: "全部成果", count: scopedRuns.length },
+      { id: "breakdown", label: "视频拆解", resultType: "研究简报", count: countRuns((run) => run?.resultSnapshot?.videoAnalysis || run?.resultSnapshot?.content) },
+      { id: "performance", label: "数据表现", resultType: "研究简报", count: countRuns((run) => run?.resultSnapshot?.metrics || run?.metrics) },
+      { id: "feedback", label: "评论反馈", resultType: "研究简报", count: countRuns((run) => run?.resultSnapshot?.comments?.themes?.length || run?.resultSnapshot?.comments?.quotes?.length) },
+      { id: "tests", label: "创作测试", resultType: "研究简报", count: countRuns((run) => run?.resultSnapshot?.recommendations?.nextTests?.length || run?.resultSnapshot?.recommendations?.nextActions?.length) }
+    ];
+  }
+
+  if (agentId === "mkt-find-people") {
+    return [
+      { id: "overview", label: "找人结果", resultType: "全部成果", count: scopedRuns.length },
+      { id: "candidates", label: "候选账号", resultType: "抖音找人", count: scopedRuns.flatMap(rawFinderAccountsForRun).length },
+      { id: "matched", label: "符合条件", resultType: "抖音找人", count: countQualifiedAccounts(scopedRuns.flatMap(rawFinderAccountsForRun)) },
+      { id: "evidence", label: "匹配依据", resultType: "抖音找人", count: countRuns((run) => run?.evidence?.length || run?.items?.some((item) => item?.reasons?.length || item?.reason)) }
+    ];
+  }
+
+  if (agentId === "mkt-intent-analyst") {
+    return [
+      { id: "overview", label: "分析总览", resultType: "全部成果", count: scopedRuns.length },
+      { id: "people", label: "分析对象", resultType: "潜客", count: scopedRecords.length },
+      { id: "signals", label: "高意向判断", resultType: "潜客", count: countRecords((item) => item?.tier === "high") },
+      { id: "reports", label: "分析报告", resultType: "研究简报", count: reports }
+    ];
+  }
+
+  if (["mkt-cold-writer", "mkt-dm-inbox", "mkt-gold-customer-service", "mkt-live-danmaku-outreach"].includes(agentId)) {
+    return [
+      { id: "overview", label: "触达总览", resultType: "全部成果", count: scopedRuns.length },
+      { id: "sent", label: "发送结果", resultType: "触达记录", count: countRuns((run) => Number(run?.counts?.sent ?? run?.counts?.delivered ?? 0) > 0) },
+      { id: "replies", label: "用户回复", resultType: "触达记录", count: countRuns((run) => Number(run?.counts?.replies ?? 0) > 0) },
+      { id: "handoff", label: "人工接管", resultType: "触达记录", count: countRuns((run) => Number(run?.counts?.handoff ?? 0) > 0) },
+      { id: "logs", label: "会话记录", resultType: "全部成果", count: reports }
+    ];
+  }
+
+  return [
+    { id: "overview", label: "工作结果", resultType: "全部成果", count: scopedRuns.length },
+    { id: "reports", label: "报告与文件", resultType: "全部成果", count: reports }
+  ];
 }
 function artifactLabel(artifact) {
   if (typeof artifact === "string") return artifact;
@@ -553,6 +881,221 @@ function resultEntrySummary(entry) {
 
 function textValue(...values) {
   return values.map((value) => String(value || "").trim()).find(Boolean) || "";
+}
+
+const UNASSIGNED_AGENT_ID = "__unassigned__";
+
+function resultCenterAgentId(value = "") {
+  return textValue(value);
+}
+
+function directAgentIds(item = {}) {
+  const source = item?.source && typeof item.source === "object" ? item.source : {};
+  const metadata = item?.metadata && typeof item.metadata === "object" ? item.metadata : {};
+  return new Set([
+    item?.agentId,
+    item?.agent_id,
+    item?.ownerAgentId,
+    item?.owner_agent_id,
+    source.agentId,
+    source.agent_id,
+    source.outreachAgentId,
+    source.outreach_agent_id,
+    source.intentAgentId,
+    source.intent_agent_id,
+    metadata.agentId,
+    metadata.agent_id
+  ].map((value) => resultCenterAgentId(value)).filter(Boolean));
+}
+
+function identityValues(item = {}) {
+  const source = item?.source && typeof item.source === "object" ? item.source : {};
+  return new Set([
+    item?.id,
+    item?.recordId,
+    item?.sourceRecordId,
+    item?.uniqueId,
+    item?.unique_id,
+    item?.handle,
+    item?.secUid,
+    item?.sec_uid,
+    item?.secId,
+    item?.sec_id,
+    item?.profileUrl,
+    item?.profile_url,
+    source.taskId,
+    source.task_id,
+    source.taskRunId,
+    source.task_run_id,
+    source.sourceResultId,
+    source.source_result_id
+  ].map((value) => textValue(value)).filter(Boolean));
+}
+
+function runIdentityValues(run = {}) {
+  return new Set([
+    run?.id,
+    run?.resultId,
+    resultId(run),
+    run?.taskId,
+    run?.taskRunId,
+    run?.ownerKey
+  ].map((value) => textValue(value)).filter(Boolean));
+}
+
+function runContainsItem(run = {}, item = {}) {
+  const itemValues = identityValues(item);
+  if (!itemValues.size) return false;
+  const runValues = runIdentityValues(run);
+  if ([...itemValues].some((value) => runValues.has(value))) return true;
+  const nestedItems = [
+    ...(Array.isArray(run.items) ? run.items : []),
+    ...(Array.isArray(run.receipts) ? run.receipts : []),
+    ...(Array.isArray(run.candidateEvidence) ? run.candidateEvidence : []),
+    ...(Array.isArray(run.prospects) ? run.prospects : [])
+  ];
+  return nestedItems.some((entry) => {
+    const entryValues = identityValues(entry);
+    return [...itemValues].some((value) => entryValues.has(value));
+  });
+}
+
+function recordAgentIds(record = {}, runs = []) {
+  const ids = directAgentIds(record);
+  for (const run of Array.isArray(runs) ? runs : []) {
+    if (!runContainsItem(run, record)) continue;
+    directAgentIds(run).forEach((agentId) => ids.add(agentId));
+  }
+  if (!ids.size) ids.add(UNASSIGNED_AGENT_ID);
+  return ids;
+}
+
+function fileAgentIds(file = {}, runs = []) {
+  const ids = directAgentIds(file);
+  if (!ids.size) {
+    const fileLinks = new Set([
+      file?.taskId,
+      file?.taskRunId,
+      file?.sourceTaskId,
+      file?.sourceResultId
+    ].map((value) => textValue(value)).filter(Boolean));
+    for (const run of Array.isArray(runs) ? runs : []) {
+      const runLinks = runIdentityValues(run);
+      if ([...fileLinks].some((link) => runLinks.has(link))) directAgentIds(run).forEach((agentId) => ids.add(agentId));
+    }
+  }
+  if (!ids.size) ids.add(UNASSIGNED_AGENT_ID);
+  return ids;
+}
+
+function runAgentIds(run = {}) {
+  const ids = directAgentIds(run);
+  if (!ids.size) ids.add(UNASSIGNED_AGENT_ID);
+  return ids;
+}
+
+function agentLabel(agentId, names = new Map()) {
+  if (agentId === UNASSIGNED_AGENT_ID) return "未归属";
+  const rawName = names.get(agentId) || "";
+  const projected = displayAgentName({ agentType: agentId, name: rawName });
+  if (!projected || projected === agentId || /^(?:mkt-|.* Agent$)/i.test(projected)) {
+    return rawName && rawName !== agentId ? rawName : "其他 Agent";
+  }
+  return projected;
+}
+
+function displayAgentFor(item = {}) {
+  const agentId = textValue(item?.agentId, item?.agent_id, item?.agent?.id, item?.agent?.agentType);
+  const agentName = textValue(item?.agentName, item?.agent?.name, item?.agent?.identity?.name);
+  return agentLabel(agentId || UNASSIGNED_AGENT_ID, new Map(agentId ? [[agentId, agentName]] : []));
+}
+
+function displayAgentValue(value) {
+  const raw = textValue(value);
+  return raw ? displayAgentName({ agentType: raw, name: raw }) || raw : "未归属";
+}
+
+const RESULT_SOURCE_LABELS = Object.freeze({
+  douyin_interactions: "抖音互动数据",
+  control_plane: "任务工作台",
+  "控制面任务": "任务工作台",
+  "实时工作": "实时工作"
+});
+
+function displayResultSource(value) {
+  const raw = textValue(value);
+  if (!raw) return "—";
+  return RESULT_SOURCE_LABELS[raw] || localizeAgentText(raw.replaceAll("_", " "));
+}
+
+function displayResultSummary(value) {
+  const raw = textValue(value);
+  if (!raw) return "";
+  return Object.entries(RESULT_SOURCE_LABELS).reduce((summary, [key, label]) => summary.split(key).join(label), localizeAgentText(raw));
+}
+
+export function buildAgentCatalog({ records = [], runs = [], files = [], roster = [] } = {}) {
+  const activeRosterById = new Map();
+  (Array.isArray(roster) ? roster : []).forEach((agent) => {
+    const id = resultCenterAgentId(agent?.id);
+    if (!id || id === UNASSIGNED_AGENT_ID || activeRosterById.has(id)) return;
+    activeRosterById.set(id, { ...agent, id });
+  });
+  const activeRoster = [...activeRosterById.values()];
+  if (activeRoster.length) {
+    const rosterIds = new Set(activeRoster.map((agent) => agent.id));
+    // Keep customer-facing agents visible when their real records are present,
+    // even if an older employment payload omitted them from the roster.
+    ["mkt-gold-customer-service", "mkt-live-danmaku-outreach"].forEach((id) => {
+      if (!rosterIds.has(id) && getMarketplaceAgent(id)) {
+        const hasRealData = (Array.isArray(runs) ? runs : []).some((run) => runAgentIds(run).has(id))
+          || (Array.isArray(records) ? records : []).some((record) => recordAgentIds(record, runs).has(id))
+          || (Array.isArray(files) ? files : []).some((file) => fileAgentIds(file, runs).has(id));
+        if (hasRealData) activeRoster.push({ id });
+      }
+    });
+    return activeRoster.map((agent) => ({
+      id: agent.id,
+      label: getMarketplaceAgent(agent.id)?.name || displayAgentName({ id: agent.id }) || agent.id
+    }));
+  }
+  const names = new Map();
+  const ids = new Set();
+  const add = (agentId, rawName = "") => {
+    const sourceId = textValue(agentId);
+    const id = resultCenterAgentId(sourceId);
+    if (!id || id === UNASSIGNED_AGENT_ID) return;
+    ids.add(id);
+    if (rawName && sourceId === id && !names.has(id)) names.set(id, textValue(rawName));
+  };
+  (Array.isArray(runs) ? runs : []).forEach((run) => runAgentIds(run).forEach((id) => add(id, run?.agentName || run?.agent?.name)));
+  (Array.isArray(records) ? records : []).forEach((record) => recordAgentIds(record, runs).forEach((id) => add(id, record?.agentName || record?.source?.agentName)));
+  (Array.isArray(files) ? files : []).forEach((file) => fileAgentIds(file, runs).forEach((id) => add(id, file?.createdBy)));
+  const preferredOrder = new Map();
+  [...MARKETPLACE_LATEST_AGENT_IDS].forEach((id, index) => {
+    if (!preferredOrder.has(id)) preferredOrder.set(id, index);
+  });
+  return [...ids]
+    .sort((left, right) => {
+      const order = (preferredOrder.get(left) ?? Number.MAX_SAFE_INTEGER) - (preferredOrder.get(right) ?? Number.MAX_SAFE_INTEGER);
+      return order || left.localeCompare(right, "zh-CN");
+    })
+    .map((id) => ({ id, label: agentLabel(id, names) }));
+}
+
+export function buildAgentScopedData({ records = [], runs = [], files = [], agentId = "", roster = [] } = {}) {
+  const allRecords = Array.isArray(records) ? records : [];
+  const allRuns = Array.isArray(runs) ? runs : [];
+  const allFiles = Array.isArray(files) ? files : [];
+  const agents = buildAgentCatalog({ records: allRecords, runs: allRuns, files: allFiles, roster });
+  const selectedAgentId = agents.some((agent) => agent.id === agentId) ? agentId : agents[0]?.id || "";
+  return {
+    agents,
+    agentId: selectedAgentId,
+    records: allRecords.filter((record) => recordAgentIds(record, allRuns).has(selectedAgentId)),
+    runs: allRuns.filter((run) => runAgentIds(run).has(selectedAgentId)),
+    files: allFiles.filter((file) => fileAgentIds(file, allRuns).has(selectedAgentId))
+  };
 }
 
 export function personAvatarHydrationReference(item = {}) {
@@ -882,18 +1425,22 @@ export function buildInboxResumeFlow({ items = [], source = "成果中心已触�
 }
 
 function displayRun(run = {}) {
-  if (run.resultType !== "评论筛选" && run.analysis?.mode !== "filter") return run;
+  const localizedSummary = displayResultSummary(run.summary);
+  if (run.resultType !== "评论筛选" && run.analysis?.mode !== "filter") {
+    return localizedSummary && localizedSummary !== run.summary ? { ...run, summary: localizedSummary } : run;
+  }
   const comments = commentResultItems(run);
   const countValue = Number(run.counts?.matched);
   const matched = Number.isFinite(countValue) ? countValue : comments.length;
   const normalizedStatus = String(run.status || "unknown").toLowerCase();
   const completed = ["completed", "succeeded", "success", "done"].includes(normalizedStatus);
+  const sourceLabel = displayResultSource(run.source || "作品评论");
   return {
     ...run,
     title: run.query ? `${run.query}筛选结果` : run.title,
     summary: completed && (matched || comments.length)
-      ? `${run.source || "作品评论"} 已完成，筛出 ${matched} 条匹配评论，保留评论用户、原话、来源作品、时间和判断理由。`
-      : run.summary
+      ? `${sourceLabel} 已完成，筛出 ${matched} 条匹配评论，保留评论用户、原话、来源作品、时间和判断理由。`
+      : localizedSummary
   };
 }
 
@@ -1123,6 +1670,53 @@ function matchingAuthorizedSourceAccount(sourceAccount = {}, authorizedAccounts 
   return directory.find((account) => [...normalizedSourceAccountValues(account)].some((value) => sourceValues.has(value))) || null;
 }
 
+const OWN_DISCOVERY_SOURCE_SCOPES = new Set([
+  RESULT_SOURCE_SCOPES.OWN_COMMENTS,
+  RESULT_SOURCE_SCOPES.OWN_LIVE,
+  RESULT_SOURCE_SCOPES.OWN_ALL_SIGNALS,
+  RESULT_SOURCE_SCOPES.OWN_INTERACTIONS
+]);
+const OWN_DISCOVERY_AGENT_IDS = new Set([
+  "mkt-find-people",
+  "mkt-comment-acquisition"
+]);
+const NON_DISCOVERY_AGENT_IDS = new Set([
+  "mkt-account-analysis",
+  "mkt-customer-analysis",
+  "mkt-dm-inbox",
+  "mkt-gold-customer-service",
+  "mkt-intent-analyst",
+  "mkt-cold-writer"
+]);
+
+function isOwnDiscoveryRecord(record = {}) {
+  if (record?.contactability?.allowed === false) return false;
+  const sourceScope = normalizeResultSourceScope(
+    record?.contactability?.sourceScope
+    || record?.sourceScope
+    || record?.source?.sourceScope
+    || record?.source?.type
+  );
+  if (OWN_DISCOVERY_SOURCE_SCOPES.has(sourceScope)) return true;
+  if (sourceScope !== RESULT_SOURCE_SCOPES.UNKNOWN) return false;
+  const agentId = textValue(record?.source?.agentId, record?.agentId).toLowerCase();
+  return OWN_DISCOVERY_AGENT_IDS.has(agentId);
+}
+
+function shouldExcludeDiscoveryRun(run = {}) {
+  if (!run || typeof run !== "object") return false;
+  const sourceScope = normalizeResultSourceScope(
+    run?.contactability?.sourceScope
+    || run?.sourceScope
+    || run?.inputs?.sourceScope
+    || run?.sourceResultType
+    || run?.resultSnapshot?.sourceScope
+  );
+  if ([RESULT_SOURCE_SCOPES.OWN_INBOX, RESULT_SOURCE_SCOPES.USER_DIRECT].includes(sourceScope)) return true;
+  const agentId = textValue(run?.agentId, run?.agent?.id).toLowerCase();
+  return NON_DISCOVERY_AGENT_IDS.has(agentId);
+}
+
 export function discoveredUserItems({ records = [], runs = [] } = {}) {
   const recordByIdentity = new Map();
   (Array.isArray(records) ? records : []).forEach((record, index) => {
@@ -1242,7 +1836,10 @@ export function discoveredUserItems({ records = [], runs = [] } = {}) {
       matchingReasons: [...new Set([...(previous.matchingReasons || []), ...(item.matchingReasons || [])])]
     } : item);
   };
-  (Array.isArray(runs) ? runs : []).forEach((run) => analyzedPeople(run).forEach((item, index) => add(run, item, index)));
+  (Array.isArray(runs) ? runs : []).forEach((run) => {
+    if (shouldExcludeDiscoveryRun(run)) return;
+    analyzedPeople(run).forEach((item, index) => add(run, item, index));
+  });
   (Array.isArray(runs) ? runs : []).forEach((run) => {
     if (run?.resultType !== "抖音找人") return;
     finderResultAccounts(run).forEach((account, index) => add(run, {
@@ -1252,7 +1849,10 @@ export function discoveredUserItems({ records = [], runs = [] } = {}) {
       matchingEvidence: finderAccountEvidence(account),
     }, index));
   });
-  (Array.isArray(records) ? records : []).forEach((record, index) => add(null, record, index));
+  (Array.isArray(records) ? records : []).forEach((record, index) => {
+    if (!isOwnDiscoveryRecord(record)) return;
+    add(null, record, index);
+  });
   return [...discovered.values()];
 }
 
@@ -1431,25 +2031,44 @@ function exportFinderAccounts(accounts = [], taskId = "finder") {
   URL.revokeObjectURL(href);
 }
 
-export function openProspectCenterPage({ onClose = null, initialResult = null, initialSurface = null, initialResultType = null, standaloneDiscovery = false } = {}) {
-  persistNavigationRoute(standaloneDiscovery ? "discoveredPeople" : "prospects");
+export function openProspectCenterPage({ onClose = null, initialResult = null, initialSurface = null, initialResultType = null, initialAgentId = null, initialFileId = null, artifact = null, standaloneDiscovery = false } = {}) {
+  persistNavigationRoute("prospects");
   ensureStyle();
   const mockPreview = isResultsMockPreview();
   const mockData = mockPreview ? createResultsMockPreviewData() : null;
+  const initialArtifactFile = artifact && typeof artifact === "object" ? {
+    ...artifact,
+    id: artifact.id || initialFileId || "artifact:initial",
+    name: artifact.name || artifact.title || "任务产出",
+    type: artifact.type || "doc",
+    content: artifact.content || "",
+    agentId: artifact.agentId || initialAgentId || null,
+    createdBy: artifact.createdBy || null
+  } : null;
+  const withInitialArtifact = (files = []) => {
+    const merged = new Map((Array.isArray(files) ? files : []).map((file) => [file.id, file]));
+    if (initialArtifactFile) merged.set(initialArtifactFile.id, initialArtifactFile);
+    return [...merged.values()];
+  };
   const page = openPage({
     title: "",
     onClose: () => {
-      clearNavigationRoute(standaloneDiscovery ? "discoveredPeople" : "prospects");
+      clearNavigationRoute("prospects");
       onClose?.();
     }
   });
+  const agentSelectionStorageKey = "byering:results-center:selected-agent";
+  const rememberedAgentId = (() => {
+    try { return globalThis.sessionStorage?.getItem(agentSelectionStorageKey) || ""; }
+    catch { return ""; }
+  })();
   page.root.classList.add("sb-page--prospect-center");
   const wrap = el("main", "sb-prospect-page");
   const shell = el("div", "sb-prospect-shell");
   const state = {
-    surface: initialSurface || (initialResult ? "work" : "overview"),
+    surface: "work",
     resultType: initialResultType || initialResult?.resultType || (initialSurface === "people" ? "发现" : "全部成果"),
-    standaloneDiscovery: Boolean(standaloneDiscovery),
+    standaloneDiscovery: false,
     filter: "全部",
     search: "",
     view: "list",
@@ -1462,6 +2081,8 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     taskComposer: false,
     taskRun: prospectStore.latestRun(),
     selectedResultId: initialResult ? resultId(initialResult) : null,
+    selectedAgentId: initialAgentId || initialResult?.agentId || rememberedAgentId || null,
+    selectedFileId: initialFileId || null,
     selectedCommentIds: new Set(),
     selectedFinderAccountIds: new Set(),
     finderAccountFilter: "全部",
@@ -1473,10 +2094,19 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     selectedDiscoveryOrigin: initialResult?.resultType === "抖音找人" ? "public" : "own",
     selectedDiscoveryTaskId: null,
     dashboardView: "all",
-    dashboardDetailId: null
+    dashboardDetailId: null,
+    agentViewId: "overview",
+    resultTimeFilter: "all",
+    agentRailScrollLeft: 0,
+    activeRoster: listHiredAgents().filter(isMarketplaceAgentAvailable),
+    privateOutreachModal: null
   };
-  let records = mockData?.records || prospectStore.list();
-  let runs = mockData?.runs || [];
+  let sourceRecords = mockData?.records || prospectStore.list();
+  let sourceRuns = mockData?.runs || [];
+  let sourceFiles = mockPreview ? withInitialArtifact(createResultsMockPreviewFiles()) : withInitialArtifact(listFiles());
+  let records = [];
+  let runs = [];
+  let files = [];
   let toastTimer = null;
   let canonicalResultsRefreshPending = null;
   let canonicalResultsRefreshTimer = null;
@@ -1516,15 +2146,39 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     }
   }
 
+  function syncAgentScope() {
+    const scoped = buildAgentScopedData({
+      records: sourceRecords,
+      runs: sourceRuns,
+      files: sourceFiles,
+      agentId: state.selectedAgentId,
+      roster: state.activeRoster
+    });
+    state.selectedAgentId = scoped.agentId;
+    records = scoped.records;
+    runs = scoped.runs;
+    files = scoped.files;
+    state.taskRun = runs[0] || null;
+    syncViewSelections();
+    if (state.selectedFileId && !files.some((file) => file.id === state.selectedFileId)) state.selectedFileId = null;
+  }
+
+  function rememberSelectedAgent(agentId) {
+    if (!agentId || agentId === UNASSIGNED_AGENT_ID) return;
+    try { globalThis.sessionStorage?.setItem(agentSelectionStorageKey, agentId); }
+    catch { /* session storage may be unavailable */ }
+  }
+
   function syncRecords() {
     if (mockPreview) {
-      records = mockData.records;
-      runs = mockData.runs;
-      state.taskRun = mockData.runs[0] || null;
-      syncViewSelections();
+      sourceRecords = mockData.records;
+      sourceRuns = mockData.runs;
+      sourceFiles = withInitialArtifact(createResultsMockPreviewFiles());
+      state.taskRun = sourceRuns[0] || null;
+      syncAgentScope();
       return;
     }
-    records = prospectStore.list();
+    sourceRecords = prospectStore.list();
     const storedRuns = (typeof prospectStore.listRuns === "function" ? prospectStore.listRuns() : (prospectStore.latestRun() ? [prospectStore.latestRun()] : []))
       .map(displayRun);
     const liveRuns = listWorks()
@@ -1549,9 +2203,29 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
         generatedAt: work.completedAt || work.startedAt
       }))
       .filter((work) => !storedRuns.some((run) => (work.ownerKey && run.ownerKey === work.ownerKey) || (!work.ownerKey && run.agentId === work.agentId && run.title === work.title)));
-    runs = [...storedRuns, ...liveRuns].filter(isBusinessResult);
-    syncViewSelections();
-    state.taskRun = prospectStore.latestRun();
+    sourceRuns = [...storedRuns, ...liveRuns].filter(isBusinessResult);
+    const storedFiles = listFiles();
+    const runFiles = sourceRuns.flatMap((run) => (Array.isArray(run.artifacts) ? run.artifacts : []).map((artifact, index) => {
+      if (!artifact || typeof artifact !== "object") return null;
+      return {
+        ...artifact,
+        id: artifact.id || `artifact:${resultId(run)}:${index}`,
+        name: artifact.name || artifact.title || "任务产出",
+        type: artifact.type || "doc",
+        content: artifact.content || "",
+        agentId: artifact.agentId || run.agentId || null,
+        taskId: artifact.taskId || run.taskId || null,
+        taskRunId: artifact.taskRunId || run.taskRunId || null,
+        sourceResultId: artifact.sourceResultId || resultId(run),
+        sourceTaskTitle: artifact.sourceTaskTitle || run.title || null,
+        createdBy: artifact.createdBy || run.agentName || null,
+        summary: artifact.summary || run.summary || ""
+      };
+    }).filter(Boolean));
+    const mergedFiles = new Map();
+    [...storedFiles, ...runFiles].forEach((file) => mergedFiles.set(file.id, file));
+    sourceFiles = withInitialArtifact([...mergedFiles.values()]);
+    syncAgentScope();
   }
 
   const unsubscribeStore = prospectStore.subscribe(() => {
@@ -1561,6 +2235,11 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
   });
   const unsubscribeLiveWork = subscribeWork(() => {
     if (!wrap.isConnected) return;
+    syncRecords();
+    render();
+  });
+  const unsubscribeFiles = subscribeFiles(() => {
+    if (!wrap.isConnected || mockPreview) return;
     syncRecords();
     render();
   });
@@ -1594,35 +2273,6 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     wrap.appendChild(toast);
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.remove(), 2300);
-  }
-
-  function renderSyncNotice() {
-    if (mockPreview) return null;
-    const sync = prospectStore.syncStatus?.();
-    if (!sync?.pending) return null;
-
-    const notice = el("section", "sb-prospect-sync-notice");
-    const copy = el("div", "sb-prospect-sync-copy");
-    const attempts = Number(sync.attempts) || 0;
-    copy.append(
-      el("strong", null, "成果正在等待同步"),
-      el("span", null, attempts > 1 ? `已尝试 ${attempts} 次，网络恢复后会继续同步。` : "本机变更会在网络恢复后继续同步。")
-    );
-    const retry = el("button", null, "重试同步");
-    retry.type = "button";
-    retry.addEventListener("click", async () => {
-      retry.disabled = true;
-      try {
-        await prospectStore.retryRemoteSync?.();
-      } finally {
-        if (wrap.isConnected) {
-          syncRecords();
-          render();
-        }
-      }
-    });
-    notice.append(copy, retry);
-    return notice;
   }
 
   function resolvedAvatar(item = {}) {
@@ -1847,7 +2497,7 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     return personAvatarNode(className, { avatar: resolvedAvatar(item) }, name, options);
   }
 
-function openPrivateOutreachFromResult(run, comments, source = "评论筛选结果", outreachMode = PRIVATE_OUTREACH_MODES.PROSPECTS) {
+  function openPrivateOutreachFromResult(run, comments, source = "评论筛选结果", outreachMode = PRIVATE_OUTREACH_MODES.PROSPECTS) {
     if (runHasExplicitOrigin(run) && !runCanCreateProspects(run)) {
       showToast("这批结果来自公域分析，不能直接触达");
       return;
@@ -1870,6 +2520,87 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       initialAgentId: resumeFlow.agentId,
       resumeFlow
     }));
+  }
+
+  function privateOutreachResumeFlowForProspects(selected, run, source, outreachMode) {
+    const first = selected[0] || {};
+    const resumeFlow = buildPrivateOutreachResumeFlow({
+      run: {
+        taskId: run.taskId || "results-center",
+        resultType: run.resultType || (outreachMode === PRIVATE_OUTREACH_MODES.ALL_FOUND ? "找到的人" : "潜客"),
+        sourceScope: run.sourceScope || first.contactability?.sourceScope || first.sourceScope || first.source?.sourceScope || "",
+        accountId: run.accountId || first.source?.accountId || "",
+        accountName: run.accountName || first.source?.accountName || ""
+      },
+      items: selected,
+      source,
+      outreachMode
+    });
+    resumeFlow.accountId = resumeFlow.sourceAccountId || first.source?.accountId || "";
+    resumeFlow.account = resumeFlow.sourceAccountName || first.source?.accountName || "";
+    resumeFlow.mockProspectRecords = selected.map((item) => structuredClone(item));
+    resumeFlow.inlineProspectOutreach = outreachMode === PRIVATE_OUTREACH_MODES.PROSPECTS && selected.length === 1;
+    return resumeFlow;
+  }
+
+  function closePrivateOutreachModal() {
+    const modalState = state.privateOutreachModal;
+    if (!modalState || modalState.closing) return;
+    modalState.closing = true;
+    modalState.cleanup?.();
+    modalState.page?.close?.();
+    state.privateOutreachModal = null;
+    wrap.querySelector(".sb-private-outreach-modal")?.remove();
+  }
+
+  function openPrivateOutreachModal(selected, { run = {}, source = "成果中心潜客", outreachMode = PRIVATE_OUTREACH_MODES.PROSPECTS } = {}) {
+    closePrivateOutreachModal();
+    const resumeFlow = privateOutreachResumeFlowForProspects(selected, run, source, outreachMode);
+    const modal = el("div", "sb-prospect-modal sb-private-outreach-modal");
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.setAttribute("aria-label", "潜客触达专员");
+    const card = el("section", "sb-prospect-modal-card sb-private-outreach-modal-card");
+    const head = el("header", "sb-private-outreach-modal-head");
+    const headCopy = el("div", "sb-private-outreach-modal-head-copy");
+    headCopy.append(
+      el("div", "sb-private-outreach-modal-title", "潜客触达专员"),
+      el("div", "sb-private-outreach-modal-copy", "这位用户已经确认是潜客，我会直接在这里完成首轮私信触达。")
+    );
+    const close = el("button", "sb-private-outreach-modal-close", "×");
+    close.type = "button";
+    close.setAttribute("aria-label", "关闭潜客触达专员");
+    head.append(headCopy, close);
+    const host = el("div", "sb-private-outreach-modal-host");
+    card.append(head, host);
+    modal.appendChild(card);
+
+    let closed = false;
+    const onKeydown = (event) => {
+      if (event.key === "Escape") closeModal();
+    };
+    const closeModal = () => {
+      if (closed) return;
+      closed = true;
+      document.removeEventListener("keydown", onKeydown);
+      closePrivateOutreachModal();
+    };
+    close.addEventListener("click", closeModal);
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeModal();
+    });
+    document.addEventListener("keydown", onKeydown);
+    state.privateOutreachModal = {
+      page: null,
+      closing: false,
+      cleanup: () => document.removeEventListener("keydown", onKeydown)
+    };
+    wrap.appendChild(modal);
+    state.privateOutreachModal.page = openAgentSquarePage({
+      initialAgentId: resumeFlow.agentId,
+      resumeFlow,
+      embeddedContainer: host
+    });
   }
 
   function intentCandidateFromProspect(item = {}) {
@@ -1945,13 +2676,16 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       showToast(`已选中 ${selectedRecords.length} 位待确认触达用户，但他们暂未回传可用于私信的抖音身份`);
       return;
     }
-    const first = selectedRecords[0] || {};
+    if (mode === PRIVATE_OUTREACH_MODES.PROSPECTS && selected.length === 1) {
+      openPrivateOutreachModal(selected, { run, source, outreachMode: mode });
+      return;
+    }
     openPrivateOutreachFromResult({
       taskId: run.taskId || "results-center",
       resultType: run.resultType || (mode === PRIVATE_OUTREACH_MODES.ALL_FOUND ? "找到的人" : "潜客"),
-      sourceScope: run.sourceScope || first.contactability?.sourceScope || first.sourceScope || first.source?.sourceScope || "",
-      accountId: run.accountId || first.source?.accountId || "",
-      accountName: run.accountName || first.source?.accountName || ""
+      sourceScope: run.sourceScope || selectedRecords[0]?.contactability?.sourceScope || selectedRecords[0]?.sourceScope || selectedRecords[0]?.source?.sourceScope || "",
+      accountId: run.accountId || selectedRecords[0]?.source?.accountId || "",
+      accountName: run.accountName || selectedRecords[0]?.source?.accountName || ""
     }, selected, source, mode);
   }
 
@@ -2602,6 +3336,9 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
   }
 
   function renderDiscoverySourceBrowser(container, sources) {
+    // This browser is only for discovery results. Outreach and inbox Agents
+    // render their own artifacts and must never show a "结果来源" selector.
+    if (!["mkt-find-people", "mkt-comment-acquisition"].includes(state.selectedAgentId)) return null;
     const browser = el("section", "sb-discovery-task-browser");
     const head = el("div", "sb-discovery-task-browser-head");
     head.append(el("span", "sb-discovery-task-browser-title", "结果来源"), el("span", "sb-discovery-task-browser-meta", `${sources.items.length} 位已找到`));
@@ -2754,7 +3491,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     const tabs = el("div", "sb-prospect-detail-tabs"); ["overview", "timeline", "actions"].forEach((tab) => { const label = { overview: "概览", timeline: "行为时间线", actions: "执行记录" }[tab]; const button = el("button", `sb-prospect-detail-tab${state.detailTab === tab ? " is-active" : ""}`, label); button.type = "button"; button.addEventListener("click", () => { state.detailTab = tab; render(); }); tabs.appendChild(button); });
     const top = el("div", "sb-prospect-detail-top"); top.append(renderPersonAvatar("sb-prospect-detail-avatar", item, item.name, { eager: true })); const copy = el("div"); copy.append(el("div", "sb-prospect-detail-name", item.name), el("div", "sb-prospect-detail-handle", item.handle), el("div", "sb-prospect-detail-status", lifecycleLabel(item))); const score = el("div", "sb-prospect-detail-score", String(item.score)); score.append(el("small", null, "意向评分")); top.append(copy, score); container.append(tabs, top);
     if (state.detailTab === "overview") {
-      container.appendChild(el("div", "sb-prospect-detail-note", item.profile)); const info = el("section", "sb-prospect-detail-section"); const infoTitle = el("div", "sb-prospect-detail-section-title"); const intentPending = item.tier === "unknown" || !item.intent; infoTitle.append(el("span", null, state.resultType === "线索" ? "留资信息" : "分析结果"), el("span", null, state.resultType === "线索" ? item.status === "已留资" ? "已进入线索中心" : "已确认转化" : intentPending ? "待分析" : item.intent?.source === "model" ? "大模型" : "规则判断")); const list = el("dl", "sb-prospect-detail-list"); [["分析等级", intentPending ? "待分析" : tierLabel(item.tier)], ["分析说明", intentPending ? "尚未完成综合分析" : item.reason], ["来源", sourceText(item)], ["来源作品", item.source?.videoTitle || item.source?.videoId || "—"], ["来源任务", item.source?.taskId || "—"], ["执行 Agent", item.owner], ["跟进状态", item.status || "待触达"], ["转化状态", item.conversionStatus || "未转化"], ["转化时间", item.convertedAt ? formatResultTime(item.convertedAt) : "—"], ...(item.conversionNote ? [["转化说明", item.conversionNote]] : []), ["联系人状态", item.contactStatus || "未保存"], ...(item.contact ? [["留资信息", formatContact(item.contact) || "已留资，信息待补充"]] : []), ["最近活跃", item.lastSeen]].forEach(([label, value]) => { const line = el("div", "sb-prospect-detail-item"); line.append(el("dt", null, label), el("dd", null, value)); list.appendChild(line); }); info.append(infoTitle, list); container.appendChild(info);
+      container.appendChild(el("div", "sb-prospect-detail-note", item.profile)); const info = el("section", "sb-prospect-detail-section"); const infoTitle = el("div", "sb-prospect-detail-section-title"); const intentPending = item.tier === "unknown" || !item.intent; infoTitle.append(el("span", null, state.resultType === "线索" ? "留资信息" : "分析结果"), el("span", null, state.resultType === "线索" ? item.status === "已留资" ? "已进入线索中心" : "已确认转化" : intentPending ? "待分析" : item.intent?.source === "model" ? "大模型" : "规则判断")); const list = el("dl", "sb-prospect-detail-list"); [["分析等级", intentPending ? "待分析" : tierLabel(item.tier)], ["分析说明", intentPending ? "尚未完成综合分析" : item.reason], ["来源", sourceText(item)], ["来源作品", item.source?.videoTitle || item.source?.videoId || "—"], ["来源任务", item.source?.taskTitle || item.source?.taskName || (item.source?.taskId ? "已关联任务" : "—")], ["执行 Agent", displayAgentValue(item.owner)], ["跟进状态", item.status || "待触达"], ["转化状态", item.conversionStatus || "未转化"], ["转化时间", item.convertedAt ? formatResultTime(item.convertedAt) : "—"], ...(item.conversionNote ? [["转化说明", item.conversionNote]] : []), ["联系人状态", item.contactStatus || "未保存"], ...(item.contact ? [["留资信息", formatContact(item.contact) || "已留资，信息待补充"]] : []), ["最近活跃", item.lastSeen]].forEach(([label, value]) => { const line = el("div", "sb-prospect-detail-item"); line.append(el("dt", null, label), el("dd", null, value)); list.appendChild(line); }); info.append(infoTitle, list); container.appendChild(info);
       const evidence = item.evidence?.[0]; if (evidence?.quote) { const evidenceBox = el("div", "sb-prospect-detail-note"); evidenceBox.append(el("strong", null, "原始评论证据"), document.createTextNode(`“${evidence.quote}”`)); container.appendChild(evidenceBox); }
       const captureEvidence = item.leadCaptureEvidence?.[item.leadCaptureEvidence.length - 1];
       if (captureEvidence) {
@@ -2803,7 +3540,22 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
 
   function visibleResults() {
     const query = state.search.trim().toLowerCase();
-    return runs.filter((run) => {
+    const viewId = state.agentViewId || "overview";
+    const timeScopedRuns = filterResultsByTime(runs, { range: state.resultTimeFilter });
+    return timeScopedRuns.filter((run) => {
+      if (state.selectedAgentId === "mkt-live-danmaku-analysis") {
+        const snapshot = resultSnapshotOf(run);
+        const artifacts = [...(Array.isArray(run.artifacts) ? run.artifacts : []), ...(Array.isArray(snapshot.artifacts) ? snapshot.artifacts : [])];
+        const isReport = /直播间弹幕分析报告/.test(String(run.title || "")) || artifacts.some((artifact) => /直播间弹幕分析报告/.test(String(artifact?.name || "")));
+        if (!isReport) return false;
+      }
+      if (state.selectedAgentId === "mkt-viral-work-analysis") {
+        const snapshot = resultSnapshotOf(run);
+        if (viewId === "breakdown" && !(snapshot.videoAnalysis || snapshot.content)) return false;
+        if (viewId === "performance" && !(snapshot.metrics || snapshot.work?.metrics || run.metrics)) return false;
+        if (viewId === "feedback" && !(snapshot.comments?.themes?.length || snapshot.comments?.quotes?.length)) return false;
+        if (viewId === "tests" && !(snapshot.recommendations?.nextTests?.length || snapshot.recommendations?.nextActions?.length)) return false;
+      }
       const matchesType = state.resultType === "全部成果" || run.resultType === state.resultType;
       const haystack = [run.title, run.summary, run.agentName, run.source, run.accountName, run.resultType].filter(Boolean).join(" ").toLowerCase();
       return matchesType && (!query || haystack.includes(query));
@@ -2834,14 +3586,14 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       const summary = firstOutreach ? `“${message}”` : run.summary || "暂无真实产出";
       copy.append(el("div", "sb-result-card-title", title), el("div", "sb-result-card-summary", summary));
       const meta = el("div", "sb-result-card-meta");
-      meta.append(document.createTextNode(firstOutreach ? `${firstOutreach.triggerSource} · ${firstOutreach.receiptLabel}` : `${run.agentName || "Agent"} · ${run.source || "业务结果"}${run.accountName ? ` · ${run.accountName}` : ""}`));
+      meta.append(document.createTextNode(firstOutreach ? `${firstOutreach.triggerSource} · ${firstOutreach.receiptLabel}` : `${displayAgentFor(run)} · ${displayResultSource(run.source || "业务结果")}${run.accountName ? ` · ${run.accountName}` : ""}`));
       copy.appendChild(meta);
       const side = el("div", "sb-result-card-side");
       side.append(el("span", "sb-result-type", firstOutreach?.receiptLabel || run.resultType || "其他成果"), el("time", null, formatResultTime(firstOutreach?.sentAt || run.generatedAt)));
-      const counts = firstOutreach ? [] : resultMetricEntries(run);
+      const counts = firstOutreach ? [] : resultCardMetrics(run);
       if (!firstOutreach && counts.length) {
         const countRow = el("div", "sb-result-counts");
-        counts.slice(0, 2).forEach(([label, value]) => countRow.appendChild(el("span", "sb-result-count", `${value} ${label}`)));
+        counts.forEach(([label, value]) => countRow.appendChild(el("span", "sb-result-count", `${displayBusinessMetric(value)} ${label}`)));
         side.appendChild(countRow);
       }
       card.append(icon, copy, side);
@@ -3058,6 +3810,60 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     container.appendChild(actions);
   }
 
+  function renderLiveDanmakuReportDetail(container, run) {
+    const snapshot = resultSnapshotOf(run);
+    const analysis = snapshot.danmakuAnalysis || run.danmakuAnalysis || snapshot.analysis || {};
+    const counts = analysis.counts || snapshot.counts || run.counts || {};
+    const topics = Array.isArray(analysis.topics) ? analysis.topics : [];
+    const optimization = analysis.optimization || snapshot.optimization || {};
+    const artifacts = [...(Array.isArray(run.artifacts) ? run.artifacts : []), ...(Array.isArray(snapshot.artifacts) ? snapshot.artifacts : [])];
+    const reportFile = artifacts.find((artifact) => artifact?.id && /直播间弹幕分析报告/.test(String(artifact?.name || "")));
+
+    container.append(
+      el("div", "sb-result-detail-kicker", "直播间弹幕分析 · 报告交付"),
+      el("div", "sb-result-detail-title", "直播间弹幕分析报告"),
+      el("div", "sb-result-detail-summary", run.summary || analysis.summary || "基于本场完整弹幕生成的直播复盘报告。")
+    );
+
+    const overview = el("section", "sb-result-detail-section");
+    const overviewTitle = el("div", "sb-result-detail-section-title");
+    overviewTitle.append(el("span", null, "报告摘要"), el("span", null, "本场复盘"));
+    const metrics = el("div", "sb-result-detail-metrics");
+    [["采集弹幕", counts.danmaku ?? counts.total], ["互动用户", counts.uniqueUsers], ["问题弹幕", counts.questions], ["识别主题", topics.length || counts.topics]].forEach(([label, value]) => {
+      const metric = el("div", "sb-result-detail-metric");
+      metric.append(el("strong", null, displayBusinessMetric(value)), el("span", null, label));
+      metrics.appendChild(metric);
+    });
+    overview.append(overviewTitle, metrics);
+    container.appendChild(overview);
+
+    const takeaway = el("section", "sb-result-detail-section");
+    const takeawayTitle = el("div", "sb-result-detail-section-title");
+    takeawayTitle.append(el("span", null, "报告结论"), el("span", null, "打开报告查看完整依据"));
+    const takeawayList = el("dl", "sb-prospect-detail-list");
+    [["核心主题", topics[0]?.label || "暂无稳定主题"], ["主要阻力", analysis.conversionBarriers?.[0] || analysis.barriers?.[0] || "暂无明确转化阻力"], ["下一场动作", optimization.nextLiveActions?.[0] || optimization.nextActions?.[0] || optimization.headline || "等待生成优化策略"]].forEach(([label, value]) => {
+      const line = el("div", "sb-prospect-detail-item");
+      line.append(el("dt", null, label), el("dd", null, String(value)));
+      takeawayList.appendChild(line);
+    });
+    takeaway.append(takeawayTitle, takeawayList);
+    container.appendChild(takeaway);
+
+    const actions = el("div", "sb-result-detail-actions");
+    if (reportFile) {
+      const openReport = el("button", "primary", "打开完整报告");
+      openReport.type = "button";
+      openReport.addEventListener("click", () => openFileCenter(reportFile.id, reportFile));
+      actions.appendChild(openReport);
+    }
+    const conversation = el("button", null, "打开 Agent 对话");
+    conversation.type = "button";
+    conversation.disabled = !(run.agentId && run.taskId);
+    conversation.addEventListener("click", () => openAgentConversation(run));
+    actions.appendChild(conversation);
+    container.appendChild(actions);
+  }
+
   function renderResultDetail(container) {
     const run = selectedResult();
     if (!run) {
@@ -3066,19 +3872,22 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       container.appendChild(empty);
       return;
     }
+    if (run.agentId === "mkt-live-danmaku-analysis") {
+      renderLiveDanmakuReportDetail(container, run);
+      return;
+    }
     if (run.agentId === "mkt-viral-work-analysis") {
       const result = {
         ...(run.resultSnapshot || {}),
         taskId: run.taskId,
         taskRunId: run.taskRunId,
         agentId: run.agentId,
-        agentName: run.agentName,
+        agentName: displayAgentFor(run),
         status: run.status,
         sourceUrl: run.resultSnapshot?.sourceUrl || run.inputs?.workUrl || "",
         summary: run.summary || run.resultSnapshot?.summary || ""
       };
-      renderViralWorkAnalysisOverview(container, result);
-      renderViralWorkAnalysisDetails(container, result);
+      renderViralWorkAnalysisOverview(container, result, { compact: true });
       const actions = el("div", "sb-result-detail-actions");
       const reportFile = [...(Array.isArray(run.artifacts) ? run.artifacts : []), ...(Array.isArray(result.artifacts) ? result.artifacts : [])]
         .find((artifact) => artifact?.id && ["doc", "html"].includes(artifact.type));
@@ -3108,7 +3917,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       container.appendChild(actions);
       return;
     }
-    if (run.agentId === "mkt-research-expert") {
+    if (run.analysisKind === "account_report" || run.resultSnapshot?.analysisKind === "account_report") {
       const analysisRun = run;
       const sourceLinks = analysisRun.links || analysisRun.resultSnapshot?.links || {};
       const sourceFinderRun = sourceFinderRunForAnalysis(runs, analysisRun);
@@ -3168,10 +3977,6 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       renderOutreachResultDetail(container, run);
       return;
     }
-    if (run.resultType === "用户调研") {
-      renderUserResearchResultDetail(container, run);
-      return;
-    }
     if (run.resultType === "抖音找人") {
       container.append(el("div", "sb-result-detail-kicker", "抖音找人专家 · 账号清单"), el("div", "sb-result-detail-title", run.title || "抖音找人结果"), el("div", "sb-result-detail-summary", run.summary || "候选账号、公开资料和匹配依据已归档。"));
       renderDouyinFinderResultDetail(container, run);
@@ -3180,9 +3985,9 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       const next = el("button", "primary", "调整条件再找");
       next.type = "button";
       next.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openAgentSquare?.({
-        initialAgentId: run.agentId || "mkt-douyin-finder",
+        initialAgentId: "mkt-find-people",
         resumeFlow: {
-          agentId: run.agentId || "mkt-douyin-finder",
+          agentId: "mkt-find-people",
           step: "setup",
           finderGoal: run.inputs?.goal || "",
           taskChoices: run.inputs?.choices || run.resultSnapshot?.inputs?.choices || {},
@@ -3195,12 +4000,12 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       actions.append(conversation, next); container.appendChild(actions);
       return;
     }
-    container.append(el("div", "sb-result-detail-kicker", `${run.agentName || "Agent"} · ${run.resultType || "其他成果"}`), el("div", "sb-result-detail-title", run.title || "Agent 业务结果"), el("div", "sb-result-detail-summary", run.summary || "暂无真实产出"));
+    container.append(el("div", "sb-result-detail-kicker", `${displayAgentFor(run)} · ${run.resultType || "其他成果"}`), el("div", "sb-result-detail-title", run.title || "业务结果"), el("div", "sb-result-detail-summary", run.summary || "暂无真实产出"));
     const info = el("section", "sb-result-detail-section");
     const infoTitle = el("div", "sb-result-detail-section-title");
     infoTitle.append(el("span", null, "结果来源"), el("span", null, run.resultType || "业务成果"));
     const list = el("dl", "sb-prospect-detail-list");
-    [["执行 Agent", run.agentName || "—"], ["来源", run.source || "—"], ["处理范围", run.window || "—"], ["生成时间", formatResultTime(run.generatedAt)], ...(run.accountName ? [["来源账号", run.accountName]] : []), ...(run.touchStatus ? [["触达状态", run.touchStatus]] : []), ...(run.links?.sourceWorkUrl ? [["来源工作", run.links.sourceWorkUrl]] : []), ...(run.links?.commentUrl ? [["来源评论", run.links.commentUrl]] : [])].forEach(([label, value]) => {
+    [["执行 Agent", displayAgentFor(run)], ["来源", displayResultSource(run.source)], ["处理范围", run.window || "—"], ["生成时间", formatResultTime(run.generatedAt)], ...(run.accountName ? [["来源账号", run.accountName]] : []), ...(run.touchStatus ? [["触达状态", run.touchStatus]] : []), ...(run.links?.sourceWorkUrl ? [["来源工作", run.links.sourceWorkUrl]] : []), ...(run.links?.commentUrl ? [["来源评论", run.links.commentUrl]] : [])].forEach(([label, value]) => {
       const line = el("div", "sb-prospect-detail-item");
       const detailValue = el("dd", null); if ((label === "来源工作" || label === "来源评论") && /^(https?:\/\/|\/)/i.test(String(value))) { const link = el("a", null, String(value)); link.href = String(value); link.target = "_blank"; link.rel = "noopener noreferrer"; detailValue.appendChild(link); } else detailValue.appendChild(document.createTextNode(String(value))); line.append(el("dt", null, label), detailValue);
       list.appendChild(line);
@@ -3367,6 +4172,362 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     const search = el("input", "sb-prospect-search"); search.type = "search"; search.placeholder = placeholder; search.value = state.search; search.setAttribute("aria-label", ariaLabel); search.addEventListener("input", (event) => { state.search = event.target.value; render(); });
     toolbar.appendChild(search);
     return toolbar;
+  }
+
+  function renderResultTimeFilter() {
+    const select = document.createElement("select");
+    select.className = "sb-result-time-filter";
+    select.value = state.resultTimeFilter;
+    select.setAttribute("aria-label", "按生成时间筛选成果");
+    RESULT_TIME_FILTERS.forEach(({ id, label }) => {
+      const option = document.createElement("option");
+      option.value = id;
+      option.textContent = label;
+      select.appendChild(option);
+    });
+    select.addEventListener("change", (event) => {
+      state.resultTimeFilter = event.target.value;
+      state.selectedResultId = null;
+      render();
+    });
+    return select;
+  }
+
+  function resultAgentStatus(agentId) {
+    const scopedRuns = sourceRuns.filter((run) => runAgentIds(run).has(agentId));
+    const active = scopedRuns.some((run) => ["running", "queued", "processing", "in_progress"].includes(String(run.status || "").toLowerCase()));
+    if (active) return { label: "执行中", className: "is-active" };
+    if (scopedRuns.length || sourceFiles.some((file) => fileAgentIds(file, sourceRuns).has(agentId))) return { label: "已有成果", className: "" };
+    return { label: "待命", className: "is-empty" };
+  }
+
+  function resultAgentRole(agentId) {
+    if (agentId === UNASSIGNED_AGENT_ID) return "尚未归属到具体 Agent";
+    const profile = getMarketplaceAgent(agentId);
+    return profile?.displayTitle || profile?.title || "查看该 Agent 的工作结果和文件";
+  }
+
+  function selectResultAgent(agentId) {
+    state.selectedAgentId = agentId;
+    rememberSelectedAgent(agentId);
+    state.surface = "work";
+    state.resultType = "全部成果";
+    state.agentViewId = "overview";
+    state.search = "";
+    state.selectedResultId = null;
+    state.selectedId = null;
+    state.selectedFileId = null;
+    state.selectedCommentIds.clear();
+    state.selectedFinderAccountIds.clear();
+    syncAgentScope();
+    render();
+  }
+
+  function renderAgentScopeHeader() {
+    const agents = buildAgentCatalog({ records: sourceRecords, runs: sourceRuns, files: sourceFiles, roster: state.activeRoster });
+    const selected = agents.find((agent) => agent.id === state.selectedAgentId) || agents[0];
+    if (selected && state.selectedAgentId !== selected.id) {
+      state.selectedAgentId = selected.id;
+      syncAgentScope();
+    }
+    const agentSection = el("section", "sb-results-agent-section");
+    const rail = el("div", "sb-results-agent-team");
+    rail.addEventListener("scroll", () => { state.agentRailScrollLeft = rail.scrollLeft; }, { passive: true });
+    agents.forEach((agent) => {
+      const status = resultAgentStatus(agent.id);
+      const card = el("button", `sb-results-agent-card${agent.id === state.selectedAgentId ? " is-active" : ""}`);
+      card.type = "button";
+      card.dataset.agentId = agent.id;
+      card.setAttribute("aria-pressed", agent.id === state.selectedAgentId ? "true" : "false");
+      card.setAttribute("aria-label", `查看${agent.label}的成果`);
+      const line = el("span", "sb-results-agent-line");
+      const avatar = el("span", "sb-results-agent-avatar");
+      mountGrokBotAvatar(avatar, agent.id, { alt: `${agent.label}头像`, state: grokStateForTeamStatus({ state: status.className === "is-active" ? "working" : "idle" }), trackPointer: false, mode: "realtime-work" });
+      const copy = el("span", "sb-results-agent-copy");
+      copy.append(el("span", "sb-results-agent-name", agent.label), el("span", "sb-results-agent-role", resultAgentRole(agent.id)));
+      line.append(avatar, copy);
+      card.appendChild(line);
+      card.addEventListener("click", () => selectResultAgent(agent.id));
+      rail.appendChild(card);
+    });
+    agentSection.appendChild(rail);
+    globalThis.requestAnimationFrame?.(() => { rail.scrollLeft = state.agentRailScrollLeft; });
+    return agentSection;
+  }
+
+  function renderAgentBusinessNavigation() {
+    const views = agentBusinessViews(state.selectedAgentId, { records, runs });
+    if (!views.some((view) => view.id === state.agentViewId)) state.agentViewId = views[0]?.id || "overview";
+    const navigation = el("nav", "sb-result-tabs sb-agent-business-tabs");
+    views.forEach((view) => {
+      const button = el("button", `sb-result-tab${state.agentViewId === view.id ? " is-active" : ""}`);
+      button.type = "button";
+      button.append(document.createTextNode(view.label), el("span", "sb-result-tab-count", `${view.count}${resultCountUnit(view.resultType)}`));
+      button.addEventListener("click", () => {
+        state.agentViewId = view.id;
+        state.resultType = view.resultType;
+        state.search = "";
+        state.selectedId = null;
+        state.selectedResultId = selectedResultIdForType(runs, view.resultType);
+        render();
+      });
+      navigation.appendChild(button);
+    });
+    return navigation;
+  }
+
+  function renderAgentSnapshot() {
+    if (state.selectedAgentId === "mkt-comment-acquisition") {
+      const model = buildProspectDashboardModel({ records, runs });
+      return renderDashboardFunnel(model.counts);
+    }
+    const viewModel = agentResultViewModel(state.selectedAgentId, { records, runs, files });
+    const section = el("section", `sb-agent-result-summary sb-agent-result-summary-${viewModel.kind}`);
+    const head = el("div", "sb-agent-result-summary-head");
+    head.append(el("div", "sb-agent-result-summary-title", viewModel.title), el("div", "sb-agent-result-summary-subtitle", viewModel.subtitle));
+    section.appendChild(head);
+    const metrics = el("div", "sb-agent-result-metrics");
+    viewModel.metrics.forEach(([label, value, unit]) => {
+      const item = el("div", "sb-agent-result-metric");
+      item.append(el("strong", "sb-agent-result-metric-value", displayBusinessMetric(value, unit)), el("span", "sb-agent-result-metric-label", label));
+      metrics.appendChild(item);
+    });
+    section.appendChild(metrics);
+    const highlights = el("div", "sb-agent-result-highlights");
+    viewModel.highlights.forEach(([label, value]) => {
+      const item = el("div", "sb-agent-result-highlight");
+      item.append(el("span", "sb-agent-result-highlight-label", label), el("strong", "sb-agent-result-highlight-value", String(value || "—")));
+      highlights.appendChild(item);
+    });
+    section.appendChild(highlights);
+    if (!runs.length) section.appendChild(el("div", "sb-agent-result-empty", viewModel.empty));
+    return section;
+  }
+
+  function renderAgentFilePreview(container, file) {
+    if (!file) return;
+    const preview = el("div", "sb-agent-file-preview");
+    preview.appendChild(el("div", "sb-agent-file-preview-title", `预览：${file.name || "未命名文件"}`));
+    if (file.type === "html") {
+      const frame = document.createElement("iframe");
+      frame.title = file.name || "HTML 文件预览";
+      frame.sandbox = "";
+      frame.srcdoc = String(file.content || "");
+      preview.appendChild(frame);
+    } else {
+      const content = document.createElement("pre");
+      content.textContent = String(file.content || "（文件暂无预览内容）");
+      preview.appendChild(content);
+    }
+    container.appendChild(preview);
+  }
+
+  function renderAgentFiles() {
+    const section = el("section", "sb-agent-files");
+    const head = el("div", "sb-agent-files-head");
+    head.append(el("strong", "sb-agent-files-title", "文件产出"), el("span", "sb-agent-files-meta", `${files.length} 份`));
+    section.appendChild(head);
+    if (!files.length) {
+      section.appendChild(el("div", "sb-agent-files-empty", "这个 Agent 还没有归档文件"));
+      return section;
+    }
+    const list = el("div", "sb-agent-file-list");
+    files.forEach((file) => {
+      const item = el("button", `sb-agent-file${file.id === state.selectedFileId ? " is-selected" : ""}`);
+      item.type = "button";
+      const iconLabel = file.type === "sheet" ? "表" : file.type === "html" ? "HTML" : "文";
+      item.appendChild(el("span", `sb-agent-file-icon${file.type === "html" ? " is-html" : file.type === "doc" ? " is-doc" : ""}`, iconLabel));
+      const copy = el("span", "sb-agent-file-copy");
+      copy.append(el("span", "sb-agent-file-name", file.name || "未命名文件"), el("span", "sb-agent-file-meta", `${file.sourceTaskTitle || file.projectName || "Agent 产出"} · ${formatResultTime(file.updated_at || file.created_at)}`));
+      item.appendChild(copy);
+      item.addEventListener("click", () => { state.selectedFileId = file.id; render(); });
+      list.appendChild(item);
+    });
+    section.appendChild(list);
+    renderAgentFilePreview(section, files.find((file) => file.id === state.selectedFileId));
+    return section;
+  }
+
+  function renderOutreachArtifactList({ title, subtitle, emptyTitle, emptyCopy, items, renderItem }) {
+    const section = el("section", "sb-agent-workbench sb-artifact-workbench");
+    const head = el("div", "sb-agent-workbench-head");
+    head.append(el("strong", null, title), el("span", null, subtitle));
+    const panel = el("section", "sb-agent-workbench-panel");
+    const listHead = el("div", "sb-agent-workbench-panel-head");
+    listHead.append(el("strong", null, title), el("span", null, `${items.length} 条`));
+    const list = el("div", "sb-agent-workbench-list");
+    if (!items.length) {
+      const empty = el("div", "sb-agent-workbench-empty");
+      empty.append(el("strong", null, emptyTitle), el("span", null, emptyCopy));
+      list.appendChild(empty);
+    } else items.slice(0, 50).forEach((item) => list.appendChild(renderItem(item)));
+    panel.append(listHead, list);
+    section.append(head, panel);
+    return section;
+  }
+
+  function renderTouchedProspectsList() {
+    const touched = records.filter((item) => isContactableRecord(item) && ["已触达", "已回复", "跟进中"].includes(item?.status));
+    return renderOutreachArtifactList({
+      title: "已触达潜客",
+      subtitle: "潜客触达专员的产物：平台确认发送成功的潜客清单",
+      emptyTitle: "还没有已触达潜客",
+      emptyCopy: "平台确认发送成功后，潜客会出现在这里。",
+      items: touched,
+      renderItem: (item) => {
+        const row = el("button", "sb-agent-workbench-row"); row.type = "button";
+        const name = item.name || item.nickname || item.handle || "未命名潜客";
+        const account = item.source?.accountName || item.accountName || "发送账号未记录";
+        row.append(el("div", null, el("strong", null, name), el("p", null, `${account} · ${item.status || "已触达"}`)), el("span", null, formatResultTime(item.touchedAt || item.lastSeen || item.updatedAt)));
+        row.addEventListener("click", () => { state.resultType = "潜客"; state.filter = "已触达"; state.selectedId = item.id; render(); });
+        return row;
+      }
+    });
+  }
+
+  function renderGoldCustomerServiceArtifacts() {
+    const items = runs.map((run) => ({ run, kind: "conversation" }));
+    return renderOutreachArtifactList({
+      title: "会话与目标推进",
+      subtitle: "金牌客服的产物：会话摘要、回复记录、目标达成进展、人工接管事项",
+      emptyTitle: "还没有客服会话产物",
+      emptyCopy: "承接到真实私信后，这里会按会话沉淀摘要和推进结果。",
+      items,
+      renderItem: ({ run }) => {
+        const row = el("button", "sb-agent-workbench-row"); row.type = "button";
+        const counts = run.counts || run.metrics || {};
+        row.append(el("div", null, el("strong", null, run.title || "客服会话记录"), el("p", null, run.summary || `回复 ${counts.sent ?? 0} 条 · 人工接管 ${counts.handoff ?? 0} 条`)), el("span", null, formatResultTime(run.generatedAt)));
+        row.addEventListener("click", () => { state.selectedResultId = resultId(run); render(); });
+        return row;
+      }
+    });
+  }
+
+  function renderLiveDanmakuOutreachArtifacts() {
+    const items = runs.flatMap((run) => outreachResultItems(run, records).map((item) => ({ run, item })));
+    return renderOutreachArtifactList({
+      title: "直播弹幕触达结果",
+      subtitle: "电商直播间未成交客户触达的产物：弹幕用户身份、首次触达状态、发送回执、异常记录",
+      emptyTitle: "还没有直播弹幕触达结果",
+      emptyCopy: "直播间出现新弹幕后，系统会把用户身份和首次触达回执记录在这里。",
+      items,
+      renderItem: ({ run, item }) => {
+        const row = el("button", "sb-agent-workbench-row"); row.type = "button";
+        row.append(el("div", null, el("strong", null, item.targetName || "弹幕用户"), el("p", null, `${item.receiptLabel} · ${item.triggerSource || "直播间弹幕"}${item.error ? ` · ${item.error}` : ""}`)), el("span", null, formatResultTime(item.sentAt || run.generatedAt)));
+        row.addEventListener("click", () => { state.selectedResultId = resultId(run); render(); });
+        return row;
+      }
+    });
+  }
+
+  function renderSpecialistWorkbench(agentId) {
+    const definitions = {
+      "mkt-cold-writer": {
+        title: "触达批次与平台回执",
+        subtitle: "按批次核对目标、发送内容与平台回执；未取得回执的发送不会计为成功。",
+        listTitle: "最近触达批次",
+        detailTitle: "批次详情",
+        emptyTitle: "还没有触达批次",
+        emptyCopy: "从潜客线索中选择目标后，这里会记录发送内容、失败原因和平台回执。",
+        fields: [["发送成功", "sent"], ["发送失败", "failed"], ["等待回执", "unknown"], ["目标数量", "total"]]
+      },
+      "mkt-dm-inbox": {
+        title: "私信会话与待办",
+        subtitle: "承接已授权账号的新私信，区分自动回复、待回复和需要人工接管的会话。",
+        listTitle: "最近会话记录",
+        detailTitle: "会话详情",
+        emptyTitle: "还没有新私信",
+        emptyCopy: "有用户发来私信后，这里会出现会话摘要、回复状态和需要你接管的事项。",
+        fields: [["收到私信", "received"], ["自动回复", "sent"], ["待人工", "handoff"], ["会话记录", "total"]]
+      },
+      "mkt-gold-customer-service": {
+        title: "对话目标与推进进展",
+        subtitle: "围绕你设定的目标推进私信对话，记录关键回复、目标进展和人工接管节点。",
+        listTitle: "目标对话",
+        detailTitle: "对话推进详情",
+        emptyTitle: "还没有目标对话",
+        emptyCopy: "启动金牌客服并设定对话目标后，这里会显示每段对话的推进进展。",
+        fields: [["活跃会话", "received"], ["已推进", "sent"], ["完成目标", "completed"], ["人工接管", "handoff"]]
+      },
+      "mkt-intent-analyst": {
+        title: "用户判断与分析结论",
+        subtitle: "把互动原话、来源证据与意向判断放在一起，重点用户再交给后续触达。",
+        listTitle: "待分析与已分析用户",
+        detailTitle: "判断依据",
+        emptyTitle: "还没有待分析用户",
+        emptyCopy: "找客专员沉淀互动用户后，这里会展示意向判断、证据和分析报告。",
+        fields: [["待分析", "candidates"], ["高意向", "high"], ["已判断", "matched"], ["分析报告", "reports"]]
+      },
+      "mkt-live-danmaku-outreach": {
+        title: "直播弹幕用户触达",
+        subtitle: "只对发出弹幕且身份可验证的用户执行首次私信，记录发送、拒绝和待回执状态。",
+        listTitle: "直播触达队列",
+        detailTitle: "用户触达详情",
+        emptyTitle: "还没有直播触达记录",
+        emptyCopy: "直播间产生新弹幕后，这里会显示用户原话、触达状态与风险拦截。",
+        fields: [["弹幕用户", "candidates"], ["已发送", "sent"], ["待回执", "unknown"], ["风险拦截", "failed"]]
+      }
+    };
+    const definition = definitions[agentId];
+    if (!definition) return null;
+    const section = el("section", "sb-agent-workbench");
+    const head = el("div", "sb-agent-workbench-head");
+    head.append(el("strong", null, definition.title), el("span", null, definition.subtitle));
+    const grid = el("div", "sb-agent-workbench-grid");
+    const listPanel = el("section", "sb-agent-workbench-panel");
+    const detailPanel = el("aside", "sb-agent-workbench-panel");
+    const listHead = el("div", "sb-agent-workbench-panel-head");
+    listHead.append(el("strong", null, definition.listTitle), el("span", null, `${runs.length} 项记录`));
+    const list = el("div", "sb-agent-workbench-list");
+    if (!runs.length) {
+      const empty = el("div", "sb-agent-workbench-empty");
+      empty.append(el("strong", null, definition.emptyTitle), el("span", null, definition.emptyCopy));
+      list.appendChild(empty);
+    } else {
+      runs.slice(0, 20).forEach((run) => {
+        const counts = run.counts || run.metrics || {};
+        const row = el("button", "sb-agent-workbench-row");
+        row.type = "button";
+        const copy = el("div");
+        copy.append(el("strong", null, run.title || "业务记录"), el("p", null, run.summary || "暂无结果摘要"));
+        row.append(copy, el("span", null, formatResultTime(run.generatedAt)));
+        row.addEventListener("click", () => { state.selectedResultId = resultId(run); render(); });
+        list.appendChild(row);
+      });
+    }
+    listPanel.append(listHead, list);
+    const selected = selectedResult() || runs[0] || null;
+    const detail = el("div", "sb-agent-workbench-detail");
+    if (!selected) {
+      detail.append(el("h3", null, definition.detailTitle), el("p", null, definition.emptyCopy));
+      const actions = el("div", "sb-agent-workbench-actions");
+      const start = el("button", "primary", agentId === "mkt-intent-analyst" ? "开始分析用户" : agentId === "mkt-live-danmaku-outreach" ? "配置直播触达" : agentId === "mkt-gold-customer-service" ? "设置对话目标" : agentId === "mkt-dm-inbox" ? "配置私信承接" : "创建触达批次");
+      start.type = "button";
+      start.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openAgentSquare?.({ initialAgentId: agentId })));
+      actions.appendChild(start);
+      detail.appendChild(actions);
+    } else {
+      const counts = selected.counts || selected.metrics || {};
+      detail.append(el("h3", null, selected.title || definition.detailTitle), el("p", null, selected.summary || "暂无结果摘要"));
+      const facts = el("div", "sb-agent-workbench-kv");
+      definition.fields.forEach(([label, key]) => {
+        const line = el("div");
+        line.append(el("span", null, label), el("strong", null, displayBusinessMetric(counts[key] ?? selected[key] ?? 0)));
+        facts.appendChild(line);
+      });
+      detail.appendChild(facts);
+      const actions = el("div", "sb-agent-workbench-actions");
+      const conversation = el("button", null, "打开 Agent 对话");
+      conversation.type = "button";
+      conversation.disabled = !(selected.agentId && selected.taskId);
+      conversation.addEventListener("click", () => openAgentConversation(selected));
+      actions.appendChild(conversation);
+      detail.appendChild(actions);
+    }
+    detailPanel.appendChild(detail);
+    grid.append(listPanel, detailPanel);
+    section.append(head, grid);
+    return section;
   }
 
   function openConsumerSurface(surface, resultType = "全部成果") {
@@ -3720,20 +4881,21 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     return row;
   }
 
-  function renderDataOverview() {
+  function renderDataOverview({ showFunnel = true } = {}) {
     const model = buildProspectDashboardModel({ records, runs });
     const dashboard = el("section", "sb-data-dashboard");
-    dashboard.appendChild(renderDashboardFunnel(model.counts));
+    if (showFunnel) dashboard.appendChild(renderDashboardFunnel(model.counts));
 
-    const resultTabs = el("div", "sb-data-result-tabs");
+    const lifecycleTabs = el("nav", "sb-data-result-tabs");
     Object.entries(model.views).forEach(([key, view]) => {
       const button = el("button", `sb-data-result-tab${state.dashboardView === key ? " is-active" : ""}`);
       button.type = "button";
       button.append(document.createTextNode(view.label), el("span", "sb-data-result-count", String(view.items.length)));
       button.addEventListener("click", () => { state.dashboardView = key; state.selectedId = null; renderDashboardTransition(); });
-      resultTabs.appendChild(button);
+      lifecycleTabs.appendChild(button);
     });
-    dashboard.appendChild(resultTabs);
+    dashboard.appendChild(lifecycleTabs);
+
     const items = dashboardItems(model);
     const tablePanel = el("section", "sb-data-table-panel");
     const tableHead = el("div", "sb-data-table-head");
@@ -3771,42 +4933,80 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     wrap.querySelector(".sb-task-composer-modal")?.remove();
     shell.textContent = "";
 
-    const prospectCount = records.filter(isProspectRecord).length;
-    const opportunityCount = records.filter((item) => isContactableRecord(item) && isLeadCenterRecord(item)).length;
     const discoverySources = discoverySourcesForPage();
-    const discoveredCount = discoverySources.items.length;
-    const overviewModel = buildConsumerOverviewModel({ records, runs });
-    const syncNotice = renderSyncNotice();
-    if (state.surface === "overview") {
-      wrap.classList.add("sb-prospect-page--data");
-      if (syncNotice) shell.appendChild(syncNotice);
-      shell.appendChild(renderDataOverview());
+    wrap.classList.remove("sb-prospect-page--data");
+    wrap.classList.remove("sb-prospect-page--standalone-discovery");
+    shell.appendChild(renderAgentScopeHeader());
+    if (!["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis"].includes(state.selectedAgentId)) shell.appendChild(renderAgentSnapshot());
+
+    if (state.selectedAgentId === "mkt-comment-acquisition") {
+      const prospectWorkspace = renderDataOverview({ showFunnel: false });
+      prospectWorkspace.classList.add("sb-data-dashboard-embedded");
+      shell.appendChild(prospectWorkspace);
       wrap.appendChild(shell);
       renderTaskComposer();
       return;
     }
-    wrap.classList.remove("sb-prospect-page--data");
-    const standaloneDiscovery = state.standaloneDiscovery && state.surface === "people";
-    wrap.classList.toggle("sb-prospect-page--standalone-discovery", standaloneDiscovery);
-    if (!standaloneDiscovery) shell.appendChild(renderConsumerNavigation());
-    if (syncNotice) shell.appendChild(syncNotice);
-    if (state.surface === "people" && !standaloneDiscovery && state.resultType !== "发现") state.resultType = "潜客";
-    if (state.surface === "touch") state.resultType = "触达记录";
-    if (state.surface === "work") {
-      const tabs = el("nav", "sb-result-tabs");
-      RESULT_TYPES.forEach((type) => { const count = type === "全部成果" ? runs.length : type === "发现" ? discoveredCount : type === "潜客" ? prospectCount : type === "线索" ? opportunityCount : runs.filter((run) => run.resultType === type).length; const button = el("button", `sb-result-tab${state.resultType === type ? " is-active" : ""}`); button.type = "button"; button.append(document.createTextNode(type), el("span", "sb-result-tab-count", `${count}${resultCountUnit(type)}`)); button.addEventListener("click", () => { state.resultType = type; state.search = ""; if (type === "发现") resetDiscoverySelection(); if (type === "潜客" || type === "线索") { state.filter = "全部"; state.detailTab = "overview"; const pool = type === "线索" ? records.filter((item) => isContactableRecord(item) && isLeadCenterRecord(item)) : records.filter(isProspectRecord); state.selectedId = pool[0]?.id || null; } else if (type !== "发现") state.selectedResultId = selectedResultIdForType(runs, type); render(); }); tabs.appendChild(button); });
-      shell.appendChild(tabs);
+
+    if (state.selectedAgentId === "mkt-find-people") {
+      state.selectedDiscoveryOrigin = "own";
+      state.resultType = "发现";
+      const foundWorkspace = el("div", "sb-prospect-workspace");
+      const foundListPanel = el("section", "sb-prospect-panel");
+      const foundDetailPanel = el("aside", "sb-prospect-panel");
+      const foundSources = discoverySourcesForPage();
+      const foundItems = visibleDiscovered();
+      if (!foundItems.length) foundWorkspace.classList.add("is-empty-discovery");
+      const foundSourceBrowser = renderDiscoverySourceBrowser(foundListPanel, foundSources);
+      if (foundSourceBrowser) foundListPanel.appendChild(foundSourceBrowser);
+      const foundHead = el("div", "sb-prospect-panel-head sb-result-panel-head");
+      foundHead.append(
+        el("span", "sb-prospect-panel-title", "找到的人"),
+        el("span", "sb-prospect-panel-meta", `${foundItems.length} 位互动用户 · 可继续分析与触达`),
+        renderResultToolbar({ placeholder: "搜索昵称、账号或互动内容", ariaLabel: "搜索找到的人", inline: true })
+      );
+      const foundContent = el("div", "sb-discovery-list-content");
+      renderDiscoveredListContent(foundContent, foundItems);
+      foundListPanel.append(foundHead, foundContent);
+      const foundDetailHead = el("div", "sb-prospect-panel-head");
+      foundDetailHead.append(el("span", "sb-prospect-panel-title", "用户详情"), el("span", "sb-prospect-panel-meta", "来源互动、判断依据与下一步"));
+      const foundDetail = el("div", "sb-prospect-detail");
+      renderDiscoveredDetail(foundDetail);
+      foundDetailPanel.append(foundDetailHead, foundDetail);
+      foundWorkspace.append(foundListPanel, foundDetailPanel);
+      shell.append(foundWorkspace);
+      wrap.appendChild(shell);
+      renderTaskComposer();
+      return;
     }
+
+    if (["mkt-cold-writer", "mkt-dm-inbox", "mkt-gold-customer-service", "mkt-intent-analyst", "mkt-live-danmaku-outreach"].includes(state.selectedAgentId)) {
+      const specialistWorkbench = state.selectedAgentId === "mkt-cold-writer"
+        ? renderTouchedProspectsList()
+        : state.selectedAgentId === "mkt-gold-customer-service"
+          ? renderGoldCustomerServiceArtifacts()
+          : state.selectedAgentId === "mkt-live-danmaku-outreach"
+            ? renderLiveDanmakuOutreachArtifacts()
+            : renderSpecialistWorkbench(state.selectedAgentId);
+      if (specialistWorkbench) shell.appendChild(specialistWorkbench);
+      if (state.selectedAgentId !== "mkt-cold-writer") shell.appendChild(renderAgentFiles());
+      wrap.appendChild(shell);
+      renderTaskComposer();
+      return;
+    }
+
+    if (state.selectedAgentId !== "mkt-viral-work-analysis") shell.appendChild(renderAgentBusinessNavigation());
 
     const workspace = el("div", "sb-prospect-workspace");
     const listPanel = el("section", "sb-prospect-panel");
     const detailPanel = el("aside", "sb-prospect-panel");
-    if (standaloneDiscovery || state.resultType === "发现") {
+    if (state.resultType === "发现") {
       const items = visibleDiscovered();
       const ownDiscovery = state.selectedDiscoveryOrigin === "own";
       const scopes = ownDiscovery ? discoverySources.accounts : discoverySources.tasks;
       const activeGroup = scopes.find((group) => group.id === state.selectedDiscoveryTaskId) || null;
-      renderDiscoverySourceBrowser(listPanel, discoverySources);
+      const sourceBrowser = renderDiscoverySourceBrowser(listPanel, discoverySources);
+      if (sourceBrowser) listPanel.appendChild(sourceBrowser);
       const panelHead = el("div", "sb-prospect-panel-head sb-result-panel-head");
       const panelTitle = el("div", "sb-discovery-results-title");
       const isAllDiscovery = !activeGroup || activeGroup.id === "all";
@@ -3829,7 +5029,7 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
       state.filter = normalizePeopleFilter(state.resultType, state.filter);
       const items = opportunityView ? visibleOpportunities() : visibleProspects();
       if (!items.some((item) => item.id === state.selectedId)) state.selectedId = items[0]?.id || null;
-      const total = opportunityView ? opportunityCount : prospectCount;
+      const total = items.length;
       const panelHead = el("div", "sb-prospect-panel-head");
       const panelActions = el("div", "sb-prospect-panel-actions");
       const exportButton = el("button", "sb-prospect-button", opportunityView ? "导出线索" : "导出潜客"); exportButton.type = "button"; exportButton.disabled = !items.length; exportButton.addEventListener("click", () => { if (!items.length) return; exportCsv(items, { opportunity: opportunityView }); showToast(opportunityView ? `已导出 ${items.length} 条线索` : `已导出 ${items.length} 位潜客`); });
@@ -3844,23 +5044,41 @@ function openPrivateOutreachFromResult(run, comments, source = "评论筛选结�
     } else {
       const items = visibleResults();
       const outreachView = state.resultType === "触达记录";
-      const panelHead = el("div", "sb-prospect-panel-head sb-result-panel-head"); panelHead.append(el("span", "sb-prospect-panel-title", outreachView ? "触达记录" : "Agent 成果"), el("span", "sb-prospect-panel-meta", `${items.length} 项可见 · 共 ${runs.length} 项业务结果`), renderResultToolbar({ inline: true }));
+      const isLiveReport = state.selectedAgentId === "mkt-live-danmaku-analysis";
+      if (!items.some((item) => resultId(item) === state.selectedResultId)) state.selectedResultId = items[0] ? resultId(items[0]) : null;
+      const panelHead = el("div", "sb-prospect-panel-head sb-result-panel-head"); panelHead.append(el("span", "sb-prospect-panel-title", outreachView ? "触达记录" : isLiveReport ? "直播弹幕分析报告" : "Agent 成果"), el("span", "sb-prospect-panel-meta", isLiveReport ? `${items.length} 份已生成报告` : `${items.length} 项可见 · 共 ${runs.length} 项业务结果`), renderResultTimeFilter(), renderResultToolbar({ placeholder: isLiveReport ? "搜索报告" : "搜索成果、Agent、账号", ariaLabel: isLiveReport ? "搜索报告" : "搜索成果", inline: true }));
       const content = el("div"); renderResultList(content, items); listPanel.append(panelHead, content);
-      const detailHead = el("div", "sb-prospect-panel-head"); detailHead.append(el("span", "sb-prospect-panel-title", outreachView ? "触达详情" : "成果详情"), el("span", "sb-prospect-panel-meta", outreachView ? "账号、对象、内容与触发依据" : "交付内容、指标与下一步")); const detail = el("div", "sb-prospect-detail"); renderResultDetail(detail); detailPanel.append(detailHead, detail);
+      const detailHead = el("div", "sb-prospect-panel-head"); detailHead.append(el("span", "sb-prospect-panel-title", outreachView ? "触达详情" : isLiveReport ? "报告摘要" : "成果详情"), el("span", "sb-prospect-panel-meta", outreachView ? "账号、对象、内容与触发依据" : isLiveReport ? "摘要、结论与完整报告" : "交付内容、指标与下一步")); const detail = el("div", "sb-prospect-detail"); renderResultDetail(detail); detailPanel.append(detailHead, detail);
     }
-    workspace.append(listPanel, detailPanel); shell.appendChild(workspace); wrap.appendChild(shell); renderTaskComposer();
+    workspace.append(listPanel, detailPanel);
+    if (["mkt-live-danmaku-analysis", "mkt-viral-work-analysis"].includes(state.selectedAgentId)) shell.appendChild(workspace);
+    else shell.append(workspace, renderAgentFiles());
+    wrap.appendChild(shell);
+    renderTaskComposer();
   }
 
   syncRecords();
   render();
   page.body.appendChild(wrap);
+  void refreshEmploymentContracts()
+    .then(({ contracts }) => {
+      if (!wrap.isConnected) return;
+      state.activeRoster = (Array.isArray(contracts) ? contracts : listHiredAgents()).filter(isMarketplaceAgentAvailable);
+      syncAgentScope();
+      render();
+    })
+    .catch(() => {
+      // Keep the last known Agent Center roster when the employment service is unavailable.
+    });
   void hydrateCanonicalResults();
   if (!mockPreview) canonicalResultsRefreshTimer = globalThis.setInterval(() => { void hydrateCanonicalResults(); }, 5000);
   const originalClose = page.close;
   page.close = () => {
+    closePrivateOutreachModal();
     if (canonicalResultsRefreshTimer) globalThis.clearInterval(canonicalResultsRefreshTimer);
     unsubscribeStore();
     unsubscribeLiveWork();
+    unsubscribeFiles();
     originalClose();
   };
   return page;

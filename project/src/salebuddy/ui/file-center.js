@@ -12,6 +12,7 @@ import { addFile, listFiles, getFile, subscribe } from "../agents/file-store.js"
 import { displayCreatedBy } from "../brand.js";
 import { fetchCanonicalArtifact } from "../bridge/results-client.js";
 import { createResultsMockPreviewFiles, isResultsMockPreview } from "./results-mock-preview.js";
+import { openProspectCenterPage } from "./prospect-center.js";
 
 const CSS = `
 .sb-files{display:flex;height:100%;overflow:hidden;border-radius:16px;background:var(--byering-paper,var(--sb-app-page-bg,#f7f8fb));color:var(--byering-ink,#080808);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
@@ -222,6 +223,17 @@ function renderHtmlFile(container, content, title) {
  * options: { initialFileId, onClose }
  */
 export function openFileCenterPage({ initialFileId = null, artifact = null, projectId = null, projectName = "", onClose = null } = {}) {
+  const storedFile = artifact || (initialFileId ? getFile(initialFileId) : null) || null;
+  return openProspectCenterPage({
+    initialFileId,
+    initialAgentId: storedFile?.agentId || null,
+    artifact: storedFile,
+    onClose
+  });
+}
+
+// Legacy implementation retained for old callers that may still import this module.
+function openLegacyFileCenterPage({ initialFileId = null, artifact = null, projectId = null, projectName = "", onClose = null } = {}) {
   persistNavigationRoute("files");
   ensureStyle();
   const mockPreview = isResultsMockPreview();

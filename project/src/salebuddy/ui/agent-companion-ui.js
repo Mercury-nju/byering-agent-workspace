@@ -353,7 +353,7 @@ export function openCompanionPreferences({ agentId, request, document: doc = glo
     }
     const speech = section("怎么和我说话");
     speech.append(radioGroup("tone", "语气", tones), radioGroup("detail", "长短", details));
-    if (state.settings.ranking && ["mkt-douyin-finder", "mkt-find-people", "mkt-user-research"].includes(agentId)) {
+    if (state.settings.ranking && agentId === "mkt-find-people") {
       speech.appendChild(radioGroup("ranking", "同样合适的人，先看谁", [["relevance", "保持原顺序"], ["recent", "最近发作品的"], ["active", "最近常更新的"]]));
     }
     const habits = section("记住我的习惯");

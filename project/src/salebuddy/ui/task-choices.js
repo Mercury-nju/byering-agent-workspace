@@ -212,14 +212,8 @@ export function makeTaskSettings(label = "更多设置") {
 }
 
 export const TASK_ENTRY_TITLES = Object.freeze({
-  "mkt-douyin-finder": "挑一类人，开始找",
   "mkt-find-people": "把几类线索合起来找",
-  "mkt-lead-miner": "看看评论里谁有需求",
-  "mkt-comment-filter": "把你关心的留言找出来",
   "mkt-comment-acquisition": "把找客户和接待交给我",
-  "mkt-live-lead-miner": "留意直播里有需求的观众",
-  "mkt-user-research": "帮你找到合适的人填问卷",
-  "mkt-research-expert": "一起看看这些账号",
   "mkt-cold-writer": "这次想联系谁？",
   "mkt-dm-inbox": "有人来问，我帮你接待",
   "mkt-gold-customer-service": "用金牌客服接待客户"

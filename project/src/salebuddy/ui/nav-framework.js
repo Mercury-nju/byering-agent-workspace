@@ -7,9 +7,8 @@
 import { openContactsPage } from "./contacts-page.js";
 import { openAgentSquarePage } from "./agent-square.js?v=20260915-live-danmaku-only-1";
 import { openMemoryPage } from "./memory-page.js";
-import { openFileCenterPage } from "./file-center.js";
 import { openConversationStrategyPage } from "./conversation-strategy.js?v=20260914-grid-alignment-1";
-import { openProspectCenterPage } from "./prospect-center.js?v=20260909-results-structure-2";
+import { openProspectCenterPage } from "./prospect-center.js?v=20260917-agent-results-pages-1";
 import { openRealtimeWorkPage } from "./realtime-work.js";
 import { NAV_PAGE_ROUTES, persistNavigationRoute, clearNavigationRoute } from "./navigation-routes.js";
 import { getCurrentPage, closeCurrentPage } from "./pages.js";
@@ -41,9 +40,10 @@ export const NAV_MODES = Object.freeze([
 const EXTRA_NAV_MODES = new Set(["realtimeWork", "prospects", "discoveredPeople", "files"]);
 const NAV_MODE_SET = new Set([...NAV_MODES, ...EXTRA_NAV_MODES]);
 const KNOWLEDGE_MODES = new Set(["kbMemory", "conversationStrategy"]);
-const VISIBLE_KNOWLEDGE_MODES = Object.freeze(["kbMemory", "conversationStrategy"]);
+// Keep the legacy strategy route callable for compatibility, but do not make it a primary destination.
+const VISIBLE_KNOWLEDGE_MODES = Object.freeze(["kbMemory"]);
 const NAV_BLUEPRINT = Object.freeze([
-  Object.freeze({ id: "work", items: Object.freeze(["office", "contacts", "agentSquare", "realtimeWork", "prospects", "discoveredPeople", "files"]) }),
+  Object.freeze({ id: "work", items: Object.freeze(["office", "contacts", "agentSquare", "realtimeWork", "prospects"]) }),
   Object.freeze({ id: "configuration", items: VISIBLE_KNOWLEDGE_MODES })
 ]);
 const DEFAULT_KNOWLEDGE_STATE = Object.freeze({ userExpanded: false, activeMode: null });
@@ -103,18 +103,10 @@ ${PRODUCT_VISIBILITY.skills ? "" : `[data-sb-nav-owner="1"] [data-sb-mode="skill
 [data-sb-nav-root="1"] [data-sb-nav-slot="office"]{order:11}
 [data-sb-nav-root="1"] [data-sb-mode="office"]{height:${NAV_LAYOUT.primaryRow}px!important;min-height:${NAV_LAYOUT.primaryRow}px!important;box-sizing:border-box!important}
 [data-sb-nav-owner="1"] [data-sb-mode="agentSquare"]{order:12}
-[data-sb-nav-owner="1"] [data-sb-extra-mode="realtimeWork"]{order:13}
-[data-sb-nav-owner="1"] .sb-nav-results-group{order:14;margin:2px 8px 0 0}
-[data-sb-nav-owner="1"] .sb-nav-results-toggle{width:100%;height:${NAV_LAYOUT.primaryRow}px;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:0 10px;border:0;border-radius:9px;background:transparent;color:#34383f;font:inherit;font-size:13px;text-align:left;cursor:pointer;transition:background-color 140ms ease,color 140ms ease}
-[data-sb-nav-owner="1"] .sb-nav-results-toggle:hover{background:rgba(23,25,29,.045);color:#111318}
-[data-sb-nav-owner="1"] .sb-nav-results-toggle.sb-nav-on{background:rgba(23,25,29,.075);color:#111318;font-weight:550}
-[data-sb-nav-owner="1"] .sb-nav-results-toggle .sb-nav-label{font-weight:inherit}
-[data-sb-nav-owner="1"] .sb-nav-results-arrow{margin-left:auto;color:#858a93;font-size:12px;line-height:1}
-[data-sb-nav-owner="1"] .sb-nav-results-children{display:grid;gap:2px;margin-top:2px}
-[data-sb-nav-owner="1"] .sb-nav-results-children[hidden]{display:none!important}
-[data-sb-nav-owner="1"] .sb-nav-results-children .sb-nav-row{min-height:36px;padding-left:38px;font-size:12px}
-[data-sb-nav-owner="1"] .sb-nav-results-children .sb-nav-icon{width:16px;height:16px}
-[data-sb-nav-owner="1"] .sb-nav-results-children .sb-nav-icon svg{width:16px;height:16px}
+[data-sb-nav-owner="1"] .sb-nav-realtime-group{display:contents}
+[data-sb-nav-owner="1"] .sb-nav-realtime-group>[data-sb-extra-mode="realtimeWork"]{order:14;margin:2px 8px 0 0}
+[data-sb-nav-owner="1"] .sb-nav-realtime-children{display:contents}
+[data-sb-nav-owner="1"] .sb-nav-realtime-children .sb-nav-row{order:15}
 [data-sb-nav-owner="1"] [data-sb-nav-slot="history-label"]{order:17}
 [data-sb-nav-root="1"] [data-sb-nav-slot="history"]{order:18}
 [data-sb-nav-root="1"] [data-sb-nav-plugin-section="1"]{order:19;margin:0!important}
@@ -158,7 +150,7 @@ ${PRODUCT_VISIBILITY.skills ? "" : `[data-sb-nav-owner="1"] [data-sb-mode="skill
 
 const ITEM_DEFINITIONS = Object.freeze({
   realtimeWork: { label: "实时工作", icon: "realtimeWork" },
-  prospects: { label: "潜客线索", icon: "prospects" },
+  prospects: { label: "成果中心", icon: "prospects" },
   discoveredPeople: { label: "发现的人", icon: "discovered" },
   files: { label: "文件中心", icon: "files" },
   contacts: { label: "对话", icon: "contacts" },
@@ -282,14 +274,14 @@ function defaultOpeners() {
     prospects: (options) => openProspectCenterPage(options),
     discoveredPeople: (options) => openProspectCenterPage({
       ...options,
-      initialSurface: "people",
-      standaloneDiscovery: true
+      initialSurface: "work",
+      initialResultType: "发现"
     }),
     contacts: (options) => openContactsPage(options),
     agentSquare: (options) => openAgentSquarePage(options),
     memory: (options) => openMemoryPage(options),
     conversationStrategy: (options) => openConversationStrategyPage(options),
-    files: (options) => openFileCenterPage(options)
+    files: (options) => openProspectCenterPage({ ...options, initialSurface: "work" })
   };
 }
 
@@ -313,10 +305,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   let knowledgeToggle = null;
   let knowledgeArrow = null;
   let knowledgeChildren = null;
-  let resultsToggle = null;
-  let resultsArrow = null;
-  let resultsChildren = null;
-  let resultsExpanded = false;
   let accountSection = null;
   let accountToggle = null;
   let accountMenu = null;
@@ -507,11 +495,11 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   }
 
   function openCustom(mode, options = {}) {
-    if (["prospects", "discoveredPeople", "files"].includes(mode)) resultsExpanded = true;
-    persistNavigationRoute(mode, options);
-    if (activeMode === mode && getCurrentPage()) return;
-    const onClose = claimPageRoute(mode);
-    emit(mode, true);
+    const routeMode = ["discoveredPeople", "files"].includes(mode) ? "prospects" : mode;
+    persistNavigationRoute(routeMode, options);
+    if (activeMode === routeMode && getCurrentPage()) return;
+    const onClose = claimPageRoute(routeMode);
+    emit(routeMode, true);
     if (mode === "contacts") {
       openers.contacts({
         gateway,
@@ -524,18 +512,17 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
         },
         onClose
       });
-    } else if (mode === "prospects" || mode === "discoveredPeople") {
-      openers[mode]({
+    } else if (routeMode === "prospects") {
+      openers.prospects({
         ...options,
-        ...(mode === "discoveredPeople" ? { initialSurface: "people", standaloneDiscovery: true } : {}),
+        initialSurface: "work",
+        ...(mode === "discoveredPeople" ? { initialResultType: "发现" } : {}),
         onClose
       });
     } else if (mode === "realtimeWork") {
-      openers.realtimeWork({ ...options, teamLive, onClose });
+      openers.realtimeWork({ ...options, gateway, teamLive, onClose });
     } else if (mode === "agentSquare") {
       openers.agentSquare({ ...options, gateway, teamLive, onChat: (agentType) => openChatWith(agentType), onClose });
-    } else if (mode === "files") {
-      openers.files({ ...options, onClose });
     } else if (mode === "kbMemory") {
       openers.memory({ gateway, onClose });
     } else if (mode === "conversationStrategy") {
@@ -649,32 +636,15 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     contacts.dataset.sbNavSlot = "contacts";
     const agentCenter = buildRow("agentSquare", menuClass);
     const realtimeWork = buildRow("realtimeWork", menuClass);
-    resultsToggle = createElement("button", "sb-nav-results-toggle");
-    resultsToggle.type = "button";
-    resultsToggle.setAttribute("aria-controls", "sb-nav-results-children");
-    resultsToggle.append(icon("prospects"), createElement("span", "sb-nav-label", "成果中心"));
-    resultsArrow = createElement("span", "sb-nav-results-arrow", "▾");
-    resultsToggle.appendChild(resultsArrow);
-    resultsChildren = createElement("div", "sb-nav-results-children");
-    resultsChildren.id = "sb-nav-results-children";
     const prospects = buildRow("prospects", menuClass);
-    const discoveredPeople = buildRow("discoveredPeople", menuClass);
-    const files = buildRow("files", menuClass);
-    resultsChildren.append(prospects, discoveredPeople, files);
-    const resultsGroup = createElement("section", "sb-nav-results-group");
-    resultsGroup.dataset.sbResultsGroup = "1";
-    resultsGroup.style.order = "15";
-    resultsGroup.append(resultsToggle, resultsChildren);
-    resultsToggle.addEventListener("click", (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      resultsExpanded = !resultsExpanded;
-      renderResultsGroup();
-    });
+    const realtimeGroup = createElement("section", "sb-nav-realtime-group");
+    realtimeGroup.dataset.sbRealtimeGroup = "1";
+    realtimeWork.style.order = "14";
+    prospects.style.order = "15";
+    realtimeGroup.append(realtimeWork, prospects);
     const skills = buildRow("skills", menuClass);
     contacts.style.order = "12";
     agentCenter.style.order = "13";
-    realtimeWork.style.order = "14";
     skills.style.order = "16";
     const recentLabel = createElement("div", "sb-nav-recent-label", "最近任务");
     recentLabel.dataset.sbNavSlot = "history-label";
@@ -727,7 +697,7 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
 
     // The empty group remains queryable for state/style compatibility. Its
     // visual children are appended directly so flex ordering is deterministic.
-    owner.append(work, workLabel, contacts, agentCenter, realtimeWork, resultsGroup, skills, recentLabel, configuration, accountSection);
+    owner.append(work, workLabel, contacts, agentCenter, realtimeGroup, skills, recentLabel, configuration, accountSection);
     renderAccount();
     contentRoot.appendChild(owner);
   }
@@ -739,14 +709,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     const arrow = expanded ? "▾" : "▸";
     if (knowledgeArrow.textContent !== arrow) knowledgeArrow.textContent = arrow;
     if (knowledgeChildren.hidden !== !expanded) knowledgeChildren.hidden = !expanded;
-  }
-
-  function renderResultsGroup() {
-    if (!resultsToggle?.isConnected || !resultsChildren?.isConnected) return;
-    const expanded = resultsExpanded;
-    resultsToggle.setAttribute("aria-expanded", String(expanded));
-    resultsArrow.textContent = expanded ? "▾" : "▸";
-    resultsChildren.hidden = !expanded;
   }
 
   function renderActive() {
@@ -782,7 +744,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       }
     }
     renderKnowledge();
-    renderResultsGroup();
     if (!disposed) observeSidebar();
   }
 
@@ -867,9 +828,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
       knowledgeToggle = null;
       knowledgeArrow = null;
       knowledgeChildren = null;
-      resultsToggle = null;
-      resultsArrow = null;
-      resultsChildren = null;
       accountSection = null;
       accountToggle = null;
       accountMenu = null;
@@ -881,7 +839,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     hideDuplicatePluginRows();
     updateAvailability();
     renderKnowledge();
-    renderResultsGroup();
   }
 
   function relocateSidebar() {
@@ -894,9 +851,6 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
     knowledgeToggle = null;
     knowledgeArrow = null;
     knowledgeChildren = null;
-    resultsToggle = null;
-    resultsArrow = null;
-    resultsChildren = null;
     accountSection = null;
     accountToggle = null;
     accountMenu = null;

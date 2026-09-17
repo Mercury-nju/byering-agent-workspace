@@ -16,8 +16,7 @@ const works = new Map(); // workKey -> { agentType, task, phase, projectId, acti
 const listeners = new Set();
 let sequence = 0;
 const ACQUISITION_AGENT_IDS = new Set([
-  ...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS,
-  "mkt-live-lead-miner"
+  ...DOUYIN_ACQUISITION_ACTIVE_AGENT_IDS
 ]);
 
 function acquisitionMetadata(agentType, metadata, progress) {
@@ -193,7 +192,18 @@ export function finishWork(agentType, artifact = null, metadata = null) {
   work.completedAt = Date.now();
   work.updatedAt = work.completedAt;
   persistWork(work);
-  notify(agentType, { type: "completed", sequence: ++sequence, artifact, work: snapshotWork(work, agentType) });
+  const workMetadata = work.metadata && typeof work.metadata === "object" ? work.metadata : {};
+  const finishMetadata = metadata && typeof metadata === "object" ? metadata : {};
+  const shouldDeliverCompletion = workMetadata.longRunning !== true
+    && workMetadata.suppressCompletionNotification !== true
+    && finishMetadata.suppressCompletionNotification !== true;
+  notify(agentType, {
+    type: "completed",
+    sequence: ++sequence,
+    artifact,
+    ...(shouldDeliverCompletion ? { deliverToConversation: true, metadata: { deliverToConversation: true } } : {}),
+    work: snapshotWork(work, agentType)
+  });
 }
 
 /** 读取某成员的在制工作；无则 null（云电脑据此显示空状态）。 */

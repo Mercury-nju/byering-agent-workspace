@@ -6,6 +6,7 @@ import { MARKETPLACE_AGENTS } from "../src/salebuddy/agents/marketplace.js";
 import { bindAcquisitionCardAction, getAcquisitionCardViewModel } from "../src/salebuddy/ui/acquisition-card-controller.js";
 
 const source = fs.readFileSync(new URL("../src/salebuddy/ui/agent-square.js", import.meta.url), "utf8");
+const prospectSource = fs.readFileSync(new URL("../src/salebuddy/ui/prospect-center.js", import.meta.url), "utf8");
 const taskChoicesSource = fs.readFileSync(new URL("../src/salebuddy/ui/task-choices.js", import.meta.url), "utf8");
 const appSource = fs.readFileSync(new URL("../src/salebuddy/index.js", import.meta.url), "utf8");
 
@@ -439,7 +440,8 @@ test("private outreach mock exposes the full activation workflow without real pr
   assert.match(source, /createPrivateOutreachMockData/);
   assert.match(source, /const privateOutreachMockData = isPrivateOutreachMockPreview\(\) \? createPrivateOutreachMockData\(\) : null/);
   assert.match(source, /mockPreview: mockPrivateOutreach/);
-  assert.match(source, /mockProspectRecords: mockPrivateOutreach \? structuredClone\(privateOutreachMockData\.records\)/);
+  assert.match(source, /mockProspectRecords: Array\.isArray\(saved\?\.mockProspectRecords\)/);
+  assert.match(source, /mockPrivateOutreach\s*\?\s*structuredClone\(privateOutreachMockData\.records\)/);
   assert.match(source, /MOCK 预览：下面会完整展示两种触达方式、发送私信和查看触达结果/);
   assert.match(source, /\["1 选择触达方式", "2 一键触达", "3 查看实时结果"\]/);
   const start = source.indexOf("async function startPrivateOutreach");
@@ -454,6 +456,25 @@ test("private outreach mock exposes the full activation workflow without real pr
   const mockStart = privateFlow.indexOf("async function startPrivateOutreachMock");
   const realStart = privateFlow.indexOf("async function startPrivateOutreach(agent");
   assert.doesNotMatch(privateFlow.slice(mockStart, realStart), /waitForDouyinAuthorization|send-private-message/);
+});
+
+test("single confirmed prospect outreach skips mode selection and explains its source", () => {
+  const setupStart = source.indexOf("function renderPrivateOutreachSetup");
+  const setupEnd = source.indexOf("function renderPrivateOutreachReview", setupStart);
+  assert.ok(setupStart >= 0 && setupEnd > setupStart);
+  const setup = source.slice(setupStart, setupEnd);
+
+  assert.match(source, /inlineProspectOutreach = flow\.inlineProspectOutreach === true/);
+  assert.match(source, /inlineProspectOutreach: saved\?\.inlineProspectOutreach === true/);
+  assert.match(source, /inlineProspectOutreach: flow\.inlineProspectOutreach === true/);
+  assert.match(setup, /if \(!inlineProspectOutreach\)/);
+  assert.match(setup, /为什么可以直接触达/);
+  assert.match(setup, /找客专员发现用户/);
+  assert.match(setup, /客户分析员确认潜客/);
+  assert.match(setup, /潜客触达专员首轮联系/);
+  assert.match(setup, /本次直接触达这位潜客/);
+  assert.match(setup, /这位潜客会直接进入首轮私信触达/);
+  assert.match(prospectSource, /inlineProspectOutreach = outreachMode === PRIVATE_OUTREACH_MODES\.PROSPECTS && selected\.length === 1/);
 });
 
 test("each acquisition product Agent keeps its own authorization identity", () => {
@@ -1204,7 +1225,7 @@ test("inbox setup reuses the account-scoped conversation strategy and stays cons
   const end = source.indexOf("function renderInboxStarting", start);
   assert.ok(start >= 0 && end > start);
   const setup = source.slice(start, end);
-  assert.match(setup, /会同步到“对话策略”/);
+  assert.match(setup, /高级策略会保存在这个账号上，后续回复会直接使用/);
   assert.match(setup, /登录后会自动识别当前账号/);
   assert.match(setup, /登录抖音账号/);
   assert.match(setup, /立即启动托管/);
@@ -1265,6 +1286,17 @@ test("gold customer service setup speaks as the Agent", () => {
   assert.match(setup, /appendGoalFirstComposer\(shell, flow, "你想让我帮你达成什么？"\)/);
   assert.doesNotMatch(setup, /把私信交给金牌客服/);
   assert.doesNotMatch(setup, /告诉我希望通过私信达成什么/);
+});
+
+test("gold customer service running state exposes account-scoped conversation tuning", () => {
+  const start = source.indexOf("function renderInboxRunning");
+  const end = source.indexOf("function specialistFirstText", start);
+  assert.ok(start >= 0 && end > start);
+  const running = source.slice(start, end);
+  assert.match(running, /调整承接目标/);
+  assert.match(running, /onChat\?\.\(\{[\s\S]*agentId: flow\.agentId[\s\S]*accountId: flow\.accountId \|\| null/);
+  assert.match(running, /taskId: flow\.taskId \|\| null/);
+  assert.match(running, /taskRunId: flow\.taskRunId \|\| null/);
 });
 
 test("viral work analysis setup speaks as the Agent before asking for a link", () => {
@@ -1516,9 +1548,9 @@ test("live danmaku outreach has a dedicated no-analysis setup and durable runnin
   assert.match(source, /async function startLiveDanmakuOutreach\(agent, flow/);
   assert.match(source, /flow\.analysisKind = "live_danmaku_outreach"/);
   assert.match(source, /flow\.liveDanmakuSignals = \["danmaku"\]/);
-  assert.match(source, /仅针对当前直播间的新弹幕/);
+  assert.match(source, /LIVE_DANMAKU_OUTREACH_SCOPE/);
   assert.match(source, /逐位完成首次触达/);
-  assert.match(source, /不判断成交状态或购买意向/);
+  assert.match(source, /LIVE_DANMAKU_OUTREACH_SCOPE/);
   assert.match(source, /同一用户只触达一次/);
   const setupStart = source.indexOf("function renderLiveDanmakuOutreachSetup");
   const setupEnd = source.indexOf("function renderLiveDanmakuOutreachRunning", setupStart);
@@ -1526,10 +1558,15 @@ test("live danmaku outreach has a dedicated no-analysis setup and durable runnin
   const setup = source.slice(setupStart, setupEnd);
   assert.match(setup, /sb-as-live-outreach-shell/);
   assert.match(setup, /我会自动完成/);
-  assert.match(setup, /向直播间里尚未成交的用户发送触达信息/);
+  assert.match(setup, /根据你设定的触达目的/);
   assert.match(setup, /内容和策略由大模型自主决定/);
   assert.match(setup, /帮助你持续促进转化/);
-  assert.match(setup, /范围已经固定：仅针对当前直播间的新弹幕/);
+  assert.match(setup, /直播间触达目的/);
+  assert.match(setup, /自定义开场消息（可选）/);
+  assert.doesNotMatch(setup, /每日最多触达/);
+  assert.match(setup, /每条消息间隔/);
+  assert.match(setup, /实际可用额度/);
+  assert.match(setup, /直播间范围、触达渠道和风险转人工规则保持固定/);
   assert.doesNotMatch(setup, /sb-as-use-fields/);
   assert.doesNotMatch(setup, /配置电商直播间未成交客户触达/);
   assert.doesNotMatch(source, /isLiveDanmakuOutreachAgent\(agent\)[\s\S]{0,200}分析这些账号/);

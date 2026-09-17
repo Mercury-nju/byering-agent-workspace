@@ -131,6 +131,65 @@ test("gold customer service accepts only the conversation objective and lets AI 
   assert.deepEqual(requests[0].knowledge.sources.map((source) => source.id), ["account-knowledge"]);
 });
 
+test("Gold customer service binds the generated strategy to a hidden account context snapshot", async () => {
+  const requests = [];
+  const accountContext = {
+    schemaVersion: 1,
+    status: "ready",
+    revision: "context-revision-1",
+    account: { secUid: "sec-1", nickname: "臻选新能源·上海" },
+    videos: [{ id: "video-1", text: "上海新能源 SUV 置换补贴" }],
+    analysis: { summary: "账号主要承接新能源 SUV 试驾咨询", recurringQuestions: ["价格包含购置税吗？"] },
+    evidence: [{ id: "e1", type: "comment", text: "价格包含购置税吗？", videoId: "video-1" }]
+  };
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-gold-customer-service",
+    douyinMcpService: fakeMcp(),
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    accountContextService: {
+      async run() { return accountContext; }
+    },
+    planGenerator: async (input) => {
+      requests.push(input);
+      assert.equal(input.accountContext.revision, "context-revision-1");
+      assert.match(input.accountContext.analysis.summary, /新能源 SUV/);
+      return completeModelPlan({ conversationObjective: "引导客户留下联系方式", allowedFacts: [] });
+    }
+  });
+
+  const result = await service.plan(goldCustomerServiceInput({ accountIdentity: { secUid: "sec-1" } }));
+
+  assert.equal(requests.length, 1);
+  assert.equal(result.accountContext.revision, "context-revision-1");
+  assert.equal(result.planRevision.length > 0, true);
+});
+
+test("Gold customer service rejects starting a plan with a different authorized account", async () => {
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-gold-customer-service",
+    douyinMcpService: fakeMcp(),
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    accountContextService: {
+      async run() {
+        return { schemaVersion: 1, status: "ready", revision: "context-revision-1", account: { secUid: "sec-1", nickname: "账号一" }, videos: [], comments: [], analysis: {}, evidence: [] };
+      }
+    },
+    planGenerator: async () => completeModelPlan({ conversationObjective: "引导客户留下联系方式", allowedFacts: [] })
+  });
+
+  const input = goldCustomerServiceInput({ accountIdentity: { secUid: "sec-1" } });
+  const planned = await service.plan(input);
+
+  await assert.rejects(
+    () => service.start({ ...input, accountIdentity: { secUid: "sec-2" }, planToken: planned.planToken, startRequestId: "gold-account-mismatch" }),
+    (error) => {
+      assert.equal(error.code, "DOUYIN_INBOX_PLAN_ACCOUNT_MISMATCH");
+      assert.equal(error.statusCode, 409);
+      return true;
+    }
+  );
+});
+
 test("complete acquisition inbox accepts only the conversation objective without saved reception strategy", async () => {
   const requests = [];
   const service = createDouyinInboxAgentService({
@@ -231,7 +290,8 @@ test("gold customer service applies the generated strategy to runtime replies", 
     planGenerator: async () => completeModelPlan({
       conversationObjective: "引导客户预约试驾",
       responseTone: "温和、专业、主动",
-      responsePriorities: ["先回答当前问题", "推进预约试驾"],
+      responsePriorities: ["先回答当前问题", "一次只推进一个下一步"],
+      qualificationQuestions: ["客户是否愿意预约试驾"],
       handoffRules: ["价格承诺"],
       allowedFacts: []
     }),
@@ -253,7 +313,7 @@ test("gold customer service applies the generated strategy to runtime replies", 
   assert.match(prompt, /你是金牌客服/);
   assert.match(prompt, /承接目标：引导客户预约试驾/);
   assert.match(prompt, /回复风格：温和、专业、主动/);
-  assert.match(prompt, /优先确认的问题：先回答当前问题、推进预约试驾/);
+  assert.match(prompt, /优先确认的问题：客户是否愿意预约试驾/);
   assert.match(prompt, /必须转人工的情况：价格承诺/);
   assert.match(prompt, /先回应客户当前问题，再根据承接目标决定是否继续追问、提供方案、获取线索或推进下一步/);
 });

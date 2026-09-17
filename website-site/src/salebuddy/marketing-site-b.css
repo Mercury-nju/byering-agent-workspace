@@ -45,8 +45,8 @@ body.byering-marketing-b-active > *:not(#byering-marketing-b-root) { display: no
 .b-topbar-cta:hover, .b-footer-button:hover, .b-paper-button:hover { transform: translateY(-2px); }
 
 .b-hero { position: relative; min-height: 100svh; overflow: hidden; isolation: isolate; }
-.b-landscape { position: absolute; inset: 0; background: url("/assets/creatie-hills.png") center 44% / cover; filter: saturate(1.04) contrast(.97) brightness(1.18); transform: scale(1.035); animation: b-landscape-drift 18s ease-in-out infinite alternate; z-index: -3; }
-.b-hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 43, 57, .02), rgba(11, 43, 57, 0) 44%, rgba(7, 31, 39, .02) 100%); z-index: -2; }
+.b-landscape { position: absolute; inset: 0; background: url("/assets/creatie-hills.png") center 42% / cover; filter: saturate(1.02) contrast(1.01) brightness(1.05); transform: scale(1.04); animation: b-landscape-restart 24s ease-in-out infinite alternate; z-index: -3; }
+.b-hero-shade { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 18%, rgba(255, 255, 255, .18), transparent 34%), linear-gradient(180deg, rgba(135, 201, 235, .1), rgba(255, 255, 255, 0) 47%, rgba(232, 255, 125, .07) 100%); mix-blend-mode: screen; z-index: -2; }
 .b-availability { position: absolute; top: 112px; left: 34px; display: grid; grid-template-columns: auto 1fr; column-gap: 8px; width: 360px; padding: 17px 22px; border: 1px solid rgba(255, 255, 255, .42); border-radius: 24px; background: rgba(255, 255, 255, .12); box-shadow: 0 18px 35px rgba(12, 41, 53, .1); backdrop-filter: blur(9px); }
 .b-availability > i { grid-row: span 2; margin-top: 4px; }
 .b-availability span { font-size: 11px; }
@@ -84,7 +84,7 @@ body.byering-marketing-b-active > *:not(#byering-marketing-b-root) { display: no
 
 .b-dock { position: fixed; z-index: 30; bottom: 18px; left: 50%; display: flex; gap: 7px; padding: 7px; border: 1px solid rgba(255, 255, 255, .88); border-radius: 18px; background: rgba(255, 255, 255, .58); box-shadow: 0 15px 30px rgba(9, 29, 39, .22); backdrop-filter: blur(14px); transform: translateX(-50%); }.b-dock a { display: block; transition: transform .2s ease; }.b-dock a:hover { transform: translateY(-5px); }.b-dock-icon { display: grid; place-items: center; width: 62px; height: 62px; border: 4px solid rgba(255, 255, 255, .85); border-radius: 15px; color: var(--b-ink); box-shadow: inset 0 0 0 1px rgba(9, 29, 39, .1), 0 3px 5px rgba(9, 29, 39, .12); font-size: 34px; font-weight: 850; }.b-dock-icon--yellow { background: linear-gradient(160deg, #fff36d 0 23%, #fff 24%); }.b-dock-icon--pink { color: #e77c63; background: linear-gradient(145deg, #fff, #ffcfce); }.b-dock-icon--blue { color: #fff; background: linear-gradient(145deg, #84cfff, #4c82e9); }.b-dock-icon--navy { color: #fff; background: linear-gradient(145deg, #1d556c, #0b1f2a); }
 
-@keyframes b-landscape-drift { from { transform: scale(1.035) translate3d(-.3%, 0, 0); } to { transform: scale(1.045) translate3d(.3%, -.3%, 0); } }
+@keyframes b-landscape-restart { from { background-position: 49% 43%; transform: scale(1.04) translate3d(-.6%, .2%, 0); } to { background-position: 51% 41%; transform: scale(1.07) translate3d(.6%, -.4%, 0); } }
 @keyframes b-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 @keyframes b-float { 0%, 100% { transform: rotate(-3deg) translateY(0); } 50% { transform: rotate(-1deg) translateY(-9px); } }
 

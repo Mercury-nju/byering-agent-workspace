@@ -104,6 +104,15 @@ await run("mock conversation: business memory supports metrics, diagnosis, solut
   assert(/已生效/.test(applied.text), `确认后的回复没有说明已生效：${applied.text}`);
 });
 
+await run("mock conversation: every turn carries the Agent conversation contract", () => {
+  const finder = mockConversationTurn("mkt-find-people", "昨天找到了多少人？");
+  const outreach = mockConversationTurn("mkt-cold-writer", "后面怎么优化？");
+  assert(finder.state.conversationScenarioId === "conversation:mkt-find-people", "找客专员没有绑定对话契约");
+  assert(finder.state.conversationFamily === "discovery", "找客专员没有绑定 discovery 场景族");
+  assert(outreach.state.conversationScenarioId === "conversation:mkt-cold-writer", "潜客触达专员没有绑定对话契约");
+  assert(outreach.state.conversationFamily === "outreach", "潜客触达专员没有绑定 outreach 场景族");
+});
+
 await run("mock conversation: every investor-demo Agent has domain memory and an actionable improvement flow", () => {
   for (const agentType of DEMO_DM_AGENT_TYPES) {
     const memory = demoMemoryFor(agentType);

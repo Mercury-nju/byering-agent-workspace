@@ -2,16 +2,7 @@ const DEFAULT_TIME_ZONE = "Asia/Shanghai";
 
 const AGENT_ALIASES = Object.freeze([
   Object.freeze({ agentId: "mkt-comment-acquisition", labels: ["抖音获客管家", "获客专家"] }),
-  Object.freeze({ agentId: "mkt-lead-miner", labels: ["评论区找客户", "评论区潜客挖掘"] }),
-  Object.freeze({ agentId: "mkt-comment-filter", labels: ["按条件筛评论", "作品评论筛选"] }),
-  Object.freeze({ agentId: "mkt-douyin-finder", labels: ["抖音找人助手", "抖音找人专家"] }),
   Object.freeze({ agentId: "mkt-find-people", labels: ["找客专员", "找人管家"] }),
-  Object.freeze({ agentId: "mkt-live-lead-miner", labels: ["直播间找客户", "直播间获客专家"] }),
-  Object.freeze({ agentId: "mkt-user-research", labels: ["找人发问卷", "用户调研专家"] }),
-  Object.freeze({ agentId: "mkt-audience-search", labels: ["按条件找账号", "目标人群搜索"] }),
-  Object.freeze({ agentId: "mkt-network-miner", labels: ["粉丝关系分析", "受众关系分析"] }),
-  Object.freeze({ agentId: "mkt-trend-insight", labels: ["涨粉趋势分析", "账号增长分析"] }),
-  Object.freeze({ agentId: "mkt-research-expert", labels: ["抖音账号分析", "抖音账号研究"] }),
   Object.freeze({ agentId: "mkt-intent-analyst", labels: ["客户分析员", "客户研究员", "分析助手"] }),
   Object.freeze({ agentId: "mkt-live-danmaku-analysis", labels: ["直播间弹幕分析", "直播弹幕分析"] }),
   Object.freeze({ agentId: "mkt-viral-work-analysis", labels: ["爆款作品分析", "作品分析助手"] }),
@@ -19,9 +10,6 @@ const AGENT_ALIASES = Object.freeze([
   Object.freeze({ agentId: "mkt-live-danmaku-outreach", labels: ["直播间触达", "直播间私信触达"] }),
   Object.freeze({ agentId: "mkt-dm-inbox", labels: ["私信客服", "私信自动回复", "对话助手"] }),
   Object.freeze({ agentId: "mkt-gold-customer-service", labels: ["金牌客服", "快速接待客服"] }),
-  Object.freeze({ agentId: "mkt-follow-up", labels: ["客户跟进提醒", "潜客持续跟进"] }),
-  Object.freeze({ agentId: "mkt-phone-sdr", labels: ["电话邀约准备", "高意向电话邀约"] }),
-  Object.freeze({ agentId: "mkt-copywriter", labels: ["营销文案助手", "营销内容生成"] })
 ]);
 
 const COUNT_LABELS = Object.freeze({
@@ -51,6 +39,13 @@ const COUNT_LABELS = Object.freeze({
   shares: "分享",
   favorites: "收藏",
   totalInteractions: "总互动"
+});
+
+const METRIC_LABELS = Object.freeze({
+  touchRate: "触达率",
+  replyRate: "回复率",
+  conversionRate: "转化率",
+  engagementRate: "互动率"
 });
 
 const DATA_SIGNAL = /(?:数据|结果|产出|发现|线索|指标|表现|做了什么|产生|完成了什么|汇总|明细)/u;
@@ -118,6 +113,18 @@ function resultSnapshotFor(result = {}) {
   return result.resultSnapshot && typeof result.resultSnapshot === "object" && !Array.isArray(result.resultSnapshot)
     ? result.resultSnapshot
     : null;
+}
+
+function isDataBearingResult(result = {}) {
+  const snapshot = resultSnapshotFor(result);
+  if (!snapshot) return false;
+  const status = cleanText(result.status || snapshot.status).toLowerCase();
+  if (!new Set(["running", "in_progress", "pending", "waiting"]).has(status)) return true;
+  const hasCounts = Object.keys(countsFor(snapshot)).length > 0;
+  const hasMetrics = Object.keys(metricsFor(snapshot)).length > 0;
+  const hasCollections = ["items", "evidence", "candidateEvidence", "artifacts", "decisions", "actions"].some((key) => collectionLength(snapshot, key) > 0);
+  if (hasCounts || hasMetrics || hasCollections) return true;
+  return !/等待真实任务产出|没有可交付结果/u.test(cleanText(snapshot.summary));
 }
 
 function safeCount(value) {
@@ -206,6 +213,7 @@ export function detectChiefDataQuery(input, { now = new Date(), timeZone = DEFAU
 export function buildChiefDataOverview({ query = {}, results = [], observedAt = null } = {}) {
   const matched = (Array.isArray(results) ? results : [])
     .filter((result) => resultSnapshotFor(result))
+    .filter((result) => isDataBearingResult(result))
     .filter((result) => !query.agentId || resultAgentId(result) === query.agentId)
     .filter((result) => resultMatchesDate(result, query));
   const byAgent = new Map();
@@ -278,6 +286,12 @@ function countText(counts = {}) {
     .join("、");
 }
 
+function metricText(metrics = {}) {
+  return Object.entries(metrics)
+    .map(([key, value]) => `${METRIC_LABELS[key] || key} ${value}`)
+    .join("、");
+}
+
 function withSentence(value) {
   const text = cleanText(value);
   if (!text) return "";
@@ -295,9 +309,11 @@ export function chiefDataMessage({ query = {}, overview = {} } = {}) {
   const lines = [`我已读取${scope}${date}的真实产出：共 ${overview.agentCount} 个 Agent、${overview.resultCount} 条结果记录。`];
   for (const agent of overview.agents) {
     const counts = countText(agent.counts);
+    const metrics = metricText(agent.metrics);
     const details = [
       `${agent.resultCount} 条结果`,
       counts,
+      metrics,
       agent.itemsCount ? `${agent.itemsCount} 条业务记录` : "",
       agent.evidenceCount ? `${agent.evidenceCount} 条证据` : "",
       agent.artifacts.length ? `${agent.artifacts.length} 份产出文件` : ""

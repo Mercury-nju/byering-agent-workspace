@@ -317,65 +317,6 @@ const MOCK_RUNS = Object.freeze([
     counts: { discovered: 8, qualified: 8, delivered: 8 },
     items: MOCK_RECORDS,
     generatedAt: MOCK_NOW
-  },
-  {
-    taskId: "mock-results-public-finder",
-    ownerKey: "mkt-douyin-finder::mock-results-public-finder::",
-    agentId: "mkt-douyin-finder",
-    agentName: "找客专员",
-    resultType: "抖音找人",
-    title: "新能源家庭用车兴趣人群",
-    summary: "从公开内容中发现 3 个待进一步分析的账号。",
-    source: "公开内容搜索",
-    sourceScope: "public_search",
-    contactability: { allowed: false, sourceScope: "public_search", reason: "抖音找人结果来自公域，仅用于分析，不能直接触达" },
-    status: "completed",
-    counts: { discovered: 3, matched: 3 },
-    items: [
-      {
-        accountId: "mock-public-finder-01",
-        nickname: "阿木的周末出行",
-        handle: "amu_weekend_car",
-        avatar: MOCK_AVATARS[2],
-        matched: true,
-        score: 88,
-        location: "上海",
-        followers: 4800,
-        awemeCount: 73,
-        likes: 21200,
-        reasons: ["近期连续发布家庭出行与新能源车对比内容", "评论中多次询问空间与续航"],
-        finderState: { tags: ["家庭用车", "新能源"], reasons: ["近期连续发布家庭出行与新能源车对比内容"] }
-      },
-      {
-        accountId: "mock-public-finder-02",
-        nickname: "小夏的通勤笔记",
-        handle: "xiaxia_commute",
-        avatar: MOCK_AVATARS[4],
-        matched: true,
-        score: 84,
-        location: "杭州",
-        followers: 2600,
-        awemeCount: 41,
-        likes: 10300,
-        reasons: ["作品持续讨论通勤成本与电车补能", "主页定位为杭州"],
-        finderState: { tags: ["通勤", "杭州"], reasons: ["作品持续讨论通勤成本与电车补能"] }
-      },
-      {
-        accountId: "mock-public-finder-03",
-        nickname: "老赵看车",
-        handle: "laozhao_car_review",
-        avatar: MOCK_AVATARS[5],
-        matched: true,
-        score: 81,
-        location: "苏州",
-        followers: 7100,
-        awemeCount: 96,
-        likes: 31800,
-        reasons: ["近期发布多条 SUV 对比内容", "评论互动频繁讨论置换方案"],
-        finderState: { tags: ["SUV", "置换"], reasons: ["近期发布多条 SUV 对比内容"] }
-      }
-    ],
-    generatedAt: "2026-09-14T09:46:00.000Z"
   }
 ]);
 

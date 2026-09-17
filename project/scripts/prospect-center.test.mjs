@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { buildConsumerOverviewModel, buildInboxResumeFlow, buildPrivateOutreachResumeFlow, buildProspectDashboardModel, commentResultItems, consumerNavigationItems, dashboardAcquisitionAccount, dashboardLeadLabel, dashboardReplyLabel, discoveredUserItems, discoverySourceGroups, discoveryTaskGroups, isBusinessResult, isDirectOutreachCandidate, leadCaptureContactEntries, normalizePeopleFilter, outreachResultItems, personAvatarHydrationReference, privateOutreachRecipientId, prospectSelectionIds, resultFunnelCounts, selectedResultIdForType } from "../src/salebuddy/ui/prospect-center.js";
+import { buildAgentCatalog, buildAgentScopedData, buildConsumerOverviewModel, buildInboxResumeFlow, buildPrivateOutreachResumeFlow, buildProspectDashboardModel, commentResultItems, consumerNavigationItems, dashboardAcquisitionAccount, dashboardLeadLabel, dashboardReplyLabel, discoveredUserItems, discoverySourceGroups, discoveryTaskGroups, filterResultsByTime, isBusinessResult, isDirectOutreachCandidate, leadCaptureContactEntries, normalizePeopleFilter, outreachResultItems, personAvatarHydrationReference, privateOutreachRecipientId, prospectSelectionIds, resultFunnelCounts, selectedResultIdForType } from "../src/salebuddy/ui/prospect-center.js";
 import { createResultsMockPreviewData, createResultsMockPreviewFiles, isResultsMockPreview } from "../src/salebuddy/ui/results-mock-preview.js";
 import { finderAccountToOutreach, mergeResolvedFinderAccounts, normalizeDouyinFinderAccount } from "../src/salebuddy/ui/douyin-finder-results.js";
 import { personAvatarUrl } from "../src/salebuddy/ui/person-avatar.js";
@@ -109,6 +109,57 @@ test("found people separates authorized-account interactions from public finder 
   assert.equal(model.accounts[0].items[0].origin, "own");
   assert.equal(model.tasks[0].title, "找上海家居创作者");
   assert.equal(model.tasks[0].items[0].origin, "public");
+});
+
+test("found people excludes inbox and user-direct records from the discovery pool", () => {
+  const items = discoveredUserItems({
+    records: [
+      {
+        id: "interaction-1",
+        name: "账号互动用户",
+        uniqueId: "interaction-1",
+        status: "待分析",
+        contactability: { allowed: true, sourceScope: "own_account_comments" }
+      },
+      {
+        id: "inbox-1",
+        name: "私信用户",
+        uniqueId: "inbox-1",
+        status: "跟进中",
+        contactability: { allowed: true, sourceScope: "own_inbox" }
+      },
+      {
+        id: "direct-1",
+        name: "直接指定用户",
+        uniqueId: "direct-1",
+        status: "待触达",
+        contactability: { allowed: false, sourceScope: "user_direct" }
+      }
+    ],
+    runs: [
+      {
+        taskId: "inbox-run",
+        resultType: "私信承接",
+        agentId: "mkt-dm-inbox",
+        items: [{ nickname: "私信任务用户", uniqueId: "inbox-run-user" }]
+      },
+      {
+        taskId: "intent-run",
+        resultType: "潜客",
+        agentId: "mkt-intent-analyst",
+        items: [{ nickname: "已分析用户", uniqueId: "intent-run-user" }]
+      },
+      {
+        taskId: "own-discovery-run",
+        resultType: "评论筛选",
+        agentId: "mkt-find-people",
+        sourceScope: "own_account_interactions",
+        items: [{ nickname: "找客结果用户", uniqueId: "discovery-run-user" }]
+      }
+    ]
+  });
+
+  assert.deepEqual(items.map((item) => item.identity), ["discovery-run-user", "interaction-1"]);
 });
 
 test("authorized account source cards use a compact fluid layout", () => {
@@ -308,6 +359,7 @@ test("style preview provides a complete results-center conversion chain without 
   assert.equal(createResultsMockPreviewFiles().length, 3);
   assert.equal(isResultsMockPreview("?page=prospects&preview=style", { hostname: "127.0.0.1" }), true);
   assert.equal(isResultsMockPreview("?page=prospects&preview=style", { hostname: "example.com" }), false);
+  assert.match(prospectCenterSource, /import \{ createResultsMockPreviewData, createResultsMockPreviewFiles, isResultsMockPreview \} from "\.\/results-mock-preview\.js"/);
 });
 
 test("captured leads expose their concrete contact details in the dashboard", () => {
@@ -365,12 +417,61 @@ test("results center keeps partial and failed delivery results visible", () => {
   assert.equal(isBusinessResult({ resultType: "错误", status: "failed", error: { code: "OFFLINE" } }), true);
 });
 
+test("Agent results filter by generated time while preserving an unfiltered all-time view", () => {
+  const runs = [
+    { id: "today", generatedAt: "2026-09-17T09:00:00.000+08:00" },
+    { id: "week", generatedAt: "2026-09-11T08:00:00.000+08:00" },
+    { id: "month", generatedAt: "2026-08-30T08:00:00.000+08:00" },
+    { id: "old", generatedAt: "2026-05-01T08:00:00.000+08:00" },
+    { id: "unknown-date" }
+  ];
+  const now = "2026-09-17T16:00:00.000+08:00";
+
+  assert.deepEqual(filterResultsByTime(runs, { range: "all", now }).map((run) => run.id), ["today", "week", "month", "old", "unknown-date"]);
+  assert.deepEqual(filterResultsByTime(runs, { range: "today", now }).map((run) => run.id), ["today"]);
+  assert.deepEqual(filterResultsByTime(runs, { range: "7d", now }).map((run) => run.id), ["today", "week"]);
+  assert.deepEqual(filterResultsByTime(runs, { range: "30d", now }).map((run) => run.id), ["today", "week", "month"]);
+  assert.deepEqual(filterResultsByTime(runs, { range: "90d", now }).map((run) => run.id), ["today", "week", "month"]);
+  assert.match(prospectCenterSource, /function renderResultTimeFilter\(\)/);
+  assert.match(prospectCenterSource, /aria-label", "按生成时间筛选成果"/);
+});
+
 test("results center leaves the global page title empty because navigation already identifies the section", () => {
   assert.match(prospectCenterSource, /const page = openPage\(\{\s*title: \"\",\s*onClose: \(\) => \{/);
 });
 
-test("default prospect center opens on the direct data dashboard", () => {
-  assert.match(prospectCenterSource, /shell\.appendChild\(renderDataOverview\(\)\)/);
+test("results center opens on one Agent-scoped work surface", () => {
+  assert.match(prospectCenterSource, /persistNavigationRoute\("prospects"\)/);
+  assert.match(prospectCenterSource, /surface: "work"/);
+  assert.match(prospectCenterSource, /selectedAgentId:/);
+  assert.match(prospectCenterSource, /renderAgentScopeHeader\(\)/);
+  assert.match(prospectCenterSource, /buildAgentScopedData\(/);
+  assert.match(prospectCenterSource, /sb-results-agent-card/);
+  assert.match(prospectCenterSource, /mountGrokBotAvatar\(/);
+  assert.doesNotMatch(prospectCenterSource, /sb-agent-scope-select/);
+  assert.match(prospectCenterSource, /resultCardMetrics\(run\)/);
+  assert.match(prospectCenterSource, /RESULT_METRIC_LABELS/);
+  assert.match(prospectCenterSource, /function agentBusinessViews/);
+  assert.match(prospectCenterSource, /function renderAgentBusinessNavigation/);
+  assert.doesNotMatch(prospectCenterSource, /RESULT_TYPES\.forEach\(\(type\)/);
+  assert.match(prospectCenterSource, /byering:results-center:selected-agent/);
+  assert.match(prospectCenterSource, /agentRailScrollLeft/);
+  assert.doesNotMatch(prospectCenterSource, /renderSyncNotice/);
+  assert.doesNotMatch(prospectCenterSource, /sb-agent-scope-title/);
+  assert.match(prospectCenterSource, /selectedAgentId === "mkt-comment-acquisition"/);
+  assert.match(prospectCenterSource, /renderDashboardFunnel\(model\.counts\)/);
+  assert.match(prospectCenterSource, /selectedAgentId === "mkt-comment-acquisition"/);
+  assert.match(prospectCenterSource, /function renderDataOverview\(\{ showFunnel = true \} = \{\}\)/);
+  assert.match(prospectCenterSource, /renderDataOverview\(\{ showFunnel: false \}\)/);
+  assert.match(prospectCenterSource, /selectedAgentId === "mkt-find-people"/);
+  assert.match(prospectCenterSource, /"找到的人"/);
+  assert.match(prospectCenterSource, /renderDiscoveredListContent\(foundContent, foundItems\)/);
+  assert.match(prospectCenterSource, /\["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis"\]\.includes\(state\.selectedAgentId\)/);
+  assert.match(prospectCenterSource, /if \(state\.selectedAgentId === "mkt-find-people"\) \{/);
+  assert.match(prospectCenterSource, /is-empty-discovery/);
+  assert.match(prospectCenterSource, /function renderSpecialistWorkbench/);
+  assert.match(prospectCenterSource, /mkt-live-danmaku-outreach/);
+  assert.match(prospectCenterSource, /mkt-gold-customer-service/);
   assert.match(prospectCenterSource, /sb-data-funnel/);
   assert.match(prospectCenterSource, /全部潜客/);
   assert.match(prospectCenterSource, /待触达/);
@@ -392,6 +493,136 @@ test("default prospect center opens on the direct data dashboard", () => {
   assert.doesNotMatch(prospectCenterSource, /sb-data-export/);
   assert.match(prospectCenterSource, /\.sb-data-avatar\{[^}]*display:grid;[^}]*width:38px;[^}]*height:38px;[^}]*overflow:hidden;[^}]*border-radius:11px/);
   assert.match(prospectCenterSource, /\.sb-data-avatar img\{display:block;width:100%;height:100%;object-fit:cover\}/);
+});
+
+test("Agent scope keeps results, records, and files in the same boundary", () => {
+  const data = {
+    runs: [
+      {
+        id: "run-acquisition",
+        taskId: "task-acquisition",
+        agentId: "mkt-comment-acquisition",
+        agentName: "抖音获客管家",
+        resultType: "评论筛选",
+        items: [{ id: "record-acquisition" }]
+      },
+      {
+        id: "run-analysis",
+        taskId: "task-analysis",
+        agentId: "mkt-intent-analyst",
+        agentName: "客户分析员",
+        resultType: "潜客",
+        items: [{ id: "record-analysis" }]
+      }
+    ],
+    records: [
+      { id: "record-acquisition", status: "待触达" },
+      { id: "record-analysis", status: "待触达" }
+    ],
+    files: [
+      { id: "file-acquisition", agentId: "mkt-comment-acquisition", name: "获客名单.csv" },
+      { id: "file-analysis", agentId: "mkt-intent-analyst", name: "客户分析.html" }
+    ]
+  };
+
+  assert.deepEqual(buildAgentCatalog(data), [
+    { id: "mkt-comment-acquisition", label: "抖音获客管家" },
+    { id: "mkt-intent-analyst", label: "客户分析员" }
+  ]);
+
+  const acquisition = buildAgentScopedData({ ...data, agentId: "mkt-comment-acquisition" });
+  assert.deepEqual(acquisition.records.map((item) => item.id), ["record-acquisition"]);
+  assert.deepEqual(acquisition.runs.map((run) => run.id), ["run-acquisition"]);
+  assert.deepEqual(acquisition.files.map((file) => file.id), ["file-acquisition"]);
+
+  const analysis = buildAgentScopedData({ ...data, agentId: "mkt-intent-analyst" });
+  assert.deepEqual(analysis.records.map((item) => item.id), ["record-analysis"]);
+  assert.deepEqual(analysis.runs.map((run) => run.id), ["run-analysis"]);
+  assert.deepEqual(analysis.files.map((file) => file.id), ["file-analysis"]);
+});
+
+test("results center includes customer-facing agents when real records exist", () => {
+  const catalog = buildAgentCatalog({
+    roster: [{ id: "mkt-cold-writer", name: "潜客触达专员" }],
+    runs: [{ id: "gold-run", agentId: "mkt-gold-customer-service" }]
+  });
+  assert.deepEqual(catalog.map((agent) => agent.id), ["mkt-cold-writer", "mkt-gold-customer-service"]);
+});
+
+test("results center never exposes the unassigned placeholder as an Agent", () => {
+  const catalog = buildAgentCatalog({
+    roster: [
+      { id: "mkt-viral-work-analysis", name: "爆款作品分析" },
+      { id: "__unassigned__", name: "未归属" }
+    ],
+    files: [{ id: "legacy-file", name: "历史文件" }]
+  });
+  const scoped = buildAgentScopedData({ files: [{ id: "legacy-file", name: "历史文件" }] });
+
+  assert.deepEqual(catalog, [{ id: "mkt-viral-work-analysis", label: "爆款作品分析" }]);
+  assert.deepEqual(buildAgentCatalog({ files: [{ id: "legacy-file", name: "历史文件" }] }), []);
+  assert.equal(scoped.agentId, "");
+  assert.match(prospectCenterSource, /if \(!id \|\| id === UNASSIGNED_AGENT_ID\) return/);
+});
+
+test("legacy capability results are grouped under the active product Agents", () => {
+  const legacyCommentRun = {
+    id: "legacy-comment-filter",
+    taskId: "legacy-comment-filter-task",
+    agentId: "mkt-comment-filter",
+    agentName: "按条件筛评论",
+    resultType: "评论筛选"
+  };
+  const legacyLeadRun = {
+    id: "legacy-comment-lead-miner",
+    taskId: "legacy-comment-lead-miner-task",
+    agentId: "mkt-lead-miner",
+    agentName: "评论区找客户",
+    resultType: "潜客"
+  };
+  const catalog = buildAgentCatalog({ roster: [
+    { id: "mkt-comment-filter", name: "按条件筛评论" },
+    { id: "mkt-lead-miner", name: "评论区找客户" }
+  ] });
+  const commentScoped = buildAgentScopedData({ runs: [legacyCommentRun], agentId: "mkt-comment-acquisition" });
+  const finderScoped = buildAgentScopedData({ runs: [legacyLeadRun], agentId: "mkt-find-people" });
+
+  assert.deepEqual(catalog, [
+    { id: "mkt-comment-acquisition", label: "抖音获客管家" },
+    { id: "mkt-find-people", label: "找客专员" }
+  ]);
+  assert.deepEqual(commentScoped.runs.map((run) => run.id), ["legacy-comment-filter"]);
+  assert.deepEqual(finderScoped.runs.map((run) => run.id), ["legacy-comment-lead-miner"]);
+  assert.match(prospectCenterSource, /"mkt-comment-filter": "mkt-comment-acquisition"/);
+  assert.match(prospectCenterSource, /"mkt-lead-miner": "mkt-find-people"/);
+});
+
+test("潜客触达专员主界面直接展示已触达潜客列表", () => {
+  assert.match(prospectCenterSource, /function renderTouchedProspectsList/);
+  assert.match(prospectCenterSource, /平台确认发送成功的潜客清单/);
+  assert.match(prospectCenterSource, /还没有已触达潜客/);
+  assert.match(prospectCenterSource, /renderTouchedProspectsList\(\)/);
+});
+
+test("潜客触达专员结果只展示触达任务与平台回执", () => {
+  const source = prospectCenterSource.slice(prospectCenterSource.indexOf("function agentResultViewModel"), prospectCenterSource.indexOf("function displayBusinessMetric"));
+  const start = source.indexOf('if (agentId === "mkt-cold-writer")');
+  const end = source.indexOf('if (agentId === "mkt-dm-inbox"', start);
+  const outreach = source.slice(start, end);
+  assert.match(outreach, /触达任务与平台回执/);
+  assert.match(outreach, /目标用户/);
+  assert.match(outreach, /等待回执/);
+  assert.doesNotMatch(outreach, /会话文件/);
+  assert.doesNotMatch(outreach, /意向转化/);
+});
+
+test("Agent-specific result summaries tolerate empty runtime payloads", () => {
+  const source = prospectCenterSource.slice(prospectCenterSource.indexOf("function agentResultViewModel"), prospectCenterSource.indexOf("function displayBusinessMetric"));
+  assert.match(source, /accounts\[0\]\?\.reason/);
+  assert.match(source, /等待候选账号核验/);
+  assert.doesNotMatch(source, /作品表现与传播机制/);
+  assert.doesNotMatch(source, /直播反馈还不够，先别改话术/);
+  assert.match(prospectCenterSource, /\["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis"\]\.includes\(state\.selectedAgentId\)/);
 });
 
 test("captured leads expose human sales progression instead of only a final conversion action", () => {
@@ -462,7 +693,7 @@ test("dashboard details stay inside the direct data dashboard", () => {
 });
 
 test("prospect center isolates dashboard styles from legacy result styles", () => {
-  assert.match(prospectCenterSource, /\[\["base", CSS\], \["consumer", CONSUMER_CSS\], \["discovery-results", DISCOVERY_RESULTS_CSS\], \["data", DATA_CSS\]\]/);
+  assert.match(prospectCenterSource, /\[\["base", CSS\], \["consumer", CONSUMER_CSS\], \["discovery-results", DISCOVERY_RESULTS_CSS\], \["agent-workbench", AGENT_WORKBENCH_CSS\], \["data", DATA_CSS\], \["result-time-filter", RESULT_TIME_FILTER_CSS\], \["agent-rail", AGENT_RAIL_CSS\], \["outreach-modal", OUTREACH_MODAL_CSS\]\]/);
   assert.match(prospectCenterSource, /style\.dataset\.sbProspectStyle = name/);
   assert.match(prospectCenterSource, /\.sb-data-funnel\{display:flex;align-items:stretch;/);
   assert.match(prospectCenterSource, /\.sb-data-funnel-bridge\{position:relative;display:flex;/);
@@ -470,6 +701,31 @@ test("prospect center isolates dashboard styles from legacy result styles", () =
   assert.match(prospectCenterSource, /\.sb-data-workspace\{display:grid;grid-template-columns:minmax\(0,1fr\);/);
   assert.match(prospectCenterSource, /\.sb-data-workspace\.has-detail\{grid-template-columns:minmax\(0,1fr\) 360px;gap:18px\}/);
   assert.match(prospectCenterSource, /@keyframes sb-data-detail-enter/);
+});
+
+test("results Agent cards use a denser, larger identity treatment", () => {
+  assert.match(prospectCenterSource, /\.sb-results-agent-card\{min-height:76px;padding:13px 16px;align-items:flex-start;justify-content:center\}/);
+  assert.match(prospectCenterSource, /\.sb-results-agent-avatar\{width:42px;height:42px;font-size:14px\}/);
+  assert.match(prospectCenterSource, /\.sb-results-agent-name\{font-size:15px;line-height:1.3\}/);
+  assert.match(prospectCenterSource, /\.sb-results-agent-role\{margin-top:4px;font-size:12px;line-height:1.45\}/);
+});
+
+test("viral work results omit the duplicate aggregate summary and keep only deliverables", () => {
+  assert.doesNotMatch(prospectCenterSource, /title: "作品表现与传播机制"/);
+  assert.match(prospectCenterSource, /\["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis"\]\.includes\(state\.selectedAgentId\)/);
+  assert.match(prospectCenterSource, /if \(state\.selectedAgentId !== "mkt-viral-work-analysis"\) shell\.appendChild\(renderAgentBusinessNavigation\(\)\)/);
+});
+
+test("viral work result detail stays concise and opens the full report separately", () => {
+  const start = prospectCenterSource.indexOf('if (run.agentId === "mkt-viral-work-analysis")');
+  const end = prospectCenterSource.indexOf('if (run.agentId === "mkt-research-expert")', start);
+  assert.ok(start >= 0 && end > start);
+  const detail = prospectCenterSource.slice(start, end);
+
+  assert.match(detail, /renderViralWorkAnalysisOverview\(container, result, \{ compact: true \}\)/);
+  assert.doesNotMatch(detail, /renderViralWorkAnalysisDetails/);
+  assert.match(detail, /打开完整报告/);
+  assert.match(prospectCenterSource, /\["mkt-live-danmaku-analysis", "mkt-viral-work-analysis"\]\.includes\(state\.selectedAgentId\)\) shell\.appendChild\(workspace\)/);
 });
 
 test("prospect bulk actions only expose executable next steps", () => {
@@ -859,10 +1115,9 @@ test("every people result surface joins the shared avatar hydration queue", () =
   assert.match(prospectCenterSource.slice(researchStart), /queuePersonAvatarHydration\(items\)/);
 });
 
-test("standalone discovery presents source-specific actions", () => {
+test("the unified results center preserves discovery-specific actions inside the Agent scope", () => {
   assert.match(prospectCenterSource, /initialSurface === "people" \? "发现" : "全部成果"/);
-  assert.match(prospectCenterSource, /state\.surface === "people" && !standaloneDiscovery && state\.resultType !== "发现"/);
-  assert.match(prospectCenterSource, /if \(standaloneDiscovery \|\| state\.resultType === "发现"\)/);
+  assert.match(prospectCenterSource, /if \(state\.resultType === "发现"\)/);
   assert.doesNotMatch(prospectCenterSource, /承接找客专员的结果：我的账号互动用户可继续分析和触达；公域找人按任务查看，仅用于分析。/);
   assert.match(prospectCenterSource, /我的账号互动用户/);
   assert.match(prospectCenterSource, /公域找人/);
@@ -874,6 +1129,10 @@ test("standalone discovery presents source-specific actions", () => {
   assert.match(prospectCenterSource, /分析这个账号/);
   assert.match(prospectCenterSource, /openDiscoveredOutreach/);
   assert.match(prospectCenterSource, /item\.origin === "own"/);
+});
+
+test("standalone discovery source browser has no displaced top edge", () => {
+  assert.match(prospectCenterSource, /sb-prospect-panel:first-child>\.sb-discovery-task-browser\{display:block;flex:none;width:100%;box-sizing:border-box;margin:0;padding-top:14px/);
 });
 
 test("standalone discovery keeps its two panels aligned and scrolls the result list internally", () => {
@@ -1020,8 +1279,8 @@ test("finder accounts can be handed to private outreach without changing finder 
 test("result funnel counts discovered people, active prospects, successful outreach, and converted customers", () => {
   const counts = resultFunnelCounts({
     records: [
-      { id: "person-1", conversionStatus: "未转化", outreachStatus: "sent" },
-      { id: "person-2", conversionStatus: "已转化" }
+      { id: "person-1", conversionStatus: "未转化", outreachStatus: "sent", contactability: { allowed: true, sourceScope: "own_account_comments" } },
+      { id: "person-2", conversionStatus: "已转化", contactability: { allowed: true, sourceScope: "own_account_comments" } }
     ],
     runs: [{
       taskId: "finder-1",

@@ -12,7 +12,7 @@ import { createTeamLive } from "./agents/live.js";
 import { createDouyinInboxActivityMonitor } from "./agents/douyin-inbox-activity-monitor.js";
 import { createDouyinCloudActivityMonitor } from "./agents/douyin-cloud-activity-monitor.js";
 import { getUiRoot, mountPanel } from "./ui/mount.js";
-import { ACCOUNT_EVENT, mountNavFramework } from "./ui/nav-framework.js?v=20260915-live-danmaku-only-1";
+import { ACCOUNT_EVENT, mountNavFramework } from "./ui/nav-framework.js?v=20260917-results-mock-preview-fix-1";
 import { mountWordmark, releaseWordmarkEarlyGuard } from "./ui/wordmark.js";
 import { mountAgentCardChat } from "./ui/agent-card-chat.js";
 import { mountCloudDesktop } from "./ui/cloud-desktop.js";
@@ -298,13 +298,48 @@ function activateProspectCenterEntry() {
   const page = new URLSearchParams(location.search).get("page");
   if (page !== "prospects" && page !== "discovered-people") return null;
   return navFrameworkReady.then((framework) => {
-    if (page === "discovered-people") framework?.openDiscoveredPeople?.();
-    else framework?.openProspects?.();
+    const open = () => {
+      if (page === "discovered-people") framework?.openDiscoveredPeople?.();
+      else framework?.openProspects?.();
+    };
+    if (isStyleMockPreview()) {
+      let attempts = 0;
+      const restorePreviewRoute = () => {
+        attempts += 1;
+        if (!document.querySelector("#route_inner_content_id")) {
+          if (attempts < 12) globalThis.setTimeout(restorePreviewRoute, 120);
+          return;
+        }
+        open();
+        if (attempts < 4) {
+          globalThis.setTimeout(() => {
+            if (!document.querySelector(".sb-prospect-page")) restorePreviewRoute();
+          }, 240);
+        }
+      };
+      globalThis.requestAnimationFrame?.(restorePreviewRoute) || globalThis.setTimeout(restorePreviewRoute, 0);
+    } else {
+      open();
+    }
     return framework;
   });
 }
 
 const prospectCenterEntryReady = activateProspectCenterEntry();
+
+// The recovered host bundle may replace its content root after the first route
+// restore in local style preview. Re-open this custom page once the nav owner
+// is settled so the visual mock always reaches the prospect center.
+if (initialPage === "prospects" && isStyleMockPreview()) {
+  void navFrameworkReady.then((framework) => {
+    const reopen = () => {
+      if (!document.querySelector(".sb-prospect-page")) framework?.openProspects?.();
+    };
+    globalThis.setTimeout(reopen, 900);
+    globalThis.setTimeout(reopen, 1800);
+    globalThis.setTimeout(reopen, 3000);
+  });
+}
 
 function activateFilesEntry() {
   if (new URLSearchParams(location.search).get("page") !== "files") return null;

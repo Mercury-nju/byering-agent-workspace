@@ -112,6 +112,11 @@ const MANAGED_RUNTIME_ACTIVE_STATES = new Set([
   TASK_STATES.WAITING_REPLY,
   TASK_STATES.HANDOFF_REQUIRED
 ]);
+const INBOX_RUNTIME_AGENT_IDS = new Set([
+  "mkt-comment-acquisition",
+  "mkt-dm-inbox",
+  "mkt-gold-customer-service"
+]);
 
 function requiresAuthorizedExecution(workflow, executionBoundary) {
   return workflow?.requiresAccess === true
@@ -204,6 +209,18 @@ function managedRuntimeAccountScope(task = {}, fallbackAgentId = "") {
   return normalizeNullableString(task?.executionContext?.accountUseScope) || normalizeNullableString(fallbackAgentId);
 }
 
+function isInboxRuntimeDescriptor(agentId, accountUseScope) {
+  const normalizedAgentId = normalizeNullableString(agentId);
+  const normalizedScope = normalizeNullableString(accountUseScope);
+  if (INBOX_RUNTIME_AGENT_IDS.has(normalizedAgentId)) {
+    return normalizedAgentId !== "mkt-comment-acquisition"
+      || !normalizedScope
+      || normalizedScope === normalizedAgentId
+      || normalizedScope === `${normalizedAgentId}:inbox`;
+  }
+  return normalizedScope?.endsWith(":inbox") === true;
+}
+
 function managedRuntimeScopesConflict(left, right, agentId) {
   const defaultScope = normalizeNullableString(agentId);
   const leftScope = normalizeNullableString(left) || defaultScope;
@@ -234,13 +251,14 @@ export function findActiveManagedRuntimeTask(tasks = [], {
     if (typeof isTaskActuallyActive === "function" && isTaskActuallyActive(task) !== true) return false;
     const taskTenantId = normalizeNullableString(task.tenantId || task.executionContext?.tenantId);
     if (taskTenantId !== requestedTenantId) return false;
-    if (normalizeNullableString(task.agentId) !== requestedAgentId) return false;
     if (managedRuntimeAccountKey(task) !== requestedAccountKey) return false;
-    return managedRuntimeScopesConflict(
-      accountUseScope || requestedAgentId,
-      managedRuntimeAccountScope(task, requestedAgentId),
-      requestedAgentId
-    );
+    const taskAgentId = normalizeNullableString(task.agentId);
+    const requestedScope = normalizeNullableString(accountUseScope) || requestedAgentId;
+    const taskScope = managedRuntimeAccountScope(task, taskAgentId);
+    const inboxConflict = isInboxRuntimeDescriptor(requestedAgentId, requestedScope)
+      && isInboxRuntimeDescriptor(taskAgentId, taskScope);
+    if (taskAgentId !== requestedAgentId && !inboxConflict) return false;
+    return inboxConflict || managedRuntimeScopesConflict(requestedScope, taskScope, requestedAgentId);
   }) || null;
 }
 
@@ -880,7 +898,7 @@ export class ControlPlane {
       isTaskActuallyActive
     });
     if (existingActive) {
-      throw new ControlPlaneError("这个抖音账号已经在使用该 Agent，无需重复启动。", {
+      throw new ControlPlaneError("这个抖音账号的私信承接已被占用，无需重复启动。", {
         code: "MANAGED_RUNTIME_ACCOUNT_IN_USE",
         statusCode: 409,
         details: {

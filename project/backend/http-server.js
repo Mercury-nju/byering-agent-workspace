@@ -25,6 +25,7 @@ import { createViralWorkAnalysisService } from "./viral-work-analysis-service.js
 import { createAccountReceptionStore, receptionAccountKeys } from "./account-reception-store.js";
 import { createProspectRecordStore } from "./prospect-record-store.js";
 import { createAgentResultRunStore } from "./agent-result-run-store.js";
+import { createBusinessDemandStore } from "./business-demand-store.js";
 import { applyReceptionStrategyUpdate, receptionStrategySavedConfirmation } from "./account-reception-conversation.js";
 import { previewReception } from "./account-reception-preview.js";
 import { createClueHunterPrivateOutreachExecutor } from "./cluehunter-private-outreach-executor.js";
@@ -44,8 +45,10 @@ import { createDouyinFinderService } from "./douyin-finder-service.js";
 import { createDouyinAccountActionCoordinator, douyinAccountCoordinationKey } from "./douyin-account-action-coordinator.js";
 import { createOfficeWorkReplayStore } from "./office-work-replay.js";
 import { createManagedDailyReportService } from "./managed-daily-report.js";
-import { createAcquisitionBusinessConversationService } from "./acquisition-business-conversation.js";
+import { aggregateAcquisitionBusinessMetrics, createAcquisitionBusinessConversationService } from "./acquisition-business-conversation.js";
 import { createDouyinAgentDataClient, douyinAgentDataConfiguration } from "../src/salebuddy/bridge/douyin-agent-data.js";
+import { createDouyinDataMcpClient, douyinDataMcpConfiguration } from "../src/salebuddy/bridge/douyin-data-mcp.js";
+import { createGoldAccountContextService } from "./gold-account-context.js";
 import { publicFinderNeedsBusinessAccount, validatePublicFinderBusinessAccount } from "../src/salebuddy/agents/public-finder-contract.js";
 import {
   buildDouyinAcquisitionAccountCapabilityMatrix,
@@ -61,16 +64,6 @@ const ACQUISITION_AGENT_IDS = new Set(["mkt-comment-acquisition", "mkt-find-peop
 const COMPREHENSIVE_ACQUISITION_AGENT_ID = "mkt-comment-acquisition";
 const DOUYIN_ACCOUNT_CLOUD_AGENT_ID = DOUYIN_ACCOUNT_CLOUD_RUNTIME_ID;
 const DOUYIN_LEGACY_CLOUD_AGENT_IDS = DOUYIN_ACQUISITION_LEGACY_CLOUD_AGENT_IDS;
-const COMPREHENSIVE_ACQUISITION_LOCKED_AGENT_IDS = new Set([
-  "mkt-lead-miner",
-  "mkt-comment-filter",
-  "mkt-live-lead-miner"
-]);
-const COMPREHENSIVE_ACQUISITION_LOCKED_AGENT_NAMES = Object.freeze({
-  "mkt-lead-miner": "评论区找客户",
-  "mkt-comment-filter": "按条件筛评论",
-  "mkt-live-lead-miner": "直播间找客户"
-});
 const ACTIVE_COMPREHENSIVE_TASK_STATES = new Set(["configuring", "running", "paused", "degraded"]);
 const INBOX_CAPABLE_AGENT_IDS = Object.freeze([
   COMPREHENSIVE_ACQUISITION_AGENT_ID,
@@ -96,7 +89,7 @@ const CORE_EXECUTION_AGENT_IDS = new Set([
   "mkt-gold-customer-service"
 ]);
 const ACCOUNT_SCOPED_DIRECT_MESSAGE_AGENT_IDS = new Set(CORE_EXECUTION_AGENT_IDS);
-const ACCOUNT_ANALYSIS_AGENT_ID = "mkt-research-expert";
+const ACCOUNT_ANALYSIS_AGENT_ID = "mkt-intent-analyst";
 
 function enabledFlag(value) {
   return ["1", "true", "yes", "on"].includes(String(value || "").trim().toLowerCase());
@@ -348,10 +341,15 @@ function receptionStrategyContext({ registry, store, agentType, accountId, tenan
   const requestedAccountId = optionalText(accountId);
   const cloudAgentId = resolveDouyinCloudAgentId(agentType);
   const compatibleCloudRecordIds = new Set([cloudAgentId, ...DOUYIN_LEGACY_CLOUD_AGENT_IDS]);
+  const recordAccountIds = (record) => [...new Set([
+    record?.accountId,
+    record?.agentId && `douyin-agent:${record.agentId}`,
+    ...receptionAccountKeys(record?.accountIdentity)
+  ].filter(Boolean).map(String))];
   const candidates = registry.list().filter((record) => {
     if (!compatibleCloudRecordIds.has(record?.agentId) || !record?.accountIdentity) return false;
     if (tenantId && record.tenantId !== tenantId) return false;
-    return !requestedAccountId || receptionAccountKeys(record.accountIdentity).includes(requestedAccountId);
+    return !requestedAccountId || recordAccountIds(record).includes(requestedAccountId);
   });
   if (candidates.length !== 1) return null;
   const owner = { tenantId, account: candidates[0].accountIdentity };
@@ -420,6 +418,9 @@ export function createControlPlaneHttpServer({
   accountAnalysisService = null,
   accountAnalysisRuns = new Map(),
   accountReceptionStore = null,
+  businessDemandStore = null,
+  accountContextService = null,
+  douyinDataMcpService = null,
   prospectRecordStore = null,
   agentResultRunStore = null,
   accountResolver = createAccountResolver(),
@@ -471,6 +472,7 @@ export function createControlPlaneHttpServer({
   const receptionStore = accountReceptionStore || createAccountReceptionStore();
   const resolvedProspectRecordStore = prospectRecordStore || createProspectRecordStore();
   const resolvedAgentResultRunStore = agentResultRunStore || createAgentResultRunStore();
+  const resolvedBusinessDemandStore = businessDemandStore || createBusinessDemandStore();
   const resolvedEmploymentStore = employmentStore || createEmploymentStore();
   const authoritativeDouyinAgentCloudRegistry = douyinAgentCloudRegistry;
   const authoritativeDouyinAccountActionCoordinator = douyinAccountActionCoordinator || createDouyinAccountActionCoordinator();
@@ -514,7 +516,19 @@ export function createControlPlaneHttpServer({
           requestRetryAttempts: 1
         })
         : null;
-    })();
+  })();
+  const publicCommentDataClient = douyinDataMcpService || (() => {
+    const configuration = douyinDataMcpConfiguration();
+    return configuration.url
+      ? createDouyinDataMcpClient({ url: configuration.url, timeoutMs: configuration.timeoutMs })
+      : null;
+  })();
+  const authoritativeAccountContextService = accountContextService || createGoldAccountContextService({
+    profileDataClient,
+    commentDataClient: publicCommentDataClient,
+    analysisService: authoritativeAccountAnalysisService,
+    now
+  });
   const authoritativeViralWorkAnalysisService = viralWorkAnalysisService || createViralWorkAnalysisService({
     dataClient: profileDataClient,
     publicDiscoveryService: authoritativeProspectService
@@ -563,6 +577,7 @@ export function createControlPlaneHttpServer({
         accountActionCoordinator: authoritativeDouyinAccountActionCoordinator,
         agentId: semanticAgentId,
         knowledgeProvider: resolvedKnowledgeProvider,
+        accountContextService: authoritativeAccountContextService,
         receptionStore,
         eventSink: resolvedInboxEventSink,
         ...(tenantId ? { stateFile: join(homedir(), ".byering", "douyin-inbox", `${createHmac("sha256", "inbox-scope").update(runtimeKey).digest("hex")}.json`) } : {})
@@ -601,6 +616,15 @@ export function createControlPlaneHttpServer({
     if (!INBOX_CAPABLE_AGENT_ID_SET.has(agentId) || !service) return { claimed: true, ownerAgentId: agentId || null };
     const ownerKey = inboxRuntimeOwnerKey({ tenantId, accountIdentity, accountId });
     if (!ownerKey) return { claimed: true, ownerAgentId: agentId };
+    const ownerIdentity = hasAccountIdentity(accountIdentity)
+      ? accountIdentity
+      : (accountId ? { uid: accountId } : null);
+    const persistedClaim = ownerIdentity && typeof receptionStore.claimPrivateReception === "function"
+      ? receptionStore.claimPrivateReception({ tenantId, account: ownerIdentity }, { agentId, takeover: false })
+      : null;
+    if (persistedClaim?.claimed === false && takeover !== true) {
+      return { claimed: false, ownerAgentId: persistedClaim.ownerAgentId, canTakeover: persistedClaim.canTakeover === true };
+    }
     const current = inboxRuntimeOwners.get(ownerKey);
     const currentRunning = current?.service?.status?.()?.runtime?.running === true;
     if (current && currentRunning && current.service !== service) {
@@ -609,9 +633,6 @@ export function createControlPlaneHttpServer({
         throw new ControlPlaneError("当前账号的私信承接仍在运行，请先停止后再切换。", { code: "INBOX_RUNTIME_OWNER_ACTIVE", statusCode: 409 });
       }
       await current.service.stop();
-      const previousOwner = hasAccountIdentity(accountIdentity)
-        ? accountIdentity
-        : (accountId ? { uid: accountId } : null);
       try {
         cancelInboxRuntimeTask({
           service: current.service,
@@ -619,11 +640,24 @@ export function createControlPlaneHttpServer({
           reason: "INBOX_RUNTIME_REPLACED_BY_CONFIRMED_TAKEOVER"
         });
       } finally {
-        if (previousOwner) receptionStore.stopPrivateReception({ tenantId, account: previousOwner }, { agentId: current.agentId });
+        if (ownerIdentity) receptionStore.stopPrivateReception({ tenantId, account: ownerIdentity }, { agentId: current.agentId });
         inboxRuntimeOwners.delete(ownerKey);
       }
     }
-    assertDouyinAccountAgentAvailable?.({ tenantId, agentId, accountIdentity, accountId });
+    if (ownerIdentity && typeof receptionStore.claimPrivateReception === "function") {
+      const claimed = receptionStore.claimPrivateReception({ tenantId, account: ownerIdentity }, { agentId, takeover: takeover === true });
+      if (claimed?.claimed === false) {
+        return { claimed: false, ownerAgentId: claimed.ownerAgentId, canTakeover: claimed.canTakeover === true };
+      }
+    }
+    try {
+      assertDouyinAccountAgentAvailable?.({ tenantId, agentId, accountIdentity, accountId });
+    } catch (error) {
+      if (ownerIdentity && typeof receptionStore.stopPrivateReception === "function") {
+        try { receptionStore.stopPrivateReception({ tenantId, account: ownerIdentity }, { agentId }); } catch { /* preserve the availability error */ }
+      }
+      throw error;
+    }
     inboxRuntimeOwners.set(ownerKey, { agentId, service });
     return { claimed: true, ownerAgentId: agentId };
   };
@@ -782,6 +816,9 @@ export function createControlPlaneHttpServer({
           accountIdentity: authorized.account,
           accountId: cloudScope.accountId
         });
+        if (authorized.account && typeof receptionStore.stopPrivateReception === "function") {
+          try { receptionStore.stopPrivateReception({ tenantId: cloudScope.tenantId, account: authorized.account }, { agentId: request.agentId }); } catch { /* preserve the original start failure */ }
+        }
         throw error;
       }
     },
@@ -876,10 +913,15 @@ export function createControlPlaneHttpServer({
       const service = authoritativeDouyinAcquisitionService;
       const tasks = service?.listRuntimeTasks?.() || service?.listTasks?.().map(task => ({ ...task, runtimeAlive: false })) || [];
       sources.push({ agentIds: acquisitionIds, tasks: tasks.map(task => ({
-        ...task.context, state: task.state, runtimeAlive: task.runtimeAlive, listening: task.listening,
+        ...task.context, key: task.key, state: task.state, runtimeAlive: task.runtimeAlive, listening: task.listening,
         lastError: task.lastError, resumeBlocked: task.resumeBlocked || null,
         startedAt: task.createdAt, updatedAt: task.updatedAt, longRunning: true,
         result: task.result || null, resultSnapshot: task.resultSnapshot || task.result?.resultSnapshot || null,
+        approvalQueue: task.approvalQueue || [], candidateProfiles: task.candidateProfiles || {}, replies: task.replies || [],
+        outreachQuota: task.outreachQuota || null,
+        counters: task.counters || null, lastScan: task.lastScan || null, lastAnalysis: task.lastAnalysis || null,
+        accountIdentity: task.accountIdentity || task.context?.accountIdentity || null,
+        accountLabel: task.accountLabel || task.accountName || task.context?.accountLabel || null,
         configuration: task.configuration || null, config: task.config || null,
         configurationVersion: task.configurationVersion ?? null, configVersion: task.configVersion ?? null,
         taskVersion: task.taskVersion ?? task.version ?? null
@@ -1016,7 +1058,7 @@ export function createControlPlaneHttpServer({
     return readOfficeStatus(tenantId);
   };
 
-  const listCanonicalResults = (tenantId = null, { limit = 100 } = {}) => {
+  const listCanonicalResults = (tenantId = null, { limit = 100, query = {} } = {}) => {
     const byTask = new Map();
     const add = (entry) => {
       const taskId = optionalText(entry?.taskId);
@@ -1075,11 +1117,33 @@ export function createControlPlaneHttpServer({
       for (const task of authoritativeDouyinAcquisitionService.listTasks()) {
         const context = task?.context || {};
         if ((context.tenantId || null) !== tenantId) continue;
+        let resultSnapshot = task.resultSnapshot || task.result?.resultSnapshot || null;
+        if (query?.dateKey) {
+          const dailyMetrics = aggregateAcquisitionBusinessMetrics(task, query.dateKey, query.timeZone);
+          if (!dailyMetrics.eventCount) continue;
+          resultSnapshot = {
+            ...(resultSnapshot || {}),
+            generatedAt: dailyMetrics.lastEventAt || `${query.dateKey}T23:59:59.999+08:00`,
+            counts: {
+              ...(resultSnapshot?.counts && typeof resultSnapshot.counts === "object" ? resultSnapshot.counts : {}),
+              candidates: dailyMetrics.candidates,
+              qualified: dailyMetrics.qualified,
+              sent: dailyMetrics.sent,
+              replies: dailyMetrics.replies,
+              failed: dailyMetrics.failed
+            },
+            metrics: {
+              ...(resultSnapshot?.metrics && typeof resultSnapshot.metrics === "object" ? resultSnapshot.metrics : {}),
+              touchRate: dailyMetrics.touchRate,
+              replyRate: dailyMetrics.replyRate
+            }
+          };
+        }
         add({
           ...context,
           agentName: task.agentName || context.agentName || null,
           status: acquisitionResultStatus(task.state),
-          resultSnapshot: task.resultSnapshot || task.result?.resultSnapshot || null,
+          resultSnapshot,
           updatedAt: task.updatedAt,
           createdAt: task.createdAt,
           source: "抖音获客任务",
@@ -1100,7 +1164,7 @@ export function createControlPlaneHttpServer({
       .slice(0, Math.max(1, Math.min(500, limit)));
   };
   if (!authoritativeControlPlane.chiefDataProvider) {
-    authoritativeControlPlane.setChiefDataProvider?.(({ tenantId, limit }) => listCanonicalResults(tenantId, { limit }));
+    authoritativeControlPlane.setChiefDataProvider?.(({ tenantId, limit, query }) => listCanonicalResults(tenantId, { limit, query }));
   }
 
   async function reconcileCancelledAcquisitionTasks(tenantId = null) {
@@ -1217,6 +1281,7 @@ export function createControlPlaneHttpServer({
         accountAnalysisService: authoritativeAccountAnalysisService,
         accountAnalysisRuns,
         accountReceptionStore: receptionStore,
+        businessDemandStore: resolvedBusinessDemandStore,
         employmentStore: resolvedEmploymentStore,
         prospectRecordStore: resolvedProspectRecordStore,
         acquisitionEventIds,
@@ -1239,6 +1304,7 @@ export function createControlPlaneHttpServer({
   server.accountResolver = accountResolver;
   server.prospectRecordStore = resolvedProspectRecordStore;
   server.agentResultRunStore = resolvedAgentResultRunStore;
+  server.businessDemandStore = resolvedBusinessDemandStore;
   server.employmentStore = resolvedEmploymentStore;
   server.cloudDesktopService = cloudDesktopService;
   server.douyinMcpService = douyinMcpService;
@@ -1401,6 +1467,37 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       runs: security.listCanonicalResults?.(principal.tenantId || null, { limit }) || [],
       prospects: security.prospectRecordStore?.list(principal.tenantId || null) || []
     });
+  }
+  if (url.pathname === "/v1/business-demands") {
+    const store = security.businessDemandStore;
+    if (!store || typeof store.create !== "function" || typeof store.list !== "function") {
+      throw new ControlPlaneError("业务需求存储未配置", { code: "BUSINESS_DEMAND_STORE_UNAVAILABLE", statusCode: 503 });
+    }
+    if (request.method === "GET") {
+      return sendJson(response, 200, {
+        accepted: true,
+        data: { demands: store.list(principal.tenantId || null, { status: optionalText(url.searchParams.get("status")), limit: parseNonNegativeInteger(url.searchParams.get("limit"), 100) }) }
+      });
+    }
+    if (request.method === "POST") {
+      const body = withTenantScope(await readJson(request, bodyLimit), principal);
+      const agentId = requiredText(body.agentId, "agentId");
+      const accountId = requiredText(body.accountId, "accountId");
+      if (agentId !== "mkt-live-danmaku-outreach") {
+        throw new ControlPlaneError("当前业务需求入口只接受直播间私信触达需求", { code: "BUSINESS_DEMAND_AGENT_INVALID", statusCode: 400 });
+      }
+      const demand = store.create(principal.tenantId || null, {
+        kind: optionalText(body.kind) || "live_outreach_capacity",
+        agentId,
+        agentName: optionalText(body.agentName) || "电商直播间未成交客户触达",
+        accountId,
+        accountName: optionalText(body.accountName) || "当前抖音账号",
+        sentCount: parseNonNegativeInteger(body.sentCount ?? body.sent_count, 0),
+        quotaCode: optionalText(body.quotaCode ?? body.quota_code),
+        clientRequestId: optionalText(body.clientRequestId ?? body.client_request_id)
+      });
+      return sendJson(response, 201, { accepted: true, data: { demand } });
+    }
   }
   if (request.method === "PUT" && url.pathname === "/v1/results/runs") {
     if (!security.agentResultRunStore || typeof security.agentResultRunStore.upsert !== "function") {
@@ -1769,7 +1866,10 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
     const records = security.douyinAgentCloudRegistry?.list?.() || [];
     const record = records.find(record => {
       if (principal?.tenantId && record.tenantId !== principal.tenantId) return false;
-      return [record.agentId && `douyin-agent:${record.agentId}`, ...receptionAccountKeys(record.accountIdentity)].includes(requestedId);
+      return [record.accountId, record.agentId && `douyin-agent:${record.agentId}`, ...receptionAccountKeys(record.accountIdentity)]
+        .filter(Boolean)
+        .map(String)
+        .includes(requestedId);
     });
     if (!record?.accountIdentity) throw new ControlPlaneError("未找到当前用户已绑定的抖音账号", { code: "RECEPTION_ACCOUNT_NOT_FOUND", statusCode: 404 });
     const owner = { tenantId: principal?.tenantId || null, account: record.accountIdentity };
@@ -1873,7 +1973,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
         updatedAt: new Date().toISOString()
       });
     };
-    const finderAgentId = ["mkt-user-research", "mkt-find-people"].includes(body.agentId) ? body.agentId : "mkt-douyin-finder";
+    const finderAgentId = "mkt-find-people";
     const finishOffice = security.officeOperations.begin({ tenantId: principal.tenantId || null,
       agentId: finderAgentId, taskId, taskRunId, goal: running.goal });
     Promise.resolve()
@@ -2426,35 +2526,36 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       });
     }
     const inboxConfiguration = inboxConfigurationFromBody(body);
-    const task = security.controlPlane.ensureManagedRuntimeTask({
-      taskId: optionalText(body.taskId ?? body.task_id ?? body.inboxTaskId ?? body.inbox_task_id),
-      taskRunId: optionalText(body.taskRunId ?? body.task_run_id),
-      conversationId: optionalText(body.conversationId ?? body.conversation_id),
-      agentId,
-      tenantId: cloudScope.tenantId,
-      goal: "持续承接抖音新私信并按已确认策略回复",
-      executionContext: {
-        ...(authorizedStatus.account && typeof authorizedStatus.account === "object" ? authorizedStatus.account : {}),
-        tenantId: cloudScope.tenantId,
-        accountId: cloudScope.accountId || inboxConfiguration.accountId,
-        accountKey: douyinAccountCoordinationKey(authorizedStatus.account, cloudScope.accountId),
-        accountUseScope: optionalText(body.accountUseScope || body.account_use_scope) || agentId,
-        accountName: inboxConfiguration.accountName || cloudScope.accountLabel || authorizedStatus.account?.nickname || null,
-        provider: "douyin"
-      },
-      configuration: {
-        replyStyle: {
-          replyRule: inboxConfiguration.replyRule,
-          replyObjective: inboxConfiguration.replyObjective,
-          replyTone: inboxConfiguration.replyTone,
-          businessKnowledge: inboxConfiguration.businessKnowledge
-        },
-        handoffBoundary: inboxConfiguration.handoffRules,
-        approvalMode: inboxConfiguration.autoReply ? "auto" : "manual"
-      }
-    });
+    let task = null;
     let result;
     try {
+      task = security.controlPlane.ensureManagedRuntimeTask({
+        taskId: optionalText(body.taskId ?? body.task_id ?? body.inboxTaskId ?? body.inbox_task_id),
+        taskRunId: optionalText(body.taskRunId ?? body.task_run_id),
+        conversationId: optionalText(body.conversationId ?? body.conversation_id),
+        agentId,
+        tenantId: cloudScope.tenantId,
+        goal: "持续承接抖音新私信并按已确认策略回复",
+        executionContext: {
+          ...(authorizedStatus.account && typeof authorizedStatus.account === "object" ? authorizedStatus.account : {}),
+          tenantId: cloudScope.tenantId,
+          accountId: cloudScope.accountId || inboxConfiguration.accountId,
+          accountKey: douyinAccountCoordinationKey(authorizedStatus.account, cloudScope.accountId),
+          accountUseScope: optionalText(body.accountUseScope || body.account_use_scope) || agentId,
+          accountName: inboxConfiguration.accountName || cloudScope.accountLabel || authorizedStatus.account?.nickname || null,
+          provider: "douyin"
+        },
+        configuration: {
+          replyStyle: {
+            replyRule: inboxConfiguration.replyRule,
+            replyObjective: inboxConfiguration.replyObjective,
+            replyTone: inboxConfiguration.replyTone,
+            businessKnowledge: inboxConfiguration.businessKnowledge
+          },
+          handoffBoundary: inboxConfiguration.handoffRules,
+          approvalMode: inboxConfiguration.autoReply ? "auto" : "manual"
+        }
+      });
       result = await service.start({
         ...inboxConfiguration,
         tenantId: cloudScope.tenantId,
@@ -2473,8 +2574,8 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       });
     } catch (error) {
       try {
-        const snapshot = security.controlPlane.getTaskSnapshot(task.taskId);
-        if (snapshot.state === "RUNNING") {
+        const snapshot = task?.taskId ? security.controlPlane.getTaskSnapshot(task.taskId) : null;
+        if (snapshot?.state === "RUNNING") {
           security.controlPlane.dispatch({
             type: "task.fail",
             taskId: task.taskId,
@@ -2495,6 +2596,9 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
         accountIdentity: authorizedStatus.account,
         accountId: cloudScope.accountId
       });
+      if (authorizedStatus.account && typeof security.accountReceptionStore?.stopPrivateReception === "function") {
+        try { security.accountReceptionStore.stopPrivateReception({ tenantId: cloudScope.tenantId, account: authorizedStatus.account }, { agentId }); } catch { /* preserve the original start failure */ }
+      }
       throw error;
     }
     const privateReception = security.accountReceptionStore.enablePrivateReception({
@@ -2788,7 +2892,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
     const operationToken = Symbol("private-message");
     security.privateMessageInFlight?.set(operationKey, operationToken);
     const finishOffice = security.officeOperations.begin({ tenantId: principal.tenantId || null,
-      agentId: body.ownerAgentId === "mkt-user-research" ? body.ownerAgentId : agentId || COMPREHENSIVE_ACQUISITION_AGENT_ID,
+      agentId: agentId || COMPREHENSIVE_ACQUISITION_AGENT_ID,
       taskId: outreachTaskId || reqId, accountId: cloudScope.accountId || status.account?.uid || null });
     let result;
     try {
@@ -3077,7 +3181,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
     if (prospectMatch[1] === "discover") {
       security.assertDouyinAccountAgentAvailable?.({
         tenantId: body.tenantId || principal?.tenantId || null,
-        agentId: body.agentId || "mkt-lead-miner",
+        agentId: body.agentId || "mkt-find-people",
         accountIdentity: body.accountIdentity || body.sourceAccount || body.source_account || null,
         accountId: body.accountId || body.account_id || null
       });
@@ -3090,7 +3194,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       };
     }
     const finishOffice = security.officeOperations.begin({ tenantId: principal.tenantId || null,
-      agentId: body.agentId || "mkt-lead-miner", taskId: body.taskId, taskRunId: body.taskRunId, goal: body.goal });
+      agentId: body.agentId || "mkt-find-people", taskId: body.taskId, taskRunId: body.taskRunId, goal: body.goal });
     let result;
     try {
       result = prospectMatch[1] === "discover"
@@ -5194,7 +5298,7 @@ function findProspectRun(security, controlPlane, taskId, principal) {
   if (inMemory) return inMemory;
   const snapshot = controlPlane?.getTaskSnapshot?.(taskId);
   const agentId = optionalText(snapshot?.agentId);
-  if (!snapshot || !["mkt-find-people", "mkt-intent-analyst", "mkt-lead-miner"].includes(agentId)) return null;
+  if (!snapshot || !["mkt-find-people", "mkt-intent-analyst"].includes(agentId)) return null;
   return {
     accepted: true,
     dispatched: true,

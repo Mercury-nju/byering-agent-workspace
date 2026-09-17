@@ -47,6 +47,79 @@ test("acquisition rendering does not reuse marketplace task copy or lose auth ex
   assert.match(source, /viewer\.reason === "auth-expired"/);
 });
 
+test("live outreach quota detection is provider-driven and includes the account count", () => {
+  assert.equal(typeof realtimeWork.liveDanmakuOutreachQuotaFor, "function");
+  assert.deepEqual(realtimeWork.liveDanmakuOutreachQuotaFor({
+    agentType: "mkt-live-danmaku-outreach",
+    metadata: {
+    accountLabel: "品牌直播间",
+    outreachQuota: { reached: true, sentCount: 37, source: "provider" },
+      error: { code: "DOUYIN_DM_DAILY_LIMIT", message: "已达到账号私信频控" }
+    }
+  }), {
+    agentId: "mkt-live-danmaku-outreach",
+    agentLabel: "电商直播间未成交客户触达",
+    accountLabel: "品牌直播间",
+    sentCount: 37,
+    source: "provider",
+    code: "DOUYIN_DM_DAILY_LIMIT",
+    message: "已达到账号私信频控"
+  });
+  assert.equal(realtimeWork.liveDanmakuOutreachQuotaFor({
+    agentType: "mkt-live-danmaku-outreach",
+    metadata: { outreachQuota: { reached: false } }
+  }), null);
+  assert.equal(realtimeWork.liveDanmakuOutreachQuotaFor({
+    agentType: "mkt-live-danmaku-outreach",
+    metadata: { error: { code: "private_message_failed", message: "对方设置了私信限制" } }
+  }), null);
+  assert.equal(realtimeWork.liveDanmakuOutreachQuotaFor({
+    agentType: "mkt-live-danmaku-outreach",
+    metadata: {
+      acquisitionSnapshot: {
+        outreachQuota: { reached: true, sentCount: 12, source: "provider" },
+        lastError: { code: "DOUYIN_DM_DAILY_LIMIT" }
+      }
+    }
+  }).sentCount, 12);
+});
+
+test("realtime work contains the quota dialog copy and does not use a fixed count", () => {
+  assert.match(source, /今日私信触达额度已达上限/);
+  assert.match(source, /电商直播间未成交客户触达/);
+  assert.match(source, /发生账号/);
+  assert.match(source, /今日已完成触达/);
+  assert.match(source, /B 端业务方案/);
+  assert.match(source, /账号级、批量触达和持续运营方案/);
+  assert.match(source, /我有大量触达需求/);
+  assert.match(source, /v1\/business-demands/);
+  assert.match(source, /需求已收到/);
+  assert.doesNotMatch(source, /联系你的 Byering B 端业务顾问/);
+  assert.doesNotMatch(source, /达到 100 次|100\/100/);
+});
+
+test("live outreach task adjustment keeps the account quota provider-driven", () => {
+  const draft = realtimeWork.acquisitionTaskUpdateDraftFrom({
+    agentType: "mkt-live-danmaku-outreach",
+    metadata: {
+      liveDanmakuOutreach: true,
+      analysisKind: "live_danmaku_outreach",
+      configuration: {
+        liveDanmakuOutreach: true,
+        sourceScope: { kind: "authorized_account_live" },
+        frequency: { maxTouchesPerDay: 60, minIntervalMinutes: 3 },
+        caps: { dailyMax: 60, sendIntervalMs: 180000 }
+      }
+    }
+  });
+  assert.equal(draft.runtimeRules.maxTouchesPerDay, undefined);
+  const start = source.indexOf("export function openAcquisitionTaskUpdateDialog");
+  const end = source.indexOf("function normalizeAcquisitionRealtimeMetadata", start);
+  const dialog = source.slice(start, end);
+  assert.match(dialog, /liveDanmakuOutreach/);
+  assert.match(dialog, /\.\.\.\(liveDanmakuOutreach \? \[\] : \[taskUpdateField\("每天最多联系几位"/);
+});
+
 test("acquisition realtime work exposes the strategy-only adjustment flow", () => {
   const renderPanel = source.slice(source.indexOf("function renderLiveWorkPanel"), source.indexOf("function renderWorkUnitPanel"));
   assert.match(renderPanel, /调整当前任务/);
@@ -163,6 +236,18 @@ test("live subscriptions preserve a mounted cloud viewer instead of rerendering 
   assert.match(refreshFlow, /refreshMountedRealtimeView/);
   assert.match(refreshFlow, /unsubscribe\s*=\s*teamLive\?\.subscribe\?\.\(refreshRealtimeView\)/);
   assert.match(refreshFlow, /unsubscribeLiveWork\s*=\s*subscribeWork\(refreshRealtimeView\)/);
+});
+
+test("background realtime refresh preserves the page body's vertical scroll position", () => {
+  const start = source.indexOf("const refreshRealtimeView");
+  const end = source.indexOf("state.refreshView = refreshRealtimeView;", start);
+  const refreshFlow = source.slice(start, end);
+  assert.ok(start >= 0 && end > start);
+  assert.match(source, /function restoreRealtimePageBodyScroll\(scrollTop\)/);
+  assert.match(source, /const renderRealtimeViewPreservingScroll = \(\) => \{/);
+  assert.match(source, /const scrollTop = page\.body\.scrollTop/);
+  assert.match(source, /restoreRealtimePageBodyScroll\(scrollTop\)/);
+  assert.match(refreshFlow, /renderRealtimeViewPreservingScroll\(\)/);
 });
 
 test("realtime work owns task cancellation and still opens Agent Square for new account setup", () => {
@@ -536,6 +621,27 @@ test("live outreach worksite keeps only the live room visual", () => {
   assert.match(source, /options\.showStatus !== false/);
 });
 
+test("live danmaku analysis worksite does not duplicate a live-room section header", () => {
+  const start = source.indexOf("function renderLiveDanmakuAnalysisWorksite");
+  const end = source.indexOf("function renderLiveDanmakuOutreachWorksite", start);
+  const worksite = source.slice(start, end);
+  assert.match(worksite, /renderLiveDanmakuLiveRoomPanel\(selected, state, "", "", \{ showHeader: false \}\)/);
+  assert.doesNotMatch(worksite, /直播间分析现场|持续采集弹幕 · 直播结束后统一 AI 分析/);
+});
+
+test("live danmaku analysis worksite uses the right panel to explain the analysis loop", () => {
+  const start = source.indexOf("function renderLiveDanmakuAnalysisDetailPanel");
+  const end = source.indexOf("function renderLiveDanmakuAnalysisWorksite", start);
+  assert.ok(start >= 0 && end > start);
+  const detailPanel = source.slice(start, end);
+  assert.match(detailPanel, /renderLiveDanmakuAnalysisProcessPanel\(view\)/);
+  assert.match(detailPanel, /分析过程/);
+  assert.doesNotMatch(detailPanel, /采集进度/);
+  assert.match(source, /采集原始弹幕/);
+  assert.match(source, /按用户归并表达/);
+  assert.match(source, /生成下一场优化策略/);
+});
+
 test("live outreach worksite separates pending danmaku from contacted users", () => {
   const start = source.indexOf("function renderLiveDanmakuOutreachPanels");
   const end = source.indexOf("function acquisitionLiveRoomVideoUrl", start);
@@ -770,6 +876,32 @@ test("realtime work hydrates running agents from the shared office status snapsh
   ], remoteWorks);
   assert.equal(merged.length, 2);
   assert.deepEqual(merged.find((work) => work.agentType === "mkt-comment-acquisition").activities, ["已读取 3 条评论"]);
+});
+
+test("realtime work keeps long-running Agents visible while idle and drops terminal idle tasks", () => {
+  const remoteWorks = realtimeWork.officeStatusWorksToRealtimeWorks([
+    {
+      agentType: "mkt-dm-inbox",
+      state: "idle",
+      metadata: { accountId: "managed-01", officeStatus: "idle", taskState: "idle", longRunning: true, outcome: "idle" }
+    },
+    {
+      agentType: "mkt-find-people",
+      state: "idle",
+      metadata: { accountId: "managed-01", officeStatus: "idle", taskState: "idle", longRunning: false }
+    },
+    {
+      agentType: "mkt-comment-acquisition",
+      state: "idle",
+      metadata: { accountId: "managed-01", officeStatus: "idle", taskState: "idle", longRunning: true, outcome: "completed" }
+    }
+  ]);
+
+  assert.deepEqual(remoteWorks.map((work) => work.agentType), ["mkt-dm-inbox"]);
+  assert.equal(remoteWorks[0].state, "idle");
+  assert.equal(remoteWorks[0].metadata.taskState, "idle");
+  assert.deepEqual(realtimeWork.partitionRealtimeWorks(remoteWorks).standby.map((work) => work.agentType), ["mkt-dm-inbox"]);
+  assert.equal(realtimeWork.realtimeWorkDisplayStatus(remoteWorks[0]), "idle");
 });
 
 test("realtime work omits the redundant public-data context row", () => {

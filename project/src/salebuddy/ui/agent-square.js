@@ -28,7 +28,14 @@ import { liveDanmakuAnalysisReportConversationMessage, liveDanmakuAnalysisReport
 import { bindAcquisitionCardAction, getAcquisitionCardViewModel } from "./acquisition-card-controller.js";
 import { COMMENT_ACQUISITION_DEFAULTS, DOUYIN_AUTO_AUDIENCE_GOAL, buildCommentAcquisitionTaskPayload, buildFinderListenerTaskPayload, buildLiveLeadTaskPayload, validateFinderListenerSetup, validateLiveLeadSetup, normalizeCommentAcquisitionConfig, validateCommentAcquisitionSetup } from "./comment-acquisition-config.js";
 import { DEFAULT_LIVE_SIGNALS, buildLiveDanmakuAnalysisTaskPayload, validateLiveDanmakuAnalysisSetup } from "./live-danmaku-analysis-config.js";
-import { buildLiveDanmakuOutreachTaskPayload, validateLiveDanmakuOutreachSetup } from "./live-danmaku-outreach-config.js";
+import {
+  LIVE_DANMAKU_OUTREACH_DEFAULT_GOAL,
+  LIVE_DANMAKU_OUTREACH_DEFAULT_MESSAGE,
+  LIVE_DANMAKU_OUTREACH_SCOPE,
+  buildLiveDanmakuOutreachTaskPayload,
+  normalizeLiveDanmakuOutreachSettings,
+  validateLiveDanmakuOutreachSetup
+} from "./live-danmaku-outreach-config.js";
 import { VIRAL_WORK_ANALYSIS_DEFAULT_GOAL, buildViralWorkAnalysisTaskPayload, validateViralWorkAnalysisSetup } from "./viral-work-analysis-config.js";
 import { openAccountReceptionPage } from "./account-reception-page.js?v=20260914-grid-alignment-1";
 import { buildCommentAcquisitionResultRecord, commentAcquisitionCapabilityState } from "./comment-acquisition-results.js";
@@ -274,12 +281,37 @@ const CSS = `
 .sb-as-live-outreach-automation-item span{margin-top:4px;color:#89929d;font-size:11px;line-height:1.55}
 .sb-as-live-outreach-scope{display:flex;align-items:flex-start;gap:8px;margin-top:18px;color:#89929d;font-size:11px;line-height:1.6}
 .sb-as-live-outreach-scope i{width:17px;height:17px;display:grid;place-items:center;flex:none;border-radius:50%;background:#eef3fa;color:#4267a5;font-style:normal;font-size:10px;font-weight:700}
+.sb-as-live-outreach-config{display:grid;gap:16px;margin-top:23px;padding:19px 22px 20px;border:1px solid #dce5ef;border-radius:14px;background:#fff;box-shadow:0 9px 24px rgba(45,61,80,.06)}
+.sb-as-live-outreach-config-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.sb-as-live-outreach-config-head strong{color:#4267a5;font-size:12px;font-weight:700;line-height:1.5}
+.sb-as-live-outreach-config-head span{color:#8995a4;font-size:11px;line-height:1.5}
+.sb-as-live-outreach-config-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(220px,.65fr);gap:18px;align-items:start}
+.sb-as-live-outreach-config-field{display:grid;gap:7px;min-width:0}
+.sb-as-live-outreach-config-field>span{color:#59636d;font-size:12px;font-weight:650;line-height:1.5}
+.sb-as-live-outreach-config-field>span em{margin-left:3px;color:#c4453c;font-style:normal}
+.sb-as-live-outreach-config-field small{color:#89929d;font-size:11px;line-height:1.55}
+.sb-as-live-outreach-purpose,.sb-as-live-outreach-message{width:100%;box-sizing:border-box;resize:vertical;border:0;border-bottom:1px solid #e8edf2;padding:7px 0 11px;background:transparent;color:#1f2329;outline:none;font:inherit;font-size:15px;line-height:1.6}
+.sb-as-live-outreach-purpose{min-height:73px}.sb-as-live-outreach-message{min-height:73px}
+.sb-as-live-outreach-purpose::placeholder,.sb-as-live-outreach-message::placeholder{color:#a1aab4;opacity:1}
+.sb-as-live-outreach-purpose:focus,.sb-as-live-outreach-message:focus{border-bottom-color:#4267a5}
+.sb-as-live-outreach-suggestions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.sb-as-live-outreach-suggestions>span{margin-right:2px;color:#8a929d;font-size:11px}
+.sb-as-live-outreach-suggestion{min-height:29px;padding:0 10px;border:1px solid #dfe7f1;border-radius:999px;background:#f8faff;color:#4267a5;font:inherit;font-size:11px;cursor:pointer}
+.sb-as-live-outreach-suggestion:hover{border-color:#a9bfdc;background:#f1f6fd}
+.sb-as-live-outreach-frequency{display:grid;gap:12px;padding-top:1px}
+.sb-as-live-outreach-frequency-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.sb-as-live-outreach-frequency label{display:grid;gap:7px;color:#59636d;font-size:11px;font-weight:650}
+.sb-as-live-outreach-frequency input,.sb-as-live-outreach-frequency select{width:100%;height:35px;box-sizing:border-box;padding:0 9px;border:1px solid #dce5ef;border-radius:8px;background:#fbfcfe;color:#303842;font:inherit;font-size:12px;outline:none}
+.sb-as-live-outreach-frequency input:focus,.sb-as-live-outreach-frequency select:focus{border-color:#4267a5;box-shadow:0 0 0 3px rgba(66,103,165,.08)}
+.sb-as-live-outreach-config-note{display:flex;align-items:flex-start;gap:8px;color:#89929d;font-size:11px;line-height:1.6}
+.sb-as-live-outreach-config-note i{width:17px;height:17px;display:grid;place-items:center;flex:none;border-radius:50%;background:#eef3fa;color:#4267a5;font-style:normal;font-size:10px;font-weight:700}
 .sb-as-live-outreach-launch{align-items:flex-end;justify-content:space-between;margin-top:23px}
 .sb-as-live-outreach-launch-copy{display:grid;gap:4px;min-width:0}
 .sb-as-live-outreach-launch-copy strong{color:#303842;font-size:15px;line-height:1.45}
 .sb-as-live-outreach-launch-copy span{max-width:540px;color:#89929d;font-size:11px;line-height:1.55}
 .sb-as-live-outreach-error{margin-top:16px}
-@media(max-width:640px){.sb-as-use:has(.sb-as-live-danmaku-outreach-setup){padding:24px 16px 36px}.sb-as-live-outreach-automation{margin-top:20px;padding:18px 0}.sb-as-live-outreach-automation-head{align-items:flex-start;flex-direction:column;gap:5px}.sb-as-live-outreach-automation-list{grid-template-columns:1fr;gap:12px}.sb-as-live-outreach-scope{margin-top:16px}.sb-as-live-outreach-launch{align-items:stretch}.sb-as-live-outreach-launch-copy span{max-width:none}.sb-as-live-outreach-launch-button{width:100%}}
+@media(max-width:760px){.sb-as-live-outreach-config-grid{grid-template-columns:1fr}.sb-as-live-outreach-frequency{padding-top:0}}
+@media(max-width:640px){.sb-as-use:has(.sb-as-live-danmaku-outreach-setup){padding:24px 16px 36px}.sb-as-live-outreach-automation{margin-top:20px;padding:18px 0}.sb-as-live-outreach-automation-head{align-items:flex-start;flex-direction:column;gap:5px}.sb-as-live-outreach-automation-list{grid-template-columns:1fr;gap:12px}.sb-as-live-outreach-scope{margin-top:16px}.sb-as-live-outreach-config{padding:18px}.sb-as-live-outreach-config-head{align-items:flex-start;flex-direction:column;gap:4px}.sb-as-live-outreach-frequency-row{grid-template-columns:1fr}.sb-as-live-outreach-launch{align-items:stretch}.sb-as-live-outreach-launch-copy span{max-width:none}.sb-as-live-outreach-launch-button{width:100%}}
 .sb-as-use:has(.sb-as-viral-work-analysis-setup),.sb-as-use:has(.sb-as-viral-work-analysis-running){max-width:940px;padding:34px 38px 48px}
 .sb-as-use:has(.sb-as-viral-work-analysis-setup) .sb-as-use-panel,.sb-as-use:has(.sb-as-viral-work-analysis-running) .sb-as-use-panel{padding:0;border:0;border-radius:0;background:transparent}
 .sb-as-viral-work-analysis-setup,.sb-as-viral-work-analysis-running{display:block}
@@ -430,7 +462,7 @@ const CSS = `
 @media(max-width:640px){.sb-as-grid,.sb-as-team,.sb-as-category-grid{grid-template-columns:1fr}.sb-as-category-head{margin-bottom:10px}.sb-as-category-list{gap:10px;padding:8px 16px 20px}.sb-as-category-section+.sb-as-category-section{padding-top:8px}.sb-as-use-intro,.sb-as-use-review{grid-template-columns:1fr}.sb-as-use-result.is-finder{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-as-use-signal-grid,.sb-as-lead-source-grid,.sb-as-lead-signal-grid,.sb-as-lead-audience-grid{grid-template-columns:1fr}.sb-as-lead-scope-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-as-lead-fields,.sb-as-lead-advanced-fields,.sb-as-finder-advanced-fields{grid-template-columns:1fr}.sb-as-lead-advanced-fields .sb-as-use-field.full,.sb-as-lead-reply{grid-column:auto}.sb-as-lead-actions{justify-content:stretch}.sb-as-lead-actions button{flex:1}.sb-as-finder-consumer{padding:18px}.sb-as-finder-source-head{display:grid}.sb-as-finder-source-actions{width:100%}.sb-as-finder-source-actions button{flex:1}.sb-as-finder-source-foot{display:grid;gap:5px}.sb-as-finder-suggestions{display:grid}.sb-as-finder-suggestion{text-align:left;padding:8px 10px}}
 @media(prefers-reduced-motion:reduce){.sb-as-cloud-boot-orb:before,.sb-as-cloud-boot-track i{animation:none}}
 .sb-as-authorize-button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:46px;margin-top:13px;padding:0 15px;border:1px solid #b9cbe6;border-radius:10px;background:#f4f7fd;color:#34578f;font:inherit;font-size:12px;font-weight:650;cursor:pointer;transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease,color .16s ease}.sb-as-authorize-button::after{content:"↗";font-size:17px;font-weight:500;line-height:1}.sb-as-authorize-button:hover{border-color:#4267A5;background:#eaf0fb;box-shadow:0 3px 10px rgba(66,103,165,.13);color:#294a7e}.sb-as-authorize-button:focus-visible{outline:3px solid rgba(66,103,165,.2);outline-offset:2px}.sb-as-authorize-button:disabled{cursor:wait;opacity:.6}
-.sb-as-private-setup{display:grid;gap:18px}.sb-as-private-source{padding:18px;border:1px solid #e1e7ef;border-radius:14px;background:#fbfcfe}.sb-as-private-stage{background:#fff}.sb-as-private-source>.sb-task-account{margin-top:15px}.sb-as-private-source-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.sb-as-private-source-title{color:#1F2329;font-size:16px;font-weight:700}.sb-as-private-source-copy{margin-top:5px;color:#7b8490;font-size:11px;line-height:1.55}.sb-as-private-source-tools{display:flex;gap:7px;flex:none}.sb-as-private-source-tool{height:32px;padding:0 11px;border:1px solid #dfe5ec;border-radius:8px;background:#fff;color:#59616b;font:inherit;font-size:11px;cursor:pointer}.sb-as-private-source-tool.is-active,.sb-as-private-source-tool:hover{border-color:#4267A5;background:#f3f7fe;color:#34578f}.sb-as-private-url-input{width:100%;min-height:132px;margin-top:15px;box-sizing:border-box;resize:vertical;border:1px solid #dfe5ec;border-radius:11px;padding:13px 14px;background:#fff;color:#1F2329;outline:none;font:inherit;font-size:12px;line-height:1.65}.sb-as-private-url-input:focus{border-color:#4267A5;box-shadow:0 0 0 3px rgba(66,103,165,.1)}.sb-as-private-file{position:relative;display:flex;align-items:center;gap:12px;min-height:74px;margin-top:12px;padding:12px 14px;border:1px dashed #cbd7e6;border-radius:11px;background:#f7faff;color:#59616b;cursor:pointer}.sb-as-private-file:hover{border-color:#4267A5;background:#f3f7fe}.sb-as-private-file-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#e7eef9;color:#4267A5;font-size:16px}.sb-as-private-file-copy{min-width:0;display:grid;gap:3px}.sb-as-private-file-copy strong{font-size:11px;font-weight:700;color:#34578f}.sb-as-private-file-copy span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8a929d;font-size:10px}.sb-as-private-file input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.sb-as-private-source-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;color:#8a929d;font-size:10px}.sb-as-private-source-count{color:#4267A5;font-weight:700}.sb-as-private-source-error{color:#a45f4b}.sb-as-private-empty{display:grid;gap:6px;place-items:start;border-style:dashed;background:#f7f9fc}.sb-as-private-empty strong{color:#303842;font-size:13px}.sb-as-private-empty p,.sb-as-private-empty-copy{margin:0;color:#7b8490;font-size:11px;line-height:1.65}.sb-as-private-targets{display:grid;gap:8px;margin-top:14px}.sb-as-private-targets-head{display:flex;align-items:center;justify-content:space-between;color:#59616b;font-size:11px;font-weight:650}.sb-as-private-target-list{display:grid;gap:7px;max-height:245px;overflow:auto;padding-right:2px}.sb-as-private-target{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 10px;border:1px solid #edf0f3;border-radius:9px;background:#fff}.sb-as-private-target-index{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#f0f3f7;color:#7b8490;font-size:10px;font-weight:700}.sb-as-private-target-copy{min-width:0;display:grid;gap:3px}.sb-as-private-target-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1F2329;font-size:11px}.sb-as-private-target-copy span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8a929d;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px}.sb-as-private-target-status{font-size:10px;color:#4267A5;white-space:nowrap}.sb-as-private-target.is-error{border-color:#f1d9d3;background:#fff9f7}.sb-as-private-target.is-error .sb-as-private-target-status{color:#a45f4b}.sb-as-private-target.is-sent{border-color:#d4eadd;background:#f7fcf9}.sb-as-private-target.is-sent .sb-as-private-target-status{color:#2d8b61}.sb-as-private-target.is-sending .sb-as-private-target-status{color:#9a6a35}.sb-as-private-message{display:grid;gap:7px}.sb-as-private-message label{color:#59616b;font-size:11px;font-weight:650}.sb-as-private-message textarea{width:100%;min-height:106px;box-sizing:border-box;resize:vertical;border:1px solid #dfe5ec;border-radius:11px;padding:12px 13px;background:#fff;color:#1F2329;outline:none;font:inherit;font-size:12px;line-height:1.6}.sb-as-private-message textarea:focus{border-color:#4267A5;box-shadow:0 0 0 3px rgba(66,103,165,.1)}.sb-as-private-tip{color:#8a929d;font-size:10px;line-height:1.5}.sb-as-private-review-batch{display:flex;align-items:center;gap:10px;margin:0 0 15px;padding:12px 14px;border:1px solid #dce6f5;border-radius:10px;background:#f5f8fd;color:#4267A5;font-size:12px}.sb-as-private-review-batch strong{font-size:19px}.sb-as-private-review-targets{display:grid;gap:6px;max-height:210px;overflow:auto;margin-top:10px}.sb-as-private-review-target{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:8px;background:#f8fafc;color:#59616b;font-size:11px}.sb-as-private-review-target span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-as-private-review-target i{font-style:normal;color:#4267A5;font-size:10px;white-space:nowrap}.sb-as-private-review-target.is-error{color:#a45f4b;background:#fff7f4}.sb-as-private-review-target.is-error i{color:#a45f4b}.sb-as-private-running-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:16px}.sb-as-private-running-stat{padding:12px;border:1px solid #e9edf2;border-radius:10px;background:#fbfcfd}.sb-as-private-running-stat strong{display:block;color:#1F2329;font-size:20px}.sb-as-private-running-stat span{display:block;margin-top:3px;color:#8a929d;font-size:10px}.sb-as-private-running-stat.is-success strong{color:#2d8b61}.sb-as-private-running-stat.is-error strong{color:#a45f4b}.sb-as-private-running-list{display:grid;gap:6px;max-height:270px;overflow:auto;margin-top:16px}.sb-as-private-running-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 10px;border-bottom:1px solid #edf0f3;color:#59616b;font-size:11px}.sb-as-private-running-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-as-private-running-row i{font-style:normal;color:#8a929d;font-size:10px}.sb-as-private-running-row.is-sent i{color:#2d8b61}.sb-as-private-running-row.is-error i{color:#a45f4b}
+.sb-as-private-setup{display:grid;gap:18px}.sb-as-private-source{padding:18px;border:1px solid #e1e7ef;border-radius:14px;background:#fbfcfe}.sb-as-private-stage{background:#fff}.sb-as-private-source>.sb-task-account{margin-top:15px}.sb-as-private-source-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.sb-as-private-source-title{color:#1F2329;font-size:16px;font-weight:700}.sb-as-private-source-copy{margin-top:5px;color:#7b8490;font-size:11px;line-height:1.55}.sb-as-private-source-tools{display:flex;gap:7px;flex:none}.sb-as-private-source-tool{height:32px;padding:0 11px;border:1px solid #dfe5ec;border-radius:8px;background:#fff;color:#59616b;font:inherit;font-size:11px;cursor:pointer}.sb-as-private-source-tool.is-active,.sb-as-private-source-tool:hover{border-color:#4267A5;background:#f3f7fe;color:#34578f}.sb-as-private-url-input{width:100%;min-height:132px;margin-top:15px;box-sizing:border-box;resize:vertical;border:1px solid #dfe5ec;border-radius:11px;padding:13px 14px;background:#fff;color:#1F2329;outline:none;font:inherit;font-size:12px;line-height:1.65}.sb-as-private-url-input:focus{border-color:#4267A5;box-shadow:0 0 0 3px rgba(66,103,165,.1)}.sb-as-private-file{position:relative;display:flex;align-items:center;gap:12px;min-height:74px;margin-top:12px;padding:12px 14px;border:1px dashed #cbd7e6;border-radius:11px;background:#f7faff;color:#59616b;cursor:pointer}.sb-as-private-file:hover{border-color:#4267A5;background:#f3f7fe}.sb-as-private-file-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#e7eef9;color:#4267A5;font-size:16px}.sb-as-private-file-copy{min-width:0;display:grid;gap:3px}.sb-as-private-file-copy strong{font-size:11px;font-weight:700;color:#34578f}.sb-as-private-file-copy span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8a929d;font-size:10px}.sb-as-private-file input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.sb-as-private-source-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;color:#8a929d;font-size:10px}.sb-as-private-source-count{color:#4267A5;font-weight:700}.sb-as-private-source-error{color:#a45f4b}.sb-as-private-empty{display:grid;gap:6px;place-items:start;border-style:dashed;background:#f7f9fc}.sb-as-private-empty strong{color:#303842;font-size:13px}.sb-as-private-empty p,.sb-as-private-empty-copy{margin:0;color:#7b8490;font-size:11px;line-height:1.65}.sb-as-private-targets{display:grid;gap:8px;margin-top:14px}.sb-as-private-targets-head{display:flex;align-items:center;justify-content:space-between;color:#59616b;font-size:11px;font-weight:650}.sb-as-private-target-list{display:grid;gap:7px;max-height:245px;overflow:auto;padding-right:2px}.sb-as-private-target{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 10px;border:1px solid #edf0f3;border-radius:9px;background:#fff}.sb-as-private-target-index{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#f0f3f7;color:#7b8490;font-size:10px;font-weight:700}.sb-as-private-target-copy{min-width:0;display:grid;gap:3px}.sb-as-private-target-copy strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1F2329;font-size:11px}.sb-as-private-target-copy span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8a929d;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px}.sb-as-private-target-status{font-size:10px;color:#4267A5;white-space:nowrap}.sb-as-private-target.is-error{border-color:#f1d9d3;background:#fff9f7}.sb-as-private-target.is-error .sb-as-private-target-status{color:#a45f4b}.sb-as-private-target.is-sent{border-color:#d4eadd;background:#f7fcf9}.sb-as-private-target.is-sent .sb-as-private-target-status{color:#2d8b61}.sb-as-private-target.is-sending .sb-as-private-target-status{color:#9a6a35}.sb-as-private-message{display:grid;gap:7px}.sb-as-private-message label{color:#59616b;font-size:11px;font-weight:650}.sb-as-private-message textarea{width:100%;min-height:106px;box-sizing:border-box;resize:vertical;border:1px solid #dfe5ec;border-radius:11px;padding:12px 13px;background:#fff;color:#1F2329;outline:none;font:inherit;font-size:12px;line-height:1.6}.sb-as-private-message textarea:focus{border-color:#4267A5;box-shadow:0 0 0 3px rgba(66,103,165,.1)}.sb-as-private-tip{color:#8a929d;font-size:10px;line-height:1.5}.sb-as-private-review-batch{display:flex;align-items:center;gap:10px;margin:0 0 15px;padding:12px 14px;border:1px solid #dce6f5;border-radius:10px;background:#f5f8fd;color:#4267A5;font-size:12px}.sb-as-private-review-batch strong{font-size:19px}.sb-as-private-review-targets{display:grid;gap:6px;max-height:210px;overflow:auto;margin-top:10px}.sb-as-private-review-target{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:8px;background:#f8fafc;color:#59616b;font-size:11px}.sb-as-private-review-target span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-as-private-review-target i{font-style:normal;color:#4267A5;font-size:10px;white-space:nowrap}.sb-as-private-review-target.is-error{color:#a45f4b;background:#fff7f4}.sb-as-private-review-target.is-error i{color:#a45f4b}.sb-as-private-running-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:16px}.sb-as-private-running-stat{padding:12px;border:1px solid #e9edf2;border-radius:10px;background:#fbfcfd}.sb-as-private-running-stat strong{display:block;color:#1F2329;font-size:20px}.sb-as-private-running-stat span{display:block;margin-top:3px;color:#8a929d;font-size:10px}.sb-as-private-running-stat.is-success strong{color:#2d8b61}.sb-as-private-running-stat.is-error strong{color:#a45f4b}.sb-as-private-running-list{display:grid;gap:6px;max-height:270px;overflow:auto;margin-top:16px}.sb-as-private-running-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 10px;border-bottom:1px solid #edf0f3;color:#59616b;font-size:11px}.sb-as-private-running-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-as-private-running-row i{font-style:normal;color:#8a929d;font-size:10px}.sb-as-private-running-row.is-sent i{color:#2d8b61}.sb-as-private-running-row.is-error i{color:#a45f4b}.sb-as-private-prospect-basis{border-color:#dbe6f5;background:#fbfcfe}.sb-as-private-prospect-chain{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px;color:#476a9f;font-size:11px;font-weight:680}.sb-as-private-prospect-chain span{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #dbe6f5;border-radius:8px;background:#f4f8fe}.sb-as-private-prospect-chain i{color:#91a8c8;font-style:normal;font-weight:500}
 .sb-as-private-target.is-ready{border-color:#d4eadd;background:#f7fcf9}.sb-as-private-target.is-ready .sb-as-private-target-status{color:#2d8b61}
 .sb-as-private-mode-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:15px}.sb-as-private-mode-option{display:grid;gap:5px;min-height:78px;padding:13px 14px;border:1px solid #dfe5ec;border-radius:10px;background:#fff;color:#59616b;text-align:left;font:inherit;cursor:pointer}.sb-as-private-mode-option:hover{border-color:#9db5d8;background:#f8faff}.sb-as-private-mode-option.is-selected{border-color:#4267A5;background:#f3f7fe;box-shadow:0 0 0 2px rgba(66,103,165,.1)}.sb-as-private-mode-option strong{color:#1F2329;font-size:12px}.sb-as-private-mode-option span{color:#7b8490;font-size:10px;line-height:1.55}
 .sb-as-private-mock-notice{margin-top:0;border:1px solid #d9e7f7;background:#f5f9ff;color:#4267a5}.sb-as-private-mock-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.sb-as-private-mock-flow span{padding:9px 10px;border:1px solid #dce7f6;border-radius:9px;background:#fff;color:#4267a5;font-size:11px;text-align:center}
@@ -539,6 +571,7 @@ const CSS = `
 .sb-composite-finder-steps.is-public{grid-template-columns:repeat(2,minmax(0,1fr))}
 .sb-as-composite-finder .sb-public-finder-targets{margin:0 0 14px}.sb-as-composite-finder .sb-public-finder-targets legend{margin-bottom:11px;color:#2d343b;font-size:17px;font-weight:680}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice{min-height:88px;padding:14px 15px;border-radius:8px}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice strong{font-size:13px}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice small{font-size:10.5px}
 .sb-as-composite-finder .sb-public-finder-brief{gap:0;margin:0 0 16px;padding:0 0 16px}
+.sb-public-finder-goal-field{gap:8px}.sb-as-composite-finder .sb-public-finder-goal-field textarea{min-height:132px;padding:15px 16px;border-color:#d4dce7;font-size:14px;line-height:1.7;box-shadow:0 8px 20px rgba(31,35,41,.035)}.sb-as-composite-finder .sb-public-finder-goal-field textarea:focus{border-color:#7799ca;box-shadow:0 0 0 4px rgba(66,103,165,.08),0 12px 28px rgba(31,35,41,.05)}.sb-public-finder-prompt-label{margin-top:2px;color:#7f8b99;font-size:10.5px;font-weight:650}.sb-public-finder-prompts{display:flex;flex-wrap:wrap;gap:8px}.sb-public-finder-prompt{min-height:34px;padding:0 11px;border:1px solid #dfe5ec;border-radius:8px;background:#fff;color:#5f6d7e;font:inherit;font-size:11px;cursor:pointer;transition:border-color .15s,background .15s,color .15s}.sb-public-finder-prompt:hover{border-color:#91add4;background:#f7faff;color:#315f9a}
 .sb-public-finder-limit{display:flex;align-items:center;gap:11px;margin:16px 0;color:#4b5b6d}
 .sb-public-finder-limit .sb-public-finder-label{white-space:nowrap}
 .sb-public-finder-limit-control{display:flex;align-items:center;gap:7px;color:#697685;font-size:11px}
@@ -570,7 +603,7 @@ const CSS = `
 .sb-public-finder-filter-field{display:grid;gap:6px;color:#697889;font-size:10.5px;font-weight:650}
 .sb-public-finder-filter-field select{width:100%;height:36px;box-sizing:border-box;border:1px solid #d9e1ea;border-radius:7px;padding:0 9px;background:#fff;color:#394653;font:inherit;font-size:11px;outline:0}
 .sb-public-finder-filter-field select:focus{border-color:#7799ca;box-shadow:0 0 0 3px rgba(66,103,165,.1)}
-@media(max-width:640px){.sb-composite-finder-steps.is-public{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice-grid{grid-template-columns:1fr;gap:8px}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice{min-height:76px}.sb-public-finder-limit{align-items:flex-start;flex-direction:column;gap:7px}.sb-public-finder-custom-goal-body,.sb-public-finder-context-body,.sb-public-finder-filters-body{grid-template-columns:1fr}.sb-public-finder-custom-goal>summary,.sb-public-finder-context>summary,.sb-public-finder-filters>summary{min-height:58px}.sb-public-finder-context-copy small{max-width:250px}.sb-public-finder-filters>summary{align-items:flex-start;padding:11px 0}.sb-public-finder-filters>summary span{margin-left:0}.sb-public-finder-filters>summary:after{margin-top:7px}}
+@media(max-width:640px){.sb-composite-finder-steps.is-public{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice-grid{grid-template-columns:1fr;gap:8px}.sb-as-composite-finder .sb-public-finder-targets .sb-task-choice{min-height:76px}.sb-public-finder-limit{align-items:flex-start;flex-direction:column;gap:7px}.sb-public-finder-prompts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.sb-public-finder-prompt{width:100%;padding:0 10px;text-align:left}.sb-public-finder-custom-goal-body,.sb-public-finder-context-body,.sb-public-finder-filters-body{grid-template-columns:1fr}.sb-public-finder-custom-goal>summary,.sb-public-finder-context>summary,.sb-public-finder-filters>summary{min-height:58px}.sb-public-finder-context-copy small{max-width:250px}.sb-public-finder-filters>summary{align-items:flex-start;padding:11px 0}.sb-public-finder-filters>summary span{margin-left:0}.sb-public-finder-filters>summary:after{margin-top:7px}}
 .sb-as-intent-candidate{grid-template-columns:minmax(0,1fr);cursor:default}.sb-as-intent-candidate-copy{min-width:0}.sb-as-intent-candidate-copy span{overflow-wrap:anywhere}
 .sb-as-specialist-human-notice{margin-top:12px;padding:10px 11px;border:1px solid #cce8da;border-radius:8px;background:#f3fbf6;color:#2d7655;font-size:11px;line-height:1.6}.sb-as-specialist-composer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:12px}.sb-as-specialist-composer textarea{width:100%;min-height:70px;box-sizing:border-box;padding:10px 11px;border:1px solid #dce4ed;border-radius:8px;background:#fff;color:#354454;font:inherit;font-size:12px;line-height:1.6;resize:vertical;outline:0}.sb-as-specialist-composer textarea:focus{border-color:#6d9bd2;box-shadow:0 0 0 3px rgba(47,128,237,.1)}.sb-as-specialist-composer textarea::placeholder{color:#9aa6b2}.sb-as-specialist-composer button{align-self:end;height:36px;min-width:64px;padding:0 13px;border:1px solid #2f80ed;border-radius:8px;background:#2f80ed;color:#fff;font:inherit;font-size:11px;font-weight:680;cursor:pointer}.sb-as-specialist-composer button:hover:not(:disabled){background:#246fce;border-color:#246fce}.sb-as-specialist-composer button:disabled{opacity:.55;cursor:wait}
 `;
@@ -623,24 +656,13 @@ function createFilledStageIcon(stage, color) {
   return svg;
 }
 const MARKETPLACE_WORKFLOW_STAGE = Object.freeze({
-  "mkt-lead-miner": "找人",
-  "mkt-comment-filter": "找人",
-  "mkt-live-lead-miner": "找人",
-  "mkt-research-expert": "分析",
-  "mkt-douyin-finder": "找人",
-  "mkt-audience-search": "找人",
-  "mkt-network-miner": "找人",
-  "mkt-trend-insight": "分析",
   "mkt-intent-analyst": "分析",
   "mkt-live-danmaku-analysis": "分析",
   "mkt-live-danmaku-outreach": "触达",
   "mkt-viral-work-analysis": "分析",
   "mkt-cold-writer": "触达",
   "mkt-dm-inbox": "私信对话",
-  [GOLD_CUSTOMER_SERVICE_AGENT_ID]: "私信对话",
-  "mkt-follow-up": "触达",
-  "mkt-phone-sdr": "触达",
-  "mkt-copywriter": "触达"
+  [GOLD_CUSTOMER_SERVICE_AGENT_ID]: "私信对话"
 });
 
 const LEAD_AUDIENCE_TYPE_OPTIONS = Object.freeze([
@@ -809,17 +831,26 @@ function buildProviderRow(employmentStatus = "未雇佣") {
  * 打开 Agent 市场页。
  * deps: { teamLive, gateway, onChat(agentTypeOrId), onClose }
  */
-export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose, initialAgentId = null, resumeFlow = null } = {}) {
-  persistNavigationRoute("agentSquare", initialAgentId ? { initialAgentId } : {});
+export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose, initialAgentId = null, resumeFlow = null, embeddedContainer = null } = {}) {
+  const embedded = Boolean(embeddedContainer);
+  if (!embedded) persistNavigationRoute("agentSquare", initialAgentId ? { initialAgentId } : {});
   ensureStyle();
-  const page = openPage({
-    title: "Agent市场",
-    onClose: () => {
-      clearNavigationRoute("agentSquare");
-      onClose?.();
+  const page = embedded
+    ? {
+      root: embeddedContainer,
+      body: embeddedContainer,
+      setTitle() {},
+      showBack() {},
+      close() {}
     }
-  });
-  const pageHead = page.root.querySelector(".sb-page-head");
+    : openPage({
+      title: "Agent市场",
+      onClose: () => {
+        clearNavigationRoute("agentSquare");
+        onClose?.();
+      }
+    });
+  const pageHead = embedded ? null : page.root.querySelector(".sb-page-head");
   const root = el("div", "sb-as notranslate");
   root.setAttribute("translate", "no");
   page.body.appendChild(root);
@@ -1433,6 +1464,9 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const savedTouchContent = savedConfiguration?.touchContent && typeof savedConfiguration.touchContent === "object"
       ? savedConfiguration.touchContent
       : {};
+    const savedContentPolicy = savedConfiguration?.contentPolicy && typeof savedConfiguration.contentPolicy === "object"
+      ? savedConfiguration.contentPolicy
+      : {};
     const savedFrequency = savedConfiguration?.frequency && typeof savedConfiguration.frequency === "object"
       ? savedConfiguration.frequency
       : {};
@@ -1449,6 +1483,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       running: !legacyPreview && !managerSetup && (saved?.phase === "running" || saved?.phase === "awaiting_receipt" || saved?.managerAcquisitionStartFailed === true),
       mode: managerSetup ? "inbox" : saved?.mode || "acquisition",
       outreachMode: isPrivateOutreachAgent(agent) ? normalizePrivateOutreachMode(saved?.outreachMode) : saved?.outreachMode || "",
+      inlineProspectOutreach: saved?.inlineProspectOutreach === true,
       managerCombinedStart: managerSetup || saved?.managerCombinedStart === true,
       managerInboxRuntimeStarted: saved?.managerInboxRuntimeStarted === true,
       managerInboxRuntime: saved?.managerInboxRuntime ? structuredClone(saved.managerInboxRuntime) : null,
@@ -1506,6 +1541,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       analysisMode: saved?.analysisMode || (saved?.analysisKind === "account_report" ? "account_report" : ""),
       analysisKind: saved?.analysisKind || (isLiveDanmakuAnalysisAgent(agent) ? "live_danmaku" : isLiveDanmakuOutreachAgent(agent) ? "live_danmaku_outreach" : isViralWorkAnalysisAgent(agent) ? "viral_work" : ""),
       liveDanmakuGoal: saved?.liveDanmakuGoal || "梳理直播间高频问题、用户需求、购买意向和反对点。",
+      liveDanmakuOutreachGoal: saved?.liveDanmakuOutreachGoal || savedTouchContent.conversionGoal || savedFindingStrategy.audienceGoal || savedContentPolicy.conversionGoal || LIVE_DANMAKU_OUTREACH_DEFAULT_GOAL,
+      liveDanmakuOutreachMessage: saved?.liveDanmakuOutreachMessage ?? savedTouchContent.message ?? savedTouchContent.strategy ?? savedContentPolicy.strategy ?? savedContentPolicy.template ?? "",
       liveDanmakuSignals: savedLiveDanmakuOutreach ? ["danmaku"] : [...DEFAULT_LIVE_SIGNALS],
       liveDanmakuAnalysis: saved?.liveDanmakuAnalysis ? structuredClone(saved.liveDanmakuAnalysis) : null,
       workUrl: saved?.workUrl || saved?.inputs?.workUrl || saved?.resultSnapshot?.sourceUrl || "",
@@ -1583,7 +1620,11 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       sourceAccountId: saved?.sourceAccountId || "",
       sourceAccountName: saved?.sourceAccountName || "",
       mockPreview: mockPrivateOutreach,
-      mockProspectRecords: mockPrivateOutreach ? structuredClone(privateOutreachMockData.records) : [],
+      mockProspectRecords: Array.isArray(saved?.mockProspectRecords)
+        ? structuredClone(saved.mockProspectRecords)
+        : mockPrivateOutreach
+          ? structuredClone(privateOutreachMockData.records)
+          : [],
       commentSourceOwner: saved?.commentSourceOwner || "own",
       commentSourceDimension: saved?.commentSourceDimension || (parseCommentSource(saved?.accountRef || "").kind === "video" ? "works" : "account"),
       commentWorkInput: saved?.commentWorkInput || (parseCommentSource(saved?.accountRef || "").kind === "video" ? saved?.accountRef || "" : ""),
@@ -1623,6 +1664,14 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       authError: null,
       authErrorCode: saved?.authErrorCode || null
     };
+    if (savedLiveDanmakuOutreach) {
+      const savedCaps = savedConfiguration?.caps && typeof savedConfiguration.caps === "object" ? savedConfiguration.caps : {};
+      const savedIntervalMs = Number(savedCaps.sendIntervalMs);
+      state.useFlow.maxTouchesPerDay = null;
+      state.useFlow.minIntervalMinutes = saved?.minIntervalMinutes
+        ?? savedFrequency.minIntervalMinutes
+        ?? (Number.isFinite(savedIntervalMs) ? savedIntervalMs / 60000 : 0);
+    }
     if (isPrivateOutreachAgent(agent) && state.useFlow.prefilledFromResult && state.useFlow.targetEntries.length) {
       const canonicalTargets = prospectStore.ensureOutreachProspects?.(state.useFlow.targetEntries, {
         sourceContext: {
@@ -1743,11 +1792,20 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       && !privateReceiptPending;
     const inboxIntake = isInboxIntakeFlow(agent, flow);
     const isDurableTask = inboxIntake || longRunningAcquisition || liveDanmakuAnalysis || liveDanmakuOutreach;
+    const liveOutreachSettings = liveDanmakuOutreach ? normalizeLiveDanmakuOutreachSettings(flow) : null;
+    const liveOutreachConfiguration = flow?.configuration && typeof flow.configuration === "object" ? flow.configuration : {};
+    const liveOutreachContentPolicy = liveOutreachConfiguration.contentPolicy && typeof liveOutreachConfiguration.contentPolicy === "object"
+      ? liveOutreachConfiguration.contentPolicy
+      : {};
+    const liveOutreachTouchContent = liveOutreachConfiguration.touchContent && typeof liveOutreachConfiguration.touchContent === "object"
+      ? liveOutreachConfiguration.touchContent
+      : {};
     const inboxRunning = inboxIntake && flow?.running === true;
     const resume = {
       agentId: flow.agentId,
       mode: flow.mode || "acquisition",
       outreachMode: isPrivateOutreachAgent(agent) ? normalizePrivateOutreachMode(flow.outreachMode) : flow.outreachMode || "",
+      inlineProspectOutreach: flow.inlineProspectOutreach === true,
       taskId: flow.taskId || "",
       taskRunId: flow.taskRunId || "",
       taskKey: flow.taskKey || "",
@@ -1817,6 +1875,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       sourceScope: flow.sourceScope || "",
       analysisKind: flow.analysisKind || (liveDanmakuAnalysis ? "live_danmaku" : liveDanmakuOutreach ? "live_danmaku_outreach" : ""),
       liveDanmakuGoal: flow.liveDanmakuGoal || "梳理直播间高频问题、用户需求、购买意向和反对点。",
+      liveDanmakuOutreachGoal: flow.liveDanmakuOutreachGoal || liveOutreachSettings?.goal || LIVE_DANMAKU_OUTREACH_DEFAULT_GOAL,
+      liveDanmakuOutreachMessage: flow.liveDanmakuOutreachMessage || liveOutreachTouchContent.message || liveOutreachContentPolicy.strategy || liveOutreachContentPolicy.template || "",
       liveDanmakuSignals: liveDanmakuOutreach ? ["danmaku"] : [...DEFAULT_LIVE_SIGNALS],
       liveDanmakuAnalysis: flow.liveDanmakuAnalysis ? structuredClone(flow.liveDanmakuAnalysis) : null,
       message: flow.message || "",
@@ -1836,8 +1896,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       taskChoices: flow.taskChoices ? structuredClone(flow.taskChoices) : {},
       approvalMode: isCommentAcquisitionAgent({ id: flow.agentId }) || liveDanmakuOutreach ? "auto" : (flow.approvalMode === "batch" ? "manual" : flow.approvalMode || "auto"),
       touchChannel: flow.touchChannel || "private_message",
-      maxTouchesPerDay: isCommentAcquisitionAgent(agent) ? COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay : flow.maxTouchesPerDay || 30,
-      minIntervalMinutes: isCommentAcquisitionAgent(agent) ? COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes : flow.minIntervalMinutes || 15,
+      maxTouchesPerDay: isCommentAcquisitionAgent(agent) ? COMMENT_ACQUISITION_DEFAULTS.frequency.maxTouchesPerDay : liveDanmakuOutreach ? null : flow.maxTouchesPerDay ?? liveOutreachSettings?.dailyMax ?? 30,
+      minIntervalMinutes: isCommentAcquisitionAgent(agent) ? COMMENT_ACQUISITION_DEFAULTS.frequency.minIntervalMinutes : flow.minIntervalMinutes ?? liveOutreachSettings?.minIntervalMinutes ?? 15,
       stopConditions: flow.stopConditions ? structuredClone(flow.stopConditions) : { ...COMMENT_ACQUISITION_DEFAULTS.stopConditions },
       receiptPending: flow.receiptPending === true,
       receiptPendingAt: flow.receiptPendingAt || null,
@@ -1902,7 +1962,15 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       resume.touchChannel = "private_message";
       resume.longRunning = true;
       resume.liveDanmakuSignals = ["danmaku"];
-      resume.message = "看到你刚才在直播间留言了，方便说说你想了解什么吗？";
+      resume.liveDanmakuOutreachGoal = liveOutreachSettings.goal;
+      resume.liveDanmakuOutreachMessage = flow.liveDanmakuOutreachMessage
+        || liveOutreachTouchContent.message
+        || liveOutreachContentPolicy.strategy
+        || liveOutreachContentPolicy.template
+        || "";
+      resume.maxTouchesPerDay = liveOutreachSettings.dailyMax;
+      resume.minIntervalMinutes = liveOutreachSettings.minIntervalMinutes;
+      resume.message = resume.liveDanmakuOutreachMessage || LIVE_DANMAKU_OUTREACH_DEFAULT_MESSAGE;
       resume.touchStrategy = resume.message;
       for (const field of [
         "window", "workScope", "workCount", "replyObjective", "replyTone", "businessKnowledge",
@@ -1998,8 +2066,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const failed = entries.filter((entry) => entry.status === "error" || entry.status === "failed").length;
     const unknown = entries.filter((entry) => entry.status === "unknown").length;
     return agentResultRecorder.record({
-      agentId: "mkt-user-research",
-      agentName: "用户调研专家",
+      agentId: "mkt-intent-analyst",
+      agentName: "客户分析员",
       taskId: flow.taskId || (flow.taskId = newTaskId("user-research")),
       taskRunId: flow.taskRunId || null,
       title: `${flow.finderGoal || "目标用户"} · 用户调研`,
@@ -3178,12 +3246,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     page.root.appendChild(overlay);
   }
 
-  function isCommentLeadMiner(agent) {
-    return agent?.id === "mkt-lead-miner";
-  }
-
   function isDouyinFinderAgent(agent) {
-    return agent?.id === "mkt-find-people";
+    return false;
   }
 
   function isCompositeFinderAgent(agent) {
@@ -3242,9 +3306,9 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   }
 
   function isUserResearchAgent(agent) {
-    return agent?.id === "mkt-user-research";
+    return false;
   }
-  function isAccountAnalysisFlow(agent, flow = {}) { return agent?.id === "mkt-research-expert" || flow?.analysisKind === "account_report"; }
+  function isAccountAnalysisFlow(agent, flow = {}) { return flow?.analysisKind === "account_report"; }
   function isIntentAnalystAgent(agent) { return agent?.id === "mkt-intent-analyst"; }
   function isViralWorkAnalysisAgent(agent) { return agent?.id === "mkt-viral-work-analysis"; }
   function isViralWorkAnalysisFlow(agent, flow = {}) { return isViralWorkAnalysisAgent(agent) || flow?.analysisKind === "viral_work"; }
@@ -3293,12 +3357,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     return flow;
   }
 
-  function isCommentFilterAgent(agent) {
-    return agent?.id === "mkt-comment-filter";
-  }
-
   function isCommentScreeningAgent(agent) {
-    return isCommentLeadMiner(agent) || isCommentFilterAgent(agent);
+    return false;
   }
 
   function isInboxAgent(agent) {
@@ -4073,7 +4133,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       el("strong", null, managerInbox ? "3. 告诉我怎么回复" : "2. 告诉我怎么回复"),
       el("span", null, managerInbox
         ? "只需填写希望通过私信达成的目标，回复方式、提问顺序、推进节奏和人工边界由 AI 自动设计。"
-        : "这里保存的内容会同步到“对话策略”，以后都可以在那里查看和调整。")
+        : "高级策略会保存在这个账号上，后续回复会直接使用。")
     );
     const policyStatus = el("span", `sb-as-inbox-section-status ${strategyReady ? "is-ready" : ""}`);
     policyStatus.append(el("i"), el("span", null,
@@ -4267,10 +4327,23 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       actions.appendChild(retry);
       panel.appendChild(actions);
     } else {
+      const actions = el("div", "sb-as-use-actions");
+      if (flow.agentId === GOLD_CUSTOMER_SERVICE_AGENT_ID) {
+        const tune = el("button", null, "调整承接目标");
+        tune.type = "button";
+        tune.addEventListener("click", () => onChat?.({
+          agentId: flow.agentId,
+          accountId: flow.accountId || null,
+          taskId: flow.taskId || null,
+          taskRunId: flow.taskRunId || null
+        }));
+        actions.appendChild(tune);
+      }
       const realtime = el("button", null, "查看实时工作");
       realtime.type = "button";
       realtime.addEventListener("click", () => globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({ selectedAgentId: flow.agentId, accountId: flow.accountId || null })));
-      panel.appendChild(realtime);
+      actions.appendChild(realtime);
+      panel.appendChild(actions);
     }
   }
 
@@ -4696,8 +4769,12 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   function privateOutreachEntryRecord(entry = {}, flow = state.useFlow) {
     const recordId = entry.recordId || entry.sourceRecordId || "";
     if (!recordId) return null;
-    return prospectStore.get(recordId)
-      || (Array.isArray(flow?.mockProspectRecords) ? flow.mockProspectRecords.find((record) => record.id === recordId) : null);
+    const mockRecords = Array.isArray(flow?.mockProspectRecords) ? flow.mockProspectRecords : [];
+    const recipient = leadRecipientId(entry);
+    return mockRecords.find((record) => record.id === recordId
+      || (entry.profileUrl && record.profileUrl === entry.profileUrl)
+      || (recipient && leadRecipientId(record) === recipient))
+      || prospectStore.get(recordId);
   }
 
   function privateOutreachEntrySourceScope(flow, entry = {}) {
@@ -4863,6 +4940,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   function renderPrivateOutreachSetup(panel, flow) {
     prefillPrivateOutreachFromProspects(flow);
     const mode = privateOutreachMode(flow);
+    const inlineProspectOutreach = flow.inlineProspectOutreach === true && mode === PRIVATE_OUTREACH_MODES.PROSPECTS;
     const setup = el("div", "sb-as-private-setup");
     const accountStage = el("section", "sb-as-private-source sb-as-private-stage");
     const accountHead = el("div", "sb-as-private-source-head");
@@ -4875,46 +4953,72 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     accountStage.append(accountHead, acquisitionAccountControl(flow, () => render()));
     setup.appendChild(accountStage);
 
-    const modeStage = el("section", "sb-as-private-source sb-as-private-stage");
-    const modeHead = el("div", "sb-as-private-source-head");
-    const modeCopy = el("div");
-    modeCopy.append(
-      el("div", "sb-as-private-source-title", "选择触达方式"),
-      el("div", "sb-as-private-source-copy", "两种方式都不会重复触达已发送、触达中、已回复或已留资的用户。")
-    );
-    modeHead.appendChild(modeCopy);
-    const modeOptions = el("div", "sb-as-private-mode-options");
-    [
-      [PRIVATE_OUTREACH_MODES.PROSPECTS, "触达潜客", "只触达客户分析员确认过的待确认触达潜客"],
-      [PRIVATE_OUTREACH_MODES.ALL_FOUND, "触达所有找到的人", "从当前账号找到的可触达用户中灵活选择"]
-    ].forEach(([value, label, description]) => {
-      const option = el("button", `sb-as-private-mode-option${mode === value ? " is-selected" : ""}`);
-      option.type = "button";
-      option.setAttribute("aria-pressed", String(mode === value));
-      option.append(el("strong", null, label), el("span", null, description));
-      option.addEventListener("click", () => {
-        if (privateOutreachMode(flow) === value) return;
-        flow.outreachMode = value;
-        flow.targetEntries = [];
-        flow.targetProfileUrls = [];
-        flow.targetInput = "";
-        flow.prefilledFromResult = false;
-        flow.autoPrefilledFromProspects = false;
-        flow.autoPrefilledAccountKey = "";
-        flow.targetResolveError = null;
-        render();
+    if (!inlineProspectOutreach) {
+      const modeStage = el("section", "sb-as-private-source sb-as-private-stage");
+      const modeHead = el("div", "sb-as-private-source-head");
+      const modeCopy = el("div");
+      modeCopy.append(
+        el("div", "sb-as-private-source-title", "选择触达方式"),
+        el("div", "sb-as-private-source-copy", "两种方式都不会重复触达已发送、触达中、已回复或已留资的用户。")
+      );
+      modeHead.appendChild(modeCopy);
+      const modeOptions = el("div", "sb-as-private-mode-options");
+      [
+        [PRIVATE_OUTREACH_MODES.PROSPECTS, "触达潜客", "只触达客户分析员确认过的待确认触达潜客"],
+        [PRIVATE_OUTREACH_MODES.ALL_FOUND, "触达所有找到的人", "从当前账号找到的可触达用户中灵活选择"]
+      ].forEach(([value, label, description]) => {
+        const option = el("button", `sb-as-private-mode-option${mode === value ? " is-selected" : ""}`);
+        option.type = "button";
+        option.setAttribute("aria-pressed", String(mode === value));
+        option.append(el("strong", null, label), el("span", null, description));
+        option.addEventListener("click", () => {
+          if (privateOutreachMode(flow) === value) return;
+          flow.outreachMode = value;
+          flow.targetEntries = [];
+          flow.targetProfileUrls = [];
+          flow.targetInput = "";
+          flow.prefilledFromResult = false;
+          flow.autoPrefilledFromProspects = false;
+          flow.autoPrefilledAccountKey = "";
+          flow.targetResolveError = null;
+          render();
+        });
+        modeOptions.appendChild(option);
       });
-      modeOptions.appendChild(option);
-    });
-    modeStage.append(modeHead, modeOptions);
-    setup.appendChild(modeStage);
+      modeStage.append(modeHead, modeOptions);
+      setup.appendChild(modeStage);
+    }
+
+    if (inlineProspectOutreach) {
+      const basis = el("section", "sb-as-private-source sb-as-private-stage sb-as-private-prospect-basis");
+      const basisHead = el("div", "sb-as-private-source-head");
+      const basisCopy = el("div");
+      basisCopy.append(
+        el("div", "sb-as-private-source-title", "为什么可以直接触达"),
+        el("div", "sb-as-private-source-copy", "这位用户来自找客专员发现的互动对象，客户分析员已经根据互动内容确认其为潜客，并保留了来源和判断依据。")
+      );
+      basisHead.appendChild(basisCopy);
+      const chain = el("div", "sb-as-private-prospect-chain");
+      ["找客专员发现用户", "客户分析员确认潜客", "潜客触达专员首轮联系"].forEach((label, index) => {
+        const item = el("span", null, label);
+        if (index < 2) item.appendChild(el("i", null, "→"));
+        chain.appendChild(item);
+      });
+      basis.append(basisHead, chain);
+      setup.appendChild(basis);
+    }
 
     if (flow.authorizing || ["starting", "opening", "waiting_login"].includes(flow.authPhase)) setup.appendChild(buildCloudAuthorizationStatus(flow));
     if (flow.authError) setup.appendChild(el("div", "sb-as-use-notice is-error", flow.authError));
     if (flow.mockPreview) {
-      const mockNotice = el("div", "sb-as-use-notice sb-as-private-mock-notice", "MOCK 预览：下面会完整展示两种触达方式、发送私信和查看触达结果，发送动作不会调用抖音，也不会产生真实私信。");
+      const mockNotice = el("div", "sb-as-use-notice sb-as-private-mock-notice", inlineProspectOutreach
+        ? "MOCK 预览：这位潜客会直接进入首轮私信触达，发送动作不会调用抖音，也不会产生真实私信。"
+        : "MOCK 预览：下面会完整展示两种触达方式、发送私信和查看触达结果，发送动作不会调用抖音，也不会产生真实私信。");
       const capabilitySteps = el("div", "sb-as-private-mock-flow");
-      ["1 选择触达方式", "2 一键触达", "3 查看实时结果"].forEach((label) => capabilitySteps.appendChild(el("span", null, label)));
+      (inlineProspectOutreach
+        ? ["1 确认潜客来源", "2 直接触达", "3 查看实时结果"]
+        : ["1 选择触达方式", "2 一键触达", "3 查看实时结果"]
+      ).forEach((label) => capabilitySteps.appendChild(el("span", null, label)));
       setup.append(mockNotice, capabilitySteps);
     }
 
@@ -4922,7 +5026,9 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       const notice = el("div", "sb-as-private-source sb-as-private-empty");
       notice.append(
         el("strong", null, flow.loadingAccounts ? "正在确认已登录账号" : "先连接一个抖音账号"),
-        el("p", null, "账号连接成功后，系统会按你选择的方式读取可触达对象；发送前仍会再次核对账号和用户状态。")
+        el("p", null, inlineProspectOutreach
+          ? "账号连接成功后，系统会使用该潜客所属的来源账号发送首轮私信；发送前仍会再次核对账号和用户状态。"
+          : "账号连接成功后，系统会按你选择的方式读取可触达对象；发送前仍会再次核对账号和用户状态。")
       );
       setup.appendChild(notice);
       panel.appendChild(setup);
@@ -4935,13 +5041,15 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const sourceHead = el("div", "sb-as-private-source-head");
     const sourceCopy = el("div");
     sourceCopy.append(
-      el("div", "sb-as-private-source-title", mode === PRIVATE_OUTREACH_MODES.ALL_FOUND ? "这次触达哪些找到的人" : "这次触达哪些潜客"),
+      el("div", "sb-as-private-source-title", inlineProspectOutreach ? "本次直接触达这位潜客" : mode === PRIVATE_OUTREACH_MODES.ALL_FOUND ? "这次触达哪些找到的人" : "这次触达哪些潜客"),
       el("div", "sb-as-private-source-copy", mode === PRIVATE_OUTREACH_MODES.ALL_FOUND
         ? "系统已按当前账号筛出所有尚未触达的找到的人，你可以按这次需求自由勾选。"
-        : "系统已按当前账号筛出客户分析员确认的待确认触达潜客，默认全部纳入本次触达。")
+        : inlineProspectOutreach
+          ? "这位用户已通过找人和分析链路确认，默认直接纳入本次首轮私信。"
+          : "系统已按当前账号筛出客户分析员确认的待确认触达潜客，默认全部纳入本次触达。")
     );
     sourceHead.appendChild(sourceCopy);
-    if (mode === PRIVATE_OUTREACH_MODES.PROSPECTS) {
+    if (mode === PRIVATE_OUTREACH_MODES.PROSPECTS && !inlineProspectOutreach) {
       const choose = el("button", "sb-as-private-source-tool", ready.length ? "重新选择" : "去成果中心选择");
       choose.type = "button";
       choose.addEventListener("click", openProspectSelectionForOutreach);
@@ -6101,7 +6209,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       });
       flow.analysisResult = { ...result, artifacts: [...(Array.isArray(result.artifacts) ? result.artifacts : []), artifact] };
       agentResultRecorder.record({ ...flow.analysisResult, agentName: agent.name });
-      finishWork(agent.id, result.summary);
+      finishWork(agent.id, result.summary, { taskId: flow.taskId, taskRunId: flow.taskRunId, suppressCompletionNotification: true });
     } catch (error) {
       flow.error = { message: error.message || "账号分析失败" };
       reportWorkError(agent.id, flow.error.message);
@@ -6289,6 +6397,16 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     flow.liveDanmakuSignals = ["danmaku"];
     flow.approvalMode = "auto";
     flow.touchChannel = "private_message";
+    const settings = normalizeLiveDanmakuOutreachSettings(flow);
+    flow.liveDanmakuOutreachGoal = settings.goal;
+    flow.liveDanmakuOutreachMessage = flow.liveDanmakuOutreachMessage
+      ?? flow.outreachMessage
+      ?? flow.configuration?.touchContent?.message
+      ?? flow.configuration?.contentPolicy?.strategy
+      ?? flow.configuration?.contentPolicy?.template
+      ?? "";
+    flow.maxTouchesPerDay = null;
+    flow.minIntervalMinutes = settings.minIntervalMinutes;
     const accounts = flow.authorizedAccounts || [];
     const loading = Boolean(flow.authorizing || flow.requesting || flow.starting);
     const shell = el("div", "sb-as-gold-shell sb-as-live-outreach-shell");
@@ -6299,7 +6417,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const heroCopy = el("div", "sb-as-gold-hero-copy");
     heroCopy.append(
       el("h1", "sb-as-gold-title", "我来接住直播间的新客户"),
-      el("p", "sb-as-gold-subtitle", "连接账号后，我会向直播间里尚未成交的用户发送触达信息，内容和策略由大模型自主决定，帮助你持续促进转化。")
+      el("p", "sb-as-gold-subtitle", "连接账号后，我会根据你设定的触达目的，向当前直播间的新弹幕用户发出首次私信；不填写开场消息时，内容和策略由大模型自主决定，帮助你持续促进转化。")
     );
     hero.append(heroMark, heroCopy);
     shell.appendChild(hero);
@@ -6308,6 +6426,87 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     shell.appendChild(account);
     if (flow.authorizing || ["starting", "opening", "waiting_login"].includes(flow.authPhase)) shell.appendChild(buildCloudAuthorizationStatus(flow));
     if (flow.authError) shell.appendChild(el("div", "sb-as-use-notice is-error sb-as-live-outreach-error", flow.authError));
+
+    const config = el("section", "sb-as-live-outreach-config");
+    const configHead = el("div", "sb-as-live-outreach-config-head");
+    configHead.append(
+      el("strong", null, "告诉我这次怎么触达"),
+      el("span", null, "目的必填，其余设置都可以留给我")
+    );
+    config.appendChild(configHead);
+    const configGrid = el("div", "sb-as-live-outreach-config-grid");
+    const purposeColumn = el("div", "sb-as-live-outreach-config-field");
+    const purposeLabel = el("span", null, "这次触达是为了什么？");
+    purposeLabel.appendChild(el("em", null, "*"));
+    const purpose = document.createElement("textarea");
+    purpose.className = "sb-as-live-outreach-purpose";
+    purpose.rows = 2;
+    purpose.required = true;
+    purpose.setAttribute("aria-label", "直播间触达目的");
+    purpose.value = flow.liveDanmakuOutreachGoal;
+    purpose.placeholder = "例如：承接用户咨询，并引导有兴趣的人留下联系方式";
+    purpose.addEventListener("input", () => {
+      flow.liveDanmakuOutreachGoal = purpose.value;
+      flow.setupError = null;
+    });
+    purposeColumn.append(purposeLabel, purpose);
+    const purposeSuggestions = el("div", "sb-as-live-outreach-suggestions");
+    purposeSuggestions.appendChild(el("span", null, "可以直接选"));
+    [
+      ["承接咨询", "承接用户在直播间提出的问题，邀请他继续了解商品。"],
+      ["获取线索", "先回应用户兴趣，再自然引导用户留下联系方式。"],
+      ["引导预约", "围绕用户需求沟通，推动预约、到店或下一步咨询。"]
+    ].forEach(([label, value]) => {
+      const suggestion = el("button", "sb-as-live-outreach-suggestion", label);
+      suggestion.type = "button";
+      suggestion.addEventListener("click", () => {
+        flow.liveDanmakuOutreachGoal = value;
+        flow.setupError = null;
+        render();
+      });
+      purposeSuggestions.appendChild(suggestion);
+    });
+    purposeColumn.appendChild(purposeSuggestions);
+    purposeColumn.appendChild(el("small", null, "它会作为 AI 生成和判断是否需要人工接管的业务目标。"));
+    configGrid.appendChild(purposeColumn);
+
+    const frequency = el("div", "sb-as-live-outreach-frequency");
+    const messageField = el("label", "sb-as-live-outreach-config-field");
+    messageField.append(el("span", null, "自定义开场消息（可选）"));
+    const message = document.createElement("textarea");
+    message.className = "sb-as-live-outreach-message";
+    message.rows = 2;
+    message.setAttribute("aria-label", "直播间触达开场消息");
+    message.value = flow.liveDanmakuOutreachMessage || "";
+    message.placeholder = LIVE_DANMAKU_OUTREACH_DEFAULT_MESSAGE;
+    message.addEventListener("input", () => {
+      flow.liveDanmakuOutreachMessage = message.value;
+      flow.setupError = null;
+    });
+    messageField.appendChild(message);
+    frequency.appendChild(messageField);
+    const frequencyRow = el("div", "sb-as-live-outreach-frequency-row");
+    const intervalField = el("label");
+    intervalField.appendChild(el("span", null, "每条消息间隔"));
+    const interval = document.createElement("select");
+    interval.setAttribute("aria-label", "每条消息间隔");
+    [[0, "收到弹幕后立即发送"], [1, "间隔 1 分钟"], [3, "间隔 3 分钟"], [5, "间隔 5 分钟"], [15, "间隔 15 分钟"]].forEach(([value, label]) => {
+      const option = el("option", null, label);
+      option.value = String(value);
+      interval.appendChild(option);
+    });
+    interval.value = String(flow.minIntervalMinutes);
+    interval.addEventListener("change", () => { flow.minIntervalMinutes = Number(interval.value); });
+    intervalField.appendChild(interval);
+    frequencyRow.appendChild(intervalField);
+    frequency.appendChild(frequencyRow);
+    frequency.appendChild(el("small", null, "每位用户只触达一次；当平台提示当前账号达到私信触达额度时，自动暂停并通知你。"));
+    configGrid.appendChild(frequency);
+    config.appendChild(configGrid);
+    const configNote = el("div", "sb-as-live-outreach-config-note");
+    configNote.append(el("i", null, "i"), el("span", null, "触达数量由当前抖音账号的实际可用额度决定，不在这里预设固定上限；直播间范围、触达渠道和风险转人工规则保持固定。"));
+    config.appendChild(configNote);
+    shell.appendChild(config);
 
     const automation = el("section", "sb-as-live-outreach-automation");
     const automationHead = el("div", "sb-as-live-outreach-automation-head");
@@ -6331,7 +6530,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     automation.append(automationHead, automationList);
     shell.appendChild(automation);
     const scope = el("div", "sb-as-live-outreach-scope");
-    scope.append(el("i", null, "✓"), el("span", null, "范围已经固定：仅针对当前直播间的新弹幕，不读取点赞、送礼、关注或进场信号，也不判断成交状态或购买意向。"));
+    scope.append(el("i", null, "✓"), el("span", null, `范围已经固定：${LIVE_DANMAKU_OUTREACH_SCOPE} 不读取点赞、送礼、关注或进场信号。`));
     shell.appendChild(scope);
 
     if (flow.setupError) shell.appendChild(el("div", "sb-as-use-notice is-error sb-as-live-outreach-error", flow.setupError));
@@ -6367,12 +6566,12 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const collection = flow.resultSnapshot?.collectionSnapshot || flow.taskSnapshot?.resultSnapshot?.collectionSnapshot || flow.taskSnapshot?.collectionSnapshot || {};
     const completed = taskState === "completed" || taskState === "succeeded" || Boolean(analysis && collection.state === "ended");
     const counts = analysis?.counts || flow.resultSnapshot?.counts || flow.taskSnapshot?.counts || {};
-    const title = stopped ? "直播间弹幕分析已关闭" : failed ? "直播间弹幕分析异常" : requiresAuthorization ? "需要重新连接抖音账号" : paused ? "直播间弹幕分析已暂停" : completed ? "直播间弹幕分析报告已完成" : "直播间弹幕采集中";
+    const title = stopped ? "直播间弹幕分析已关闭" : failed ? "直播间弹幕分析异常" : requiresAuthorization ? "需要重新连接抖音账号" : paused ? "直播间弹幕分析已暂停" : completed ? "直播间优化策略已完成" : "直播间弹幕采集中";
     const copy = failed
       ? taskError?.message || "直播间弹幕分析任务运行失败"
       : requiresAuthorization
         ? resumeBlocked.message || "账号重新连接后，会从上次进度继续。"
-        : completed ? `监听账号：${flow.account || "已授权账号"} · 直播已结束，已基于整场弹幕生成报告` : `监听账号：${flow.account || "已授权账号"} · 持续采集直播间弹幕，直播结束后统一分析`;
+        : completed ? `监听账号：${flow.account || "已授权账号"} · 直播已结束，已基于整场用户反馈生成下一场优化策略` : `监听账号：${flow.account || "已授权账号"} · 持续采集直播间弹幕，直播结束后统一分析`;
     panel.append(el("div", "sb-as-use-panel-title", title), el("div", "sb-as-use-panel-copy", copy));
     if (flow.liveDanmakuGoal) panel.appendChild(el("div", "sb-as-use-notice", `分析目标：${flow.liveDanmakuGoal}`));
     if (taskError && !failed) panel.appendChild(el("div", "sb-as-use-notice is-error", taskError.message || "部分数据源暂不可用"));
@@ -6391,7 +6590,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const checks = el("div", "sb-as-use-checklist");
     const sourceStates = flow.taskSnapshot?.lastScan?.sources || flow.resultSnapshot?.sources || {};
     const hasLiveSource = ["available", "ready", "received", "receiving", "ended"].includes(sourceStates.live?.state);
-    [["已连接授权账号", Boolean(flow.accountId) && !requiresAuthorization], ["持续采集整场直播弹幕", Boolean(collection.totalDanmaku || hasLiveSource || (!failed && !stopped))], ["直播结束后统一 AI 分析", completed], ["报告已发送到成员对话和文件中心", completed]].forEach(([label, done]) => {
+    [["已连接授权账号", Boolean(flow.accountId) && !requiresAuthorization], ["持续采集整场直播弹幕", Boolean(collection.totalDanmaku || hasLiveSource || (!failed && !stopped))], ["直播结束后统一生成优化策略", completed], ["策略已发送到成员对话和文件中心", completed]].forEach(([label, done]) => {
       const row = el("div", `sb-as-use-check${done ? " is-done" : " is-active"}`);
       row.append(el("i", null, done ? "✓" : "·"), el("span", null, label));
       checks.appendChild(row);
@@ -6400,7 +6599,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
     if (Object.keys(counts).length) {
       const result = el("div", "sb-as-use-result sb-as-live-danmaku-result");
-      [[collection.totalDanmaku ?? counts.danmaku ?? 0, "整场弹幕", "accent"], [collection.uniqueUsers ?? counts.uniqueUsers ?? 0, "互动用户", ""], [completed ? counts.highIntent ?? 0 : "—", completed ? "明确需求" : "直播结束后分析", "accent"]].forEach(([value, label, className]) => {
+      [[collection.totalDanmaku ?? counts.danmaku ?? 0, "整场弹幕", "accent"], [collection.uniqueUsers ?? counts.uniqueUsers ?? 0, "互动用户", ""], [completed ? (analysis?.optimization?.priorityTopics?.length || 0) : "—", completed ? "优化重点" : "直播结束后分析", "accent"]].forEach(([value, label, className]) => {
         const item = el("div");
         item.append(el("strong", className, String(value)), el("span", null, label));
         result.appendChild(item);
@@ -6410,7 +6609,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
     if (completed && analysis?.topics?.length) {
       const topicSection = el("section", "sb-as-live-danmaku-section");
-      topicSection.appendChild(el("strong", null, "高频主题"));
+      topicSection.appendChild(el("strong", null, "高频主题与转化阻力"));
       analysis.topics.forEach((topic) => {
         const row = el("div", "sb-as-use-notice");
         row.append(el("strong", null, `${topic.label} · ${topic.count} 条`), el("div", null, topic.examples?.join("；") || "暂无原始表达"));
@@ -6419,21 +6618,14 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       panel.appendChild(topicSection);
     }
 
-    if (completed && analysis?.users?.length) {
-      const userSection = el("section", "sb-as-live-danmaku-section");
-      userSection.appendChild(el("strong", null, "用户互动与意向"));
-      analysis.users.slice(0, 30).forEach((user) => {
-        const row = el("div", "sb-as-use-notice");
-        const evidence = (user.evidence || []).filter((item) => item.quote).slice(-2).map((item) => item.quote).join("；");
-        row.append(
-          el("strong", null, `${user.nickname || "抖音用户"} · ${user.intentTier || "待分析"}`),
-          el("div", null, `弹幕 ${user.danmakuCount || 0}${evidence ? ` · ${evidence}` : ""}`)
-        );
-        userSection.appendChild(row);
-      });
-      panel.appendChild(userSection);
+    if (completed && analysis?.optimization) {
+      const strategySection = el("section", "sb-as-live-danmaku-section");
+      strategySection.appendChild(el("strong", null, "下一场直播优化策略"));
+      if (analysis.optimization.headline) strategySection.appendChild(el("div", "sb-as-use-notice", analysis.optimization.headline));
+      (analysis.optimization.nextLiveActions || []).slice(0, 5).forEach((action) => strategySection.appendChild(el("div", "sb-as-use-notice", action)));
+      panel.appendChild(strategySection);
     }
-    panel.appendChild(el("div", "sb-as-use-notice", "本 Agent 会持续采集直播间弹幕；直播结束后，基于整场弹幕统一生成 AI 分析报告，不负责私信触达。"));
+    panel.appendChild(el("div", "sb-as-use-notice", "本 Agent 会持续采集直播间弹幕；直播结束后，基于整场用户反馈生成下一场直播优化策略，不负责私信触达或用户跟进排序。"));
 
     const actions = el("div", "sb-as-use-actions");
     if (failed) {
@@ -6466,6 +6658,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const requiresAuthorization = resumeBlocked?.reason === "authorization_required";
     const taskError = flow.error || flow.taskSnapshot?.lastError || null;
     const snapshot = flow.taskSnapshot || {};
+    const outreachSettings = normalizeLiveDanmakuOutreachSettings({
+      ...flow,
+      configuration: flow.configuration || snapshot.configuration || snapshot.config || null
+    });
     const counts = snapshot.counts || flow.resultSnapshot?.counts || {};
     const sources = snapshot.lastScan?.sources || flow.resultSnapshot?.sources || {};
     const hasLiveSource = ["available", "ready", "received", "receiving", "waiting"].includes(String(sources.live?.state || "").toLowerCase());
@@ -6488,6 +6684,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         ? resumeBlocked.message || "账号重新连接后，会从上次进度继续。"
         : `监听账号：${flow.account || "已授权账号"} · 当前直播间新弹幕会直接进入首次私信触达`;
     panel.append(el("div", "sb-as-use-panel-title", title), el("div", "sb-as-use-panel-copy", copy));
+    panel.appendChild(el("div", "sb-as-use-notice", `本次触达目的：${outreachSettings.goal}`));
     if (taskError && !failed) panel.appendChild(el("div", "sb-as-use-notice is-error", taskError.message || "部分数据源暂不可用"));
     if (failed) panel.appendChild(el("div", "sb-as-use-notice is-error", `${taskError?.message || "任务异常"}${taskError?.code ? `（${taskError.code}）` : ""}`));
     if (requiresAuthorization) panel.appendChild(el("div", "sb-as-use-notice", resumeBlocked.message || "账号重新连接后，会从上次进度继续。"));
@@ -6869,7 +7066,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           resultSnapshot: realtimeSnapshot
         }
       });
-      finishWork(agent.id, flow.viralWorkAnalysis.summary || "爆款作品分析报告", { taskId: flow.taskId, taskRunId: flow.taskRunId });
+      finishWork(agent.id, flow.viralWorkAnalysis.summary || "爆款作品分析报告", { taskId: flow.taskId, taskRunId: flow.taskRunId, suppressCompletionNotification: true });
       pushActivity(agent.id, flow.status === "partial" ? "作品数据已读取，评论数据部分可用，报告已生成。" : "爆款作品分析已完成，报告已同步到成果中心和文件中心。");
     } catch (error) {
       flow.status = "failed";
@@ -7098,9 +7295,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   }
 
   function publicFinderTargetText(flow) {
-    const preset = selectedChoiceLabels(flow, "finderPublicPurpose").join("、");
-    const custom = String(flow.publicFinderQuery || "").trim();
-    return [preset, custom].filter(Boolean).join("；");
+    return String(flow.publicFinderQuery || "").trim();
   }
 
   function hasPublicFinderTarget(flow) {
@@ -7109,9 +7304,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
   function publicFinderNeedsBusinessAccount(flow = {}) {
     return needsPublicFinderBusinessAccount({
-      purposeIds: flow.taskChoices?.finderPublicPurpose?.selected,
-      query: flow.publicFinderQuery,
-      goal: flow.finderGoal
+      query: flow.publicFinderQuery
     });
   }
 
@@ -7186,27 +7379,42 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
   function renderPublicFinderBrief(panel, flow, { onChange = () => {} } = {}) {
     const brief = el("section", "sb-public-finder-brief");
-    const customGoal = document.createElement("details");
-    customGoal.className = "sb-public-finder-custom-goal";
-    customGoal.open = Boolean(flow.publicFinderQuery);
-    const customSummary = document.createElement("summary");
-    const customCopy = el("span", "sb-public-finder-context-copy");
-    customCopy.append(
-      el("strong", null, "没有合适的目标？补充自定义描述"),
-      el("small", null, "可写行业、内容方向、所在地、活跃度或合作诉求")
+    const heading = el("div", "sb-public-finder-brief-heading");
+    heading.append(
+      el("strong", null, "直接告诉我你想找什么人"),
+      el("span", null, "不用先选分类。把行业、产品、城市、需求或合作方式直接说出来。")
     );
-    customSummary.appendChild(customCopy);
-    const customBody = el("div", "sb-public-finder-custom-goal-body");
-    const customField = el("label", "sb-public-finder-field");
-    customField.appendChild(el("span", "sb-public-finder-label", "自定义找人目标（选填）"));
+    const customField = el("label", "sb-public-finder-field sb-public-finder-goal-field");
+    customField.appendChild(el("span", "sb-public-finder-label", "找人需求"));
     const goal = document.createElement("textarea");
-    goal.rows = 3;
+    goal.rows = 4;
     goal.value = flow.publicFinderQuery || "";
-    goal.placeholder = "例如：找上海近期稳定更新、适合家居内容联动的创作者";
-    goal.setAttribute("aria-label", "自定义找人目标（选填）");
+    goal.placeholder = "例如：找公开表达过购买、询价或试驾需求的上海新能源 SUV 用户";
+    goal.setAttribute("aria-label", "找人需求");
     customField.appendChild(goal);
-    customBody.appendChild(customField);
-    customGoal.append(customSummary, customBody);
+    const promptLabel = el("div", "sb-public-finder-prompt-label", "可以这样说");
+    const prompts = el("div", "sb-public-finder-prompts");
+    const quickPrompts = [
+      ["明确购买需求", "找公开表达过购买、询价或比较需求的人"],
+      ["内容合作", "找持续发布相关内容、适合合作的创作者"],
+      ["本地商家", "找上海正在经营的家居门店或装修服务商"],
+      ["行业账号", "找新能源 SUV 行业里的品牌、商家或同行账号"]
+    ];
+    quickPrompts.forEach(([label, prompt]) => {
+      const button = el("button", "sb-public-finder-prompt", label);
+      button.type = "button";
+      button.title = prompt;
+      button.dataset.publicFinderPrompt = "true";
+      button.addEventListener("click", () => {
+        goal.value = prompt;
+        flow.publicFinderQuery = prompt;
+        syncCompositeFinderFlow(flow);
+        onChange();
+        goal.focus();
+      });
+      prompts.appendChild(button);
+    });
+    brief.append(heading, customField, promptLabel, prompts);
 
     const limit = el("label", "sb-public-finder-limit");
     limit.appendChild(el("span", "sb-public-finder-label", "希望找到多少个账号？"));
@@ -7283,7 +7491,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
     contextBody.append(businessField, referenceField);
     accountContext.append(contextSummary, contextBody);
-    brief.append(customGoal, limit, accountContext);
+    brief.append(limit, accountContext);
     panel.appendChild(brief);
 
     const controls = { accountContext, contextTitle, contextSubtitle, businessField, businessLabel, businessAccount, businessHint, resolve };
@@ -7410,7 +7618,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const steps = el("div", "sb-composite-finder-steps");
     const publicFinder = flow.compositeFinderSource === "public";
     if (publicFinder) steps.classList.add("is-public");
-    const stepLabels = publicFinder ? ["来源", "找人条件"] : ["来源", "互动范围"];
+    const stepLabels = publicFinder ? ["来源", "需求"] : ["来源", "互动范围"];
     const stepIndex = step === "source" ? 0 : 1;
     stepLabels.forEach((label, index) => {
       const current = index === stepIndex;
@@ -7434,7 +7642,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         {
           value: "public",
           title: "公域找人",
-          copy: "从公开资料中找创作者、同行、活跃账号或目标人群"
+          copy: "从公开资料中找符合你描述的人、账号或商家"
         }
       ];
       const sourceButtons = [];
@@ -7475,8 +7683,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
     if (flow.compositeFinderSource === "public") {
       panel.append(
-        el("div", "sb-as-use-panel-title", "设置找人条件"),
-        el("div", "sb-as-use-panel-copy", "先选一个找人目标；如果要找竞品或同行，必须提供自己的抖音账号主页链接。")
+        el("div", "sb-as-use-panel-title", "告诉我你要找谁"),
+        el("div", "sb-as-use-panel-copy", "直接描述目标，系统只根据你的需求和公开资料搜索；不需要先绑定账号。若要找同行或竞品，会再要求提供账号作为参照。")
       );
       let publicFinderBrief = null;
       const syncPublicFinderStart = () => {
@@ -7484,19 +7692,6 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         const start = panel.querySelector("[data-choice-start]");
         if (start) start.disabled = !publicFinderCanStart(flow);
       };
-      const purpose = mountTaskChoices(panel, {
-        flow,
-        group: "finderPublicPurpose",
-        field: "compositeFinderPurpose",
-        title: "先选择找人目标",
-        filters: false,
-        allowFreeText: false,
-        onChange: () => {
-          syncCompositeFinderFlow(flow);
-          syncPublicFinderStart();
-        }
-      });
-      purpose.element.classList.add("sb-public-finder-targets");
       publicFinderBrief = renderPublicFinderBrief(panel, flow, {
         onChange: syncPublicFinderStart
       });
@@ -8379,7 +8574,20 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         sourceContext: { source: "客户分析员", sourceScope: flow.sourceScope, sourceResultId: flow.sourceResultId, accountId: flow.accountId }
       });
       prospectStore.updateRun?.(flow.taskId, { resultSnapshot: flow.resultSnapshot });
-      prospectStore.applyIntentAnalysis({ leads: flow.resultSnapshot.leads || [], resultSnapshot: flow.resultSnapshot, taskId: flow.taskId, agentId: agent.id, agentName: identity.name, sourceResultId: flow.sourceResultId, sourceTaskId: flow.sourceTaskId });
+      prospectStore.applyIntentAnalysis({
+        leads: flow.resultSnapshot.leads || [],
+        resultSnapshot: flow.resultSnapshot,
+        taskId: flow.taskId,
+        agentId: agent.id,
+        agentName: identity.name,
+        sourceResultId: flow.sourceResultId,
+        sourceTaskId: flow.sourceTaskId,
+        sourceScope: flow.sourceScope,
+        sourceAccountId: flow.sourceAccountId || flow.accountId,
+        sourceAccountName: flow.sourceAccountName || flow.accountName || flow.account,
+        sourceResultType: flow.sourceResultType || "互动用户",
+        sourceCandidates: selected
+      });
       updateWork(agent.id, {
         phase: "已完成意向判断",
         progress: 100,
@@ -8416,7 +8624,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const { name } = presentationOf(agent);
     setPageHeaderVisible(true);
     const inboxIntake = isInboxIntakeFlow(agent, flow);
-    if (flow.step === "review" && (inboxIntake || isCommentAcquisitionAgent(agent) || isCommentScreeningAgent(agent) || isLiveLeadAgent(agent) || isLiveDanmakuAnalysisAgent(agent) || isLiveDanmakuOutreachAgent(agent) || isViralWorkAnalysisAgent(agent))) flow.step = "setup";
+    if (flow.step === "review" && (inboxIntake || isCommentAcquisitionAgent(agent) || isLiveDanmakuAnalysisAgent(agent) || isLiveDanmakuOutreachAgent(agent) || isViralWorkAnalysisAgent(agent))) flow.step = "setup";
     if (flow.step === "starting" && inboxIntake) flow.step = "setup";
     const taskCompose = flow.step === "setup" && isCommentAcquisitionAgent(agent) && !inboxIntake;
     page.setTitle(name);
@@ -8435,19 +8643,13 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const panel = el("div", taskCompose ? "sb-as-use-panel sb-as-task-compose-panel" : "sb-as-use-panel");
     if (flow.step === "setup") {
       if (inboxIntake) renderInboxSetup(panel, flow);
-      else if (isAccountAnalysisFlow(agent, flow)) {
-        if (isIntentAnalystAgent(agent)) renderStandaloneUserAnalysisSetup(panel, flow);
-        else renderAccountAnalysisSetup(panel, flow);
-      }
+      else if (isAccountAnalysisFlow(agent, flow)) renderAccountAnalysisSetup(panel, flow);
       else if (isIntentAnalystAgent(agent)) renderIntentAnalystSetup(panel, flow);
       else if (isLiveDanmakuAnalysisAgent(agent)) renderLiveDanmakuAnalysisSetup(panel, flow);
       else if (isLiveDanmakuOutreachAgent(agent)) renderLiveDanmakuOutreachSetup(panel, flow);
       else if (isViralWorkAnalysisAgent(agent)) renderViralWorkAnalysisSetup(panel, flow);
       else if (isCommentAcquisitionAgent(agent)) renderCommentAcquisitionSetup(panel, flow);
-      else if (isCommentScreeningAgent(agent)) renderCommentLeadMinerSetup(panel, flow, agent);
       else if (isPrivateOutreachAgent(agent)) renderPrivateOutreachSetup(panel, flow);
-      else if (isUserResearchAgent(agent)) renderUserResearchSetup(panel, flow);
-      else if (isDouyinFinderAgent(agent)) renderDouyinFinderSetup(panel, flow);
       else {
         panel.append(el("div", "sb-as-use-panel-title", "配置这次找人任务"), el("div", "sb-as-use-panel-copy", "告诉 Agent 要分析哪个账号、什么时间范围和什么需求信号。"));
         const fields = el("div", "sb-as-use-fields");
@@ -8461,9 +8663,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         const actions = el("div", "sb-as-use-actions"); const cancel = el("button", null, "返回 Agent市场"); cancel.type = "button"; cancel.addEventListener("click", leaveUseFlow); const next = el("button", "primary", "生成执行方案"); next.type = "button"; next.addEventListener("click", () => { if (!flow.product.trim()) { product.focus(); return; } flow.step = "review"; render(); }); actions.append(cancel, next); panel.appendChild(actions);
       }
     } else if (flow.step === "review") {
-      if (isCommentScreeningAgent(agent)) renderCommentLeadMinerReview(panel, flow, agent);
-      else if (isPrivateOutreachAgent(agent)) renderPrivateOutreachReview(panel, flow);
-      else if (isUserResearchAgent(agent)) renderUserResearchReview(panel, flow);
+      if (isPrivateOutreachAgent(agent)) renderPrivateOutreachReview(panel, flow);
       else {
         panel.append(el("div", "sb-as-use-panel-title", "确认执行方案"), el("div", "sb-as-use-panel-copy", "执行后会读取公开内容并保留原文、链接和时间；不会自动向用户发送消息。"));
         const summary = el("div", "sb-as-use-summary"); [["目标账号", flow.account], ["数据来源", flow.source], ["时间范围", flow.window], ["筛选目标", flow.product], ["过滤规则", flow.rules], ["结果去向", "成果中心 · 潜客分类"]].forEach(([label, value]) => { const item = el("div", "sb-as-use-summary-item"); item.append(el("span", null, label), el("strong", null, value)); summary.appendChild(item); }); panel.appendChild(summary);
@@ -8479,14 +8679,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       else if (isLiveDanmakuAnalysisAgent(agent)) renderLiveDanmakuAnalysisRunning(panel, flow);
       else if (isLiveDanmakuOutreachAgent(agent)) renderLiveDanmakuOutreachRunning(panel, flow);
       else if (isViralWorkAnalysisAgent(agent)) renderViralWorkAnalysisRunning(panel, flow);
-      else if (isCommentFilterAgent(agent)) renderCommentFilterRunning(panel, flow);
       else if (isCompositeFinderAgent(agent) && isFinderListenerFlow(agent, flow)) renderCommentAcquisitionRunning(panel, flow);
       else if (isCompositeFinderAgent(agent)) renderFinderSpecialistWorksite(panel, flow);
       else if (isLongRunningAcquisitionAgent(agent)) renderCommentAcquisitionRunning(panel, flow);
-      else if (isCommentLeadMiner(agent)) renderCommentLeadMinerRunning(panel, flow);
       else if (isPrivateOutreachAgent(agent)) renderOutreachSpecialistWorksite(panel, flow);
-      else if (isUserResearchAgent(agent)) renderUserResearchRunning(panel, flow);
-      else if (isDouyinFinderAgent(agent)) renderFinderSpecialistWorksite(panel, flow);
       else {
         panel.append(el("div", "sb-as-use-panel-title", "Agent 正在执行"), el("div", "sb-as-use-panel-copy", `${flow.account} · ${flow.source} · ${flow.product}`));
         const progress = el("div", "sb-as-use-progress"); const bar = el("i"); bar.style.width = `${flow.progress}%`; progress.appendChild(bar); panel.appendChild(progress); const meta = el("div", "sb-as-use-progress-meta"); meta.append(el("span", null, flow.progress < 100 ? "实时执行中" : "已完成"), el("span", null, `${flow.progress}%`)); panel.appendChild(meta);
@@ -8771,7 +8967,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       counts,
       collection,
       topics: (analysis?.topics || []).map((topic) => [topic.key, topic.count]),
-      users: items.map((user) => [user.userId, user.intentTier, user.danmakuCount])
+      users: items.map((user) => [user.userId, user.danmakuCount, user.topics])
     });
     if (signature === flow.lastRecordedLiveDanmakuSignature) return null;
     flow.lastRecordedLiveDanmakuSignature = signature;
@@ -8862,6 +9058,11 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     flow.taskState = "configuring";
     flow.taskId ||= newTaskId("live-danmaku-outreach");
     flow.taskRunId ||= newTaskId("run");
+    const outreachSettings = normalizeLiveDanmakuOutreachSettings(flow);
+    flow.liveDanmakuOutreachGoal = outreachSettings.goal;
+    flow.liveDanmakuOutreachMessage = outreachSettings.message;
+    flow.maxTouchesPerDay = outreachSettings.dailyMax;
+    flow.minIntervalMinutes = outreachSettings.minIntervalMinutes;
     let account = authorizedAccount;
     try {
       if (!account) account = await verifyAcquisitionAuthorization(executionAgentId);
@@ -8873,7 +9074,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       const payload = buildLiveDanmakuOutreachTaskPayload({ ...flow, conversationId: `agent-square-${flow.taskId}` });
       flow.configuration = structuredClone(payload.config);
       beginWork(agentId, {
-        task: "持续触达直播间每一位发弹幕的用户",
+        task: outreachSettings.goal,
         phase: "创建直播间弹幕触达任务",
         projectId: null,
         metadata: {
@@ -8890,7 +9091,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           configuration: payload.config
         }
       });
-      pushActivity(agentId, "正在接入授权账号的当前直播间；每条新弹幕都会进入首次私信触达，不做成交或意向判断。 ");
+      pushActivity(agentId, `正在接入授权账号的当前直播间；本次目的：${outreachSettings.goal} `);
       persistCloudTask(flow, { phase: "creating", taskId: flow.taskId, taskRunId: flow.taskRunId, taskState: "configuring", longRunning: true, sourceScope: "authorized_account_live", analysisKind: "live_danmaku_outreach" });
       render();
       const started = await executeCoreAgent({
@@ -8900,7 +9101,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         accountUseScope: agentId,
         accountName: flow.account || account?.name || "",
         accountKey: flow.accountWorkKey || flow.accountId,
-        goal: "直播间出现弹幕的用户都进入首次私信触达，不判断成交状态或购买意向。",
+        goal: outreachSettings.goal,
         config: payload.config
       }, 300000);
       const snapshot = started?.resultSnapshot || {};
@@ -8917,7 +9118,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       flow.duplicateTask = snapshot.existing === true;
       persistCloudTask(flow, { phase: "running", taskKey: flow.taskKey, taskId: flow.taskId, taskRunId: flow.taskRunId, taskState: flow.taskState, duplicateOfExistingTask: flow.duplicateTask, longRunning: true, sourceScope: "authorized_account_live", analysisKind: "live_danmaku_outreach" });
       updateWork(agentId, { phase: flow.duplicateTask ? "已切换到现有触达任务" : "直播间弹幕触达中", metadata: { progressSource: "none", taskId: flow.taskId, taskRunId: flow.taskRunId, taskKey: flow.taskKey, taskState: flow.taskState, longRunning: true, sourceScope: "authorized_account_live", analysisKind: "live_danmaku_outreach", liveSignals: ["danmaku"], configuration: payload.config } });
-      pushActivity(agentId, flow.duplicateTask ? "检测到同一账号已有直播间弹幕触达任务，已切换到现有任务。" : "直播间弹幕触达任务已启动，每条新弹幕会进入首次私信触达。 ");
+      pushActivity(agentId, flow.duplicateTask ? "检测到同一账号已有直播间弹幕触达任务，已切换到现有任务。" : `直播间弹幕触达任务已启动，本次目的：${outreachSettings.goal}`);
       pollCommentAcquisitionTask(agent, flow);
       render();
       void globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({ selectedAgentId: agentId, taskId: flow.taskId, taskRunId: flow.taskRunId, accountId: flow.accountId || null, accountKey: flow.accountWorkKey || flow.accountId || null }));
@@ -9191,6 +9392,14 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       flow.liveDanmakuSignals = ["danmaku"];
       flow.approvalMode = "auto";
       flow.touchChannel = "private_message";
+      const outreachSettings = normalizeLiveDanmakuOutreachSettings({
+        ...flow,
+        configuration: flow.configuration || result.configuration || result.config || null
+      });
+      flow.liveDanmakuOutreachGoal = outreachSettings.goal;
+      flow.liveDanmakuOutreachMessage = outreachSettings.message;
+      flow.maxTouchesPerDay = outreachSettings.dailyMax;
+      flow.minIntervalMinutes = outreachSettings.minIntervalMinutes;
     }
     if (["error", "stopped", "completed", "succeeded"].includes(flow.taskState)) flow.running = false;
     flow.error = flow.taskState === "error" ? (result.error || result.lastError || { code: "ACQUISITION_TASK_ERROR", message: "长期任务运行异常" }) : null;
@@ -9269,6 +9478,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           : flow.taskSnapshot?.config && typeof flow.taskSnapshot.config === "object"
             ? structuredClone(flow.taskSnapshot.config)
             : {};
+        const outreachSettings = normalizeLiveDanmakuOutreachSettings({ ...flow, configuration });
         const started = await executeCoreAgent({
           agentId: flow.agentId,
           taskId: persistedTaskId,
@@ -9281,7 +9491,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           accountName: flow.account || "",
           accountIdentity: flow.accountIdentity || flow.taskSnapshot?.accountIdentity || null,
           goal: liveDanmakuOutreach
-            ? "直播间出现弹幕的用户都进入首次私信触达，不判断成交状态或购买意向。"
+            ? outreachSettings.goal
             : liveDanmakuAnalysis
             ? flow.liveDanmakuGoal || "梳理直播间高频问题、用户需求、购买意向和反对点。"
             : finderListener
@@ -9303,11 +9513,24 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
                 liveSignals: ["danmaku"],
                 touchChannel: "private_message",
                 approvalMode: "auto",
+                audienceRules: {
+                  ...(configuration.audienceRules && typeof configuration.audienceRules === "object" ? configuration.audienceRules : {}),
+                  goal: outreachSettings.goal,
+                  requirements: outreachSettings.goal,
+                  minScore: 0
+                },
                 contentPolicy: {
+                  ...(configuration.contentPolicy && typeof configuration.contentPolicy === "object" ? configuration.contentPolicy : {}),
                   quoteComment: false,
                   maxLength: 120,
-                  template: "看到你刚才在直播间留言了，方便说说你想了解什么吗？",
-                  strategy: "看到你刚才在直播间留言了，方便说说你想了解什么吗？"
+                  template: outreachSettings.message,
+                  strategy: outreachSettings.message,
+                  conversionGoal: outreachSettings.goal
+                },
+                caps: {
+                  ...(configuration.caps && typeof configuration.caps === "object" ? configuration.caps : {}),
+                  dailyMax: outreachSettings.dailyMax,
+                  sendIntervalMs: outreachSettings.minIntervalMinutes * 60 * 1000
                 }
               }
               : liveDanmakuAnalysis
@@ -9413,12 +9636,14 @@ async function startPrivateOutreachMock(agent, flow, targets) {
     pushActivity(agentId, `Mock 预览已模拟完成 ${result.sent} 条私信，并返回逐条成功回执。`);
     finishWork(agentId, "模拟私信发送结果");
     render();
-    void globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({
-      selectedAgentId: agentId,
-      taskId: flow.taskId,
-      accountId: flow.accountId || null,
-      accountKey: flow.accountWorkKey || null
-    }));
+    if (!embedded) {
+      void globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({
+        selectedAgentId: agentId,
+        taskId: flow.taskId,
+        accountId: flow.accountId || null,
+        accountKey: flow.accountWorkKey || null
+      }));
+    }
   }
 
   async function startPrivateOutreach(agent, flow) {
@@ -9566,7 +9791,9 @@ async function startPrivateOutreachMock(agent, flow, targets) {
     recordPrivateOutreachResult(flow);
     pushActivity(agentId, `我正在为 ${targets.length} 位目标准备真实私信触达。`);
     render();
-    void globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({ selectedAgentId: agentId, taskId: flow.taskId, accountId: flow.accountId || null, accountKey: flow.accountWorkKey || null }));
+    if (!embedded) {
+      void globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.openRealtimeWork?.({ selectedAgentId: agentId, taskId: flow.taskId, accountId: flow.accountId || null, accountKey: flow.accountWorkKey || null }));
+    }
     let outreachPriorityReserved = false;
     try {
       updateWork(agentId, {
@@ -9843,6 +10070,7 @@ async function startPrivateOutreachMock(agent, flow, targets) {
           accountId: flow.accountId || null,
           accountKey: flow.accountWorkKey || douyinAccountWorkKey(flow.accountIdentity, flow.accountId) || null,
           accountLabel: flow.account || flow.accountIdentity?.accountName || flow.accountIdentity?.nickname || null,
+          longRunning: true,
           startRequestId: flow.startRequestId
         }
       });
@@ -10682,7 +10910,8 @@ async function startPrivateOutreachMock(agent, flow, targets) {
   }
 
   const initialAgent = initialAgentId ? getMarketplaceAgent(initialAgentId) : null;
-  render();
+  if (embedded) root.appendChild(el("div", "sb-as-embedded-loading", "正在打开潜客触达专员…"));
+  else render();
   void refreshEmploymentContracts()
     .then(() => {
       employmentContractsLoaded = true;
@@ -10717,7 +10946,7 @@ async function startPrivateOutreachMock(agent, flow, targets) {
   };
   page.close = () => {
     const activeFlow = state.useFlow;
-    if (!disposed && isCloudAuthorizationPending(activeFlow)) {
+    if (!embedded && !disposed && isCloudAuthorizationPending(activeFlow)) {
       const detachedFlow = cloudResumeFlow(activeFlow);
       void recordCloudExit(activeFlow);
       closeAuthWindow(activeFlow);

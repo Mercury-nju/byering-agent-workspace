@@ -385,6 +385,80 @@ test("chief message decision endpoint returns real Agent data summaries", async 
   }
 });
 
+test("chief message decision includes acquisition runtime counters in the real data summary", async () => {
+  const acquisition = {
+    listTasks() {
+      return [{
+        key: "acquisition-runtime-counters",
+        context: {
+          agentId: "mkt-comment-acquisition",
+          taskId: "acquisition-runtime-counters",
+          taskRunId: "acquisition-runtime-run",
+          accountId: "douyin-account-1"
+        },
+        state: "completed",
+        counters: { sent: 3, replies: 2, failed: 1 },
+        events: [
+          {
+            eventId: "candidate-runtime-1",
+            type: "candidates_found",
+            occurredAt: "2026-09-15T08:00:00.000+08:00",
+            payload: { candidate: { id: "lead-runtime-1", tier: "high", score: 92 } }
+          },
+          {
+            eventId: "intent-runtime-1",
+            type: "intent_decision",
+            occurredAt: "2026-09-15T08:01:00.000+08:00",
+            payload: { candidate: { id: "lead-runtime-1", tier: "high", score: 92 } }
+          },
+          {
+            eventId: "receipt-runtime-1",
+            type: "touch_receipt",
+            occurredAt: "2026-09-15T08:02:00.000+08:00",
+            payload: { touchId: "touch-runtime-1", state: "delivered" }
+          },
+          {
+            eventId: "reply-runtime-1",
+            type: "reply_received",
+            occurredAt: "2026-09-15T08:03:00.000+08:00",
+            payload: { message: { id: "reply-runtime-1", content: "想了解价格" } }
+          }
+        ],
+        resultSnapshot: {
+          generatedAt: "2026-09-15T08:00:00.000Z",
+          summary: "完成一轮抖音获客任务",
+          counts: { candidates: 6 }
+        }
+      }];
+    }
+  };
+  const server = createControlPlaneHttpServer({
+    auth: false,
+    now: () => "2026-09-16T10:00:00.000Z",
+    controlPlane: createControlPlane({ now: () => "2026-09-16T10:00:00.000Z" }),
+    douyinAcquisitionService: acquisition
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const client = new ControlPlaneHttpClient({ baseUrl: `http://127.0.0.1:${server.address().port}` });
+  try {
+    const result = await client.action("chief.message.decide", { message: "昨天抖音获客管家的触达率怎么样？" });
+    assert.equal(result.chiefData.agents[0].agentId, "mkt-comment-acquisition");
+    assert.deepEqual(result.chiefData.agents[0].counts, {
+      candidates: 1,
+      qualified: 1,
+      sent: 1,
+      replies: 1,
+      failed: 0
+    });
+    assert.deepEqual(result.chiefData.agents[0].metrics, { touchRate: "100%", replyRate: "100%" });
+    assert.match(result.message, /触达率 100%/);
+    assert.match(result.message, /回复率 100%/);
+  } finally {
+    client.disconnect();
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
 test("control-plane HTTP client attaches an explicitly configured API key", async () => {
   const calls = [];
   const client = new ControlPlaneHttpClient({
@@ -729,6 +803,36 @@ test("browser control-plane client creates, starts, snapshots, and replays task 
       "task.requirement.confirmed",
       "task.assignment.proposed"
     ]);
+  } finally {
+    client.disconnect();
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("browser control-plane client emits durable task events after subscribing", async () => {
+  const server = createControlPlaneHttpServer({ controlPlane: createControlPlane({ requirementService: testRequirementService() }) });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  const client = new ControlPlaneHttpClient({ baseUrl: `http://127.0.0.1:${address.port}`, pollIntervalMs: 10 });
+  try {
+    await client.connect();
+    const created = await client.action("task.create", {
+      commandId: "cmd-http-subscribe-event",
+      idempotencyKey: "idem-http-subscribe-event",
+      payload: { goal: "验证事件推送" }
+    });
+    const event = new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("durable task event timed out")), 500);
+      client.on("task.event", (candidate) => {
+        if (candidate.taskId !== created.taskId || candidate.type !== "task.created") return;
+        clearTimeout(timer);
+        resolve(candidate);
+      });
+    });
+    client.subscribeTask(created.taskId);
+    const received = await event;
+    assert.equal(received.taskId, created.taskId);
+    assert.equal(received.seq, 1);
   } finally {
     client.disconnect();
     await new Promise((resolve) => server.close(resolve));

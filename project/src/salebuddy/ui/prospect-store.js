@@ -87,14 +87,13 @@ export function normalizeResultSourceScope(value) {
 export function resultSourceScope({ agentId = "", agentName = "", source = "", sourceScope = null, sourceResultType = "", resultType = "", resultSnapshot = {}, sourceContext = {} } = {}) {
   const explicit = normalizeResultSourceScope(sourceScope || sourceContext?.sourceScope || resultSnapshot?.inputs?.sourceScope || resultSnapshot?.sourceScope);
   if (explicit !== RESULT_SOURCE_SCOPES.UNKNOWN) return explicit;
-  if (sourceResultType === "抖音找人" || resultType === "抖音找人" || agentId === "mkt-douyin-finder") return RESULT_SOURCE_SCOPES.PUBLIC_SEARCH;
+  if (sourceResultType === "抖音找人" || resultType === "抖音找人") return RESULT_SOURCE_SCOPES.PUBLIC_SEARCH;
   if (agentId === "mkt-find-people") return RESULT_SOURCE_SCOPES.OWN_INTERACTIONS;
-  if (agentId === "mkt-live-lead-miner" || /直播间互动|直播间弹幕|直播找人/.test(`${source} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_LIVE;
+  if (/直播间互动|直播间弹幕|直播找人/.test(`${source} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_LIVE;
   if (agentId === "mkt-comment-acquisition") return RESULT_SOURCE_SCOPES.OWN_ALL_SIGNALS;
   if (/已授权账号|自有账号|我的账号/.test(`${source} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_INTERACTIONS;
   if (["mkt-dm-inbox", "mkt-gold-customer-service"].includes(agentId) || /私信承接|私信回复|收件箱|金牌客服/.test(`${source} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_INBOX;
-  if (agentId === "mkt-lead-miner" || agentId === "lead_miner" || /潜客挖掘|找客户|线索猎人/.test(`${agentId} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_COMMENTS;
-  if (agentId === "mkt-comment-filter" || /商品作品评论区|账号主页与粉丝列表/.test(`${source}`)) return RESULT_SOURCE_SCOPES.PUBLIC_CONTENT;
+  if (/商品作品评论区|账号主页与粉丝列表/.test(`${source}`)) return RESULT_SOURCE_SCOPES.PUBLIC_CONTENT;
   if (agentId === "mkt-cold-writer" || resultType === "触达记录") return RESULT_SOURCE_SCOPES.USER_DIRECT;
   if (/作品评论|评论区/.test(`${source} ${agentName}`) || /lead|prospect|潜客/i.test(`${agentId} ${agentName}`)) return RESULT_SOURCE_SCOPES.OWN_COMMENTS;
   return RESULT_SOURCE_SCOPES.UNKNOWN;
@@ -232,14 +231,13 @@ function resultTypeFor({ agentId, agentName, resultSnapshot = {}, sourceContext 
   const hasPayload = hasBusinessPayload(resultSnapshot);
   const collectionOnly = resultSnapshot?.analysis?.mode === "collect" || resultSnapshot?.inputs?.analysisMode === "collect";
   if (agentId === "mkt-find-people" && collectionOnly) return "互动用户";
-  if (["mkt-douyin-finder", "mkt-find-people"].includes(agentId)) {
+  if (agentId === "mkt-find-people") {
     const sourceScope = resultSourceScope({ agentId, agentName, resultSnapshot, sourceContext });
     return CONTACTABLE_SOURCE_SCOPES.has(sourceScope) ? "潜客" : "抖音找人";
   }
+  if (agentId === "mkt-intent-analyst" && (resultSnapshot?.analysisKind === "account_report" || resultSnapshot?.inputs?.analysisKind === "account_report")) return "研究简报";
   if (agentId === "mkt-intent-analyst") return "潜客";
-  if (agentId === "mkt-user-research" || /用户调研|问卷/.test(haystack)) return "用户调研";
   if (agentId === "mkt-viral-work-analysis" && ["completed", "partial"].includes(String(resultSnapshot?.status || "").toLowerCase())) return "研究简报";
-  if (agentId === "mkt-research-expert" && ["completed", "partial"].includes(resultSnapshot?.status)) return "研究简报";
   if (hasPayload && /comment|评论|筛选|filter/.test(haystack)) return "评论筛选";
   if (hasPayload && (Array.isArray(resultSnapshot?.leads) || /lead|prospect|潜客/.test(haystack))) return "潜客";
   if (hasPayload && /research|brief|研究|画像/.test(haystack)) return "研究简报";
@@ -986,13 +984,31 @@ export function createProspectStore({ storage = globalThis.localStorage, now = (
     return changed.map((id) => clone(state.records[id])).filter(Boolean);
   }
 
-  function applyIntentAnalysis({ leads = [], resultSnapshot = {}, taskId = "", agentId = "mkt-intent-analyst", agentName = "客户分析员", sourceResultId = "", sourceTaskId = "" } = {}) {
+  function applyIntentAnalysis({
+    leads = [],
+    resultSnapshot = {},
+    taskId = "",
+    agentId = "mkt-intent-analyst",
+    agentName = "客户分析员",
+    sourceResultId = "",
+    sourceTaskId = "",
+    sourceScope = "",
+    sourceAccountId = "",
+    sourceAccountName = "",
+    sourceResultType = "互动用户",
+    sourceCandidates = []
+  } = {}) {
     const changed = [];
     const analysisLeads = Array.isArray(leads) && leads.length
       ? leads
       : (Array.isArray(resultSnapshot?.leads) ? resultSnapshot.leads : []);
+    const selectedCandidates = Array.isArray(sourceCandidates) ? sourceCandidates : [];
+    const candidateForLead = (lead) => {
+      const leadIdentities = new Set(identityCandidates(lead));
+      return selectedCandidates.find((candidate) => identityCandidates(candidate).some((identity) => leadIdentities.has(identity))) || null;
+    };
     for (const lead of analysisLeads) {
-      const recordId = findRecord({
+      let recordId = findRecord({
         recordId: lead?.sourceRecordId,
         sourceRecordId: lead?.sourceRecordId,
         leadId: lead?.leadId,
@@ -1001,8 +1017,103 @@ export function createProspectStore({ storage = globalThis.localStorage, now = (
         uniqueId: lead?.uniqueId || lead?.unique_id,
         nickname: lead?.nickname || lead?.name
       });
-      if (!recordId) continue;
-      const record = state.records[recordId];
+      let record = recordId ? state.records[recordId] : null;
+      if (!record) {
+        const candidate = candidateForLead(lead) || {};
+        if (candidate?.contactability?.allowed === false) continue;
+        const candidateSource = isRecord(candidate?.source) ? candidate.source : {};
+        const resolvedSourceScope = text(
+          candidate?.contactability?.sourceScope
+          || candidate?.sourceScope
+          || candidateSource.sourceScope,
+          sourceScope
+        );
+        const resolvedSourceAgentId = text(candidateSource.agentId || candidate?.agentId, "mkt-find-people");
+        const resolvedSourceAgentName = text(candidateSource.agentName || candidate?.agentName, "抖音找客专员");
+        const sourceContactability = contactabilityFor({
+          agentId: resolvedSourceAgentId,
+          agentName: resolvedSourceAgentName,
+          source: text(candidateSource.type || candidateSource.source, "已授权账号互动"),
+          sourceScope: resolvedSourceScope,
+          sourceResultType: text(candidate?.sourceResultType || candidate?.resultType, sourceResultType),
+          resultType: text(candidate?.sourceResultType || candidate?.resultType, sourceResultType)
+        });
+        if (!sourceContactability.allowed) continue;
+
+        const identity = identityOf({ ...candidate, ...lead });
+        if (!identity) continue;
+        const resolvedAccountId = text(
+          candidate?.accountId
+          || candidateSource.accountId
+          || candidateSource.account_id,
+          sourceAccountId
+        );
+        const resolvedAccountName = text(
+          candidate?.accountName
+          || candidateSource.accountName
+          || candidateSource.account_name,
+          sourceAccountName
+        );
+        const sourceOwnerKey = resultOwnerKey({
+          agentId: resolvedSourceAgentId,
+          taskId: text(sourceTaskId || sourceResultId || taskId, "discovered"),
+          accountId: resolvedAccountId
+        }) || "discovered";
+        const sourceRecordKey = text(candidate?.recordId || candidate?.sourceRecordId || lead?.sourceRecordId);
+        const id = sourceRecordKey.startsWith("lead:")
+          ? sourceRecordKey
+          : `lead:${sourceOwnerKey}:${identity}`;
+        const quote = text(candidate?.text || candidate?.comment || candidate?.content || lead?.text || lead?.comment || lead?.content);
+        const sourceType = text(candidateSource.type || candidateSource.source, "账号互动");
+        const evidence = mergeEvidence(
+          candidate?.evidence,
+          [
+            ...(quote ? [{ quote, observedAt: text(candidate?.observedAt || candidate?.observed_at) }] : []),
+            ...(Array.isArray(lead?.evidence) ? lead.evidence : [])
+          ]
+        );
+        record = {
+          id,
+          name: text(candidate?.name || candidate?.nickname || lead?.nickname || lead?.name, "抖音用户"),
+          handle: text(candidate?.handle || candidate?.uniqueId || candidate?.unique_id || lead?.uniqueId || lead?.unique_id, `@${identity}`),
+          profileUrl: text(candidate?.profileUrl || candidate?.profile_url || lead?.profileUrl || lead?.profile_url),
+          avatar: personAvatarUrl(candidate, lead) || personAvatarFallback(text(candidate?.name || candidate?.nickname || lead?.nickname || lead?.name, "抖音用户")),
+          score: 0,
+          tier: "unknown",
+          tags: ["待分析"],
+          status: "待分析",
+          leadStatus: "未留资",
+          outreachStatus: "pending_analysis",
+          conversionStatus: "未转化",
+          contactStatus: "未保存",
+          saved: false,
+          profile: quote ? `原始表达：“${quote}”` : "已从用户已授权账号的互动中发现",
+          reason: "尚未进行意向判断，已保留原始来源证据",
+          intent: null,
+          evidence,
+          contactability: clone(sourceContactability),
+          source: {
+            ...candidateSource,
+            type: sourceType,
+            sourceScope: sourceContactability.sourceScope,
+            taskId: text(sourceTaskId, candidateSource.taskId || ""),
+            agentId: resolvedSourceAgentId,
+            agentName: resolvedSourceAgentName,
+            sourceResultId: text(sourceResultId, candidateSource.sourceResultId || ""),
+            sourceTaskId: text(sourceTaskId, candidateSource.sourceTaskId || ""),
+            accountId: resolvedAccountId || null,
+            accountName: resolvedAccountName || null
+          },
+          owner: resolvedSourceAgentName,
+          execution: { status: "idle", task: "生成首轮触达方案" },
+          timeline: [],
+          discoveredAt: now(),
+          updatedAt: now()
+        };
+        appendRecordTimeline(record, `从${sourceType}发现，等待意向分析`, "discover");
+        state.records[id] = record;
+        recordId = id;
+      }
       const tier = text(lead?.tier || lead?.intent?.tier, "unknown");
       const score = Number.isFinite(Number(lead?.score ?? lead?.intent?.score)) ? Number(lead.score ?? lead.intent.score) : 0;
       const reason = text(lead?.intent?.reason || lead?.reason, "根据原始评论和来源证据完成判断");
@@ -1030,7 +1141,7 @@ export function createProspectStore({ storage = globalThis.localStorage, now = (
       };
       appendRecordTimeline(record, `${agentName}：${tierLabel(tier)}`, "analysis");
       record.updatedAt = now();
-      changed.push(record.id);
+      if (!changed.includes(record.id)) changed.push(record.id);
     }
     if (changed.length) persist();
     return changed.map((id) => clone(state.records[id])).filter(Boolean);

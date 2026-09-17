@@ -552,19 +552,22 @@ test("viral work analysis report includes facts, audience needs, reusable playbo
   };
 
   const html = buildViralWorkAnalysisReportHtml(result);
-  assert.match(html, /爆款作品分析报告/);
-  assert.match(html, /分析逻辑与执行过程/);
-  assert.match(html, /选择视频代表画面/);
-  assert.match(html, /视频画面证据/);
-  assert.match(html, /展示规则：先完成视频内容理解与结构拆解/);
-  assert.match(html, /展示理由：展示用户真正要解决的问题/);
+  assert.match(html, /爆款视频分析报告/);
+  assert.match(html, /这次怎么得出结论/);
+  assert.match(html, /挑选回看画面/);
+  assert.match(html, /关键画面回看/);
+  assert.match(html, /已根据视频中的表达重点、内容转折和画面变化/);
+  assert.match(html, /为什么保留：展示用户真正要解决的问题/);
   assert.match(html, /data:image\/jpeg;base64/);
-  assert.match(html, /内容结构拆解/);
-  assert.match(html, /视频本身解析/);
-  assert.match(html, /评论需求与观众反馈/);
-  assert.match(html, /可复用打法/);
-  assert.match(html, /数据事实和分析判断/);
+  assert.match(html, /内容怎么组织/);
+  assert.match(html, /视频内容拆解/);
+  assert.match(html, /大家在关注什么/);
+  assert.match(html, /可以借鉴什么/);
+  assert.match(html, /哪些是事实，哪些是判断/);
   assert.match(html, /不直接复制原作品素材/);
+  assert.doesNotMatch(html, /not_configured|prior_report_observation|resultSnapshot|视频模型|推理限额/);
+  assert.match(html, /更新于/);
+  assert.match(html, /本次引用的依据/);
 
   const file = viralWorkAnalysisReportFile(result, { createdBy: "爆款作品分析" });
   assert.equal(file.type, "html");

@@ -15,6 +15,9 @@ import { BRAND, displayAgentName, displayAgentTitle } from "../brand.js";
 import { fillProfileDefaults, mergeProfilePatch } from "../agents/model.js";
 import { marketplaceProfileSeed } from "../agents/marketplace.js";
 import { saveAgentProfile } from "../agents/registry.js";
+import { receptionBaseUrl, receptionRequest } from "../bridge/account-reception-client.js";
+import { companionRequest } from "../bridge/companion-client.js";
+import { RECEPTION_GOALS, receptionResponseStyle } from "../agents/account-reception.js";
 
 const CSS = `
 .sb-ap{padding:18px 26px 34px;overflow-y:auto;flex:1;min-height:0}
@@ -110,6 +113,47 @@ const CSS = `
 .sb-ap-loading{padding:30px 0;text-align:center;font-size:12px;color:#B0B4BB}
 .sb-ap-demo-config{border-color:rgba(76,154,255,.24);background:linear-gradient(180deg,rgba(76,154,255,.055),#fff)}
 .sb-ap-demo-config .sb-ap-title{color:#3B6BD4}
+.sb-ap-account-memory{border-color:rgba(76,154,255,.2);background:#FCFDFF}
+.sb-ap-account-memory .sb-ap-title{color:#3B6BD4}
+.sb-ap-memory-title-note{font-size:10.5px;font-weight:500;color:#8A8F99;letter-spacing:0;margin-left:2px}
+.sb-ap-memory-accountbar{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid rgba(15,15,15,.07)}
+.sb-ap-memory-accountcopy{min-width:0;flex:1}
+.sb-ap-memory-accountlabel{font-size:10.5px;color:#8A8F99;margin-bottom:3px}
+.sb-ap-memory-accountname{font-size:14px;font-weight:650;color:#1F2329;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-ap-memory-accountmeta{margin-top:3px;font-size:10.5px;color:#8A8F99;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-ap-memory-select{max-width:240px;min-width:160px;border:1px solid rgba(15,15,15,.12);border-radius:8px;padding:7px 28px 7px 9px;font-size:12px;font-family:inherit;color:#1F2329;background:#fff;outline:none}
+.sb-ap-memory-select:focus{border-color:rgba(76,154,255,.6);box-shadow:0 0 0 3px rgba(76,154,255,.08)}
+.sb-ap-memory-state{display:inline-flex;align-items:center;gap:5px;flex:none;font-size:10.5px;color:#2F7D3F;white-space:nowrap}
+.sb-ap-memory-state i{width:6px;height:6px;border-radius:50%;background:#57B26A}
+.sb-ap-memory-state.is-muted{color:#8A8F99}.sb-ap-memory-state.is-muted i{background:#B7BDC5}
+.sb-ap-memory-state.is-warning{color:#B87A1E}.sb-ap-memory-state.is-warning i{background:#E8A33D}
+.sb-ap-memory-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 18px;padding:12px 0 2px}
+.sb-ap-memory-item{min-width:0}
+.sb-ap-memory-label{font-size:10.5px;color:#8A8F99;margin-bottom:3px}
+.sb-ap-memory-value{font-size:12.5px;line-height:1.55;color:#1F2329;word-break:break-word}
+.sb-ap-memory-value.is-empty{color:#B0B4BB}
+.sb-ap-memory-knowledge{margin-top:10px;padding-top:10px;border-top:1px solid rgba(15,15,15,.06)}
+.sb-ap-memory-knowledge .sb-ap-memory-value{white-space:pre-wrap;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden}
+.sb-ap-memory-editor{margin-top:13px;padding-top:12px;border-top:1px solid rgba(15,15,15,.07)}
+.sb-ap-memory-editorhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+.sb-ap-memory-editortitle{font-size:12px;font-weight:650;color:#1F2329}
+.sb-ap-memory-editorhint{font-size:10.5px;color:#8A8F99;text-align:right}
+.sb-ap-memory-input{width:100%;min-height:66px;resize:vertical;box-sizing:border-box;border:1px solid rgba(15,15,15,.12);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.65;font-family:inherit;color:#1F2329;background:#fff;outline:none}
+.sb-ap-memory-input:focus{border-color:rgba(76,154,255,.6);box-shadow:0 0 0 3px rgba(76,154,255,.08)}
+.sb-ap-memory-actions{display:flex;align-items:center;gap:9px;margin-top:8px}
+.sb-ap-memory-send,.sb-ap-memory-confirm,.sb-ap-memory-chat{height:30px;border:1px solid rgba(15,15,15,.12);border-radius:8px;padding:0 12px;font-size:11.5px;font-family:inherit;cursor:pointer;background:#fff;color:#3F434A}
+.sb-ap-memory-send{border-color:#1F2329;background:#1F2329;color:#fff;font-weight:600}
+.sb-ap-memory-send:hover{background:#3F434A}.sb-ap-memory-confirm{border-color:rgba(47,125,63,.25);color:#2F7D3F;background:#F6FCF7;font-weight:600}
+.sb-ap-memory-confirm:hover{border-color:#57B26A;background:#EFFAF1}.sb-ap-memory-chat{margin-left:auto;border-color:rgba(59,107,212,.25);color:#3B6BD4}
+.sb-ap-memory-chat:hover{border-color:#3B6BD4;background:#F4F8FF}
+.sb-ap-memory-send:disabled,.sb-ap-memory-confirm:disabled{opacity:.55;cursor:default}
+.sb-ap-memory-notice{font-size:11px;color:#2F7D3F}.sb-ap-memory-notice.is-error{color:#C4453C}
+.sb-ap-memory-log{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.sb-ap-memory-msg{max-width:88%;padding:7px 9px;border-radius:8px;background:#F5F7FA;color:#596270;font-size:11.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.sb-ap-memory-msg.is-user{align-self:flex-end;background:#EEF4FF;color:#345A9E}
+.sb-ap-memory-msgmeta{margin-top:3px;font-size:9.5px;color:#A2A8B1}
+.sb-ap-memory-empty{padding:14px 0 2px;font-size:12px;line-height:1.6;color:#8A8F99}
+@media(max-width:720px){.sb-ap-memory-accountbar{align-items:flex-start;flex-direction:column}.sb-ap-memory-select{width:100%;max-width:none}.sb-ap-memory-grid{grid-template-columns:1fr}.sb-ap-memory-editorhead{align-items:flex-start;flex-direction:column;gap:2px}.sb-ap-memory-editorhint{text-align:left}.sb-ap-memory-actions{flex-wrap:wrap}.sb-ap-memory-chat{margin-left:0}}
 `;
 
 let styleInjected = false;
@@ -137,6 +181,71 @@ const DEMO_CONFIG_LABELS = Object.freeze({
   reviewThreshold: "复核规则",
   responseMode: "工作方式"
 });
+
+export const ACCOUNT_MEMORY_AGENT_IDS = Object.freeze([
+  "mkt-comment-acquisition",
+  "mkt-dm-inbox",
+  "mkt-gold-customer-service"
+]);
+
+const ACCOUNT_MEMORY_LENGTH_LABELS = Object.freeze({ short: "简短", balanced: "适中", detailed: "详细" });
+const ACCOUNT_MEMORY_HANDOFF_LABELS = Object.freeze({
+  price: "价格或报价承诺",
+  complaints: "投诉与退款",
+  unknown: "无法确认的事实",
+  humanRequest: "用户要求人工"
+});
+
+export function isAccountMemoryAgent(agentType) {
+  return ACCOUNT_MEMORY_AGENT_IDS.includes(String(agentType || ""));
+}
+
+export function accountMemoryConversationId(agentType, accountId) {
+  return `account-memory:${String(agentType || "").trim()}:${String(accountId || "").trim()}`;
+}
+
+export function accountMemorySummary(record = {}) {
+  const settings = record?.settings && typeof record.settings === "object" ? record.settings : {};
+  const handoff = Object.entries(ACCOUNT_MEMORY_HANDOFF_LABELS)
+    .filter(([key]) => settings.handoff?.[key] !== false)
+    .map(([, label]) => label);
+  const knowledge = String(settings.knowledge || "").trim();
+  return {
+    revision: Number(record.revision || 0),
+    configured: Number(record.revision || 0) > 0,
+    updatedAt: record.updatedAt || null,
+    goal: RECEPTION_GOALS[settings.goal] || "尚未设定",
+    goalDetails: String(settings.goalDetails || "").trim(),
+    responseStyle: receptionResponseStyle(settings),
+    length: ACCOUNT_MEMORY_LENGTH_LABELS[settings.length] || "简短",
+    knowledge,
+    knowledgePreview: knowledge.length > 280 ? `${knowledge.slice(0, 280)}…` : knowledge,
+    handoffRules: handoff,
+    privateReception: record.privateReception && typeof record.privateReception === "object"
+      ? { ...record.privateReception }
+      : { enabled: false, runtimeState: "stopped" }
+  };
+}
+
+export function pendingAccountMemoryProposal(messages = []) {
+  let pending = null;
+  for (const message of Array.isArray(messages) ? messages : []) {
+    const proposal = message?.metadata?.receptionStrategyProposal;
+    if (message?.from && proposal?.status === "pending") pending = message;
+    if (message?.metadata?.receptionStrategyConfirmation) {
+      const proposalMessageId = message.metadata.receptionStrategyConfirmation.proposalMessageId;
+      if (!proposalMessageId || proposalMessageId === pending?.id) pending = null;
+    }
+    if (proposal?.status === "stale") pending = null;
+  }
+  return pending;
+}
+
+export function restoreScrollPosition(element, scrollTop) {
+  if (!element) return;
+  const maxScrollTop = Math.max(0, element.scrollHeight - element.clientHeight);
+  element.scrollTop = Math.min(Math.max(0, Number(scrollTop) || 0), maxScrollTop);
+}
 
 /* 各岗位的默认「灵魂 / 技能 / 工具 / 范围」展示值（档案为空时补齐，不落库） */
 const SECTION_DEFAULTS = {
@@ -265,7 +374,13 @@ function tagList(items, { tagClass = "", editable = false, onChange = null } = {
  * 渲染完整 Agent 详情页到容器（异步取数，先出骨架再填充）。
  * deps: { gateway, teamLive }
  */
-export async function renderAgentProfile(container, agentType, fallbackProfile, { gateway, teamLive, demoConfig = null } = {}) {
+export async function renderAgentProfile(container, agentType, fallbackProfile, {
+  gateway,
+  teamLive,
+  demoConfig = null,
+  accountId = null,
+  onOpenChat = null
+} = {}) {
   ensureStyle();
   const root = el("div", "sb-ap notranslate");
   root.setAttribute("translate", "no");
@@ -279,6 +394,21 @@ export async function renderAgentProfile(container, agentType, fallbackProfile, 
   let saving = false;
   let saveNotice = "";
   let renderVersion = 0;
+  const accountMemoryEnabled = isAccountMemoryAgent(agentType);
+  const accountMemory = {
+    accounts: [],
+    accountsLoaded: false,
+    selectedId: String(accountId || "").trim(),
+    record: null,
+    messages: [],
+    loading: accountMemoryEnabled,
+    sending: false,
+    draft: "",
+    notice: "",
+    error: "",
+    loadVersion: 0
+  };
+  let accountMemoryLoadPromise = null;
   const observer = new MutationObserver(() => { if (!root.isConnected) { disposed = true; observer.disconnect(); } });
   observer.observe(document.body, { childList: true, subtree: true });
 
@@ -325,6 +455,265 @@ export async function renderAgentProfile(container, agentType, fallbackProfile, 
     draft = mergeProfilePatch(draft || {}, patch);
   }
 
+  function normalizeAccount(account) {
+    const id = String(account?.id || account?.accountId || account?.identity?.uid || account?.identity?.secUid || "").trim();
+    if (!id) return null;
+    const identity = account?.identity || {};
+    const name = String(account?.name || identity.accountName || identity.nickname || account?.handle || id).trim();
+    const handle = String(account?.handle || identity.uniqueId || identity.unique_id || "").trim();
+    return { ...account, id, name, handle };
+  }
+
+  function accountLabel(account) {
+    if (!account) return "未选择账号";
+    return account.handle ? `${account.name} ${account.handle}` : account.name;
+  }
+
+  function accountMatchesRequested(account, requestedId) {
+    const value = String(requestedId || "").trim();
+    if (!value) return false;
+    const identity = account?.identity || {};
+    return [
+      account?.id,
+      account?.accountId,
+      identity.uid,
+      identity.user_id,
+      identity.userId,
+      identity.secUid,
+      identity.sec_uid,
+      identity.secId,
+      identity.sec_id
+    ].some((candidate) => String(candidate || "").trim() === value);
+  }
+
+  async function fetchAccountDirectory() {
+    const response = await fetch(`${receptionBaseUrl()}/v1/connectors/douyin/accounts`, {
+      headers: { accept: "application/json" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000)
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok) throw new Error(result?.error?.message || "暂时无法读取已授权账号");
+    return (Array.isArray(result?.accounts) ? result.accounts : []).map(normalizeAccount).filter(Boolean);
+  }
+
+  async function loadAccountMemoryData(nextAccountId, { keepNotice = false } = {}) {
+    const selectedId = String(nextAccountId || "").trim();
+    const requestVersion = ++accountMemory.loadVersion;
+    accountMemory.selectedId = selectedId;
+    accountMemory.record = null;
+    accountMemory.messages = [];
+    accountMemory.loading = Boolean(selectedId);
+    if (!keepNotice) accountMemory.notice = "";
+    accountMemory.error = "";
+    if (!selectedId) {
+      accountMemory.loading = false;
+      return;
+    }
+    const conversationId = accountMemoryConversationId(agentType, selectedId);
+    const [recordResult, messagesResult] = await Promise.allSettled([
+      receptionRequest(selectedId),
+      companionRequest("GET", "/v1/direct-messages", { agentType, accountId: selectedId, conversationId })
+    ]);
+    if (disposed || requestVersion !== accountMemory.loadVersion) return;
+    if (recordResult.status === "fulfilled") accountMemory.record = recordResult.value;
+    else accountMemory.error = recordResult.reason?.message || "暂时无法读取账号记忆";
+    if (messagesResult.status === "fulfilled") accountMemory.messages = messagesResult.value?.data?.messages || [];
+    accountMemory.loading = false;
+  }
+
+  async function ensureAccountMemoryLoaded() {
+    if (!accountMemoryEnabled || accountMemory.accountsLoaded) return;
+    if (accountMemoryLoadPromise) return accountMemoryLoadPromise;
+    accountMemoryLoadPromise = (async () => {
+      try {
+        accountMemory.accounts = await fetchAccountDirectory();
+        const requested = accountMemory.accounts.find((account) => accountMatchesRequested(account, accountMemory.selectedId));
+        const selected = requested || accountMemory.accounts[0] || null;
+        accountMemory.selectedId = selected?.id || "";
+        await loadAccountMemoryData(accountMemory.selectedId);
+      } catch (error) {
+        accountMemory.error = error?.message || "暂时无法读取已授权账号";
+        accountMemory.loading = false;
+      } finally {
+        accountMemory.accountsLoaded = true;
+        accountMemoryLoadPromise = null;
+      }
+    })();
+    return accountMemoryLoadPromise;
+  }
+
+  async function selectAccount(nextAccountId) {
+    if (accountMemory.sending || String(nextAccountId || "").trim() === accountMemory.selectedId) return;
+    accountMemory.notice = "";
+    await loadAccountMemoryData(nextAccountId);
+    await render();
+  }
+
+  async function sendAccountMemoryMessage(text) {
+    const content = String(text || "").trim();
+    if (!content || accountMemory.sending || !accountMemory.selectedId) return;
+    const selectedId = accountMemory.selectedId;
+    accountMemory.sending = true;
+    accountMemory.draft = "";
+    accountMemory.notice = content === "确认" ? "正在保存并生效…" : "正在整理这次调整…";
+    accountMemory.error = "";
+    await render();
+    try {
+      await companionRequest("POST", "/v1/direct-messages", {
+        agentType,
+        accountId: selectedId,
+        conversationId: accountMemoryConversationId(agentType, selectedId),
+        from: "user",
+        fromName: "我",
+        text: content,
+        clientMessageId: `account-memory-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+      });
+      await loadAccountMemoryData(selectedId, { keepNotice: true });
+      const confirmation = accountMemory.messages.at(-1)?.metadata?.receptionStrategyConfirmation;
+      accountMemory.notice = confirmation?.revision
+        ? `已生效 · 账号记忆 v${confirmation.revision}`
+        : pendingAccountMemoryProposal(accountMemory.messages)
+          ? "已生成调整方案，请确认后生效"
+          : "已收到，正在继续处理";
+    } catch (error) {
+      accountMemory.error = error?.message || "这次调整没有保存成功，请稍后重试";
+      accountMemory.notice = "";
+    } finally {
+      accountMemory.sending = false;
+      if (!disposed) await render();
+    }
+  }
+
+  function appendAccountMemoryItem(grid, label, value) {
+    const item = el("div", "sb-ap-memory-item");
+    item.appendChild(el("div", "sb-ap-memory-label", label));
+    item.appendChild(el("div", `sb-ap-memory-value${value ? "" : " is-empty"}`, value || "未设置"));
+    grid.appendChild(item);
+  }
+
+  function renderAccountMemorySection(name) {
+    const section = el("div", "sb-ap-sec sb-ap-account-memory");
+    const title = el("div", "sb-ap-title");
+    title.append(el("span", null, "账号记忆 ACCOUNT MEMORY"), el("span", "sb-ap-memory-title-note", "按账号生效"));
+    section.appendChild(title);
+    if (!accountMemory.accountsLoaded || accountMemory.loading && !accountMemory.record) {
+      section.appendChild(el("div", "sb-ap-loading", "读取账号记忆…"));
+      return section;
+    }
+    if (!accountMemory.accounts.length) {
+      section.appendChild(el("div", "sb-ap-memory-empty", accountMemory.error || "暂时没有可读取的已授权抖音账号"));
+      return section;
+    }
+    const account = accountMemory.accounts.find((item) => item.id === accountMemory.selectedId) || accountMemory.accounts[0];
+    const accountbar = el("div", "sb-ap-memory-accountbar");
+    const copy = el("div", "sb-ap-memory-accountcopy");
+    copy.append(
+      el("div", "sb-ap-memory-accountlabel", "当前账号"),
+      el("div", "sb-ap-memory-accountname", accountLabel(account)),
+      el("div", "sb-ap-memory-accountmeta", "这份记忆只会影响该账号的后续私信承接")
+    );
+    const selector = document.createElement("select");
+    selector.className = "sb-ap-memory-select";
+    selector.setAttribute("aria-label", "选择账号记忆");
+    for (const item of accountMemory.accounts) {
+      const option = document.createElement("option");
+      option.value = item.id;
+      option.textContent = accountLabel(item);
+      option.selected = item.id === account.id;
+      selector.appendChild(option);
+    }
+    selector.disabled = accountMemory.sending;
+    selector.addEventListener("change", () => { void selectAccount(selector.value); });
+    accountbar.append(copy, selector);
+    section.appendChild(accountbar);
+    if (accountMemory.error) section.appendChild(el("div", "sb-ap-memory-empty", accountMemory.error));
+    if (!accountMemory.record) {
+      section.appendChild(el("div", "sb-ap-memory-empty", "这份账号记忆暂时无法读取，请刷新后重试。"));
+      return section;
+    }
+    const summary = accountMemorySummary(accountMemory.record);
+    const state = accountMemory.record.privateReception?.runtimeState === "running"
+      ? { text: "正在承接", className: "" }
+      : accountMemory.record.privateReception?.enabled === true
+        ? { text: "已配置，未运行", className: "is-warning" }
+        : { text: "已授权，待启动", className: "is-muted" };
+    const meta = el("div", "sb-ap-memory-accountmeta");
+    meta.append(el("span", `sb-ap-memory-state ${state.className}`, state.text));
+    meta.firstChild.prepend(el("i"));
+    meta.appendChild(el("span", null, ` · 记忆 v${summary.revision}`));
+    if (summary.updatedAt) meta.appendChild(el("span", null, ` · 更新于 ${new Date(summary.updatedAt).toLocaleString("zh-CN", { hour12: false })}`));
+    copy.appendChild(meta);
+
+    if (!summary.configured) {
+      section.appendChild(el("div", "sb-ap-memory-empty", `还没有形成${name}的账号承接记忆。你可以直接告诉我希望达成的目标，我会先给出一份可确认的方案。`));
+    } else {
+      const grid = el("div", "sb-ap-memory-grid");
+      appendAccountMemoryItem(grid, "承接目标", summary.goal);
+      appendAccountMemoryItem(grid, "回复方式", summary.responseStyle);
+      appendAccountMemoryItem(grid, "回复长度", summary.length);
+      appendAccountMemoryItem(grid, "人工交接", summary.handoffRules.join("、"));
+      section.appendChild(grid);
+      const detail = summary.goalDetails || "";
+      if (detail) {
+        const details = el("div", "sb-ap-memory-knowledge");
+        details.append(el("div", "sb-ap-memory-label", "目标补充"), el("div", "sb-ap-memory-value", detail));
+        section.appendChild(details);
+      }
+      const knowledge = el("div", "sb-ap-memory-knowledge");
+      knowledge.append(el("div", "sb-ap-memory-label", "业务知识"), el("div", `sb-ap-memory-value${summary.knowledgePreview ? "" : " is-empty"}`, summary.knowledgePreview || "未补充业务资料"));
+      section.appendChild(knowledge);
+    }
+
+    const editor = el("div", "sb-ap-memory-editor");
+    const editorHead = el("div", "sb-ap-memory-editorhead");
+    editorHead.append(el("span", "sb-ap-memory-editortitle", "调整这份账号记忆"), el("span", "sb-ap-memory-editorhint", "先生成方案，确认后才会影响后续回复"));
+    const input = document.createElement("textarea");
+    input.className = "sb-ap-memory-input";
+    input.value = accountMemory.draft;
+    input.placeholder = "例如：以后先回答问题，再自然引导用户留下联系方式；价格问题交给人工。";
+    input.disabled = accountMemory.sending;
+    input.addEventListener("input", () => { accountMemory.draft = input.value; });
+    input.addEventListener("keydown", (event) => { if ((event.metaKey || event.ctrlKey) && event.key === "Enter") void sendAccountMemoryMessage(input.value); });
+    const actions = el("div", "sb-ap-memory-actions");
+    const send = el("button", "sb-ap-memory-send", accountMemory.sending ? "处理中…" : "提出调整");
+    send.type = "button";
+    send.disabled = accountMemory.sending || !accountMemory.draft.trim();
+    send.addEventListener("click", () => { void sendAccountMemoryMessage(input.value); });
+    actions.appendChild(send);
+    const pending = pendingAccountMemoryProposal(accountMemory.messages);
+    if (pending) {
+      const confirm = el("button", "sb-ap-memory-confirm", accountMemory.sending ? "等待处理…" : "确认并生效");
+      confirm.type = "button";
+      confirm.disabled = accountMemory.sending;
+      confirm.addEventListener("click", () => { void sendAccountMemoryMessage("确认"); });
+      actions.appendChild(confirm);
+    }
+    if (typeof onOpenChat === "function") {
+      const chat = el("button", "sb-ap-memory-chat", "在对话中继续");
+      chat.type = "button";
+      chat.disabled = accountMemory.sending;
+      chat.addEventListener("click", () => onOpenChat(account.id));
+      actions.appendChild(chat);
+    }
+    if (accountMemory.notice) actions.appendChild(el("span", "sb-ap-memory-notice", accountMemory.notice));
+    if (accountMemory.error && accountMemory.record) actions.appendChild(el("span", "sb-ap-memory-notice is-error", accountMemory.error));
+    editor.append(editorHead, input, actions);
+    section.appendChild(editor);
+
+    if (accountMemory.messages.length) {
+      const log = el("div", "sb-ap-memory-log");
+      for (const message of accountMemory.messages.slice(-5)) {
+        const bubble = el("div", `sb-ap-memory-msg${message.from === "user" ? " is-user" : ""}`);
+        bubble.appendChild(el("div", null, message.text || ""));
+        if (message.createdAt) bubble.appendChild(el("div", "sb-ap-memory-msgmeta", new Date(message.createdAt).toLocaleString("zh-CN", { hour12: false })));
+        log.appendChild(bubble);
+      }
+      section.appendChild(log);
+    }
+    return section;
+  }
+
   async function commitDraft() {
     if (!draft || saving) return;
     saving = true;
@@ -356,6 +745,8 @@ export async function renderAgentProfile(container, agentType, fallbackProfile, 
   async function render() {
     if (disposed || !root.isConnected) return;
     const version = ++renderVersion;
+    await ensureAccountMemoryLoaded();
+    if (disposed || !root.isConnected || version !== renderVersion) return;
     const profile = editMode && draft ? draft : await fetchProfile();
     if (disposed || !root.isConnected || version !== renderVersion) return;
     const rawName = profile.identity?.name || agentType;
@@ -373,6 +764,7 @@ export async function renderAgentProfile(container, agentType, fallbackProfile, 
     const myTaskIds = new Set(myEntries.map((e) => e.taskId).filter(Boolean));
     const myTasks = resources.tasks.filter((t) => myTaskIds.has(t.taskId));
     const myFiles = listFiles().filter((f) => f.createdBy === rawName || f.createdBy === name);
+    const previousScrollTop = root.scrollTop;
 
     root.textContent = "";
 
@@ -420,6 +812,8 @@ export async function renderAgentProfile(container, agentType, fallbackProfile, 
       }
       root.appendChild(appliedSec);
     }
+
+    if (accountMemoryEnabled) root.appendChild(renderAccountMemorySection(name));
 
     // ── 身份 IDENTITY ──
     const idSec = el("div", `sb-ap-sec${editMode ? " sb-ap-editing" : ""}`);
@@ -767,6 +1161,7 @@ export async function renderAgentProfile(container, agentType, fallbackProfile, 
     }
     qualitySec.appendChild(stats);
     root.appendChild(qualitySec);
+    restoreScrollPosition(root, previousScrollTop);
   }
 
   await render();

@@ -591,10 +591,12 @@ export function startGatewayMock({ port = 5151, seedOfficeDemo = process.env.MAR
     if (request.method !== "POST") { json(response, 405, { code: -1, message: "Method not allowed" }); return; }
     await readJson(request);
     const route = new URL(request.url || "/", "http://127.0.0.1").pathname;
-    if (route === "/privilege/check" || route === "/privilege/grant") { json(response, 200, ok({ status: 1 })); return; }
-    if (route === "/file/list" || route === "/file/info") { json(response, 200, ok({ topics: [] })); return; }
-    if (route === "/whitelist/list") { json(response, 200, ok({ whitelistDirs: [] })); return; }
+    if (route === "/privilege/check" || route === "/privilege/grant") { json(response, 200, { code: 0, data: { status: 1 }, status: 1 }); return; }
+    if (route === "/file/list") { json(response, 200, { code: 0, data: { topics: [], list: [], items: [] }, topics: [], list: [], items: [] }); return; }
+    if (route === "/file/info") { json(response, 200, { code: 0, data: { topic: null, item: null } }); return; }
+    if (route === "/whitelist/list") { json(response, 200, { code: 0, data: { whitelistDirs: [], list: [] }, whitelistDirs: [], list: [] }); return; }
     if (route === "/hidden/get") { json(response, 200, ok({ items: [] })); return; }
+    if (route === "/preload" || route === "/recmd") { json(response, 200, { code: 0, data: { list: [], items: [], apps: [] }, list: [], items: [], apps: [] }); return; }
     json(response, 200, ok({}));
   });
   server.on("upgrade", (request, socket) => {

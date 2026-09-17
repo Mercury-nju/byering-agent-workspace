@@ -53,6 +53,7 @@ export const EVENT_TYPES = Object.freeze({
   REPLY_RECEIVED: "reply_received",
   RETRY: "retry",
   CONFIG_UPDATED: "config_updated",
+  QUOTA_REACHED: "quota_reached",
   PAUSE: "pause",
   RESUME: "resume",
   STOP: "stop",

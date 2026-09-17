@@ -38,6 +38,37 @@ test("office preserves every active task for the same Agent across Douyin accoun
   assert.deepEqual(new Set(taskWorks.map((work) => work.metadata.taskRunId)), new Set(["run-a", "run-b"]));
 });
 
+test("office task work carries the authoritative acquisition snapshot needed by the realtime queue", () => {
+  const snapshot = buildOfficeStatus({ tenantId: "tenant-a", sources: [{ agentIds: ["mkt-comment-acquisition"], tasks: [{
+    tenantId: "tenant-a",
+    agentId: "mkt-comment-acquisition",
+    taskId: "acquisition-live",
+    taskRunId: "run-live",
+    accountId: "douyin-a",
+    state: "running",
+    runtimeAlive: true,
+    approvalQueue: [{
+      touchId: "touch-1",
+      state: "submitted",
+      lead: { leadId: "lead-1", nickname: "客户甲", intent: { tier: "high", score: 91 } }
+    }],
+    candidateProfiles: {
+      "lead-1": { leadId: "lead-1", uid: "uid-1", secUid: "sec-1", nickname: "客户甲" }
+    },
+    replies: [{ leadId: "lead-1", content: "方便了解一下", receivedAt: "2026-09-17T10:00:00.000Z" }],
+    counters: { candidates: 1, replies: 1 },
+    resultSnapshot: { source: "douyin_interactions", leads: [{ leadId: "lead-1" }] }
+  }] }] });
+  const work = snapshot.taskWorks.find((item) => item.metadata.taskId === "acquisition-live");
+  const acquisition = work.metadata.acquisitionSnapshot;
+
+  assert.equal(work.state, "working");
+  assert.equal(acquisition.approvalQueue[0].touchId, "touch-1");
+  assert.equal(acquisition.candidateProfiles["lead-1"].secUid, "sec-1");
+  assert.equal(acquisition.replies[0].content, "方便了解一下");
+  assert.equal(acquisition.resultSnapshot.leads[0].leadId, "lead-1");
+});
+
 test("persisted running tasks without a live runner are unknown, not working", () => {
   const snapshot = buildOfficeStatus({ sources: [{ agentIds: ["mkt-comment-acquisition"], tasks: [
     { agentId: "mkt-comment-acquisition", state: "running", runtimeAlive: false }

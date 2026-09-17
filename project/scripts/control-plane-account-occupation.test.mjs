@@ -70,6 +70,36 @@ test("ControlPlane rejects a fresh duplicate runtime before external execution",
   );
 });
 
+test("Gold customer service and legacy DM inbox cannot own the same account at the same time", () => {
+  const controlPlane = new ControlPlane({ persistence: new MemoryPersistenceAdapter() });
+  const sharedContext = {
+    tenantId: "tenant-1",
+    accountId: "account-1",
+    accountKey: "douyin:sec:account-1"
+  };
+
+  controlPlane.ensureManagedRuntimeTask({
+    taskId: "legacy-inbox",
+    agentId: "mkt-dm-inbox",
+    tenantId: "tenant-1",
+    goal: "按高级私信策略承接新消息",
+    executionContext: { ...sharedContext, accountUseScope: "mkt-dm-inbox" }
+  });
+
+  assert.throws(
+    () => controlPlane.ensureManagedRuntimeTask({
+      taskId: "gold-inbox",
+      agentId: "mkt-gold-customer-service",
+      tenantId: "tenant-1",
+      goal: "按目标自动承接新消息",
+      executionContext: { ...sharedContext, accountUseScope: "mkt-gold-customer-service" }
+    }),
+    (error) => error instanceof ControlPlaneError
+      && error.code === "MANAGED_RUNTIME_ACCOUNT_IN_USE"
+      && error.details.existingAgentId === "mkt-dm-inbox"
+  );
+});
+
 test("ControlPlane ignores a durable occupation when the runtime is no longer active", () => {
   const controlPlane = new ControlPlane({
     persistence: new MemoryPersistenceAdapter(),
