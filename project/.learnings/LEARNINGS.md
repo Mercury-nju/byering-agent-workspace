@@ -64,3 +64,29 @@ Treat this payload and execution order as the regression baseline. Any future ch
 - Tags: douyin, private-message, cold-start, secid, product-flow, regression
 
 ---
+
+## [LRN-20260917-001] report-design-feedback-scope
+
+**Logged**: 2026-09-17T10:30:00+08:00
+**Priority**: medium
+**Status**: applied
+**Area**: frontend
+
+### Summary
+When a user says a report is not compelling, inspect the information hierarchy and content choreography before proposing naming or product-positioning alternatives.
+
+### Details
+The feedback targeted the report's internal composition: generic card repetition, decorative charts, and weak progression from evidence to action. Responding with a choice of product framing missed the requested layer entirely.
+
+### Applied Fixes
+- Rebuild the report as an evidence-to-decision narrative rather than a summary dashboard.
+- Use visualizations only when they change how the user prioritizes the next live session.
+- Keep the Agent presence sparse and reserve first-person language for high-value moments.
+- Use one restrained visual system; strong hierarchy must not depend on neon decoration, repeated dark bands, or dense motion.
+
+### Metadata
+- Source: user_feedback
+- Related Files: src/salebuddy/agents/live-danmaku-analysis-report.js
+- Tags: report, information-design, frontend, hierarchy
+
+---

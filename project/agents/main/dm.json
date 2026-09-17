@@ -160,7 +160,7 @@
     "createdAt": "2026-08-10T02:15:00.000Z"
   },
   {
-    "id": "dm-mu34lzy7-2poi",
+    "id": "dm-mu5iux52-zfaf",
     "agentType": "main",
     "from": "user",
     "fromName": "我",
@@ -170,10 +170,10 @@
       "source": "chief-conversation",
       "suppressAutoReply": true
     },
-    "createdAt": "2026-09-15T20:30:23.551Z"
+    "createdAt": "2026-09-17T12:44:46.790Z"
   },
   {
-    "id": "dm-mu34lzye-iizj",
+    "id": "dm-mu5iux54-mm6v",
     "agentType": "main",
     "from": "main",
     "fromName": "Byering · 幕僚长",
@@ -198,6 +198,47 @@
         "shouldCreateTask": false
       }
     },
-    "createdAt": "2026-09-15T20:30:23.558Z"
+    "createdAt": "2026-09-17T12:44:46.792Z"
+  },
+  {
+    "id": "dm-mu5kjchn-6s3d",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "查看所有 Agent 和任务状态",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "suppressAutoReply": true
+    },
+    "createdAt": "2026-09-17T13:31:46.043Z"
+  },
+  {
+    "id": "dm-mu5kjcht-vm89",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "当前任务总览：执行中 1 项，等待处理 1 项，阻塞 0 项，已结束 3 项。正在关注：潜客拓展项目（执行中）。",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "chiefDecision": {
+        "intent": "status_query",
+        "responseMode": "status_card",
+        "riskLevel": "low",
+        "confirmationPolicy": "none",
+        "requiredCapabilities": [],
+        "requestedAgentId": null,
+        "incompatibleCapabilities": [],
+        "blockingMissing": [],
+        "optionalMissing": [],
+        "defaultsApplied": [],
+        "taskAction": "",
+        "userMessage": "",
+        "confidence": 1,
+        "shouldCreateTask": false
+      }
+    },
+    "createdAt": "2026-09-17T13:31:46.049Z"
   }
 ]

@@ -386,7 +386,8 @@ const MOCK_FILES = Object.freeze([
 
 export function isResultsMockPreview(search = globalThis.location?.search, { hostname = globalThis.location?.hostname } = {}) {
   const params = new URLSearchParams(String(search || ""));
-  if (params.get("preview") !== "style") return false;
+  const runtimeMock = globalThis.__SALEBUDDY_CONFIG__?.runtimeMode === "mock";
+  if (params.get("preview") !== "style" && !runtimeMock) return false;
   const normalizedHost = String(hostname || "").trim().toLowerCase();
   const localHost = !normalizedHost || normalizedHost === "localhost" || normalizedHost === "127.0.0.1" || normalizedHost === "::1";
   return localHost || globalThis.__SALEBUDDY_CONFIG__?.allowStylePreview === true;

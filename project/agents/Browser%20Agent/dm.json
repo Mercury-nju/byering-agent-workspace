@@ -6344,5 +6344,533 @@
       "conversationId": "mock-conversation-1"
     },
     "createdAt": "2026-09-15T20:30:17.147Z"
+  },
+  {
+    "id": "dm-mu3ip5kc-lygo",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T03:04:45.420Z"
+  },
+  {
+    "id": "dm-mu3ip6hx-70dw",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu3ip5kc-lygo",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T03:04:46.629Z"
+  },
+  {
+    "id": "dm-mu3m4ykc-z9aj",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T04:41:01.692Z"
+  },
+  {
+    "id": "dm-mu3m4zi8-pndg",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu3m4ykc-z9aj",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T04:41:02.912Z"
+  },
+  {
+    "id": "dm-mu3pqzl1-00to",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T06:22:08.293Z"
+  },
+  {
+    "id": "dm-mu3pr19t-zfvd",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu3pqzl1-00to",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T06:22:10.481Z"
+  },
+  {
+    "id": "dm-mu3w7cj9-ai80",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T09:22:49.269Z"
+  },
+  {
+    "id": "dm-mu3w7dix-xg0m",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu3w7cj9-ai80",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T09:22:50.553Z"
+  },
+  {
+    "id": "dm-mu3w9cfj-q19h",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T09:24:22.447Z"
+  },
+  {
+    "id": "dm-mu3w9de7-oroy",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu3w9cfj-q19h",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T09:24:23.695Z"
+  },
+  {
+    "id": "dm-mu3wjtsx-uw2o",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T09:32:31.521Z"
+  },
+  {
+    "id": "dm-mu3wjv6w-7x0g",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu3wjtsx-uw2o",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T09:32:33.320Z"
+  },
+  {
+    "id": "dm-mu3xdfr8-y23z",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T09:55:32.996Z"
+  },
+  {
+    "id": "dm-mu3xdgph-3yko",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu3xdfr8-y23z",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T09:55:34.229Z"
+  },
+  {
+    "id": "dm-mu3yvbwz-89es",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T10:37:27.443Z"
+  },
+  {
+    "id": "dm-mu3yvcv6-n02w",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu3yvbwz-89es",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T10:37:28.674Z"
+  },
+  {
+    "id": "dm-mu41l3fx-by7i",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T11:53:28.749Z"
+  },
+  {
+    "id": "dm-mu41l4ez-q6w3",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu41l3fx-by7i",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T11:53:30.011Z"
+  },
+  {
+    "id": "dm-mu41nul9-b66o",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T11:55:37.245Z"
+  },
+  {
+    "id": "dm-mu41nviw-wncb",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu41nul9-b66o",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T11:55:38.456Z"
+  },
+  {
+    "id": "dm-mu44fn6x-o5t8",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T13:13:13.257Z"
+  },
+  {
+    "id": "dm-mu44fo4i-hm99",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu44fn6x-o5t8",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T13:13:14.466Z"
+  },
+  {
+    "id": "dm-mu46slr2-i88f",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T14:19:17.150Z"
+  },
+  {
+    "id": "dm-mu46smok-ne3k",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu46slr2-i88f",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T14:19:18.356Z"
+  },
+  {
+    "id": "dm-mu46vjt8-4yyx",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-16T14:21:34.604Z"
+  },
+  {
+    "id": "dm-mu46vkqr-gv4n",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu46vjt8-4yyx",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-16T14:21:35.811Z"
+  },
+  {
+    "id": "dm-mu50er13-sk0k",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-17T04:08:19.287Z"
+  },
+  {
+    "id": "dm-mu50eryp-pfvf",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu50er13-sk0k",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-17T04:08:20.497Z"
+  },
+  {
+    "id": "dm-mu50fghw-or30",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-17T04:08:52.292Z"
+  },
+  {
+    "id": "dm-mu50fhfi-h5jw",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu50fghw-or30",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-17T04:08:53.502Z"
+  },
+  {
+    "id": "dm-mu50g5g2-8im3",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-17T04:09:24.626Z"
+  },
+  {
+    "id": "dm-mu50g6dm-jrt5",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu50g5g2-8im3",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-17T04:09:25.834Z"
+  },
+  {
+    "id": "dm-mu50i50r-svc1",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-17T04:10:57.387Z"
+  },
+  {
+    "id": "dm-mu50i5ya-hn9h",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu50i50r-svc1",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-17T04:10:58.594Z"
+  },
+  {
+    "id": "dm-mu50jyl1-4za2",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-17T04:12:22.357Z"
+  },
+  {
+    "id": "dm-mu50jzim-hj1l",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu50jyl1-4za2",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-17T04:12:23.566Z"
+  },
+  {
+    "id": "dm-mu553a6p-6jqu",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-17T06:19:22.321Z"
+  },
+  {
+    "id": "dm-mu553b48-2wxx",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu553a6p-6jqu",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-17T06:19:23.528Z"
+  },
+  {
+    "id": "dm-mu554shg-2495",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-17T06:20:32.692Z"
+  },
+  {
+    "id": "dm-mu554tf0-shmv",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu554shg-2495",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-17T06:20:33.900Z"
+  },
+  {
+    "id": "dm-mu5iur98-3rig",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-17T12:44:39.164Z"
+  },
+  {
+    "id": "dm-mu5ius6q-hz17",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu5iur98-3rig",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-17T12:44:40.370Z"
+  },
+  {
+    "id": "dm-mu5kj6nj-240w",
+    "agentType": "Browser Agent",
+    "from": "user",
+    "fromName": "我",
+    "text": "第一批线索什么时候好？",
+    "conversationId": "mock-conversation-1",
+    "createdAt": "2026-09-17T13:31:38.479Z"
+  },
+  {
+    "id": "dm-mu5kj7l2-t5qn",
+    "agentType": "Browser Agent",
+    "from": "Browser Agent",
+    "fromName": "线索猎人",
+    "text": "我收到你的要求了。从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "conversationId": "mock-conversation-1",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu5kj6nj-240w",
+      "conversationId": "mock-conversation-1"
+    },
+    "createdAt": "2026-09-17T13:31:39.686Z"
   }
 ]

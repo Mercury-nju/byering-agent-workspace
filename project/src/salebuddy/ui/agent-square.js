@@ -7070,7 +7070,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         }
       });
       finishWork(agent.id, flow.viralWorkAnalysis.summary || "爆款作品分析报告", { taskId: flow.taskId, taskRunId: flow.taskRunId, suppressCompletionNotification: true });
-      pushActivity(agent.id, flow.status === "partial" ? "作品数据已读取，评论数据部分可用，报告已生成。" : "爆款作品分析已完成，报告已同步到成果中心和文件中心。");
+      pushActivity(agent.id, flow.status === "partial" ? "作品数据已读取，评论数据部分可用；结果已发送到 Agent 私信并沉淀到成果中心。" : "爆款作品分析已完成；结果已发送到 Agent 私信并沉淀到成果中心。 ");
+      globalThis.setTimeout(() => {
+        globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.closeRealtimeWork?.());
+      }, 800);
     } catch (error) {
       flow.status = "failed";
       flow.progress = 0;

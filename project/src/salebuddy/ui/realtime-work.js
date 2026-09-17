@@ -1,4 +1,5 @@
 import { openPage, el } from "./pages.js";
+import { isMockRuntime } from "../bridge/runtime-mode.js";
 import { clearNavigationRoute, persistNavigationRoute } from "./navigation-routes.js";
 import { grokStateForTeamStatus, mountGrokBotAvatar } from "./grok-bot-avatar.js";
 import { onboardingMatchFromStorage } from "../onboarding/matching.js";
@@ -42,7 +43,7 @@ const DEMO_PROSPECT_AVATARS = Object.freeze([
 
 export function realtimeWorkPreviewMode(search = globalThis.location?.search, { hostname = globalThis.location?.hostname } = {}) {
   const params = new URLSearchParams(String(search || ""));
-  const explicitPreview = params.get("preview") === "style";
+  const explicitPreview = params.get("preview") === "style" || isMockRuntime(search, { envMock: globalThis.__SALEBUDDY_CONFIG__?.runtimeMode === "mock" });
   const normalizedHost = String(hostname || "").trim().toLowerCase();
   const localHost = !normalizedHost || normalizedHost === "localhost" || normalizedHost === "127.0.0.1" || normalizedHost === "::1";
   const configuredPreview = globalThis.__SALEBUDDY_CONFIG__?.allowStylePreview === true;
@@ -2324,11 +2325,11 @@ const CSS = `
 .sb-rw-task-update-footer button:last-child{border-color:#2f80ed;background:#2f80ed}
 /* Analysis produces an actionable prospect list rather than a separate conclusion document. */
 .sb-rw-analysis-prospects-panel{min-width:0;overflow:hidden}.sb-rw-analysis-prospects-panel>.sb-rw-panel-head{border-bottom:0}.sb-rw-analysis-prospect-list{display:grid;grid-auto-rows:max-content;align-content:start;flex:1;min-height:0;padding:7px 15px 14px;overflow:auto}.sb-rw-analysis-prospect{display:grid;grid-template-columns:44px minmax(0,1fr);gap:11px;width:100%;padding:13px 8px;border:0;border-bottom:1px solid #edf1f5;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}.sb-rw-analysis-prospect:hover{background:#fbfcff}.sb-rw-analysis-prospect.is-selected{background:#f4f4f5;box-shadow:inset 3px 0 #2f80ed}.sb-rw-analysis-prospect:last-child{border-bottom:0}.sb-rw-analysis-prospect .sb-rw-acquisition-avatar{width:44px;height:44px;border-radius:50%}.sb-rw-analysis-prospect-copy{display:grid;min-width:0}.sb-rw-analysis-prospect-top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}.sb-rw-analysis-prospect-top strong{min-width:0;overflow:hidden;color:#27332d;font-size:13px;font-weight:680;text-overflow:ellipsis;white-space:nowrap}.sb-rw-analysis-prospect-tier{flex:none;padding:3px 6px;border-radius:5px;background:#f1f5ff;color:#2f80ed;font-size:9px;font-weight:680;line-height:1.2}.sb-rw-analysis-prospect-tier.is-medium{background:#fff7e8;color:#b6751e}.sb-rw-analysis-prospect-source,.sb-rw-analysis-prospect-quote,.sb-rw-analysis-prospect-evidence,.sb-rw-analysis-prospect-next{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis}.sb-rw-analysis-prospect-source{margin-top:5px;color:#8b969e;font-size:9px;white-space:nowrap}.sb-rw-analysis-prospect-quote{margin-top:6px;color:#34413b;font-size:11px;line-height:1.45;white-space:nowrap}.sb-rw-analysis-prospect-evidence{margin-top:5px;color:#647080;font-size:9px;line-height:1.45;white-space:nowrap}.sb-rw-analysis-prospect-next{margin-top:7px;color:#2f80ed;font-size:9px;font-weight:650;line-height:1.45;white-space:nowrap}
-.sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(300px,.84fr) minmax(360px,1fr) minmax(330px,.96fr);align-items:stretch}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel>.sb-rw-panel-head,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-outreach-pending-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-outreach-sent-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-main.is-live-danmaku-outreach-work .sb-rw-outreach-specialist-list{display:grid;align-content:start;gap:16px;flex:1;min-height:0;padding:14px;overflow:auto}.sb-rw-live-danmaku-room-panel .sb-rw-cloud-live-wrap{display:flex;flex:1;min-height:0;flex-direction:column;padding:0;background:transparent}.sb-rw-live-danmaku-room-panel .sb-rw-live-room-stage{flex:1;width:100%;min-height:0;max-height:none;aspect-ratio:auto;border-radius:14px}.sb-rw-live-danmaku-room-status{display:flex;align-items:center;gap:8px;padding:11px 14px;color:#16885b;font-size:10px}.sb-rw-live-danmaku-room-status i{width:7px;height:7px;border-radius:50%;background:#18a86f;box-shadow:0 0 0 4px rgba(24,168,111,.1)}.sb-rw-live-danmaku-analysis-queue-panel,.sb-rw-live-danmaku-analysis-detail-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-queue-body,.sb-rw-live-danmaku-analysis-detail-panel .sb-rw-acquisition-detail-body{min-height:0}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-meta b{color:#6b55c7}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-top>b{flex:none;padding:3px 6px;border-radius:5px;background:#f0ebff;color:#6b55c7;font-size:9px;font-weight:680}.sb-rw-live-danmaku-facts{display:grid;gap:8px}.sb-rw-live-danmaku-fact{display:grid;grid-template-columns:68px minmax(0,1fr);gap:9px;padding-bottom:9px;border-bottom:1px solid #edf1ef}.sb-rw-live-danmaku-fact span{color:#89948e;font-size:10px}.sb-rw-live-danmaku-fact strong{color:#334039;font-size:10px;line-height:1.5;word-break:break-word}.sb-rw-live-danmaku-evidence{display:grid;gap:7px}.sb-rw-live-danmaku-evidence h3{margin:0;color:#64716b;font-size:10px;font-weight:680}.sb-rw-live-danmaku-evidence p{margin:0;padding:9px 10px;border-left:3px solid #8d70e8;border-radius:0 7px 7px 0;background:#f7f4ff;color:#4b485d;font-size:10px;line-height:1.55;word-break:break-word}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(340px,.86fr) minmax(500px,1.14fr);align-items:stretch}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-viral-source-panel,.sb-rw-viral-report-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-viral-source-body,.sb-rw-viral-report-body{display:grid;align-content:start;gap:15px;flex:1;min-height:0;padding:16px;overflow:auto}.sb-rw-viral-source-link{display:grid;gap:6px;padding:12px;border:1px solid #e1e8f2;border-radius:9px;background:#f8faff}.sb-rw-viral-source-link span{color:#7a8797;font-size:10px}.sb-rw-viral-source-link strong,.sb-rw-viral-source-link a{color:#3a5e99;font-size:11px;line-height:1.5;overflow-wrap:anywhere}.sb-rw-viral-source-link a{text-decoration:none}.sb-rw-viral-goal{padding:11px 12px;border:1px solid #e8edf3;border-radius:8px;color:#596573;font-size:10px;line-height:1.55}.sb-rw-viral-progress{height:7px;overflow:hidden;border-radius:99px;background:#e9eef5}.sb-rw-viral-progress i{display:block;height:100%;border-radius:inherit;background:#527fd0;transition:width .35s ease}.sb-rw-viral-progress-meta{color:#647080;font-size:10px;line-height:1.55}.sb-rw-viral-process{display:grid;gap:7px}.sb-rw-viral-process-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px;border:1px solid #e7ebf1;border-radius:8px;background:#fbfcfe}.sb-rw-viral-process-row i{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#eef2f7;color:#8a96a4;font-size:10px;font-style:normal}.sb-rw-viral-process-row.is-done i{background:#eaf8ef;color:#197e53}.sb-rw-viral-process-row span{color:#3d4b5b;font-size:10px}.sb-rw-viral-process-row small{color:#8a96a4;font-size:9px}.sb-rw-viral-complete{padding:11px 12px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px}.sb-rw-viral-error{padding:11px 12px;border:1px solid #f1d9d9;border-radius:8px;background:#fff7f7;color:#a55454;font-size:10px;line-height:1.55}.sb-rw-viral-report-summary{margin:0;color:#394655;font-size:12px;line-height:1.65}.sb-rw-viral-report-facts{display:grid;gap:7px;padding-top:2px;color:#667382;font-size:10px;line-height:1.55}.sb-rw-viral-artifact{padding:10px 11px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px;line-height:1.5}
+.sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(300px,.84fr) minmax(360px,1fr) minmax(330px,.96fr);align-items:stretch}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel>.sb-rw-panel-head,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-outreach-pending-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-outreach-sent-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-main.is-live-danmaku-outreach-work .sb-rw-outreach-specialist-list{display:grid;align-content:start;gap:16px;flex:1;min-height:0;padding:14px;overflow:auto}.sb-rw-live-danmaku-room-panel .sb-rw-cloud-live-wrap{display:flex;flex:1;min-height:0;flex-direction:column;padding:0;background:transparent}.sb-rw-live-danmaku-room-panel .sb-rw-live-room-stage{flex:1;width:100%;min-height:0;max-height:none;aspect-ratio:auto;border-radius:14px}.sb-rw-live-danmaku-room-status{display:flex;align-items:center;gap:8px;padding:11px 14px;color:#16885b;font-size:10px}.sb-rw-live-danmaku-room-status i{width:7px;height:7px;border-radius:50%;background:#18a86f;box-shadow:0 0 0 4px rgba(24,168,111,.1)}.sb-rw-live-danmaku-analysis-queue-panel,.sb-rw-live-danmaku-analysis-detail-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-queue-body,.sb-rw-live-danmaku-analysis-detail-panel .sb-rw-acquisition-detail-body{min-height:0}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-meta b{color:#6b55c7}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-top>b{flex:none;padding:3px 6px;border-radius:5px;background:#f0ebff;color:#6b55c7;font-size:9px;font-weight:680}.sb-rw-live-danmaku-facts{display:grid;gap:8px}.sb-rw-live-danmaku-fact{display:grid;grid-template-columns:68px minmax(0,1fr);gap:9px;padding-bottom:9px;border-bottom:1px solid #edf1ef}.sb-rw-live-danmaku-fact span{color:#89948e;font-size:10px}.sb-rw-live-danmaku-fact strong{color:#334039;font-size:10px;line-height:1.5;word-break:break-word}.sb-rw-live-danmaku-evidence{display:grid;gap:7px}.sb-rw-live-danmaku-evidence h3{margin:0;color:#64716b;font-size:10px;font-weight:680}.sb-rw-live-danmaku-evidence p{margin:0;padding:9px 10px;border-left:3px solid #8d70e8;border-radius:0 7px 7px 0;background:#f7f4ff;color:#4b485d;font-size:10px;line-height:1.55;word-break:break-word}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(0,1fr);align-items:stretch}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:0;max-height:none}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-viral-source-panel,.sb-rw-viral-report-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-viral-source-body,.sb-rw-viral-report-body{display:grid;align-content:start;gap:15px;flex:1;min-height:0;padding:16px;overflow:auto}.sb-rw-viral-source-link{display:grid;gap:6px;padding:12px;border:1px solid #e1e8f2;border-radius:9px;background:#f8faff}.sb-rw-viral-source-link span{color:#7a8797;font-size:10px}.sb-rw-viral-source-link strong,.sb-rw-viral-source-link a{color:#3a5e99;font-size:11px;line-height:1.5;overflow-wrap:anywhere}.sb-rw-viral-source-link a{text-decoration:none}.sb-rw-viral-goal{padding:11px 12px;border:1px solid #e8edf3;border-radius:8px;color:#596573;font-size:10px;line-height:1.55}.sb-rw-viral-progress{height:7px;overflow:hidden;border-radius:99px;background:#e9eef5}.sb-rw-viral-progress i{display:block;height:100%;border-radius:inherit;background:#527fd0;transition:width .35s ease}.sb-rw-viral-progress-meta{color:#647080;font-size:10px;line-height:1.55}.sb-rw-viral-process{display:grid;gap:7px}.sb-rw-viral-process-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px;border:1px solid #e7ebf1;border-radius:8px;background:#fbfcfe}.sb-rw-viral-process-row i{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#eef2f7;color:#8a96a4;font-size:10px;font-style:normal}.sb-rw-viral-process-row.is-done i{background:#eaf8ef;color:#197e53}.sb-rw-viral-process-row span{color:#3d4b5b;font-size:10px}.sb-rw-viral-process-row small{color:#8a96a4;font-size:9px}.sb-rw-viral-complete{padding:11px 12px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px}.sb-rw-viral-error{padding:11px 12px;border:1px solid #f1d9d9;border-radius:8px;background:#fff7f7;color:#a55454;font-size:10px;line-height:1.55}.sb-rw-viral-report-summary{margin:0;color:#394655;font-size:12px;line-height:1.65}.sb-rw-viral-report-facts{display:grid;gap:7px;padding-top:2px;color:#667382;font-size:10px;line-height:1.55}.sb-rw-viral-artifact{padding:10px 11px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px;line-height:1.5}
 .sb-rw-live-danmaku-analysis-detail-panel .sb-rw-acquisition-detail-body{gap:16px;padding:14px 15px 16px}.sb-rw-live-danmaku-analysis-process{display:grid;gap:14px}.sb-rw-live-danmaku-analysis-process-intro{display:grid;gap:5px;padding:12px 13px;border:1px solid #ebe7fb;border-radius:9px;background:#fbfaff}.sb-rw-live-danmaku-analysis-process-intro strong{color:#4a3b83;font-size:12px;font-weight:700}.sb-rw-live-danmaku-analysis-process-intro span{color:#7b748e;font-size:10px;line-height:1.55}.sb-rw-live-danmaku-analysis-process-steps{display:grid;gap:0;margin:0;padding:0;list-style:none}.sb-rw-live-danmaku-analysis-process-step{position:relative;display:grid;grid-template-columns:23px minmax(0,1fr);gap:10px;padding:0 0 16px}.sb-rw-live-danmaku-analysis-process-step:not(:last-child)::before{position:absolute;top:23px;bottom:0;left:10px;border-left:1px solid #e3dff2;content:""}.sb-rw-live-danmaku-analysis-process-marker{z-index:1;display:grid;place-items:center;width:21px;height:21px;border:1px solid #d8d2ed;border-radius:50%;background:#fff;color:#8b83a6;font-size:9px;font-style:normal;font-weight:700}.sb-rw-live-danmaku-analysis-process-step.is-running .sb-rw-live-danmaku-analysis-process-marker{border-color:#8d70e8;background:#8d70e8;color:#fff;box-shadow:0 0 0 4px rgba(141,112,232,.12)}.sb-rw-live-danmaku-analysis-process-step.is-done .sb-rw-live-danmaku-analysis-process-marker{border-color:#16a571;background:#16a571;color:#fff}.sb-rw-live-danmaku-analysis-process-copy{display:grid;gap:3px;min-width:0;padding-top:1px}.sb-rw-live-danmaku-analysis-process-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}.sb-rw-live-danmaku-analysis-process-top strong{min-width:0;color:#30363a;font-size:11px;font-weight:700}.sb-rw-live-danmaku-analysis-process-top span{flex:none;color:#9a94aa;font-size:9px}.sb-rw-live-danmaku-analysis-process-step.is-running .sb-rw-live-danmaku-analysis-process-top span{color:#765fc0}.sb-rw-live-danmaku-analysis-process-step.is-done .sb-rw-live-danmaku-analysis-process-top span{color:#159965}.sb-rw-live-danmaku-analysis-process-copy>span{color:#8b9195;font-size:9px;line-height:1.45}.sb-rw-live-danmaku-analysis-process-copy small{color:#6f55bd;font-size:9px;line-height:1.4}.sb-rw-live-danmaku-analysis-process-step.is-queued .sb-rw-live-danmaku-analysis-process-copy small{color:#a09aa9}.sb-rw-live-danmaku-analysis-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #edf1ef;border-bottom:1px solid #edf1ef}.sb-rw-live-danmaku-analysis-summary-item{display:grid;gap:3px;padding:10px 8px;text-align:center;border-right:1px solid #edf1ef}.sb-rw-live-danmaku-analysis-summary-item:last-child{border-right:0}.sb-rw-live-danmaku-analysis-summary-item strong{color:#30363a;font-size:17px;font-variant-numeric:tabular-nums}.sb-rw-live-danmaku-analysis-summary-item span{color:#8c9295;font-size:9px}.sb-rw-live-danmaku-analysis-outcome{display:grid;gap:5px;padding:12px 13px;border-top:1px solid #edf1ef}.sb-rw-live-danmaku-analysis-outcome strong{color:#3c4346;font-size:11px}.sb-rw-live-danmaku-analysis-outcome span{color:#8b9195;font-size:10px;line-height:1.55}
 .sb-rw-live-danmaku-analysis-strategy{display:grid;gap:10px;padding-top:2px}.sb-rw-live-danmaku-analysis-strategy h3{margin:0;color:#30363a;font-size:11px;font-weight:700}.sb-rw-live-danmaku-analysis-strategy-headline{margin:0;color:#6e55b9;font-size:10px;line-height:1.5}.sb-rw-live-danmaku-analysis-strategy-topics{display:grid;gap:8px}.sb-rw-live-danmaku-analysis-strategy-topic{display:grid;gap:4px;padding:10px 11px;border:1px solid #ebe7fb;border-radius:8px;background:#fbfaff}.sb-rw-live-danmaku-analysis-strategy-topic-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.sb-rw-live-danmaku-analysis-strategy-topic-top strong{color:#40336b;font-size:10px}.sb-rw-live-danmaku-analysis-strategy-topic-top span{color:#988fb0;font-size:9px}.sb-rw-live-danmaku-analysis-strategy-topic>span{color:#6f7280;font-size:9px;line-height:1.5}.sb-rw-live-danmaku-analysis-strategy-actions{display:grid;gap:5px;margin:0;padding-left:17px;color:#58606b;font-size:9px;line-height:1.5}.sb-rw-live-danmaku-analysis-strategy-actions li::marker{color:#8d70e8}
 @media(max-width:1200px){.sb-rw-main.is-analysis-work>.sb-rw-analysis-prospects-panel{grid-column:1/-1}}
-@media(max-width:1200px){.sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(0,1fr) minmax(300px,.9fr)}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{grid-column:1/-1}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(0,1fr)}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:0}}
+@media(max-width:1200px){.sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(0,1fr) minmax(300px,.9fr)}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{grid-column:1/-1}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(0,1fr)}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:0;max-height:none}}
 /* Keep the empty state within the page body's available height after the account rail. */
 .sb-page.sb-page-realtime-work > .sb-page-body{min-height:0}
 .sb-page.sb-page-realtime-work > .sb-page-body > .sb-realtime-page{display:flex;flex-direction:column;min-height:100%;height:100%}
@@ -4201,7 +4202,11 @@ export function viralWorkAnalysisRealtimeView(work = {}) {
   const rawResult = metadata.resultSnapshot || metadata.viralWorkAnalysis || metadata.analysisResult;
   const resultSource = acquisitionObject(rawResult);
   const result = acquisitionObject(resultSource.resultSnapshot || resultSource);
-  const status = acquisitionText(metadata.status, result.status, work.state === "done" ? "completed" : work.lastError ? "failed" : "running") || "running";
+  const hasSourceUrl = Boolean(acquisitionText(metadata.sourceUrl, metadata.source_url, result.sourceUrl, result.inputs?.workUrl));
+  const hasStartedTask = Boolean(metadata.taskId || metadata.taskRunId || work.taskId || work.taskRunId || hasSourceUrl || Object.keys(result).length);
+  const status = hasStartedTask
+    ? acquisitionText(metadata.status, result.status, work.state === "done" ? "completed" : work.lastError ? "failed" : "running") || "running"
+    : "idle";
   const progress = acquisitionNumber(work.progress, metadata.progress);
   const completed = ["completed", "succeeded", "success", "done", "partial"].includes(status.toLowerCase()) || work.state === "done";
   const process = acquisitionArray(result.analysisProcess);
@@ -4229,7 +4234,7 @@ export function viralWorkAnalysisRealtimeView(work = {}) {
       ? "completed"
       : currentIndex >= 0
         ? index < currentIndex ? "completed" : index === currentIndex ? "running" : "queued"
-        : metadata.mock === true
+        : metadata.mock === true && hasStartedTask
           ? index === 0 ? "completed" : "running"
           : "queued";
     const stepStatus = acquisitionText(stored?.status, fallbackStatus) || fallbackStatus;
@@ -4240,6 +4245,7 @@ export function viralWorkAnalysisRealtimeView(work = {}) {
     status,
     progress,
     sourceUrl: acquisitionText(metadata.sourceUrl, metadata.source_url, result.sourceUrl, result.inputs?.workUrl),
+    hasStartedTask,
     goal: acquisitionText(metadata.goal, result.goal),
     phase,
     title: acquisitionText(result.title, "爆款作品分析报告"),
@@ -5257,17 +5263,19 @@ function renderViralWorkAnalysisSourcePanel(view) {
   panel.appendChild(head);
   const body = el("div", "sb-rw-viral-source-body");
   const source = el("div", "sb-rw-viral-source-link");
-  source.appendChild(el("span", null, "分析作品"));
+  source.appendChild(el("span", null, view.hasStartedTask ? "分析作品" : "任务状态"));
   if (/^https?:\/\//i.test(view.sourceUrl)) {
     const link = el("a", null, view.sourceUrl);
     link.href = view.sourceUrl;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
     source.appendChild(link);
-  } else source.appendChild(el("strong", null, view.sourceUrl || "等待作品链接"));
+  } else source.appendChild(el("strong", null, view.hasStartedTask ? "作品链接未回传" : "尚未开启作品分析任务"));
   body.appendChild(source);
   if (view.goal) body.appendChild(el("div", "sb-rw-viral-goal", `分析目标：${view.goal}`));
-  if (view.status === "running") {
+  if (view.status === "idle") {
+    body.appendChild(el("div", "sb-rw-viral-complete", "用户开启任务并提交作品链接后，分析进度会显示在这里"));
+  } else if (view.status === "running") {
     const progress = el("div", "sb-rw-viral-progress");
     const fill = el("i");
     fill.style.width = `${Math.max(0, Math.min(96, view.progress || 0))}%`;
@@ -5293,17 +5301,17 @@ function renderViralWorkAnalysisSourcePanel(view) {
 function renderViralWorkAnalysisReportPanel(view) {
   const panel = el("article", "sb-rw-panel sb-rw-viral-report-panel");
   const head = el("div", "sb-rw-panel-head");
-  head.append(el("div", "sb-rw-panel-title", "分析报告"), el("span", "sb-rw-panel-sub", view.hasResult ? "真实结果" : "等待回传"));
+  head.append(el("div", "sb-rw-panel-title", "实时工作动态"), el("span", "sb-rw-panel-sub", view.status === "idle" ? "尚未启动" : view.status === "running" ? "实时执行中" : "结果已发送"));
   panel.appendChild(head);
   const body = el("div", "sb-rw-viral-report-body");
   if (!view.hasResult) {
     const empty = el("div", "sb-rw-acquisition-detail-empty");
-    empty.append(el("i"), el("strong", null, "分析完成后，报告会显示在这里"), el("span", null, "视频事实、互动数据、评论证据和可复用打法会按层次整理。"));
+    empty.append(el("i"), el("strong", null, "分析完成后会通过 Agent 私信通知你"), el("span", null, "完整报告会沉淀到成果中心，这里只展示实时执行状态。"));
     body.appendChild(empty);
     panel.appendChild(body);
     return panel;
   }
-  body.appendChild(el("p", "sb-rw-viral-report-summary", view.summary));
+  body.appendChild(el("p", "sb-rw-viral-report-summary", view.status === "completed" || view.status === "partial" ? "分析已完成，结果已发送到 Agent 私信并沉淀到成果中心。" : view.summary));
   const metrics = el("div", "sb-rw-viral-report-metrics");
   [[view.metrics.views, "播放量"], [view.metrics.likes, "点赞"], [view.metrics.comments, "评论"], [view.metrics.shares, "分享"], [view.metrics.interactionRate == null ? "未返回" : `${view.metrics.interactionRate}%`, "可见互动率"]].forEach(([value, label]) => {
     const item = el("div", "sb-rw-viral-report-metric");
@@ -5323,10 +5331,12 @@ function renderViralWorkAnalysisReportPanel(view) {
 
 function renderViralWorkAnalysisWorksite(selected) {
   const view = viralWorkAnalysisRealtimeView(selected.liveWork || {});
-  return {
-    sourcePanel: renderViralWorkAnalysisSourcePanel(view),
-    reportPanel: renderViralWorkAnalysisReportPanel(view)
-  };
+  const sourcePanel = renderViralWorkAnalysisSourcePanel(view);
+  // The realtime page is a progress surface only. The finished report is
+  // delivered through Agent DM and persisted to Results Center.
+  const reportPanel = renderViralWorkAnalysisReportPanel(view);
+  reportPanel.classList.add("sb-rw-viral-live-feed");
+  return { sourcePanel, reportPanel };
 }
 
 async function loadAcquisitionReceptionConversations(selected, state) {
@@ -8003,6 +8013,16 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
 
   const refreshRealtimeView = ({ structural = false } = {}) => {
     if (state.paused || !page.root.isConnected) return;
+    const activeSelected = selectedAgent();
+    if (activeSelected?.id === "mkt-viral-work-analysis" && activeSelected.liveWork) {
+      const taskState = String(activeSelected.liveWork.taskState || activeSelected.liveWork.task_status || activeSelected.liveWork.metadata?.status || "").toLowerCase();
+      const finished = activeSelected.liveWork.state === "done" || ["completed", "succeeded", "success", "partial", "failed", "error", "cancelled", "canceled", "stopped"].includes(taskState);
+      if (finished && !state.viralCompletionClosed) {
+        state.viralCompletionClosed = true;
+        page.close();
+        return;
+      }
+    }
     if (structural || !refreshMountedRealtimeView()) {
       if (structural) {
         render();
