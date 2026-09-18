@@ -774,7 +774,7 @@ test("employment store accepts viral work analysis without account scope", () =>
   const root = mkdtempSync(join(tmpdir(), "viral-work-employment-"));
   try {
     const employmentStore = createEmploymentStore({ stateFile: join(root, "employment.json") });
-    const contract = employmentStore.hire(null, { agentId: "mkt-viral-work-analysis", name: "爆款作品分析" });
+    const contract = employmentStore.hire(null, { agentId: "mkt-viral-work-analysis", name: "抖音爆款拆解官" });
 
     assert.equal(contract.agentId, "mkt-viral-work-analysis");
     assert.equal(contract.dataScope.length, 0);

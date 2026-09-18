@@ -196,7 +196,9 @@ test("conversation strategy only accepts accounts with private reception enabled
 
 test("style preview exposes multiple isolated mock accounts for account switching", () => {
   const accounts = createConversationStrategyMockAccounts();
-  assert.deepEqual(accounts.map(({ name }) => name), ["臻选新能源 · 上海", "启航升学规划", "木作生活研究所"]);
+  assert.deepEqual(accounts.map(({ name }) => name), ["安安的升学笔记", "小鹿的新能源车日记", "阿杰的收纳好物"]);
+  assert.ok(accounts.every((account) => account.accountKind === "consumer"));
+  assert.ok(accounts.some((account) => account.consumerScenario === "personal-ecommerce"));
   assert.ok(accounts.every((account) => account.mock && account.privateReceptionEnabled && account.receptionConfigured));
   assert.equal(new Set(accounts.map(({ id }) => id)).size, accounts.length);
 });

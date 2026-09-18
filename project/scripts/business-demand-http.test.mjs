@@ -25,7 +25,7 @@ test("business demand endpoint receives live outreach capacity requests", async 
     body: JSON.stringify({
       kind: "live_outreach_capacity",
       agentId: "mkt-live-danmaku-outreach",
-      agentName: "电商直播间未成交客户触达",
+      agentName: "直播追单助理",
       accountId: "account-1",
       accountName: "品牌直播间",
       sentCount: 37,
@@ -41,7 +41,7 @@ test("business demand endpoint receives live outreach capacity requests", async 
     tenantId: null,
     kind: "live_outreach_capacity",
     agentId: "mkt-live-danmaku-outreach",
-    agentName: "电商直播间未成交客户触达",
+    agentName: "直播追单助理",
     accountId: "account-1",
     accountName: "品牌直播间",
     sentCount: 37,

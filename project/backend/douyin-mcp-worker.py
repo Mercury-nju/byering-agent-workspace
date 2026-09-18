@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import fcntl
 import hashlib
 import json
 import os
@@ -17,6 +16,16 @@ import sys
 import tempfile
 from pathlib import Path
 from typing import Any
+
+try:
+    import fcntl
+except ImportError:  # Windows
+    fcntl = None
+
+try:
+    import msvcrt
+except ImportError:  # Unix
+    msvcrt = None
 
 from mcp.client.session import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
@@ -49,8 +58,15 @@ class WorkerInstanceLock:
     def __enter__(self):
         self.handle = self.path.open("a+")
         try:
-            fcntl.flock(self.handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError as exc:
+            if fcntl is not None:
+                fcntl.flock(self.handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            elif msvcrt is not None:
+                self.handle.seek(0)
+                self.handle.write("0")
+                self.handle.flush()
+                self.handle.seek(0)
+                msvcrt.locking(self.handle.fileno(), msvcrt.LK_NBLCK, 1)
+        except (BlockingIOError, OSError) as exc:
             self.handle.close()
             self.handle = None
             raise WorkerAlreadyRunning(
@@ -60,7 +76,14 @@ class WorkerInstanceLock:
 
     def __exit__(self, exc_type, exc, tb):
         if self.handle is not None:
-            fcntl.flock(self.handle.fileno(), fcntl.LOCK_UN)
+            if fcntl is not None:
+                fcntl.flock(self.handle.fileno(), fcntl.LOCK_UN)
+            elif msvcrt is not None:
+                self.handle.seek(0)
+                try:
+                    msvcrt.locking(self.handle.fileno(), msvcrt.LK_UNLCK, 1)
+                except OSError:
+                    pass
             self.handle.close()
             self.handle = None
 

@@ -356,6 +356,31 @@ test("registry keeps a transient startup read timeout in starting state", async 
   assert.equal(status.state, "STARTING");
 });
 
+test("registry stops retrying when the provider reports an already-running worker", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-agent-cloud-"));
+  const stateFile = join(directory, "registry.json");
+  const registry = createDouyinAgentCloudRegistry({
+    stateFile,
+    createService: () => ({
+      configured: true,
+      async start() {
+        throw Object.assign(new Error("another worker owns this API key"), {
+          code: "DOUYIN_MCP_WORKER_ALREADY_RUNNING"
+        });
+      },
+      close() {},
+      getSessionId() { return null; }
+    })
+  });
+
+  await assert.rejects(() => registry.start("mkt-dm-inbox"), { code: "DOUYIN_MCP_WORKER_ALREADY_RUNNING" });
+  assert.equal(registry.get("mkt-dm-inbox").status, "error");
+  assert.equal(registry.get("mkt-dm-inbox").lastError.code, "DOUYIN_MCP_WORKER_ALREADY_RUNNING");
+  const status = await registry.status("mkt-dm-inbox", { resumeSaved: false });
+  assert.equal(status.state, "ERROR");
+  assert.equal(status.error.code, "DOUYIN_MCP_WORKER_ALREADY_RUNNING");
+});
+
 test("registry does not mark an unresolved provider startup as online", async () => {
   const directory = await mkdtemp(join(tmpdir(), "byering-agent-cloud-"));
   const stateFile = join(directory, "registry.json");

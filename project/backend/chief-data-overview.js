@@ -5,9 +5,9 @@ const AGENT_ALIASES = Object.freeze([
   Object.freeze({ agentId: "mkt-find-people", labels: ["找客专员", "找人管家"] }),
   Object.freeze({ agentId: "mkt-intent-analyst", labels: ["客户分析员", "客户研究员", "分析助手"] }),
   Object.freeze({ agentId: "mkt-live-danmaku-analysis", labels: ["直播间弹幕分析", "直播弹幕分析"] }),
-  Object.freeze({ agentId: "mkt-viral-work-analysis", labels: ["爆款作品分析", "作品分析助手"] }),
+  Object.freeze({ agentId: "mkt-viral-work-analysis", labels: ["抖音爆款拆解官", "爆款作品分析", "作品分析助手"] }),
   Object.freeze({ agentId: "mkt-cold-writer", labels: ["潜客触达专员", "潜客激活专员", "私信运营"] }),
-  Object.freeze({ agentId: "mkt-live-danmaku-outreach", labels: ["直播间触达", "直播间私信触达"] }),
+  Object.freeze({ agentId: "mkt-live-danmaku-outreach", labels: ["直播追单助理", "直播间触达", "直播间私信触达"] }),
   Object.freeze({ agentId: "mkt-dm-inbox", labels: ["私信客服", "私信自动回复", "对话助手"] }),
   Object.freeze({ agentId: "mkt-gold-customer-service", labels: ["金牌客服", "快速接待客服"] }),
 ]);

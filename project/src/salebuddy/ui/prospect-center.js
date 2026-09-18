@@ -10,8 +10,7 @@ import { fetchCanonicalResultRuns } from "../bridge/results-client.js";
 import { createResultsMockPreviewData, createResultsMockPreviewFiles, isResultsMockPreview } from "./results-mock-preview.js";
 import { accountAvatarSource, getAuthorizedManagedAccounts } from "./realtime-work.js";
 import { displayAgentName, localizeAgentText } from "../brand.js";
-import { getMarketplaceAgent, isMarketplaceAgentAvailable, listHiredAgents, MARKETPLACE_LATEST_AGENT_IDS } from "../agents/marketplace.js";
-import { refreshEmploymentContracts } from "../bridge/employment-client.js";
+import { getMarketplaceAgent, isMarketplaceAgentAvailable, MARKETPLACE_LATEST_AGENT_IDS } from "../agents/marketplace.js";
 import { grokStateForTeamStatus, mountGrokBotAvatar } from "./grok-bot-avatar.js";
 import { listFiles, subscribe as subscribeFiles } from "../agents/file-store.js";
 import { openAgentSquarePage } from "./agent-square.js";
@@ -34,10 +33,17 @@ const SYSTEM_TAGS = Object.freeze(["高意向", "购买咨询", "求链接", "�
 const FOLLOWUP_STATUSES = Object.freeze([PROSPECT_STATUSES.AUTOMATIC_OUTREACH, PROSPECT_STATUSES.WAITING_OUTREACH_CONFIRMATION, "已触达", "已回复", "跟进中", "已留资", "未回复", "高意向需二次触达", "即将流失", "已归档"]);
 const PROSPECT_FILTERS = Object.freeze(["全部", PROSPECT_STATUSES.AUTOMATIC_OUTREACH, PROSPECT_STATUSES.WAITING_OUTREACH_CONFIRMATION, "已触达", "已回复", "跟进中", "已归档"]);
 const LEAD_FILTERS = Object.freeze(["全部", "已留资", "成交跟进", "已转化", "已失效"]);
+const VIRAL_REPORT_TEMPLATE_URL = new URL(
+  "../../../artifacts/抖音爆款视频拆解报告-学习压力太大了.html",
+  import.meta.url
+).href;
+const VIRAL_REPORT_TEMPLATE_ID = "viral-teardown-v1";
+const VIRAL_REPORT_TEMPLATE_NAME = "抖音爆款视频拆解报告-学习压力太大了.html";
 
 const CSS = `
 .sb-prospect-page{height:100%;box-sizing:border-box;padding:26px 34px 40px;background:#f7f9f7;color:#17231d;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow:auto}
 .sb-prospect-shell{max-width:1260px;margin:0 auto}.sb-prospect-topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}.sb-prospect-kicker{display:flex;align-items:center;gap:8px;color:#159f63;font-size:12px;font-weight:700;letter-spacing:.04em}.sb-prospect-kicker i{width:7px;height:7px;border-radius:50%;background:#12b66d;box-shadow:0 0 0 4px rgba(18,182,109,.12)}.sb-prospect-subtitle{margin:6px 0 0;color:#7a887f;font-size:13px}.sb-prospect-top-actions{display:flex;align-items:center;gap:8px}.sb-prospect-button{height:34px;padding:0 13px;border:1px solid #d6e7dc;border-radius:8px;color:#557064;background:#fff;font:inherit;font-size:11px;font-weight:650;cursor:pointer}.sb-prospect-button:hover{border-color:#8ed3ad;background:#f5fcf7}.sb-prospect-button.primary{border-color:#10ae68;color:#fff;background:#10b56b}.sb-prospect-button.primary:hover{background:#079a59}.sb-prospect-button:disabled{opacity:.5;cursor:not-allowed}
+@media(min-width:761px){.sb-prospect-shell{min-height:100%;display:flex;flex-direction:column}.sb-prospect-workspace{flex:1;min-height:0}.sb-prospect-workspace>.sb-prospect-panel{min-height:0}}
 .sb-prospect-workspace{display:grid;grid-template-columns:minmax(0,1.58fr) minmax(330px,.72fr);gap:14px;margin-top:14px}.sb-prospect-panel{min-width:0;border:1px solid #e1ebe4;border-radius:13px;background:#fff}.sb-prospect-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid #edf2ef}.sb-prospect-panel-title{font-size:14px;font-weight:750}.sb-prospect-panel-meta{color:#9aa59e;font-size:10px}.sb-prospect-panel-actions{display:flex;align-items:center;gap:10px;margin-left:auto}.sb-prospect-toolbar{position:relative;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:11px 16px;border-bottom:1px solid #f0f3f1}.sb-prospect-filter{height:28px;padding:0 10px;border:1px solid transparent;border-radius:7px;color:#7a887f;background:transparent;font:inherit;font-size:11px;cursor:pointer}.sb-prospect-filter:hover{background:#f3f7f4}.sb-prospect-filter.is-active{border-color:#bfe6cf;color:#118f58;background:#effaf4;font-weight:650}.sb-prospect-search{width:156px;height:29px;margin-left:auto;box-sizing:border-box;padding:0 10px;border:1px solid #e1ebe4;border-radius:7px;outline:none;color:#334238;background:#fbfdfb;font:inherit;font-size:11px}.sb-prospect-search:focus{border-color:#7bd1a3;box-shadow:0 0 0 3px rgba(18,182,109,.1)}.sb-prospect-view-toggle{display:flex;gap:2px;padding:3px;border-radius:8px;background:#f1f5f2}.sb-prospect-view{height:25px;padding:0 8px;border:0;border-radius:6px;color:#8b9890;background:transparent;font:inherit;font-size:10px;cursor:pointer}.sb-prospect-view.is-active{color:#1c3025;background:#fff;box-shadow:0 1px 3px rgba(23,45,32,.08);font-weight:650}
 .sb-prospect-workspace.is-empty-discovery{align-items:start}.sb-prospect-workspace.is-empty-discovery .sb-prospect-panel:last-child{min-height:0}.sb-prospect-workspace.is-empty-discovery .sb-prospect-detail-empty{min-height:170px}
 .sb-prospect-tag-manager{position:absolute;top:48px;left:16px;z-index:5;width:265px;padding:13px;border:1px solid #dcebe1;border-radius:10px;background:#fff;box-shadow:0 14px 32px rgba(24,65,41,.14)}.sb-prospect-tag-manager[hidden]{display:none}.sb-prospect-tag-manager-title{font-size:11px;font-weight:750}.sb-prospect-tag-cloud{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.sb-prospect-tag-chip{height:24px;padding:0 8px;border:1px solid #dbe9df;border-radius:6px;color:#6c7b72;background:#f8fbf9;font:inherit;font-size:10px;cursor:pointer}.sb-prospect-tag-chip.is-used{border-color:#b4e3c8;color:#138e58;background:#effaf4}.sb-prospect-tag-input{display:flex;gap:5px;margin-top:11px}.sb-prospect-tag-input input{min-width:0;flex:1;height:27px;padding:0 8px;border:1px solid #e1ebe4;border-radius:6px;outline:none;font:inherit;font-size:10px}.sb-prospect-tag-input button{height:27px;padding:0 8px;border:0;border-radius:6px;color:#fff;background:#12ae69;font:inherit;font-size:10px;cursor:pointer}.sb-prospect-tag-ai{width:100%;height:28px;margin-top:8px;border:1px solid #cfe7d9;border-radius:6px;color:#178e58;background:#f1fbf5;font:inherit;font-size:10px;cursor:pointer}
@@ -233,16 +239,32 @@ const DATA_CSS = `
 
 const RESULT_TIME_FILTER_CSS = `
 .sb-result-panel-head .sb-result-time-filter{height:32px;flex:none;box-sizing:border-box;padding:0 28px 0 10px;border:1px solid #d8dee6;border-radius:8px;color:#4e5966;background:#fff;font:inherit;font-size:11px;outline:0;cursor:pointer}.sb-result-panel-head .sb-result-time-filter:focus{border-color:#7799ca;box-shadow:0 0 0 3px rgba(66,103,165,.1)}
+.sb-prospect-workspace.is-html-report-workspace>.sb-prospect-panel:first-child{container-type:inline-size}.sb-report-list-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.85fr);align-items:center;column-gap:12px}.sb-report-list-head .sb-result-panel-copy{display:grid;min-width:0;gap:4px}.sb-report-list-head .sb-prospect-panel-title{display:block;min-width:0;overflow:hidden;color:#20252b;font-size:13px;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}.sb-report-list-head .sb-prospect-panel-meta{display:block;min-width:0;margin:0;overflow:hidden;color:#8b95a1;font-size:10px;line-height:1.35;text-overflow:ellipsis;white-space:nowrap}.sb-result-panel-controls{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:center;gap:8px;min-width:0}.sb-report-list-head .sb-result-time-filter{width:100%;min-width:0}.sb-report-list-head .sb-result-toolbar{width:auto;min-width:0;flex:none;padding:0;border:0}.sb-report-list-head .sb-result-toolbar .sb-prospect-search{width:100%;height:32px;margin:0}
 @media(max-width:980px){.sb-result-panel-head{align-items:flex-start;flex-wrap:wrap}.sb-result-panel-head .sb-prospect-panel-meta{margin-left:0;margin-right:auto}.sb-result-panel-head .sb-result-toolbar{min-width:190px;flex:1}.sb-result-panel-head .sb-result-time-filter{order:3}}
+@media(max-width:520px){.sb-report-list-head{grid-template-columns:1fr;row-gap:10px}.sb-result-panel-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr);width:100%}.sb-report-list-head .sb-result-toolbar{min-width:0}}
+@container (max-width:430px){.sb-report-list-head{grid-template-columns:1fr;row-gap:10px}.sb-result-panel-controls{grid-template-columns:minmax(0,1fr) minmax(0,1fr);width:100%}.sb-report-list-head .sb-result-toolbar{min-width:0}}
 `;
 
 const AGENT_RAIL_CSS = `
 .sb-results-agent-team{display:flex;flex-wrap:nowrap;gap:12px;margin:0;padding:2px 2px 8px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;touch-action:pan-x}.sb-results-agent-card{flex:0 0 calc((100% - 24px) / 3);min-width:280px;min-height:76px;padding:13px 16px;align-items:flex-start;justify-content:center;scroll-snap-align:start}.sb-results-agent-line{align-items:center;gap:12px}.sb-results-agent-avatar{width:42px;height:42px;font-size:14px}.sb-results-agent-copy{padding-top:0}.sb-results-agent-name{font-size:15px;line-height:1.3}.sb-results-agent-role{margin-top:4px;font-size:12px;line-height:1.45}
+.sb-results-center-empty{display:grid;place-items:center;min-height:clamp(360px,56vh,540px);margin-top:14px;padding:32px;border:1px solid #e0e5eb;border-radius:14px;background:#fff}.sb-results-center-empty-copy{max-width:380px;text-align:center}.sb-results-center-empty-copy h2{margin:0;color:#20252b;font-size:17px;font-weight:750}.sb-results-center-empty-copy p{margin:9px 0 0;color:#87928c;font-size:12px;line-height:1.65}.sb-results-center-empty-action{height:34px;margin-top:18px;padding:0 14px;border:1px solid #20252b;border-radius:8px;color:#fff;background:#20252b;font:inherit;font-size:11px;font-weight:650;cursor:pointer}.sb-results-center-empty-action:hover{background:#343b44}
 @media(max-width:760px){.sb-results-agent-card{flex-basis:86%;min-width:240px;min-height:72px;padding:12px 14px}.sb-results-agent-avatar{width:38px;height:38px}.sb-results-agent-name{font-size:14px}.sb-results-agent-role{font-size:11px}}
 `;
 
 const GOLD_CUSTOMER_WORKSPACE_CSS = `
-.sb-gold-workbench{margin-top:14px}.sb-gold-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:16px 18px;border:1px solid #e1e7ed;border-radius:12px;background:#fff}.sb-gold-summary-item{padding:8px 10px;border-left:1px solid #edf0f3}.sb-gold-summary-item:first-child{border-left:0}.sb-gold-summary-item strong{display:block;color:#24303a;font-size:22px;font-weight:760}.sb-gold-summary-item span{display:block;margin-top:4px;color:#84909c;font-size:10px}.sb-gold-layout{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(340px,1.35fr) minmax(250px,.82fr);min-height:560px;margin-top:12px;overflow:hidden;border:1px solid #e1e7ed;border-radius:12px;background:#fff}.sb-gold-column{min-width:0;padding:16px}.sb-gold-column+.sb-gold-column{border-left:1px solid #e8edf2}.sb-gold-column.is-list{background:#fafbfd}.sb-gold-column.is-detail{background:#fcfdfe}.sb-gold-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:13px}.sb-gold-head strong{color:#33404c;font-size:13px}.sb-gold-head span{color:#94a0ab;font-size:10px}.sb-gold-list{display:grid;gap:7px}.sb-gold-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;width:100%;padding:11px;border:1px solid #e4e9ef;border-radius:8px;background:#fff;color:inherit;text-align:left;font:inherit;cursor:pointer}.sb-gold-row.is-selected{border-color:#78a9e3;background:#f5faff;box-shadow:0 0 0 1px #78a9e3}.sb-gold-row strong{display:block;overflow:hidden;color:#303a44;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.sb-gold-row p{display:-webkit-box;overflow:hidden;margin:4px 0 0;color:#7b8793;font-size:10px;line-height:1.5;-webkit-box-orient:vertical;-webkit-line-clamp:2}.sb-gold-row span{color:#6683a7;font-size:10px;white-space:nowrap}.sb-gold-person{padding-bottom:13px;border-bottom:1px solid #e9edf2}.sb-gold-person strong{display:block;color:#2d3741;font-size:16px}.sb-gold-person span{display:block;margin-top:4px;color:#8b96a2;font-size:10px}.sb-gold-messages{display:grid;gap:9px;margin-top:14px}.sb-gold-message{max-width:88%;padding:10px 11px;border-radius:9px;background:#f2f5f8;color:#4d5c6b;font-size:12px;line-height:1.6}.sb-gold-message.is-outbound{justify-self:end;background:#eaf3ff;color:#326496}.sb-gold-message small{display:block;margin-bottom:3px;color:#8290a0;font-size:10px}.sb-gold-fact{padding:10px 0;border-bottom:1px solid #edf0f3}.sb-gold-fact strong{display:block;color:#7d8995;font-size:10px}.sb-gold-fact span{display:block;margin-top:4px;color:#465361;font-size:12px;line-height:1.55}.sb-gold-empty{display:grid;place-items:center;min-height:260px;color:#9ba5af;font-size:12px;text-align:center}@media(max-width:860px){.sb-gold-layout{grid-template-columns:1fr}.sb-gold-column+.sb-gold-column{border-top:1px solid #e8edf2;border-left:0}.sb-gold-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-gold-summary-item:nth-child(odd){border-left:0}}
+.sb-gold-workbench{margin-top:14px}.sb-gold-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:16px 18px;border:1px solid #e1e7ed;border-radius:12px;background:#fff}.sb-gold-summary.is-leads{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-gold-summary-item{padding:8px 10px;border-left:1px solid #edf0f3}.sb-gold-summary-item:first-child{border-left:0}.sb-gold-summary-item strong{display:block;color:#24303a;font-size:22px;font-weight:760}.sb-gold-summary-item span{display:block;margin-top:4px;color:#84909c;font-size:10px}.sb-gold-layout{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(340px,1.35fr) minmax(250px,.82fr);min-height:560px;margin-top:12px;overflow:hidden;border:1px solid #e1e7ed;border-radius:12px;background:#fff}.sb-gold-column{min-width:0;padding:16px}.sb-gold-column+.sb-gold-column{border-left:1px solid #e8edf2}.sb-gold-column.is-list{background:#fafbfd}.sb-gold-column.is-detail{background:#fcfdfe}.sb-gold-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:13px}.sb-gold-head strong{color:#33404c;font-size:13px}.sb-gold-head span{color:#94a0ab;font-size:10px}.sb-gold-list{display:grid;gap:7px}.sb-gold-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;width:100%;padding:11px;border:1px solid #e4e9ef;border-radius:8px;background:#fff;color:inherit;text-align:left;font:inherit;cursor:pointer}.sb-gold-row.is-selected{border-color:#78a9e3;background:#f5faff;box-shadow:0 0 0 1px #78a9e3}.sb-gold-row strong{display:block;overflow:hidden;color:#303a44;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.sb-gold-row p{display:-webkit-box;overflow:hidden;margin:4px 0 0;color:#7b8793;font-size:10px;line-height:1.5;-webkit-box-orient:vertical;-webkit-line-clamp:2}.sb-gold-row span{color:#6683a7;font-size:10px;white-space:nowrap}.sb-gold-person{padding-bottom:13px;border-bottom:1px solid #e9edf2}.sb-gold-person strong{display:block;color:#2d3741;font-size:16px}.sb-gold-person span{display:block;margin-top:4px;color:#8b96a2;font-size:10px}.sb-gold-messages{display:grid;gap:9px;margin-top:14px}.sb-gold-message{max-width:88%;padding:10px 11px;border-radius:9px;background:#f2f5f8;color:#4d5c6b;font-size:12px;line-height:1.6}.sb-gold-message.is-outbound{justify-self:end;background:#eaf3ff;color:#326496}.sb-gold-message small{display:block;margin-bottom:3px;color:#8290a0;font-size:10px}.sb-gold-fact{padding:10px 0;border-bottom:1px solid #edf0f3}.sb-gold-fact strong{display:block;color:#7d8995;font-size:10px}.sb-gold-fact span{display:block;margin-top:4px;color:#465361;font-size:12px;line-height:1.55}.sb-gold-empty{display:grid;place-items:center;min-height:260px;color:#9ba5af;font-size:12px;text-align:center}@media(max-width:860px){.sb-gold-layout{grid-template-columns:1fr}.sb-gold-column+.sb-gold-column{border-top:1px solid #e8edf2;border-left:0}.sb-gold-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-gold-summary-item:nth-child(odd){border-left:0}}
+`;
+
+const GOLD_CUSTOMER_WORKSPACE_V2_CSS = `
+.sb-gold-workbench{margin-top:14px}.sb-gold-workbench-title{margin:0 0 14px;color:#20252b;font-size:18px;font-weight:750}.sb-gold-layout{display:grid;grid-template-columns:minmax(260px,.72fr) minmax(400px,1.48fr) minmax(270px,.78fr);height:min(620px,calc(100dvh - 200px));min-height:460px;overflow:hidden;border:1px solid #dfe6ee;border-radius:12px;background:#fff}.sb-gold-column{min-width:0}.sb-gold-column+.sb-gold-column{border-left:1px solid #e7ecf2}.sb-gold-column.is-list{padding:14px 12px;background:#f8fafc}.sb-gold-column.is-chat{display:flex;flex-direction:column}.sb-gold-column.is-detail{padding:17px 16px;background:#fff}.sb-gold-search{display:block;width:100%;height:36px;box-sizing:border-box;margin-bottom:12px;padding:0 11px;border:1px solid #dbe4ef;border-radius:8px;outline:0;color:#334155;background:#fff;font:inherit;font-size:11px}.sb-gold-search:focus{border-color:#79a9ee;box-shadow:0 0 0 3px rgba(47,128,237,.1)}.sb-gold-list{display:grid;gap:5px}.sb-gold-row{display:grid;grid-template-columns:34px minmax(0,1fr);align-items:center;gap:9px;width:100%;padding:9px;border:1px solid transparent;border-radius:9px;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}.sb-gold-row:hover{background:#f1f6ff}.sb-gold-row.is-selected{border-color:#c3d7f6;background:#fff;box-shadow:0 2px 7px rgba(46,95,166,.08)}.sb-gold-avatar{display:grid;place-items:center;width:34px;height:34px;overflow:hidden;border-radius:50%;color:#fff;background:#96a8bf;font-size:12px;font-weight:700}.sb-gold-avatar img{width:100%;height:100%;object-fit:cover}.sb-gold-row-copy{min-width:0}.sb-gold-row strong{display:block;overflow:hidden;color:#35404d;font-size:12px;font-weight:700;text-overflow:ellipsis;white-space:nowrap}.sb-gold-row p{overflow:hidden;margin:3px 0 0;color:#8a96a3;font-size:10px;line-height:1.4;text-overflow:ellipsis;white-space:nowrap}.sb-gold-chat-head{display:flex;align-items:center;gap:10px;padding:17px 18px;border-bottom:1px solid #e8edf2}.sb-gold-chat-head .sb-gold-avatar{width:40px;height:40px}.sb-gold-chat-copy{min-width:0}.sb-gold-chat-copy strong{display:block;overflow:hidden;color:#2e3945;font-size:14px;text-overflow:ellipsis;white-space:nowrap}.sb-gold-chat-copy span{display:block;margin-top:4px;color:#2f80ed;font-size:10px}.sb-gold-message-list{display:grid;align-content:start;gap:12px;min-height:0;flex:1;padding:27px 18px;overflow:auto}.sb-gold-message{max-width:78%;padding:10px 12px;border-radius:10px;color:#536170;background:#f1f4f7;font-size:12px;line-height:1.65}.sb-gold-message.is-outbound{justify-self:end;color:#2e5e9c;background:#e8f1ff}.sb-gold-message small{display:block;margin-bottom:3px;color:#8c9aae;font-size:10px}.sb-gold-ai-footer{display:flex;align-items:center;gap:10px;margin:0 14px 14px;padding:11px 12px;border:1px solid #e3eaf3;border-radius:10px;background:#fff;box-shadow:0 2px 8px rgba(40,70,105,.04)}.sb-gold-ai-badge{display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:50%;color:#2f80ed;background:#eaf2ff;font-size:10px;font-weight:750}.sb-gold-ai-copy{min-width:0;flex:1}.sb-gold-ai-copy strong{display:block;color:#2f80ed;font-size:11px}.sb-gold-ai-copy span{display:block;overflow:hidden;margin-top:3px;color:#8a96a3;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.sb-gold-handoff{height:30px;padding:0 10px;border:0;border-radius:7px;color:#fff;background:#202833;font:inherit;font-size:10px;cursor:pointer}.sb-gold-handoff:hover{background:#35404d}.sb-gold-handoff:disabled{color:#8a96a3;background:#edf1f5;cursor:default}.sb-gold-detail-title{display:block;margin-bottom:13px;color:#303b47;font-size:13px;font-weight:750}.sb-gold-fact{display:grid;grid-template-columns:70px minmax(0,1fr);gap:10px;padding:10px 0;border-bottom:1px solid #edf0f3}.sb-gold-fact strong{color:#929eaa;font-size:10px;font-weight:600}.sb-gold-fact span{overflow-wrap:anywhere;color:#465361;font-size:11px;font-weight:600;line-height:1.5}.sb-gold-detail-section{padding-top:17px}.sb-gold-detail-section strong{display:block;color:#303b47;font-size:12px}.sb-gold-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.sb-gold-tags span{padding:4px 7px;border-radius:6px;color:#4d76ab;background:#edf4ff;font-size:10px}.sb-gold-empty{display:grid;place-items:center;min-height:260px;padding:20px;color:#9ba5af;font-size:12px;line-height:1.6;text-align:center}@media(max-width:980px){.sb-gold-layout{grid-template-columns:minmax(220px,.72fr) minmax(360px,1.3fr)}.sb-gold-column.is-detail{grid-column:1 / -1;border-top:1px solid #e7ecf2;border-left:0}.sb-gold-detail-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}}@media(max-width:720px){.sb-gold-layout{grid-template-columns:1fr}.sb-gold-column+.sb-gold-column{border-top:1px solid #e7ecf2;border-left:0}.sb-gold-column.is-detail{grid-column:auto}.sb-gold-detail-facts{grid-template-columns:1fr}.sb-gold-message{max-width:88%}}
+`;
+
+const LIVE_DANMAKU_OUTREACH_CSS = `
+.sb-agent-result-summary.is-compact-outreach{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:24px;padding:15px 18px;border-radius:12px;box-shadow:none}.sb-agent-result-summary.is-compact-outreach .sb-agent-result-summary-head{display:block}.sb-agent-result-summary.is-compact-outreach .sb-agent-result-summary-title{font-size:15px}.sb-agent-result-summary.is-compact-outreach .sb-agent-result-summary-subtitle{max-width:none;margin-top:4px;text-align:left}.sb-agent-result-summary.is-compact-outreach .sb-agent-result-metrics{display:flex;gap:8px;margin:0}.sb-agent-result-summary.is-compact-outreach .sb-agent-result-metric{min-width:112px;padding:9px 12px}.sb-agent-result-summary.is-compact-outreach .sb-agent-result-metric-value{font-size:19px}.sb-agent-result-summary.is-compact-outreach .sb-agent-result-metric-label{margin-top:4px}.sb-live-outreach-results{margin-top:14px;overflow:hidden;border:1px solid #e1e7ed;border-radius:12px;background:#fff}.sb-live-outreach-results-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-bottom:1px solid #edf0f3}.sb-live-outreach-results-head strong{color:#303842;font-size:13px}.sb-live-outreach-results-head span{color:#929ba6;font-size:10px}.sb-live-outreach-list{padding:0 16px}.sb-live-outreach-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:16px;width:100%;padding:13px 0;border:0;border-bottom:1px solid #edf0f3;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}.sb-live-outreach-row:last-child{border-bottom:0}.sb-live-outreach-row:hover{background:#fafcff}.sb-live-outreach-copy{min-width:0}.sb-live-outreach-copy strong{display:block;overflow:hidden;color:#303842;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.sb-live-outreach-copy span{display:block;overflow:hidden;margin-top:4px;color:#84909c;font-size:10px;text-overflow:ellipsis;white-space:nowrap}.sb-live-outreach-status{display:inline-flex;align-items:center;min-width:72px;justify-content:center;padding:4px 7px;border-radius:5px;color:#27724d;background:#edf8f0;font-size:10px;font-weight:650;white-space:nowrap}.sb-live-outreach-status.is-pending{color:#946d1e;background:#fff7e5}.sb-live-outreach-status.is-failed{color:#a24b42;background:#fff0ed}.sb-live-outreach-time{color:#4267a5;font-size:10px;font-weight:700;white-space:nowrap}.sb-prospect-workspace.is-live-danmaku-report-workspace .sb-prospect-panel.is-live-danmaku-report-detail{display:flex;min-height:0;flex-direction:column}.sb-prospect-workspace.is-live-danmaku-report-workspace .sb-prospect-panel.is-live-danmaku-report-detail .sb-prospect-detail{display:flex;min-height:0;flex:1;padding:0}.sb-live-danmaku-report-frame{display:block;min-width:0;flex:1;width:100%;min-height:420px;border:0;background:#fff}@media(min-width:761px){.sb-prospect-workspace.is-live-danmaku-report-workspace{min-height:calc(100vh - 250px);min-height:calc(100dvh - 250px);grid-template-rows:minmax(min-content,1fr)}}@media(max-width:760px){.sb-agent-result-summary.is-compact-outreach{grid-template-columns:1fr;gap:12px}.sb-agent-result-summary.is-compact-outreach .sb-agent-result-metrics{width:100%}.sb-agent-result-summary.is-compact-outreach .sb-agent-result-metric{flex:1;min-width:0}.sb-live-outreach-list{padding:0 12px}.sb-live-outreach-row{grid-template-columns:minmax(0,1fr) auto;gap:8px 12px}.sb-live-outreach-status{grid-column:1;justify-self:start}.sb-live-outreach-time{grid-column:2;grid-row:1 / span 2}.sb-prospect-workspace.is-live-danmaku-report-workspace .sb-prospect-panel.is-live-danmaku-report-detail{display:block}.sb-live-danmaku-report-frame{min-height:620px}}
+`;
+
+const HTML_REPORT_CSS = `
+.sb-prospect-workspace.is-html-report-workspace{grid-template-columns:minmax(330px,.55fr) minmax(0,1.45fr)}.sb-prospect-workspace.is-html-report-workspace .sb-prospect-panel.is-html-report-detail{display:flex;min-height:0;flex-direction:column}.sb-prospect-workspace.is-html-report-workspace .sb-prospect-panel.is-html-report-detail .sb-prospect-detail{display:flex;min-height:0;flex:1;padding:0}.sb-html-report-frame{display:block;min-width:0;flex:1;width:100%;min-height:420px;border:0;background:#fff}@media(min-width:761px){.sb-prospect-workspace.is-html-report-workspace{min-height:calc(100vh - 250px);min-height:calc(100dvh - 250px);grid-template-rows:minmax(min-content,1fr)}}@media(max-width:760px){.sb-prospect-workspace.is-html-report-workspace .sb-prospect-panel.is-html-report-detail{display:block}.sb-html-report-frame{min-height:620px}}
 `;
 
 const OUTREACH_MODAL_CSS = `
@@ -259,7 +281,7 @@ const OUTREACH_MODAL_CSS = `
 let styleInjected = false;
 function ensureStyle() {
   if (styleInjected) return;
-  for (const [name, text] of [["base", CSS], ["consumer", CONSUMER_CSS], ["discovery-results", DISCOVERY_RESULTS_CSS], ["agent-workbench", AGENT_WORKBENCH_CSS], ["data", DATA_CSS], ["result-time-filter", RESULT_TIME_FILTER_CSS], ["agent-rail", AGENT_RAIL_CSS], ["gold-customer-workspace", GOLD_CUSTOMER_WORKSPACE_CSS], ["outreach-modal", OUTREACH_MODAL_CSS]]) {
+  for (const [name, text] of [["base", CSS], ["consumer", CONSUMER_CSS], ["discovery-results", DISCOVERY_RESULTS_CSS], ["agent-workbench", AGENT_WORKBENCH_CSS], ["data", DATA_CSS], ["result-time-filter", RESULT_TIME_FILTER_CSS], ["agent-rail", AGENT_RAIL_CSS], ["gold-customer-workspace", GOLD_CUSTOMER_WORKSPACE_CSS], ["gold-customer-workspace-v2", GOLD_CUSTOMER_WORKSPACE_V2_CSS], ["live-danmaku-outreach", LIVE_DANMAKU_OUTREACH_CSS], ["html-report", HTML_REPORT_CSS], ["outreach-modal", OUTREACH_MODAL_CSS]]) {
     const style = document.createElement("style");
     style.dataset.sbProspectStyle = name;
     style.textContent = text;
@@ -679,12 +701,14 @@ export function goldCustomerConversations({ runs = [], records = [] } = {}) {
       const key = textValue(entry?.conversationId, entry?.conversation_id, entry?.recordId, entry?.secUid, entry?.secId, entry?.nickname, entry?.name, `${run.taskId}:${index}`);
       const prior = conversations.get(key) || { id: key, run, history: [] };
       const record = recordByIdentity.get(String(entry?.recordId || entry?.secUid || entry?.secId || entry?.nickname || entry?.name || ""));
+      prior.record = record || prior.record || null;
       prior.name = textValue(entry?.nickname, entry?.name, record?.name, "抖音用户");
       prior.handle = textValue(entry?.handle, record?.handle);
       prior.avatar = personAvatarUrl(entry, record);
       prior.status = textValue(entry?.status, entry?.conversationMode, prior.status, "跟进中");
       prior.goal = textValue(entry?.goal, entry?.objective, run.inputs?.goal, snapshot.goal, "回应当前问题并推进下一步");
       prior.handoffReason = textValue(entry?.handoffReason, entry?.handoff_reason, prior.handoffReason);
+      prior.contact = { ...(prior.contact || {}), ...(record?.contact || {}), ...(entry?.contact || {}) };
       prior.source = textValue(entry?.source, record?.source?.type, "私信");
       prior.accountName = textValue(run.accountName, snapshot.accountName, record?.source?.accountName);
       const history = Array.isArray(entry?.conversationHistory) ? entry.conversationHistory : Array.isArray(entry?.history) ? entry.history : [];
@@ -698,7 +722,8 @@ export function goldCustomerConversations({ runs = [], records = [] } = {}) {
       conversations.set(key, prior);
     });
   });
-  return [...conversations.values()].map((item) => ({ ...item, history: item.history.filter((entry) => textValue(entry?.content, entry?.text)).slice(-20) }));
+  return [...conversations.values()]
+    .map((item) => ({ ...item, history: item.history.filter((entry) => textValue(entry?.content, entry?.text)).slice(-20) }));
 }
 
 function rawFinderAccountsForRun(run = {}) {
@@ -791,7 +816,19 @@ function agentResultViewModel(agentId, { records = [], runs = [], files = [] } =
     };
   }
 
-  if (agentId === "mkt-dm-inbox" || agentId === "mkt-gold-customer-service" || agentId === "mkt-live-danmaku-outreach") {
+  if (agentId === "mkt-live-danmaku-outreach") {
+    const sent = scopedRuns.reduce((total, run) => total + Number(run.counts?.sent ?? run.counts?.delivered ?? 0), 0);
+    return {
+      kind: "outreach",
+      title: "直播弹幕触达",
+      subtitle: "展示已完成的触达批次和发送成功的客户。",
+      metrics: [["任务批次", scopedRuns.length, "项"], ["发送成功", sent, "人"]],
+      highlights: [],
+      empty: "完成任务后，这里会展示发送成功的触达结果。"
+    };
+  }
+
+  if (agentId === "mkt-dm-inbox" || agentId === "mkt-gold-customer-service") {
     const sent = scopedRuns.reduce((total, run) => total + Number(run.counts?.sent ?? run.counts?.delivered ?? 0), 0);
     const replies = scopedRuns.reduce((total, run) => total + Number(run.counts?.replies ?? 0), 0);
     const failed = scopedRuns.reduce((total, run) => total + Number(run.counts?.failed ?? 0), 0);
@@ -1067,31 +1104,7 @@ function displayResultSummary(value) {
   return Object.entries(RESULT_SOURCE_LABELS).reduce((summary, [key, label]) => summary.split(key).join(label), localizeAgentText(raw));
 }
 
-export function buildAgentCatalog({ records = [], runs = [], files = [], roster = [] } = {}) {
-  const activeRosterById = new Map();
-  (Array.isArray(roster) ? roster : []).forEach((agent) => {
-    const id = resultCenterAgentId(agent?.id);
-    if (!id || id === UNASSIGNED_AGENT_ID || !isMarketplaceAgentAvailable(id) || activeRosterById.has(id)) return;
-    activeRosterById.set(id, { ...agent, id });
-  });
-  const activeRoster = [...activeRosterById.values()];
-  if (activeRoster.length) {
-    const rosterIds = new Set(activeRoster.map((agent) => agent.id));
-    // Keep customer-facing agents visible when their real records are present,
-    // even if an older employment payload omitted them from the roster.
-    ["mkt-gold-customer-service", "mkt-live-danmaku-outreach"].forEach((id) => {
-      if (!rosterIds.has(id) && getMarketplaceAgent(id)) {
-        const hasRealData = (Array.isArray(runs) ? runs : []).some((run) => runAgentIds(run).has(id))
-          || (Array.isArray(records) ? records : []).some((record) => recordAgentIds(record, runs).has(id))
-          || (Array.isArray(files) ? files : []).some((file) => fileAgentIds(file, runs).has(id));
-        if (hasRealData) activeRoster.push({ id });
-      }
-    });
-    return activeRoster.map((agent) => ({
-      id: agent.id,
-      label: getMarketplaceAgent(agent.id)?.name || displayAgentName({ id: agent.id }) || agent.id
-    }));
-  }
+export function buildAgentCatalog({ records = [], runs = [], files = [], featuredAgentIds = [] } = {}) {
   const names = new Map();
   const ids = new Set();
   const add = (agentId, rawName = "") => {
@@ -1104,6 +1117,12 @@ export function buildAgentCatalog({ records = [], runs = [], files = [], roster 
   (Array.isArray(runs) ? runs : []).forEach((run) => runAgentIds(run).forEach((id) => add(id, run?.agentName || run?.agent?.name)));
   (Array.isArray(records) ? records : []).forEach((record) => recordAgentIds(record, runs).forEach((id) => add(id, record?.agentName || record?.source?.agentName)));
   (Array.isArray(files) ? files : []).forEach((file) => fileAgentIds(file, runs).forEach((id) => add(id, file?.createdBy)));
+  const featuredIds = [...new Set((Array.isArray(featuredAgentIds) ? featuredAgentIds : [])
+    .map((agentId) => resultCenterAgentId(agentId))
+    .filter((agentId) => agentId && agentId !== UNASSIGNED_AGENT_ID && isMarketplaceAgentAvailable(agentId)))];
+  if (featuredIds.length) {
+    return featuredIds.map((id) => ({ id, label: agentLabel(id, names) }));
+  }
   const preferredOrder = new Map();
   [...MARKETPLACE_LATEST_AGENT_IDS].forEach((id, index) => {
     if (!preferredOrder.has(id)) preferredOrder.set(id, index);
@@ -1116,11 +1135,11 @@ export function buildAgentCatalog({ records = [], runs = [], files = [], roster 
     .map((id) => ({ id, label: agentLabel(id, names) }));
 }
 
-export function buildAgentScopedData({ records = [], runs = [], files = [], agentId = "", roster = [] } = {}) {
+export function buildAgentScopedData({ records = [], runs = [], files = [], agentId = "", featuredAgentIds = [] } = {}) {
   const allRecords = Array.isArray(records) ? records : [];
   const allRuns = Array.isArray(runs) ? runs : [];
   const allFiles = Array.isArray(files) ? files : [];
-  const agents = buildAgentCatalog({ records: allRecords, runs: allRuns, files: allFiles, roster });
+  const agents = buildAgentCatalog({ records: allRecords, runs: allRuns, files: allFiles, featuredAgentIds });
   const selectedAgentId = agents.some((agent) => agent.id === agentId) ? agentId : agents[0]?.id || "";
   return {
     agents,
@@ -1457,20 +1476,99 @@ export function buildInboxResumeFlow({ items = [], source = "成果中心已触�
   };
 }
 
-function displayRun(run = {}) {
-  const localizedSummary = displayResultSummary(run.summary);
-  if (run.resultType !== "评论筛选" && run.analysis?.mode !== "filter") {
-    return localizedSummary && localizedSummary !== run.summary ? { ...run, summary: localizedSummary } : run;
-  }
-  const comments = commentResultItems(run);
-  const countValue = Number(run.counts?.matched);
-  const matched = Number.isFinite(countValue) ? countValue : comments.length;
-  const normalizedStatus = String(run.status || "unknown").toLowerCase();
-  const completed = ["completed", "succeeded", "success", "done"].includes(normalizedStatus);
-  const sourceLabel = displayResultSource(run.source || "作品评论");
+function canonicalLegacyViralRun(run = {}) {
+  if (run.agentId !== "mkt-viral-work-analysis") return run;
+  const snapshot = resultSnapshotOf(run);
+  const artifacts = [...(Array.isArray(run.artifacts) ? run.artifacts : []), ...(Array.isArray(snapshot.artifacts) ? snapshot.artifacts : [])];
+  const hasCurrentTemplate = [run.reportTemplate, snapshot.reportTemplate, ...artifacts.map((artifact) => artifact?.reportTemplate || artifact?.metadata?.reportTemplate)]
+    .some((value) => String(value || "") === VIRAL_REPORT_TEMPLATE_ID);
+  const hasCurrentReport = artifacts.some((artifact) => String(artifact?.name || "").startsWith("抖音爆款视频拆解报告-"));
+  if (hasCurrentTemplate || hasCurrentReport) return run;
+  const metrics = snapshot.metrics || snapshot.work?.metrics || run.metrics || {};
+  const searchable = [
+    run.title,
+    run.summary,
+    snapshot.title,
+    snapshot.summary,
+    ...artifacts.map((artifact) => `${artifact?.name || ""} ${artifact?.content || ""}`)
+  ].join(" ");
+  const numericMetric = (value) => Number(String(value ?? "").replace(/,/g, ""));
+  const isLegacyPlaceholder = /新能源\s*SUV\s*三分钟看懂|爆款作品分析报告(?:[-_]|\.html|$)/u.test(searchable)
+    || (numericMetric(metrics.views) === 1260000 && numericMetric(metrics.likes) === 48200);
+  if (!isLegacyPlaceholder) return run;
+  const reportId = artifacts.find((artifact) => artifact?.id)?.id || `viral-report:${resultId(run)}`;
+  const report = {
+    id: reportId,
+    name: VIRAL_REPORT_TEMPLATE_NAME,
+    type: "html",
+    agentId: "mkt-viral-work-analysis",
+    projectName: "内容研究",
+    createdBy: "抖音爆款拆解官",
+    sourceTaskTitle: "《学习压力太大了》",
+    summary: "从数据、结构、评论、爆款成因到可复制 SOP，完整拆解 14 秒短剧《学习压力太大了》。",
+    reportTemplate: VIRAL_REPORT_TEMPLATE_ID,
+    url: VIRAL_REPORT_TEMPLATE_URL,
+    created_at: run.createdAt || run.generatedAt || new Date().toISOString(),
+    updated_at: run.updatedAt || run.generatedAt || new Date().toISOString()
+  };
+  const sourceUrl = "https://www.douyin.com/video/mock-learning-pressure-2026";
+  const nextSnapshot = {
+    ...snapshot,
+    status: snapshot.status || run.status || "completed",
+    reportTemplate: VIRAL_REPORT_TEMPLATE_ID,
+    agentName: "抖音爆款拆解官",
+    title: "抖音爆款视频拆解报告",
+    sourceUrl,
+    summary: report.summary,
+    artifacts: [report]
+  };
   return {
     ...run,
-    title: run.query ? `${run.query}筛选结果` : run.title,
+    reportTemplate: VIRAL_REPORT_TEMPLATE_ID,
+    agentName: "抖音爆款拆解官",
+    resultType: "研究简报",
+    title: "抖音爆款视频拆解报告 ·《学习压力太大了》",
+    summary: report.summary,
+    source: run.source || "公开作品分析",
+    sourceScope: run.sourceScope || "public_work_link",
+    artifacts: [report],
+    resultSnapshot: nextSnapshot
+  };
+}
+
+function canonicalLegacyViralFile(file = {}) {
+  if (file.agentId !== "mkt-viral-work-analysis") return file;
+  const name = String(file.name || "");
+  if (!/^爆款作品分析报告(?:[-_]|\.html|$)/u.test(name)) return file;
+  return {
+    ...file,
+    name: VIRAL_REPORT_TEMPLATE_NAME,
+    type: "html",
+    projectName: "内容研究",
+    createdBy: "抖音爆款拆解官",
+    sourceTaskTitle: "《学习压力太大了》",
+    summary: "从数据、结构、评论、爆款成因到可复制 SOP，完整拆解 14 秒短剧《学习压力太大了》。",
+    reportTemplate: VIRAL_REPORT_TEMPLATE_ID,
+    url: VIRAL_REPORT_TEMPLATE_URL,
+    content: ""
+  };
+}
+
+function displayRun(run = {}) {
+  const canonicalRun = canonicalLegacyViralRun(run);
+  const localizedSummary = displayResultSummary(canonicalRun.summary);
+  if (canonicalRun.resultType !== "评论筛选" && canonicalRun.analysis?.mode !== "filter") {
+    return localizedSummary && localizedSummary !== canonicalRun.summary ? { ...canonicalRun, summary: localizedSummary } : canonicalRun;
+  }
+  const comments = commentResultItems(canonicalRun);
+  const countValue = Number(canonicalRun.counts?.matched);
+  const matched = Number.isFinite(countValue) ? countValue : comments.length;
+  const normalizedStatus = String(canonicalRun.status || "unknown").toLowerCase();
+  const completed = ["completed", "succeeded", "success", "done"].includes(normalizedStatus);
+  const sourceLabel = displayResultSource(canonicalRun.source || "作品评论");
+  return {
+    ...canonicalRun,
+    title: canonicalRun.query ? `${canonicalRun.query}筛选结果` : canonicalRun.title,
     summary: completed && (matched || comments.length)
       ? `${sourceLabel} 已完成，筛出 ${matched} 条匹配评论，保留评论用户、原话、来源作品、时间和判断理由。`
       : localizedSummary
@@ -2130,8 +2228,9 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     dashboardDetailId: null,
     agentViewId: "overview",
     resultTimeFilter: "all",
+    agentRailScrollLeft: 0,
     selectedGoldConversationId: null,
-    activeRoster: listHiredAgents().filter(isMarketplaceAgentAvailable),
+    goldConversationSearch: "",
     privateOutreachModal: null
   };
   let sourceRecords = mockData?.records || prospectStore.list();
@@ -2184,8 +2283,7 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
       records: sourceRecords,
       runs: sourceRuns,
       files: sourceFiles,
-      agentId: state.selectedAgentId,
-      roster: state.activeRoster
+      agentId: state.selectedAgentId
     });
     state.selectedAgentId = scoped.agentId;
     records = scoped.records;
@@ -2237,7 +2335,7 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
       }))
       .filter((work) => !storedRuns.some((run) => (work.ownerKey && run.ownerKey === work.ownerKey) || (!work.ownerKey && run.agentId === work.agentId && run.title === work.title)));
     sourceRuns = [...storedRuns, ...liveRuns].filter(isBusinessResult);
-    const storedFiles = listFiles();
+    const storedFiles = listFiles().map(canonicalLegacyViralFile);
     const runFiles = sourceRuns.flatMap((run) => (Array.isArray(run.artifacts) ? run.artifacts : []).map((artifact, index) => {
       if (!artifact || typeof artifact !== "object") return null;
       return {
@@ -3843,14 +3941,42 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     container.appendChild(actions);
   }
 
+  function htmlReportFileFor(run, namePattern) {
+    const snapshot = resultSnapshotOf(run);
+    const artifacts = [...(Array.isArray(run?.artifacts) ? run.artifacts : []), ...(Array.isArray(snapshot?.artifacts) ? snapshot.artifacts : [])];
+    const candidates = artifacts
+      .filter((artifact) => artifact?.id && artifact?.type === "html" && (!namePattern || namePattern.test(String(artifact.name || ""))))
+      .map((artifact) => {
+        const storedFile = files.find((file) => file.id === artifact.id);
+        return { ...artifact, ...(storedFile || {}), content: storedFile?.content || artifact.content || "" };
+      });
+    return candidates.find((file) => String(file.content || "").trim()) || candidates[0] || null;
+  }
+
+  function renderHtmlReportPreview(container, reportFile, fallbackTitle) {
+    const reportContent = reportFile?.type === "html" ? String(reportFile.content || "").trim() : "";
+    const reportUrl = reportFile?.type === "html" ? String(reportFile.url || "").trim() : "";
+    if (!reportContent && !reportUrl) return false;
+    const frame = document.createElement("iframe");
+    frame.className = "sb-html-report-frame";
+    frame.title = reportFile.name || fallbackTitle;
+    frame.sandbox = "";
+    if (reportUrl) frame.src = reportUrl;
+    else frame.srcdoc = reportContent;
+    container.classList.add("is-html-report-preview");
+    container.appendChild(frame);
+    return true;
+  }
+
   function renderLiveDanmakuReportDetail(container, run) {
     const snapshot = resultSnapshotOf(run);
     const analysis = snapshot.danmakuAnalysis || run.danmakuAnalysis || snapshot.analysis || {};
     const counts = analysis.counts || snapshot.counts || run.counts || {};
     const topics = Array.isArray(analysis.topics) ? analysis.topics : [];
     const optimization = analysis.optimization || snapshot.optimization || {};
-    const artifacts = [...(Array.isArray(run.artifacts) ? run.artifacts : []), ...(Array.isArray(snapshot.artifacts) ? snapshot.artifacts : [])];
-    const reportFile = artifacts.find((artifact) => artifact?.id && /直播间弹幕分析报告/.test(String(artifact?.name || "")));
+    const reportFile = htmlReportFileFor(run, /直播间弹幕分析报告/);
+
+    if (renderHtmlReportPreview(container, reportFile, "直播间弹幕分析报告")) return;
 
     container.append(
       el("div", "sb-result-detail-kicker", "直播间弹幕分析 · 报告交付"),
@@ -3920,10 +4046,10 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
         sourceUrl: run.resultSnapshot?.sourceUrl || run.inputs?.workUrl || "",
         summary: run.summary || run.resultSnapshot?.summary || ""
       };
+      const reportFile = htmlReportFileFor(run, /(?:爆款作品分析报告|抖音爆款视频拆解报告)/);
+      if (renderHtmlReportPreview(container, reportFile, "抖音爆款视频拆解报告")) return;
       renderViralWorkAnalysisOverview(container, result, { compact: true });
       const actions = el("div", "sb-result-detail-actions");
-      const reportFile = [...(Array.isArray(run.artifacts) ? run.artifacts : []), ...(Array.isArray(result.artifacts) ? result.artifacts : [])]
-        .find((artifact) => artifact?.id && ["doc", "html"].includes(artifact.type));
       if (reportFile) {
         const file = el("button", null, "打开完整报告");
         file.type = "button";
@@ -4230,7 +4356,9 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     const scopedRuns = sourceRuns.filter((run) => runAgentIds(run).has(agentId));
     const active = scopedRuns.some((run) => ["running", "queued", "processing", "in_progress"].includes(String(run.status || "").toLowerCase()));
     if (active) return { label: "执行中", className: "is-active" };
-    if (scopedRuns.length || sourceFiles.some((file) => fileAgentIds(file, sourceRuns).has(agentId))) return { label: "已有成果", className: "" };
+    if (scopedRuns.length
+      || sourceRecords.some((record) => recordAgentIds(record, sourceRuns).has(agentId))
+      || sourceFiles.some((file) => fileAgentIds(file, sourceRuns).has(agentId))) return { label: "已有成果", className: "" };
     return { label: "待命", className: "is-empty" };
   }
 
@@ -4256,8 +4384,18 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     render();
   }
 
+  function restoreAgentRailScroll() {
+    if (!state.agentRailScrollLeft) return;
+    const rail = shell.querySelector(".sb-results-agent-team");
+    if (rail) rail.scrollLeft = state.agentRailScrollLeft;
+  }
+
   function renderAgentScopeHeader() {
-    const agents = buildAgentCatalog({ records: sourceRecords, runs: sourceRuns, files: sourceFiles, roster: state.activeRoster });
+    const agents = buildAgentCatalog({
+      records: sourceRecords,
+      runs: sourceRuns,
+      files: sourceFiles
+    });
     const selected = agents.find((agent) => agent.id === state.selectedAgentId) || agents[0];
     if (selected && state.selectedAgentId !== selected.id) {
       state.selectedAgentId = selected.id;
@@ -4284,6 +4422,21 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
     });
     agentSection.appendChild(rail);
     return agentSection;
+  }
+
+  function renderResultsCenterEmptyState() {
+    const section = el("section", "sb-results-center-empty");
+    const copy = el("div", "sb-results-center-empty-copy");
+    const action = el("button", "sb-results-center-empty-action", "前往 Agent 中心");
+    action.type = "button";
+    action.addEventListener("click", () => openAgentSquarePage({}));
+    copy.append(
+      el("h2", null, "还没有已归档的成果"),
+      el("p", null, "任务完成后，报告、潜客和文件会自动出现在这里。"),
+      action
+    );
+    section.appendChild(copy);
+    return section;
   }
 
   function renderAgentBusinessNavigation() {
@@ -4313,7 +4466,7 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
       return renderDashboardFunnel(model.counts);
     }
     const viewModel = agentResultViewModel(state.selectedAgentId, { records, runs, files });
-    const section = el("section", `sb-agent-result-summary sb-agent-result-summary-${viewModel.kind}`);
+    const section = el("section", `sb-agent-result-summary sb-agent-result-summary-${viewModel.kind}${state.selectedAgentId === "mkt-live-danmaku-outreach" ? " is-compact-outreach" : ""}`);
     const head = el("div", "sb-agent-result-summary-head");
     head.append(el("div", "sb-agent-result-summary-title", viewModel.title), el("div", "sb-agent-result-summary-subtitle", viewModel.subtitle));
     section.appendChild(head);
@@ -4324,13 +4477,15 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
       metrics.appendChild(item);
     });
     section.appendChild(metrics);
-    const highlights = el("div", "sb-agent-result-highlights");
-    viewModel.highlights.forEach(([label, value]) => {
-      const item = el("div", "sb-agent-result-highlight");
-      item.append(el("span", "sb-agent-result-highlight-label", label), el("strong", "sb-agent-result-highlight-value", String(value || "—")));
-      highlights.appendChild(item);
-    });
-    section.appendChild(highlights);
+    if (viewModel.highlights.length) {
+      const highlights = el("div", "sb-agent-result-highlights");
+      viewModel.highlights.forEach(([label, value]) => {
+        const item = el("div", "sb-agent-result-highlight");
+        item.append(el("span", "sb-agent-result-highlight-label", label), el("strong", "sb-agent-result-highlight-value", String(value || "—")));
+        highlights.appendChild(item);
+      });
+      section.appendChild(highlights);
+    }
     if (!runs.length) section.appendChild(el("div", "sb-agent-result-empty", viewModel.empty));
     return section;
   }
@@ -4343,7 +4498,8 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
       const frame = document.createElement("iframe");
       frame.title = file.name || "HTML 文件预览";
       frame.sandbox = "";
-      frame.srcdoc = String(file.content || "");
+      if (file.url) frame.src = String(file.url);
+      else frame.srcdoc = String(file.content || "");
       preview.appendChild(frame);
     } else {
       const content = document.createElement("pre");
@@ -4409,7 +4565,9 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
         const row = el("button", "sb-agent-workbench-row"); row.type = "button";
         const name = item.name || item.nickname || item.handle || "未命名潜客";
         const account = item.source?.accountName || item.accountName || "发送账号未记录";
-        row.append(el("div", null, el("strong", null, name), el("p", null, `${account} · ${item.status || "已触达"}`)), el("span", null, formatResultTime(item.touchedAt || item.lastSeen || item.updatedAt)));
+        const copy = el("div");
+        copy.append(el("strong", null, name), el("p", null, `${account} · ${item.status || "已触达"}`));
+        row.append(copy, el("span", null, formatResultTime(item.touchedAt || item.lastSeen || item.updatedAt)));
         row.addEventListener("click", () => { state.resultType = "潜客"; state.filter = "已触达"; state.selectedId = item.id; render(); });
         return row;
       }
@@ -4417,51 +4575,97 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
   }
 
   function renderGoldCustomerServiceArtifacts() {
-    const conversations = goldCustomerConversations({ runs, records });
+    const allConversations = goldCustomerConversations({ runs, records: sourceRecords });
+    const query = state.goldConversationSearch.trim().toLowerCase();
+    const conversations = query
+      ? allConversations.filter((item) => [item.name, item.handle, item.goal, ...item.history.map((entry) => textValue(entry?.content, entry?.text))].join(" ").toLowerCase().includes(query))
+      : allConversations;
     if (!conversations.some((item) => item.id === state.selectedGoldConversationId)) state.selectedGoldConversationId = conversations[0]?.id || null;
     const selected = conversations.find((item) => item.id === state.selectedGoldConversationId) || null;
-    const replied = conversations.filter((item) => item.history.some((entry) => entry?.role !== "user")).length;
-    const completed = conversations.filter((item) => /完成|留资|预约|转化/.test(item.status || "")).length;
-    const handoff = conversations.filter((item) => item.handoffReason || /人工/.test(item.status || "")).length;
     const section = el("section", "sb-gold-workbench");
-    const summary = el("div", "sb-gold-summary");
-    [["会话总量", conversations.length], ["已回复", replied], ["完成目标", completed], ["待人工", handoff]].forEach(([label, value]) => {
-      const item = el("div", "sb-gold-summary-item"); item.append(el("strong", null, String(value)), el("span", null, label)); summary.appendChild(item);
-    });
+    section.appendChild(el("h2", "sb-gold-workbench-title", "工作现场"));
     const layout = el("div", "sb-gold-layout");
     const listColumn = el("section", "sb-gold-column is-list");
-    const chatColumn = el("section", "sb-gold-column");
+    const chatColumn = el("section", "sb-gold-column is-chat");
     const detailColumn = el("aside", "sb-gold-column is-detail");
-    const head = (title, meta = "") => { const node = el("div", "sb-gold-head"); node.append(el("strong", null, title), el("span", null, meta)); return node; };
-    listColumn.appendChild(head("用户会话", conversations.length ? `${conversations.length} 位` : "等待新私信"));
+    const search = el("input", "sb-gold-search");
+    search.type = "search";
+    search.placeholder = "昵称或聊天记录";
+    search.value = state.goldConversationSearch;
+    search.setAttribute("aria-label", "搜索金牌客服会话");
+    search.addEventListener("input", (event) => { state.goldConversationSearch = event.target.value; render(); });
+    listColumn.appendChild(search);
     const list = el("div", "sb-gold-list");
-    if (!conversations.length) list.appendChild(el("div", "sb-gold-empty", "收到真实私信后，这里会按用户显示会话。"));
-    conversations.forEach((item) => { const row = el("button", `sb-gold-row${item.id === state.selectedGoldConversationId ? " is-selected" : ""}`); row.type = "button"; const latest = item.history.at(-1)?.content || "等待新消息"; const copy = el("div"); copy.append(el("strong", null, item.name), el("p", null, latest)); row.append(copy, el("span", null, item.handoffReason ? "待人工" : item.status)); row.addEventListener("click", () => { state.selectedGoldConversationId = item.id; render(); }); list.appendChild(row); });
+    if (!conversations.length) list.appendChild(el("div", "sb-gold-empty", query ? "没有匹配的会话" : "等待新的客户会话。"));
+    conversations.forEach((item) => {
+      const row = el("button", `sb-gold-row${item.id === state.selectedGoldConversationId ? " is-selected" : ""}`);
+      row.type = "button";
+      const avatar = el("span", "sb-gold-avatar");
+      mountPersonAvatar(avatar, { ...(item.record || {}), name: item.name, avatar: item.avatar }, { name: item.name });
+      const latest = [...item.history].reverse().find((entry) => entry.role === "user")?.content || item.history.at(-1)?.content || item.goal;
+      const copy = el("span", "sb-gold-row-copy");
+      copy.append(el("strong", null, item.name), el("p", null, latest));
+      row.append(avatar, copy);
+      row.addEventListener("click", () => { state.selectedGoldConversationId = item.id; render(); });
+      list.appendChild(row);
+    });
     listColumn.appendChild(list);
-    chatColumn.appendChild(head("对话内容", selected ? "平台回传记录" : "暂无会话"));
-    if (!selected) chatColumn.appendChild(el("div", "sb-gold-empty", "选择左侧用户后查看沟通内容。"));
-    else { const person = el("div", "sb-gold-person"); person.append(el("strong", null, selected.name), el("span", null, selected.goal)); const messages = el("div", "sb-gold-messages"); selected.history.forEach((entry) => { const outbound = entry.role !== "user"; const bubble = el("div", `sb-gold-message${outbound ? " is-outbound" : ""}`); bubble.append(el("small", null, outbound ? (entry.role === "human" ? "人工回复" : "金牌客服") : "用户"), document.createTextNode(textValue(entry.content, entry.text))); messages.appendChild(bubble); }); chatColumn.append(person, messages); }
-    detailColumn.appendChild(head("用户详情"));
-    if (!selected) detailColumn.appendChild(el("div", "sb-gold-empty", "选择一个用户查看来源、目标和接管信息。"));
-    else [["当前状态", selected.handoffReason ? "待人工接管" : selected.status], ["对话目标", selected.goal], ["来源", selected.source], ["承接账号", selected.accountName || "未返回"], ["接管原因", selected.handoffReason || "无"]].forEach(([label, value]) => { const fact = el("div", "sb-gold-fact"); fact.append(el("strong", null, label), el("span", null, value)); detailColumn.appendChild(fact); });
-    layout.append(listColumn, chatColumn, detailColumn); section.append(summary, layout); return section;
+    if (!selected) chatColumn.appendChild(el("div", "sb-gold-empty", "选择左侧会话后查看处理记录。"));
+    else {
+      const head = el("div", "sb-gold-chat-head");
+      const avatar = el("span", "sb-gold-avatar");
+      mountPersonAvatar(avatar, { ...(selected.record || {}), name: selected.name, avatar: selected.avatar }, { name: selected.name });
+      const copy = el("div", "sb-gold-chat-copy");
+      copy.append(el("strong", null, selected.name), el("span", null, `${selected.status || "跟进中"} · 对话记录已归档`));
+      head.append(avatar, copy);
+      const messages = el("div", "sb-gold-message-list");
+      selected.history.forEach((entry) => {
+        const outbound = entry.role !== "user";
+        const bubble = el("div", `sb-gold-message${outbound ? " is-outbound" : ""}`);
+        bubble.append(el("small", null, outbound ? (entry.role === "human" ? "人工回复" : "金牌客服") : "用户"), document.createTextNode(textValue(entry.content, entry.text)));
+        messages.appendChild(bubble);
+      });
+      chatColumn.append(head, messages);
+    }
+    detailColumn.appendChild(el("strong", "sb-gold-detail-title", "客户详情"));
+    if (!selected) detailColumn.appendChild(el("div", "sb-gold-empty", "选择一个客户查看状态、来源和需求。"));
+    else {
+      const lastQuestion = [...selected.history].reverse().find((entry) => entry.role === "user")?.content || "暂无用户问题";
+      const facts = el("div", "sb-gold-detail-facts");
+      [["意向状态", selected.record?.tier === "high" ? "高意向" : selected.status || "待判断"], ["线索来源", selected.source || "抖音私信"], ["最近问题", lastQuestion], ["联系方式", formatContact(selected.contact) || "待补充"]].forEach(([label, value]) => { const fact = el("div", "sb-gold-fact"); fact.append(el("strong", null, label), el("span", null, value)); facts.appendChild(fact); });
+      const requirement = el("section", "sb-gold-detail-section");
+      requirement.appendChild(el("strong", null, "客户要求"));
+      const tags = el("div", "sb-gold-tags");
+      const values = selected.record?.tags?.length ? selected.record.tags : [selected.goal];
+      values.filter(Boolean).slice(0, 3).forEach((value) => tags.appendChild(el("span", null, value)));
+      requirement.appendChild(tags);
+      detailColumn.append(facts, requirement);
+    }
+    layout.append(listColumn, chatColumn, detailColumn); section.appendChild(layout); return section;
   }
 
   function renderLiveDanmakuOutreachArtifacts() {
     const items = runs.flatMap((run) => outreachResultItems(run, records).map((item) => ({ run, item })));
-    return renderOutreachArtifactList({
-      title: "直播弹幕触达结果",
-      subtitle: "电商直播间未成交客户触达的产物：弹幕用户身份、首次触达状态、发送回执、异常记录",
-      emptyTitle: "还没有直播弹幕触达结果",
-      emptyCopy: "直播间出现新弹幕后，系统会把用户身份和首次触达回执记录在这里。",
-      items,
-      renderItem: ({ run, item }) => {
-        const row = el("button", "sb-agent-workbench-row"); row.type = "button";
-        row.append(el("div", null, el("strong", null, item.targetName || "弹幕用户"), el("p", null, `${item.receiptLabel} · ${item.triggerSource || "直播间弹幕"}${item.error ? ` · ${item.error}` : ""}`)), el("span", null, formatResultTime(item.sentAt || run.generatedAt)));
+    const section = el("section", "sb-live-outreach-results");
+    const head = el("div", "sb-live-outreach-results-head");
+    head.append(el("strong", null, "触达结果"), el("span", null, `${items.length} 条记录`));
+    const list = el("div", "sb-live-outreach-list");
+    if (!items.length) {
+      list.appendChild(el("div", "sb-agent-workbench-empty", "直播间出现新弹幕后，已完成触达的客户会出现在这里。"));
+    } else {
+      items.slice(0, 50).forEach(({ run, item }) => {
+        const statusClass = item.error ? " is-failed" : /等待|回执/.test(item.receiptLabel || "") ? " is-pending" : "";
+        const row = el("button", "sb-live-outreach-row");
+        row.type = "button";
+        const copy = el("span", "sb-live-outreach-copy");
+        copy.append(el("strong", null, item.targetName || "弹幕用户"), el("span", null, item.error || item.triggerSource || "直播间弹幕"));
+        row.append(copy, el("span", `sb-live-outreach-status${statusClass}`, item.receiptLabel || "状态待确认"), el("time", "sb-live-outreach-time", formatResultTime(item.sentAt || run.generatedAt)));
         row.addEventListener("click", () => { state.selectedResultId = resultId(run); render(); });
-        return row;
-      }
-    });
+        list.appendChild(row);
+      });
+    }
+    section.append(head, list);
+    return section;
   }
 
   function renderSpecialistWorkbench(agentId) {
@@ -4975,12 +5179,21 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
 
   function render() {
     wrap.querySelector(".sb-task-composer-modal")?.remove();
+    const currentAgentRail = shell.querySelector(".sb-results-agent-team");
+    if (currentAgentRail) state.agentRailScrollLeft = currentAgentRail.scrollLeft;
     shell.textContent = "";
 
     const discoverySources = discoverySourcesForPage();
     wrap.classList.remove("sb-prospect-page--data");
     wrap.classList.remove("sb-prospect-page--standalone-discovery");
-    shell.appendChild(renderAgentScopeHeader());
+    const agentScopeHeader = renderAgentScopeHeader();
+    if (!state.selectedAgentId) {
+      shell.appendChild(renderResultsCenterEmptyState());
+      wrap.appendChild(shell);
+      renderTaskComposer();
+      return;
+    }
+    shell.appendChild(agentScopeHeader);
     if (!["mkt-find-people", "mkt-viral-work-analysis", "mkt-live-danmaku-analysis", "mkt-gold-customer-service"].includes(state.selectedAgentId)) shell.appendChild(renderAgentSnapshot());
 
     if (state.selectedAgentId === "mkt-comment-acquisition") {
@@ -4988,6 +5201,7 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
       prospectWorkspace.classList.add("sb-data-dashboard-embedded");
       shell.appendChild(prospectWorkspace);
       wrap.appendChild(shell);
+      restoreAgentRailScroll();
       renderTaskComposer();
       return;
     }
@@ -5020,6 +5234,7 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
       foundWorkspace.append(foundListPanel, foundDetailPanel);
       shell.append(foundWorkspace);
       wrap.appendChild(shell);
+      restoreAgentRailScroll();
       renderTaskComposer();
       return;
     }
@@ -5033,15 +5248,17 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
             ? renderLiveDanmakuOutreachArtifacts()
             : renderSpecialistWorkbench(state.selectedAgentId);
       if (specialistWorkbench) shell.appendChild(specialistWorkbench);
-      if (state.selectedAgentId !== "mkt-cold-writer") shell.appendChild(renderAgentFiles());
+      if (!["mkt-cold-writer", "mkt-live-danmaku-outreach", "mkt-gold-customer-service"].includes(state.selectedAgentId)) shell.appendChild(renderAgentFiles());
       wrap.appendChild(shell);
+      restoreAgentRailScroll();
       renderTaskComposer();
       return;
     }
 
     if (state.selectedAgentId !== "mkt-viral-work-analysis") shell.appendChild(renderAgentBusinessNavigation());
 
-    const workspace = el("div", "sb-prospect-workspace");
+    const htmlReportAgent = ["mkt-live-danmaku-analysis", "mkt-viral-work-analysis"].includes(state.selectedAgentId);
+    const workspace = el("div", `sb-prospect-workspace${htmlReportAgent ? " is-html-report-workspace" : ""}`);
     const listPanel = el("section", "sb-prospect-panel");
     const detailPanel = el("aside", "sb-prospect-panel");
     if (state.resultType === "发现") {
@@ -5089,31 +5306,31 @@ export function openProspectCenterPage({ onClose = null, initialResult = null, i
       const items = visibleResults();
       const outreachView = state.resultType === "触达记录";
       const isLiveReport = state.selectedAgentId === "mkt-live-danmaku-analysis";
+      const isViralReport = state.selectedAgentId === "mkt-viral-work-analysis";
+      const isHtmlReport = isLiveReport || isViralReport;
+      const reportTitle = isLiveReport ? "直播弹幕分析报告" : isViralReport ? "抖音爆款视频拆解报告" : "Agent 成果";
       if (!items.some((item) => resultId(item) === state.selectedResultId)) state.selectedResultId = items[0] ? resultId(items[0]) : null;
-      const panelHead = el("div", "sb-prospect-panel-head sb-result-panel-head"); panelHead.append(el("span", "sb-prospect-panel-title", outreachView ? "触达记录" : isLiveReport ? "直播弹幕分析报告" : "Agent 成果"), el("span", "sb-prospect-panel-meta", isLiveReport ? `${items.length} 份已生成报告` : `${items.length} 项可见 · 共 ${runs.length} 项业务结果`), renderResultTimeFilter(), renderResultToolbar({ placeholder: isLiveReport ? "搜索报告" : "搜索成果、Agent、账号", ariaLabel: isLiveReport ? "搜索报告" : "搜索成果", inline: true }));
-      const content = el("div"); renderResultList(content, items); listPanel.append(panelHead, content);
-      const detailHead = el("div", "sb-prospect-panel-head"); detailHead.append(el("span", "sb-prospect-panel-title", outreachView ? "触达详情" : isLiveReport ? "报告摘要" : "成果详情"), el("span", "sb-prospect-panel-meta", outreachView ? "账号、对象、内容与触发依据" : isLiveReport ? "摘要、结论与完整报告" : "交付内容、指标与下一步")); const detail = el("div", "sb-prospect-detail"); renderResultDetail(detail); detailPanel.append(detailHead, detail);
+       const panelHead = el("div", "sb-prospect-panel-head sb-result-panel-head sb-report-list-head");
+       const panelCopy = el("div", "sb-result-panel-copy");
+       panelCopy.append(el("span", "sb-prospect-panel-title", outreachView ? "触达记录" : reportTitle), el("span", "sb-prospect-panel-meta", isHtmlReport ? `${items.length} 份已生成报告` : `${items.length} 项可见 · 共 ${runs.length} 项业务结果`));
+       const panelControls = el("div", "sb-result-panel-controls");
+       panelControls.append(renderResultTimeFilter(), renderResultToolbar({ placeholder: isHtmlReport ? "搜索报告" : "搜索成果、Agent、账号", ariaLabel: isHtmlReport ? "搜索报告" : "搜索成果", inline: true }));
+       panelHead.append(panelCopy, panelControls);
+       const content = el("div"); renderResultList(content, items); listPanel.append(panelHead, content);
+      if (isHtmlReport) detailPanel.classList.add("is-html-report-detail");
+      const detailHead = el("div", "sb-prospect-panel-head"); detailHead.append(el("span", "sb-prospect-panel-title", outreachView ? "触达详情" : isHtmlReport ? "报告预览" : "成果详情"), el("span", "sb-prospect-panel-meta", outreachView ? "账号、对象、内容与触发依据" : isHtmlReport ? "完整 HTML 报告" : "交付内容、指标与下一步")); const detail = el("div", "sb-prospect-detail"); renderResultDetail(detail); detailPanel.append(detailHead, detail);
     }
     workspace.append(listPanel, detailPanel);
     if (["mkt-live-danmaku-analysis", "mkt-viral-work-analysis"].includes(state.selectedAgentId)) shell.appendChild(workspace);
     else shell.append(workspace, renderAgentFiles());
     wrap.appendChild(shell);
+    restoreAgentRailScroll();
     renderTaskComposer();
   }
 
   syncRecords();
   render();
   page.body.appendChild(wrap);
-  void refreshEmploymentContracts()
-    .then(({ contracts }) => {
-      if (!wrap.isConnected) return;
-      state.activeRoster = (Array.isArray(contracts) ? contracts : listHiredAgents()).filter(isMarketplaceAgentAvailable);
-      syncAgentScope();
-      render();
-    })
-    .catch(() => {
-      // Keep the last known Agent Center roster when the employment service is unavailable.
-    });
   void hydrateCanonicalResults();
   if (!mockPreview) canonicalResultsRefreshTimer = globalThis.setInterval(() => { void hydrateCanonicalResults(); }, 5000);
   const originalClose = page.close;

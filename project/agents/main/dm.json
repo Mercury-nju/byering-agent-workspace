@@ -4,7 +4,7 @@
     "agentType": "main",
     "from": "user",
     "fromName": "我",
-    "text": "今天先盯潜客拓展项目组。重点不是抓了多少人，而是高意向客户能不能顺利进入私信跟进。",
+    "text": "今天先看臻选新能源·上海账号的获客进展。重点不是收集多少互动，而是高意向客户能不能顺利进入私信跟进。",
     "metadata": {
       "source": "demo-conversation",
       "demo": true
@@ -16,7 +16,7 @@
     "agentType": "main",
     "from": "main",
     "fromName": "Byering · 幕僚长",
-    "text": "明白。我把目标拆成三道检查：线索有效性、意向评分、触达承接。线索猎人和线索分析师先交叉核验，触达策略师只接收 A 级客户。",
+    "text": "明白。我会按找人、意向分析和首次触达三个环节汇总进展：找客专员保留互动证据，客户分析员确认优先级，潜客触达专员只接收已确认的 A 级潜客。",
     "metadata": {
       "source": "chief-conversation",
       "conversationRole": "chief",
@@ -41,21 +41,21 @@
     "agentType": "main",
     "from": "main",
     "fromName": "Byering · 幕僚长",
-    "text": "首轮已收口：新增有效潜客 214 位，其中 A 级 47 位；已触达 31 位，收到有效回复 12 位。当前卡点是 6 位客户主页信息不足，我已安排二次核验。",
+    "text": "首轮数据已汇总：新增有效潜客 214 位，其中 A 级 47 位；已触达 31 位，收到有效回复 12 位。当前有 6 位客户主页信息不足，已标记为待核验，暂不进入触达。",
     "metadata": {
       "source": "chief-conversation",
       "conversationRole": "chief",
       "demo": true
     },
     "artifact": {
-      "name": "潜客拓展项目执行简报-0810.md",
+      "name": "潜客拓展任务简报-0810.md",
       "type": "doc",
       "summary": "214 位有效潜客 · 47 位 A 级 · 12 位有效回复",
       "status": "已汇总",
-      "projectId": "room-lead-expansion",
-      "projectName": "潜在客户拓展项目组",
+      "taskId": "mock-task-acquisition",
+      "sourceTaskTitle": "潜客拓展",
       "createdBy": "Byering · 幕僚长",
-      "content": "# 潜客拓展项目执行简报\n\n## 今日结论\n\n- 新增有效潜客：214 位\n- A 级高意向：47 位\n- 已发送私信：31 位\n- 有效回复：12 位\n- 待二次核验：6 位\n\n## 决策建议\n\n优先让触达策略师承接明确提到预算、车型或到店时间的 12 位客户；信息不足的客户暂不触达，避免浪费账号额度。\n\n## 风险\n\n晚间直播场次评论增速较快，建议 20:00 前扩容一次采集队列。"
+      "content": "# 潜客拓展任务简报\n\n## 今日结论\n\n- 新增有效潜客：214 位\n- A 级高意向：47 位\n- 已发送私信：31 位\n- 有效回复：12 位\n- 待二次核验：6 位\n\n## 决策建议\n\n优先让潜客触达专员承接明确提到预算、车型或到店时间的 12 位客户；信息不足的客户暂不触达，避免浪费账号额度。\n\n## 风险\n\n晚间直播场次评论增速较快，建议 20:00 前扩容一次采集队列。"
     },
     "createdAt": "2026-08-10T01:03:00.000Z"
   },
@@ -240,5 +240,169 @@
       }
     },
     "createdAt": "2026-09-17T13:31:46.049Z"
+  },
+  {
+    "id": "dm-mu5yiibg-pira",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "查看所有 Agent 和任务状态",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "suppressAutoReply": true
+    },
+    "createdAt": "2026-09-17T20:03:01.564Z"
+  },
+  {
+    "id": "dm-mu5yiibp-l5ct",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "当前任务总览：执行中 1 项，等待处理 1 项，阻塞 0 项，已结束 3 项。正在关注：潜客拓展项目（执行中）。",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "chiefDecision": {
+        "intent": "status_query",
+        "responseMode": "status_card",
+        "riskLevel": "low",
+        "confirmationPolicy": "none",
+        "requiredCapabilities": [],
+        "requestedAgentId": null,
+        "incompatibleCapabilities": [],
+        "blockingMissing": [],
+        "optionalMissing": [],
+        "defaultsApplied": [],
+        "taskAction": "",
+        "userMessage": "",
+        "confidence": 1,
+        "shouldCreateTask": false
+      }
+    },
+    "createdAt": "2026-09-17T20:03:01.573Z"
+  },
+  {
+    "id": "dm-mu60fdbg-hezi",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "查看所有 Agent 和任务状态",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "suppressAutoReply": true
+    },
+    "createdAt": "2026-09-17T20:56:34.348Z"
+  },
+  {
+    "id": "dm-mu60fdbn-s5gy",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "当前任务总览：执行中 1 项，等待处理 1 项，阻塞 0 项，已结束 3 项。正在关注：潜客拓展项目（执行中）。",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "chiefDecision": {
+        "intent": "status_query",
+        "responseMode": "status_card",
+        "riskLevel": "low",
+        "confirmationPolicy": "none",
+        "requiredCapabilities": [],
+        "requestedAgentId": null,
+        "incompatibleCapabilities": [],
+        "blockingMissing": [],
+        "optionalMissing": [],
+        "defaultsApplied": [],
+        "taskAction": "",
+        "userMessage": "",
+        "confidence": 1,
+        "shouldCreateTask": false
+      }
+    },
+    "createdAt": "2026-09-17T20:56:34.355Z"
+  },
+  {
+    "id": "dm-mu61bjv2-ih4n",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "查看所有 Agent 和任务状态",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "suppressAutoReply": true
+    },
+    "createdAt": "2026-09-17T21:21:35.822Z"
+  },
+  {
+    "id": "dm-mu61bjvh-u97j",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "当前任务总览：执行中 1 项，等待处理 1 项，阻塞 0 项，已结束 3 项。正在关注：潜客拓展项目（执行中）。",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "chiefDecision": {
+        "intent": "status_query",
+        "responseMode": "status_card",
+        "riskLevel": "low",
+        "confirmationPolicy": "none",
+        "requiredCapabilities": [],
+        "requestedAgentId": null,
+        "incompatibleCapabilities": [],
+        "blockingMissing": [],
+        "optionalMissing": [],
+        "defaultsApplied": [],
+        "taskAction": "",
+        "userMessage": "",
+        "confidence": 1,
+        "shouldCreateTask": false
+      }
+    },
+    "createdAt": "2026-09-17T21:21:35.837Z"
+  },
+  {
+    "id": "dm-mu65iorn-3kpw",
+    "agentType": "main",
+    "from": "user",
+    "fromName": "我",
+    "text": "查看所有 Agent 和任务状态",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "suppressAutoReply": true
+    },
+    "createdAt": "2026-09-17T23:19:07.235Z"
+  },
+  {
+    "id": "dm-mu65iory-anqa",
+    "agentType": "main",
+    "from": "main",
+    "fromName": "Byering · 幕僚长",
+    "text": "当前任务总览：执行中 1 项，等待处理 1 项，阻塞 0 项，已结束 3 项。正在关注：潜客拓展项目（执行中）。",
+    "conversationId": "chief-of-staff",
+    "metadata": {
+      "source": "chief-conversation",
+      "chiefDecision": {
+        "intent": "status_query",
+        "responseMode": "status_card",
+        "riskLevel": "low",
+        "confirmationPolicy": "none",
+        "requiredCapabilities": [],
+        "requestedAgentId": null,
+        "incompatibleCapabilities": [],
+        "blockingMissing": [],
+        "optionalMissing": [],
+        "defaultsApplied": [],
+        "taskAction": "",
+        "userMessage": "",
+        "confidence": 1,
+        "shouldCreateTask": false
+      }
+    },
+    "createdAt": "2026-09-17T23:19:07.246Z"
   }
 ]

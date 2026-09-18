@@ -8,11 +8,14 @@ import {
   OFFICE_AGENT_SLOTS,
   officeAgentAriaLabel
 } from "../src/salebuddy/ui/office-agent-runtime.js";
+import { MARKETPLACE_LATEST_AGENT_IDS } from "../src/salebuddy/agents/marketplace.js";
+import { createResultsMockPreviewOfficeWorks } from "../src/salebuddy/ui/results-mock-preview.js";
 import {
   installPixiLegacyRoleLabelFilter,
   isLegacyOfficeNameTexture,
   isLegacyOfficeRoleLabel
 } from "../src/salebuddy/office-role-skin.js";
+import { GROK_AVATAR_CATALOG } from "../src/salebuddy/ui/grok-bot-avatar.js";
 
 function teamLive(statuses = {}) {
   return {
@@ -57,6 +60,24 @@ test("office keeps the chief of staff visible when no specialist is working", ()
   assert.equal(result.activeCount, 1);
 });
 
+test("mock office keeps every featured Agent active and linked to its result task", () => {
+  const works = createResultsMockPreviewOfficeWorks();
+  const result = buildOfficeAgentRoster({
+    activatedAgents: MARKETPLACE_LATEST_AGENT_IDS.map((id) => ({ id })),
+    works
+  });
+  assert.deepEqual(new Set(result.roster.slice(1).map(({ id }) => id)), new Set(MARKETPLACE_LATEST_AGENT_IDS));
+  assert.equal(result.activeCount, MARKETPLACE_LATEST_AGENT_IDS.length + 1);
+  assert.ok(result.roster.slice(1).every(({ state, accountLabel }) => state === "working" && accountLabel));
+  assert.deepEqual(works.map(({ metadata }) => metadata.taskId), [
+    "mock-results-prospect-scan",
+    "mock-live-danmaku-analysis",
+    "mock-viral-work-analysis",
+    "mock-live-danmaku-outreach",
+    "mock-gold-customer-service"
+  ]);
+});
+
 test("chief of staff does not enter the Douyin account identity pipeline", () => {
   const source = readFileSync(new URL("../src/salebuddy/ui/office-agent-runtime.js", import.meta.url), "utf8");
   const result = buildOfficeAgentRoster({
@@ -74,6 +95,21 @@ test("chief of staff accessibility labels do not mention Douyin accounts", () =>
   const specialistLabel = officeAgentAriaLabel({ id: "mkt-comment-acquisition", name: "抖音获客管家", accountLabel: "家居账号", state: "working", stateLabel: "工作中" });
   assert.equal(chiefLabel, "查看 Byering · 幕僚长，当前状态：工作中");
   assert.match(specialistLabel, /抖音账号：家居账号/);
+});
+
+test("chief of staff uses the black shared Agent avatar", () => {
+  assert.deepEqual(GROK_AVATAR_CATALOG.main, { shape: "blob", color: "black" });
+});
+
+test("public work analysis identifies its source instead of an unbound Douyin account", () => {
+  const result = buildOfficeAgentRoster({
+    activatedAgents: [{ id: "mkt-viral-work-analysis" }],
+    works: [{ agentType: "mkt-viral-work-analysis", state: "working" }]
+  });
+  const analyst = result.roster[1];
+  assert.equal(analyst.accountLabel, "公开作品分析");
+  assert.equal(analyst.accountLabelKind, "source");
+  assert.match(officeAgentAriaLabel(analyst), /工作来源：公开作品分析/);
 });
 
 test("office roster only includes working Agents and keeps overflow reachable", () => {
@@ -168,13 +204,14 @@ test("office activation source matches the enabled Agent Center capabilities", (
     ["mkt-dm-inbox", "私信客服"],
     ["mkt-gold-customer-service", "金牌客服"],
     ["mkt-live-danmaku-analysis", "直播间弹幕分析"],
-    ["mkt-live-danmaku-outreach", "电商直播间未成交客户触达"]
+    ["mkt-live-danmaku-outreach", "直播追单助理"]
   ]);
 });
 
 test("office stage renders one independent video entry per Agent", () => {
   const source = readFileSync(new URL("../src/salebuddy/ui/office-agent-runtime.js", import.meta.url), "utf8");
-  assert.match(source, /\.sb-office-agent-stage\{display:grid/);
+  assert.match(source, /\.sb-office-agent-stage\{display:grid;grid-template-columns:repeat\(3,minmax\(300px,300px\)\)/);
+  assert.match(source, /@media\(max-width:1500px\)\{#\$\{VIDEO_LAYER_ID\} \.sb-office-agent-stage\{grid-template-columns:repeat\(2,minmax\(300px,300px\)\)\}\}/);
   assert.match(source, /entries\.get\(agent\.id\)/);
   assert.match(source, /entry\.video\.dataset\.agentId = agent\.id/);
   assert.match(source, /entry\.video\.dataset\.roleKey = roleKey/);

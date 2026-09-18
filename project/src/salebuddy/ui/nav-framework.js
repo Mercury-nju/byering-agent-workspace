@@ -882,6 +882,10 @@ export function mountNavFramework({ gateway, teamLive, openers: openerOverrides 
   function onNavigation(event) {
     const mode = event.detail?.mode;
     if (event.detail?.active && ["newTask", "office", "skills"].includes(mode)) {
+      // The bootstrap guard hides native content while a custom route is
+      // being mounted. Native surfaces own their layout, so leaving the
+      // marker behind would keep the office panel hidden after a route swap.
+      mountedDocument.documentElement?.removeAttribute("data-byering-custom-page");
       // Native surfaces and SaleBuddy pages share the same content slot. Close
       // the custom route before the native view paints so two work surfaces
       // cannot remain visible at the same time.

@@ -9,7 +9,7 @@ import { clearNavigationRoute, persistNavigationRoute } from "./navigation-route
 import { TEAM_STATE_LABELS, TEAM_STATES } from "../agents/status.js";
 import { avatarInitial } from "./agent-drawer.js";
 import { createSnapshotScreen, createLiveBadge } from "./cloud-desktop.js";
-import { listHiredAgents, getMarketplaceAgent, isMarketplaceAgentAvailable } from "../agents/marketplace.js";
+import { listHiredAgents, getMarketplaceAgent, isMarketplaceAgentAvailable, MARKETPLACE_LATEST_AGENT_IDS } from "../agents/marketplace.js";
 import { refreshEmploymentContracts } from "../bridge/employment-client.js";
 import { renderAgentProfile } from "./agent-profile.js";
 import { openFileCenterPage } from "./file-center.js";
@@ -31,6 +31,7 @@ import { companionPersona } from "../agents/companion.js";
 import { appendCompanionCards, mountCompanionStatus, openCompanionPreferences } from "./agent-companion-ui.js";
 import { companionRequest, companionCardAction, latestCompanionPhase } from "../bridge/companion-client.js";
 import { isStyleMockPreview } from "../bridge/preview-mode.js";
+import { isMockRuntime } from "../bridge/runtime-mode.js";
 import { createDemoDmGateway } from "../agents/dm-demo-client.js";
 
 export { ACQUISITION_TASK_UPDATE_ACTION, acquisitionTaskUpdatePayload };
@@ -513,7 +514,7 @@ const ICONS = {
 const PROACTIVE_GUIDANCE = Object.freeze({
   main: {
     idle: "我可以查看全体 Agent 的工作状态、已有任务和成果数据，并引导你前往对应 Agent。",
-    actions: [["查看团队状态", "showStatus", true], ["查看实时工作", "realtime"], ["查看成果中心", "prospects"]]
+    actions: [["查看任务总览", "showStatus", true], ["查看实时工作", "realtime"], ["查看成果中心", "prospects"]]
   },
   "Strategy Agent": {
     idle: "我可以把你的业务目标整理成客户画像、来源范围和筛选规则。",
@@ -597,7 +598,10 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   persistNavigationRoute("contacts");
   ensureStyle();
   const mockPreview = isStyleMockPreview();
-  const demoGateway = mockPreview ? createDemoDmGateway() : null;
+  const mockContacts = mockPreview
+    || document.documentElement?.dataset?.byeringRuntimeMode === "mock"
+    || isMockRuntime(globalThis.location?.search, { envMock: globalThis.__SALEBUDDY_CONFIG__?.runtimeMode === "mock" });
+  const demoGateway = mockContacts ? createDemoDmGateway() : null;
   gateway = demoGateway || (gateway?.action ? gateway : null);
   const page = openPage({
     title: "成员",
@@ -613,7 +617,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   const listCol = el("div", "sb-clist");
   const detailCol = el("div", "sb-cdetail");
   root.append(listCol, detailCol);
-  if (mockPreview) page.body.classList.add("sb-contacts-mock-body");
+  if (mockContacts) page.body.classList.add("sb-contacts-mock-body");
   page.body.appendChild(root);
 
   const state = {
@@ -630,6 +634,14 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     mockShowcaseOpen: mockPreview,
     mockActionState: new Map()
   };
+  const contactHiredAgents = () => {
+    const hired = listContactHiredAgents();
+    if (!mockContacts) return hired;
+    const hiredById = new Map(hired.map((agent) => [agent.id, agent]));
+    return MARKETPLACE_LATEST_AGENT_IDS
+      .map((agentId) => hiredById.get(agentId) || getMarketplaceAgent(agentId))
+      .filter(Boolean);
+  };
   let dmPollTimer = null;
   let disposeCompanion = () => {};
   let disposed = false;
@@ -638,7 +650,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   const DOUYIN_AGENT_IDS = new Set(["mkt-dm-inbox", "mkt-gold-customer-service", "mkt-cold-writer"]);
   const officeStatusStore = createOfficeStatusStore({
     getLocalWorks: listWorks,
-    getAgentIds: () => listContactHiredAgents().map(({ id }) => id)
+    getAgentIds: () => contactHiredAgents().map(({ id }) => id)
   });
 
   const mockControls = mockPreview ? buildMockControls() : null;
@@ -648,7 +660,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   function memberPresentationFor(agentType) {
     const status = teamLive?.getStatusOf?.(agentType) || { agentType, state: TEAM_STATES.IDLE };
     const work = getWork(agentType);
-    const officeAgentIds = new Set(listContactHiredAgents().map(({ id }) => id));
+    const officeAgentIds = new Set(contactHiredAgents().map(({ id }) => id));
     const authoritativeWork = officeAgentIds.has(agentType) ? officeStatusStore.getWork(agentType) : null;
     return memberStatusPresentation({ status, work, authoritativeWork });
   }
@@ -657,15 +669,17 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     return memberPresentationFor(agentType).status;
   }
 
-  try {
-    await refreshEmploymentContracts();
-  } catch {
-    // The last in-memory projection remains usable while the control plane reconnects.
+  if (!mockContacts) {
+    try {
+      await refreshEmploymentContracts();
+    } catch {
+      // The last in-memory projection remains usable while the control plane reconnects.
+    }
   }
 
   function currentMemberRosterSignature() {
     const profiles = teamLive?.getProfiles?.() || new Map();
-    const hired = listContactHiredAgents();
+    const hired = contactHiredAgents();
     return JSON.stringify({
       profiles: [...profiles.keys()].filter((agentType) => isChiefAgentType(agentType)).sort(),
       hired: hired.map(({ id }) => id).sort()
@@ -945,9 +959,12 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     listCol.textContent = "";
     // 好友
     const profiles = teamLive?.getProfiles?.() || new Map();
-    const hired = listContactHiredAgents();
+    const hired = contactHiredAgents();
     const hiredIds = new Set(hired.map(({ id }) => id));
     const visibleProfiles = [...profiles.entries()].filter(([agentType]) => isChiefAgentType(agentType) && !hiredIds.has(agentType));
+    if (mockContacts && !hiredIds.has("main") && !visibleProfiles.some(([agentType]) => agentType === "main")) {
+      visibleProfiles.unshift(["main", null]);
+    }
     const friendTitle = el("div", "sb-cgroup-title", "好友");
     friendTitle.appendChild(el("span", "sb-cgroup-count", `${visibleProfiles.length + hired.length}`));
     const recruitButton = el("button", "sb-cgroup-recruit");
@@ -1465,7 +1482,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     const companionRequestForConversation = companionRequestForAgent(agentType);
 
     async function hydrateAcquisitionContext() {
-      if (!isAcquisitionMember(agentType) || mockPreview || !gateway?.action) return;
+      if (!isAcquisitionMember(agentType) || mockContacts || !gateway?.action) return;
       try {
         const response = await gateway.action("douyin.acquisition.tasks.list", {
           agentId: agentType,
@@ -1867,7 +1884,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
   }
 
   // ── 启动与订阅 ──
-  if (mockPreview && !initialFriend && listContactHiredAgents().some(({ id }) => id === "mkt-comment-acquisition")) {
+  if (mockContacts && !initialFriend && contactHiredAgents().some(({ id }) => id === "mkt-comment-acquisition")) {
     state.selected = { kind: "friend", id: "mkt-comment-acquisition" };
   }
   renderList();
@@ -1878,7 +1895,7 @@ export async function openContactsPage({ teamLive, gateway, onRecruit, onClose, 
     ? teamLive?.getProfiles?.().has(initialFriend) && isContactAgentAvailable(initialFriend)
     : false;
   const initialMarketplaceAgent = initialFriend
-    && listContactHiredAgents().some(({ id }) => id === initialFriend);
+    && contactHiredAgents().some(({ id }) => id === initialFriend);
   if (initialFriend && (initialProfile || initialMarketplaceAgent)) {
     select({ kind: "friend", id: initialFriend });
   }

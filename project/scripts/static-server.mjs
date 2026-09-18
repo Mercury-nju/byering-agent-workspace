@@ -16,6 +16,32 @@ function cliPort() {
 
 const defaultPort = cliPort() || Number(process.env.MARVIS_PORT || 4173);
 
+function runtimeModeFor(value = process.env.BYERING_RUNTIME_MODE) {
+  return value === "mock" ? "mock" : "production";
+}
+
+function controlPlaneUrlFor({ runtimeMode, controlPlaneUrl, backendPort } = {}) {
+  const configuredUrl = String(controlPlaneUrl ?? process.env.BYERING_CONTROL_PLANE_URL ?? "").trim();
+  if (configuredUrl) return configuredUrl.replace(/\/$/, "");
+  const fallbackPort = runtimeMode === "mock" ? 6690 : 6681;
+  const port = Number(backendPort ?? process.env.BYERING_BACKEND_PORT ?? fallbackPort);
+  return `http://127.0.0.1:${Number.isInteger(port) && port > 0 && port <= 65535 ? port : fallbackPort}`;
+}
+
+function mockGatewayUrlFor({ runtimeMode, gatewayPort } = {}) {
+  if (runtimeMode !== "mock") return "";
+  const port = Number(gatewayPort ?? process.env.MARVIS_GATEWAY_PORT ?? 5152);
+  const resolvedPort = Number.isInteger(port) && port > 0 && port <= 65535 ? port : 5152;
+  return `ws://127.0.0.1:${resolvedPort}/agent`;
+}
+
+export function runtimeConfigScript(options = {}) {
+  const runtimeMode = runtimeModeFor(options.runtimeMode);
+  const controlPlaneUrl = controlPlaneUrlFor({ ...options, runtimeMode });
+  const agentGatewayUrl = mockGatewayUrlFor({ ...options, runtimeMode });
+  return `globalThis.__SALEBUDDY_CONFIG__=Object.assign({},globalThis.__SALEBUDDY_CONFIG__,{runtimeMode:${JSON.stringify(runtimeMode)},controlPlaneUrl:${JSON.stringify(controlPlaneUrl)}${agentGatewayUrl ? `,agentGatewayUrl:${JSON.stringify(agentGatewayUrl)}` : ""}});`;
+}
+
 const mime = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
@@ -64,7 +90,13 @@ export function patchRecoveredBundle(filePath, body) {
   return patchRecoveredBrand(filePath, Buffer.from(source));
 }
 
-export function createStaticServer({ rootDir = root, port = defaultPort, gatewayPort = Number(process.env.MARVIS_GATEWAY_PORT || 5152) } = {}) {
+export function createStaticServer({
+  rootDir = root,
+  port = defaultPort,
+  gatewayPort = Number(process.env.MARVIS_GATEWAY_PORT || 5152),
+  runtimeMode = runtimeModeFor(),
+  controlPlaneUrl = controlPlaneUrlFor({ runtimeMode })
+} = {}) {
   // Mock Gateway is opt-in. Production local runs never start it by accident.
   if (process.env.BYERING_RUNTIME_MODE === "mock" && process.env.MARVIS_DISABLE_GATEWAY_MOCK !== "1") {
     startGatewayMock({ port: gatewayPort });
@@ -72,9 +104,8 @@ export function createStaticServer({ rootDir = root, port = defaultPort, gateway
   return http.createServer(async (request, response) => {
     const requestPath = decodeURIComponent((request.url || "/").split("?")[0]);
     if (requestPath === "/runtime-config.js") {
-      const mode = process.env.BYERING_RUNTIME_MODE === "mock" ? "mock" : "production";
       response.writeHead(200, { "Content-Type": "text/javascript; charset=utf-8", "Cache-Control": "no-cache" });
-      response.end(`globalThis.__SALEBUDDY_CONFIG__=Object.assign({},globalThis.__SALEBUDDY_CONFIG__,{runtimeMode:${JSON.stringify(mode)}});`);
+      response.end(runtimeConfigScript({ runtimeMode, controlPlaneUrl, gatewayPort }));
       return;
     }
     const filePath = safePath(rootDir, request.url || "/");

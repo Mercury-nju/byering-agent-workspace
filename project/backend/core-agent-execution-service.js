@@ -168,10 +168,10 @@ export function createCoreAgentExecutionService({
   }
 
   async function analyzeViralWork(request) {
-    assertCapability("viralWorkAnalysis", "爆款作品分析能力不可用");
+    assertCapability("viralWorkAnalysis", "抖音爆款拆解官能力不可用");
     const workUrl = cleanText(request.workUrl || request.work_url || request.videoUrl || request.video_url || request.config?.workUrl);
     if (!workUrl) {
-      throw executionError("爆款作品分析需要提供作品链接", "CORE_AGENT_INPUT_REQUIRED", 409, { field: "workUrl" });
+      throw executionError("抖音爆款拆解官需要提供作品链接", "CORE_AGENT_INPUT_REQUIRED", 409, { field: "workUrl" });
     }
     try {
       const result = await viralWorkAnalysisService.run({
@@ -194,7 +194,7 @@ export function createCoreAgentExecutionService({
           payload: {
             resultSnapshot,
             reason: "VIRAL_WORK_ANALYSIS_COMPLETED",
-            text: "爆款作品分析已完成，报告已生成。"
+            text: "抖音爆款拆解官已完成，报告已生成。"
           }
         }]
       });
@@ -404,7 +404,7 @@ export function createCoreAgentExecutionService({
         replyTone: hasSavedReception
           ? receptionResponseStyle(settings)
           : isObjectiveFirstInbox
-            ? cleanText(callerConfig.replyTone) || "自然、专业、简短，先解决当前问题，再推进一个明确的下一步。"
+            ? cleanText(callerConfig.replyTone) || "自然、专业、简短，先解决当前问题，再根据目标推进对话。"
             : receptionResponseStyle(settings),
         businessKnowledge: hasSavedReception ? cleanText(settings.knowledge) : cleanText(callerConfig.businessKnowledge),
         handoffRules: hasSavedReception
@@ -414,6 +414,9 @@ export function createCoreAgentExecutionService({
             : cleanText(callerConfig.handoffRules) || normalizeHandoffRules(settings.handoff),
         strategyMode: cleanText(callerConfig.strategyMode),
         strategyPlan: callerConfig.strategyPlan && typeof callerConfig.strategyPlan === "object" ? callerConfig.strategyPlan : null,
+        verifiedInboxPlan: callerConfig.verifiedInboxPlan && typeof callerConfig.verifiedInboxPlan === "object"
+          ? callerConfig.verifiedInboxPlan
+          : null,
         schedule,
         takeover: request.takeover === true
       };

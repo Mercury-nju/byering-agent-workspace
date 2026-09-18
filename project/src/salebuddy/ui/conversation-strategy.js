@@ -94,7 +94,9 @@ export function createConversationStrategyMockAccounts() {
     privateReceptionEligible: true,
     privateReceptionEnabled: true,
     mock: true,
-    mockScenario: account.mockScenario
+    mockScenario: account.mockScenario,
+    accountKind: account.accountKind,
+    consumerScenario: account.consumerScenario
   }));
 }
 

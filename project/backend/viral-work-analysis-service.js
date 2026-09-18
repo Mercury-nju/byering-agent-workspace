@@ -395,7 +395,7 @@ export function createViralWorkAnalysisService({
     const result = {
       ...analysis,
       agentId: VIRAL_WORK_ANALYSIS_AGENT_ID,
-      agentName: "爆款作品分析",
+      agentName: "抖音爆款拆解官",
       taskId: text(input.taskId) || `viral-work-${randomUUID()}`,
       taskRunId: text(input.taskRunId) || null,
       status,

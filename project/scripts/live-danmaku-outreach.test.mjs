@@ -18,7 +18,7 @@ test("直播间未成交客户触达是独立的触达类可用 Agent", () => {
   const agent = MARKETPLACE_AGENTS.find((item) => item.id === "mkt-live-danmaku-outreach");
 
   assert.ok(agent);
-  assert.equal(agent.name, "电商直播间未成交客户触达");
+  assert.equal(agent.name, "直播追单助理");
   assert.equal(agent.category, "触达");
   assert.equal(agent.capabilities.liveDanmakuOutreach, true);
   assert.equal(agent.capabilities.analysisOnly, false);

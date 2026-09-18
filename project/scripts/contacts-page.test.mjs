@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { ACQUISITION_TASK_UPDATE_ACTION, CONTACTS_MOCK_SCENARIOS, acquisitionActionPayload, acquisitionContextFor, acquisitionMemberActions, acquisitionTaskUpdatePayload, chiefDecisionPresentation, conversationModeForAgent, conversationScenarioForAgent, isAcquisitionMember, isContactAgentAvailable, memberAvatarStateForStatus, memberConversationAvatarStateForStatus, memberStatusPresentation, mergeAgentConversationMessages, selectAcquisitionConversationTask, shouldRebuildMemberDetail, sortContactFriendEntries, specialistConversationMetadata } from "../src/salebuddy/ui/contacts-page.js";
+import { MARKETPLACE_LATEST_AGENT_IDS } from "../src/salebuddy/agents/marketplace.js";
+import { seedDmMessages } from "../src/salebuddy/agents/dm-scenarios.js";
 
 const contactsSource = readFileSync(new URL("../src/salebuddy/ui/contacts-page.js", import.meta.url), "utf8");
 const companionSource = readFileSync(new URL("../src/salebuddy/ui/agent-companion-ui.js", import.meta.url), "utf8");
@@ -93,6 +95,19 @@ test("members use hired marketplace Agents and keep only the chief profile", () 
   assert.doesNotMatch(contactsSource, /listActivatedMarketplaceAgents\(\)/);
   assert.match(contactsSource, /market\?\.displayName\s*\|\|\s*market\?\.name/);
   assert.match(contactsSource, /market\?\.displayTitle\s*\|\|\s*market\?\.title/);
+});
+
+test("mock contacts expose all five featured Agents with seeded conversations", () => {
+  assert.equal(MARKETPLACE_LATEST_AGENT_IDS.length, 5);
+  assert.match(contactsSource, /const mockContacts = mockPreview\s*\|\|\s*document\.documentElement\?\.dataset\?\.byeringRuntimeMode === "mock"\s*\|\|\s*isMockRuntime\(/);
+  assert.match(contactsSource, /const demoGateway = mockContacts \? createDemoDmGateway\(\) : null/);
+  assert.match(contactsSource, /return MARKETPLACE_LATEST_AGENT_IDS\s*\.map\(\(agentId\) => hiredById\.get\(agentId\) \|\| getMarketplaceAgent\(agentId\)\)/);
+  for (const agentId of MARKETPLACE_LATEST_AGENT_IDS) {
+    const messages = seedDmMessages(agentId);
+    assert.ok(messages.length >= 4, `${agentId} 演示对话不足`);
+    assert.ok(messages.some((message) => message.from === "user"), `${agentId} 缺用户输入`);
+    assert.ok(messages.some((message) => message.artifact?.content), `${agentId} 缺可查看的业务产出`);
+  }
 });
 
 test("member rows use a dedicated DMG state-driven avatar adapter", () => {
@@ -311,7 +326,7 @@ test("chief guidance stays inside the member conversation without creating work"
   const guidance = contactsSource.slice(guidanceStart, guidanceEnd > guidanceStart ? guidanceEnd : actionStart);
   const actionHandler = contactsSource.slice(actionStart, actionEnd);
 
-  assert.match(guidance, /actions:\s*\[\["查看团队状态",\s*"showStatus",\s*true\]/);
+  assert.match(guidance, /actions:\s*\[\["查看任务总览",\s*"showStatus",\s*true\]/);
   assert.doesNotMatch(guidance, /告诉我你的目标|创建新任务|newTask/);
   assert.match(actionHandler, /action === "realtime" \|\| action === "showStatus"/);
   assert.doesNotMatch(actionHandler, /data-sb-mode="newTask"/);

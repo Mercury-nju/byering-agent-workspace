@@ -1,7 +1,8 @@
 import {
   VIRAL_WORK_ANALYSIS_DEFAULT_GOAL,
   VIRAL_WORK_ANALYSIS_PURPOSE,
-  VIRAL_WORK_ANALYSIS_TARGET_AUDIENCE
+  VIRAL_WORK_ANALYSIS_TARGET_AUDIENCE,
+  VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE_ID
 } from "./viral-work-analysis.js";
 
 const value = (input, fallback = "—") => {
@@ -305,254 +306,152 @@ function htmlUserList(items, empty = "暂无真实产出") {
   return htmlList(list(items).map((item) => cleanUserText(item)), cleanUserText(empty));
 }
 
-export function buildViralWorkAnalysisReportHtml(result = {}) {
+export const VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE = Object.freeze({
+  id: VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE_ID,
+  name: "VIRAL TEARDOWN · 爆款拆解",
+  sections: Object.freeze([
+    "数据表现拆解",
+    "内容结构逐帧拆解",
+    "评论区洞察",
+    "爆款成因总结",
+    "风险与合规提示",
+    "可复制方法论 SOP"
+  ])
+});
+
+function teardownImageSource(input) {
+  const source = String(input ?? "").trim();
+  return /^(?:data:image\/(?:jpeg|jpg|png|webp);base64,|https?:\/\/)/i.test(source) ? source : "";
+}
+
+function teardownTextList(values, empty = "暂无真实产出") {
+  const entries = list(values).map((item) => cleanUserText(item)).filter(Boolean);
+  return entries.length ? entries : [empty];
+}
+
+function teardownTimeline(values) {
+  const entries = Array.isArray(values) ? values.filter(Boolean) : [];
+  if (!entries.length) return '<p class="empty">暂未形成逐帧结构，报告不会用占位信息代替视频观察。</p>';
+  const segments = entries.map((item, index) => {
+    const range = cleanUserText(item?.timeRange, "");
+    const title = cleanUserText(item?.stage, `阶段 ${index + 1}`);
+    const detail = cleanUserText(item?.description || item?.content, "未记录");
+    const tone = (index % 7) + 1;
+    return `<div class="tl-seg s${tone}" style="flex:${Math.max(1, String(detail).length)}"><span class="sec">${escapeHtml(range || `${index + 1}`)}</span>${escapeHtml(title)}</div>`;
+  }).join("");
+  const notes = entries.map((item, index) => {
+    const range = cleanUserText(item?.timeRange, `阶段 ${index + 1}`);
+    const title = cleanUserText(item?.stage, `内容阶段 ${index + 1}`);
+    const detail = cleanUserText(item?.description || item?.content, "未记录");
+    return `<div class="tl-note"><div class="t">${escapeHtml(range)}</div><div class="line"><q>${escapeHtml(title)}</q></div><div class="fn">${escapeHtml(detail)}</div></div>`;
+  }).join("");
+  return `<div class="timeline"><div class="tl-track">${segments}</div><div class="tl-notes">${notes}</div></div>`;
+}
+
+function teardownQuotes(values) {
+  const quotes = list(values).map((item) => cleanUserText(item)).filter(Boolean);
+  if (!quotes.length) return '<p class="empty">暂未读取到代表性评论，评论区洞察需要后续补充验证。</p>';
+  return `<div class="quotes">${quotes.slice(0, 6).map((quote) => `<div class="quote"><div class="qc"><q>${escapeHtml(quote)}</q><div class="ip">公开评论 · 原话</div></div></div>`).join("")}</div>`;
+}
+
+function teardownGrowthSummary(result = {}) {
+  const video = result.videoAnalysis || {};
+  const hypotheses = teardownTextList(video.growthHypotheses, "");
+  if (hypotheses[0]) return `当前最值得验证的传播机制：${hypotheses.slice(0, 2).join("；")}。`;
+  const signals = teardownTextList(video.growthSignals, "");
+  if (signals[0]) return `当前可观察到的传播信号：${signals.slice(0, 2).join("；")}。`;
+  return "当前还没有足够的视频事实形成稳定结论，建议先补充画面、口播和评论证据。";
+}
+
+function teardownFrameGrid(result, video) {
+  const frames = frameItems(result);
+  if (!frames.length) return '<p class="empty">暂未生成回看画面，报告不会用占位图代替真实证据。</p>';
+  return `<div class="frame-grid">${frames.map((frame) => {
+    const evidence = frameEvidence(frame, video);
+    return `<figure class="frame"><img src="${escapeHtml(frame.dataUrl)}" alt="${escapeHtml(`视频 ${value(frame.timeLabel, "时间点")} 画面`)}" loading="lazy"><figcaption><strong>${escapeHtml(value(frame.timeLabel, "未标记时间"))} · ${escapeHtml(evidence.title)}</strong><span>为什么保留：${escapeHtml(evidence.reason)}</span></figcaption></figure>`;
+  }).join("")}</div>`;
+}
+
+function buildViralTeardownReportHtml(result = {}) {
   const work = result.work || {};
   const video = result.videoAnalysis || {};
-  const metrics = result.metrics || work.metrics || {};
   const content = result.content || {};
   const audience = result.audience || {};
   const recommendations = result.recommendations || {};
-  const purpose = value(result.purpose, VIRAL_WORK_ANALYSIS_PURPOSE);
-  const targetAudience = value(result.targetAudience, VIRAL_WORK_ANALYSIS_TARGET_AUDIENCE);
-  const sourceUrl = value(result.sourceUrl || result.inputs?.workUrl, "未记录");
+  const metrics = result.metrics || work.metrics || {};
+  const workTitle = cleanUserText(work.title || work.description?.slice?.(0, 80), "这条视频");
   const author = cleanUserText(work.author?.name, "未提供");
   const description = cleanUserText(work.description, "未提供视频简介");
-  const workTitle = cleanUserText(work.title || description.slice(0, 80), "这条视频");
+  const duration = durationLabel(work.durationSeconds);
   const summary = reportSummary(result);
-  const status = statusLabel(result.status);
-  const statusClass = status === "已完成" ? "is-complete" : "is-partial";
-  const statusNote = reportStatusNote(result);
-  const frameCount = frameItems(result).length;
+  const sourceUrl = value(result.sourceUrl || result.inputs?.workUrl, "未记录");
+  const cover = teardownImageSource(work.coverUrl) || teardownImageSource(frameItems(result)[0]?.dataUrl);
+  const structureSource = Array.isArray(video.structure) && video.structure.length
+    ? video.structure
+    : Array.isArray(content.structure) ? content.structure : [];
+  const structure = structureSource.filter(Boolean).map((item) => typeof item === "string" ? { stage: item, description: item } : item);
+  const topicRows = Array.isArray(audience.topics) ? audience.topics : [];
+  const causes = [
+    ...teardownTextList(video.growthSignals, "暂未形成传播因素观察").map((item) => ({ title: "视频里的可观察信号", detail: item })),
+    ...teardownTextList(video.growthHypotheses, "暂未形成可验证的原因").map((item) => ({ title: "需要验证的传播假设", detail: item })),
+    ...teardownTextList(recommendations.reusableElements, "暂未形成可借鉴做法").slice(0, 4).map((item) => ({ title: "可复用表达", detail: item }))
+  ];
+  const risks = teardownTextList(recommendations.cautions, "没有额外风险提示；仍需区分内容事实、公开表现和分析判断");
+  const tests = teardownTextList(recommendations.nextTests, "补充视频事实和公开数据后，再设计下一轮测试");
+  const reuse = teardownTextList(recommendations.reusableElements, "先确认视频中的具体场景、道具和冲突，再抽象为自己的表达");
+  const totalInteractions = metrics.totalInteractions ?? [metrics.likes, metrics.comments, metrics.shares, metrics.favorites].filter((item) => Number.isFinite(Number(item))).reduce((sum, item) => sum + Number(item), 0);
+  const shareLikeRatio = Number(metrics.likes) > 0 && metrics.shares != null ? (Number(metrics.shares) / Number(metrics.likes)).toFixed(2) : "暂无数据";
+  const metricCards = [
+    [metrics.likes, "点赞"],
+    [metrics.comments, "评论"],
+    [metrics.shares, "分享"],
+    [metrics.favorites, "收藏"]
+  ];
+  const evidence = evidenceItems(result);
   const sourceLink = /^https?:\/\//i.test(sourceUrl)
-    ? `<a class="source-link" href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">打开原视频</a><span class="source-url">${escapeHtml(sourceUrl)}</span>`
+    ? `<a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer">打开原视频</a>`
     : escapeHtml(sourceUrl);
-  const metricsRows = [
-    ["播放量", metricValue(metrics.views)],
-    ["点赞", metricValue(metrics.likes)],
-    ["评论", metricValue(metrics.comments)],
-    ["分享", metricValue(metrics.shares)],
-    ["收藏", metricValue(metrics.favorites)],
-    ["互动率", metrics.interactionRate == null ? "暂无数据" : `${metrics.interactionRate}%`]
+  const topicTable = topicRows.length
+    ? `<div class="tbl-scroll"><table><thead><tr><th>评论主题</th><th class="num-r">数量</th><th>说明</th></tr></thead><tbody>${topicRows.map((item) => `<tr><td>${escapeHtml(cleanUserText(item.key, "未命名主题"))}</td><td class="num-r"><b>${escapeHtml(String(item.count ?? "暂无"))}</b></td><td>${escapeHtml(cleanUserText(item.detail, "从公开评论中归纳"))}</td></tr>`).join("")}</tbody></table></div>`
+    : '<p class="empty">暂未形成稳定评论主题。</p>';
+  const facts = [
+    ["视频标题", workTitle],
+    ["作者", author],
+    ["视频编号", value(work.id, "暂无数据")],
+    ["视频时长", duration],
+    ["视频简介", description],
+    ["发布标签", list(work.hashtags).join("、") || "暂无数据"]
   ];
   return `<!doctype html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(workTitle)} · 爆款视频分析报告</title>
-  <style>
-    :root{--paper:#f4f1eb;--ink:#20282d;--muted:#6d777b;--line:#d9d6ce;--blue:#52718d;--blue-soft:#e8eef1;--ochre:#c68b45;--risk:#9a5f4e}
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{margin:0;background:#dfe3e4;color:var(--ink);font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
-    main{max-width:1080px;min-height:100vh;margin:0 auto;background:var(--paper);box-shadow:0 0 0 1px rgba(32,40,45,.05)}
-    .cover{position:relative;overflow:hidden;padding:48px clamp(24px,6vw,72px) 34px;background:#20282d;color:#f5f1e9;border-bottom:5px solid var(--ochre)}
-    .cover:after{content:"";position:absolute;right:7%;top:0;width:1px;height:155px;background:rgba(198,139,69,.75)}
-    .cover-top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:34px}
-    .eyebrow,.section-kicker,.summary-label,.label{margin:0;color:#9da9aa;font-size:11px;letter-spacing:.08em}
-    .eyebrow{color:#cbd1cd;text-transform:uppercase}
-    .status-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border:1px solid rgba(255,255,255,.22);border-radius:999px;font-size:12px;white-space:nowrap}
-    .status-badge:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ochre)}
-    .status-badge.is-complete:before{background:#80b499}
-    h1{max-width:720px;margin:0;font-size:clamp(32px,5vw,52px);font-weight:720;letter-spacing:0;line-height:1.13}
-    .cover-subtitle{margin:12px 0 0;color:#d8ddd7;font-size:20px;line-height:1.45}
-    .summary-block{max-width:800px;margin:34px 0 30px;padding-left:18px;border-left:3px solid var(--ochre)}
-    .summary-label{color:#d6a66c}
-    .summary{margin:6px 0 0;font-size:18px;line-height:1.75;color:#fff}
-    .hero-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:0 0 26px;background:rgba(255,255,255,.15)}
-    .hero-fact{min-width:0;padding:14px 16px;background:rgba(32,40,45,.9)}
-    .hero-fact span{display:block;color:#9da9aa;font-size:11px}
-    .hero-fact strong{display:block;margin-top:3px;overflow-wrap:anywhere;font-size:15px;font-weight:600;color:#f8f5ef}
-    .source-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;color:#abb5b4;font-size:12px;overflow-wrap:anywhere}
-    .source-link{padding:7px 12px;border:1px solid rgba(255,255,255,.34);border-radius:6px;color:#fff;text-decoration:none}
-    .source-link:hover{border-color:#e3b778;background:rgba(198,139,69,.16)}
-    .source-url{max-width:100%;word-break:break-all}
-    .notice{margin-top:24px;padding:13px 15px;border-left:3px solid #d29c57;background:rgba(198,139,69,.13);color:#f0dfc8;font-size:13px;line-height:1.65}
-    .report-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;padding-top:18px;border-top:1px solid rgba(255,255,255,.15)}
-    .nav-link{color:#cbd1cd;text-decoration:none;font-size:12px}
-    .nav-link:after{content:" /";padding-left:8px;color:#697777}
-    .nav-link:last-child:after{content:""}
-    .section{padding:42px clamp(24px,6vw,72px);border-top:1px solid var(--line)}
-    .section-heading{display:flex;align-items:flex-start;gap:16px;margin-bottom:22px}
-    .section-number{flex:none;color:var(--ochre);font:600 13px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;padding-top:5px}
-    .section-kicker{color:var(--blue);letter-spacing:.04em}
-    h2{margin:3px 0 0;font-size:26px;line-height:1.25;font-weight:700;letter-spacing:0}
-    h3{margin:30px 0 8px;font-size:16px;line-height:1.35;font-weight:700}
-    .section-lead{max-width:760px;margin:-7px 0 22px;color:var(--muted)}
-    .two-col{display:grid;grid-template-columns:1fr 1.55fr;gap:28px}
-    .label{color:var(--muted);letter-spacing:0}
-    .intent-value{margin:5px 0 0;font-size:16px;line-height:1.65}
-    .insight{margin:26px 0 0;padding:16px 18px;background:var(--blue-soft);border-left:3px solid var(--blue);color:#344954}
-    .logic-list{display:grid;gap:9px;margin:0;padding:0;list-style:none}
-    .logic-list li{padding:12px 14px;border-left:3px solid var(--blue);background:#ecefeb}
-    .logic-list strong{display:block;margin-bottom:2px}
-    .process{display:grid;gap:9px;margin:0;padding:0;list-style:none;counter-reset:process}
-    .process li{display:grid;grid-template-columns:30px 1fr;gap:12px;padding:12px 14px;border:1px solid var(--line);background:rgba(255,255,255,.38);counter-increment:process}
-    .process li:before{content:counter(process);width:25px;height:25px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--ink);color:#f5f1e9;font:600 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace}
-    .process strong{display:block;font-size:14px}
-    .process small{display:block;margin-top:2px;color:var(--muted);font-size:12px;line-height:1.6}
-    .fact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 30px;border-top:1px solid var(--line)}
-    .fact{padding:12px 0;border-bottom:1px solid var(--line)}
-    .fact span{display:block;color:var(--muted);font-size:12px}
-    .fact p{margin:3px 0 0;overflow-wrap:anywhere}
-    .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:24px;background:var(--line)}
-    .metric{min-width:0;padding:16px;background:#e9edef}
-    .metric strong{display:block;font-size:23px;line-height:1.2;font-weight:700;color:var(--ink);overflow-wrap:anywhere}
-    .metric span{display:block;margin-top:5px;color:var(--muted);font-size:12px}
-    .detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 30px}
-    .detail{padding-top:12px;border-top:2px solid var(--ink)}
-    .detail-label{display:block;color:var(--blue);font-size:12px;font-weight:700}
-    .detail p{margin:5px 0 0;overflow-wrap:anywhere}
-    ul{margin:8px 0;padding-left:21px}li+li{margin-top:5px}
-    .empty{margin:8px 0;color:var(--muted)}
-    .quote{margin:10px 0;padding:12px 15px;border-left:3px solid var(--ochre);background:#ede9e1;line-height:1.65}
-    .quote+.quote{margin-top:8px}
-    .frame-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-    .frame{margin:0;border:1px solid var(--line);background:#ebe9e4}
-    .frame img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;background:#d9dddc}
-    .frame figcaption{padding:11px 12px 13px;color:var(--muted);font-size:12px}
-    .frame figcaption strong{display:block;color:var(--ink);font-size:13px;line-height:1.45}
-    .frame figcaption span{display:block;margin-top:5px;line-height:1.55}
-    .stat-row{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-top:1px solid var(--line)}
-    .stat-row:last-child{border-bottom:1px solid var(--line)}
-    .stat-row span{color:var(--muted);font-size:12px}
-    .stat-row strong{font-size:13px;text-align:right}
-    .boundary{color:#566267}
-    .boundary ul{padding-left:21px}
-    .evidence-list{font-size:13px;color:#58646a}
-    .evidence-list li{overflow-wrap:anywhere}
-    @media(max-width:760px){
-      .cover{padding-top:34px}
-      .cover-top{align-items:flex-start;flex-direction:column;margin-bottom:28px}
-      .hero-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .two-col,.detail-grid{grid-template-columns:1fr;gap:18px}
-      .fact-grid{grid-template-columns:1fr}
-      .frame-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-    }
-    @media(max-width:500px){
-      body{background:var(--paper)}
-      .cover,.section{padding-left:18px;padding-right:18px}
-      h1{font-size:34px}
-      .cover-subtitle{font-size:17px}
-      .summary{font-size:16px}
-      .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .metric strong{font-size:19px}
-      .frame-grid{grid-template-columns:1fr}
-      .source-url{font-size:11px}
-    }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="report-template" content="${VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE.id}">
+<title>${escapeHtml(workTitle)} · 抖音爆款视频拆解报告</title>
+<style>
+:root{--paper:#fff;--paper-2:#f8f7f4;--ink:#1b1712;--ink-2:#4a443b;--ink-3:#8a8175;--line:#e8e4dc;--rust:#a03e21;--rust-soft:#c0563b;--fill:#faf9f6}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{background:var(--paper);color:var(--ink);font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;font-size:16px;line-height:1.9;-webkit-font-smoothing:antialiased}.serif{font-family:"Noto Serif SC","Source Han Serif SC","Songti SC","SimSun",serif}.wrap{max-width:1080px;margin:0 auto;padding:0 32px}.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}.topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}.brand{font-size:13px;letter-spacing:.18em;color:var(--ink-2);font-weight:600}.brand em{color:var(--rust);font-style:normal}.nav{display:flex;gap:26px;font-size:13px;color:var(--ink-3)}.nav a{color:inherit;text-decoration:none;letter-spacing:.08em}.nav a:hover{color:var(--rust)}.hero{padding:72px 0 56px;border-bottom:1px solid var(--line)}.hero-band{display:flex;gap:clamp(24px,4vw,44px);align-items:stretch;margin-bottom:38px}.hero .cover{flex:none;width:clamp(150px,26vw,260px);display:flex;align-items:center;justify-content:center;min-height:180px;border:1px solid var(--ink);box-shadow:6px 6px 0 var(--paper-2);object-fit:cover;background:var(--paper-2)}.cover-placeholder{padding:20px;text-align:center;color:var(--ink-3);font-size:13px}.hero-band .ht{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between}.hero-lower{border-top:1px solid var(--line);padding-top:26px}.kicker{display:flex;align-items:center;gap:14px;font-size:13px;letter-spacing:.32em;color:var(--rust);font-weight:600}.kicker:before{content:"";width:44px;height:1px;background:var(--rust)}.hero h1{font-size:clamp(36px,5.6vw,64px);line-height:1.22;font-weight:900;letter-spacing:.02em;margin:10px 0}.hero h1 .q{color:var(--rust)}.tline .lab{display:block;font-size:12px;letter-spacing:.22em;color:var(--rust);font-weight:600;margin-bottom:8px}.tline .lab:before{content:"";display:inline-block;width:20px;height:1px;background:var(--rust);vertical-align:middle;margin-right:10px}.tline .name{font-family:"Noto Serif SC","Songti SC",serif;font-size:clamp(19px,2.4vw,26px);font-weight:900}.hero .sub{font-size:clamp(15px,1.8vw,17.5px);color:var(--ink-2);max-width:760px;margin:0 0 26px}.hero .sub strong{color:var(--rust)}.hero .note{font-size:12.5px;color:var(--ink-3);letter-spacing:.08em;line-height:1.9}section{padding:88px 0;border-bottom:1px solid var(--line)}.sec-head{display:flex;align-items:baseline;gap:22px;margin-bottom:44px}.sec-no{font-size:14px;color:var(--rust);font-weight:700;letter-spacing:.2em;white-space:nowrap;border:1px solid var(--rust);padding:4px 12px}.sec-head h2{font-size:clamp(26px,3.4vw,38px);font-weight:900;letter-spacing:.03em}.sec-head .en{margin-left:auto;font-size:12px;letter-spacing:.28em;color:var(--ink-3)}p.body{max-width:760px;color:var(--ink-2);margin-bottom:20px}.lead{font-size:18px;color:var(--ink)}.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:var(--fill)}.stat{padding:34px 28px 30px;border-right:1px solid var(--line)}.stat:last-child{border-right:none}.stat .num{font-size:clamp(28px,3.4vw,44px);font-weight:900;line-height:1.1}.stat.hot .num{color:var(--rust)}.stat .lab{font-size:13px;color:var(--ink-3);margin-top:10px;letter-spacing:.1em}.stat .lab b{color:var(--ink-2)}.hero-facts{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:var(--fill);margin-top:30px}.hero-fact{padding:14px 16px;border-right:1px solid var(--line)}.hero-fact:last-child{border-right:0}.hero-fact span{display:block;color:var(--ink-3);font-size:11px}.hero-fact strong{display:block;margin-top:3px;overflow-wrap:anywhere;font-size:14px}.source-row{display:flex;align-items:center;flex-wrap:wrap;gap:10px;color:var(--ink-3);font-size:12px}.source-row a{padding:6px 10px;border:1px solid var(--rust);color:var(--rust);text-decoration:none}.source-row a:hover{background:#fdf2ed}.fact-grid{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line)}.fact{padding:14px 0;border-bottom:1px solid var(--line)}.fact span{display:block;color:var(--ink-3);font-size:12px}.fact p{margin:2px 0 0;overflow-wrap:anywhere}.insight{margin:26px 0 0;padding:16px 18px;background:#fbf1ec;border-left:3px solid var(--rust);color:var(--ink-2)}.tbl-scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;margin:36px 0 12px;font-size:14px;background:var(--fill);border:1px solid var(--line)}th,td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top}th:last-child,td:last-child{border-right:0}tr:last-child td{border-bottom:0}th{font-size:12px;letter-spacing:.12em;color:var(--ink-3);font-weight:600;background:var(--paper-2)}td b{color:var(--rust)}.num-r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.timeline{margin:56px 0 20px}.tl-track{display:flex;min-height:64px;border:1px solid var(--ink);background:var(--fill)}.tl-seg{position:relative;border-right:1px solid var(--paper);display:flex;align-items:flex-end;min-width:82px;padding:8px 10px;font-size:11px;color:var(--ink-3);line-height:1.4}.tl-seg:last-child{border-right:0}.tl-seg .sec{position:absolute;top:8px;left:10px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums}.tl-seg.s1,.tl-seg.s4,.tl-seg.s7{background:#eceadf}.tl-seg.s2{background:#ddd8c6}.tl-seg.s3{background:var(--rust-soft);color:#fff}.tl-seg.s3 .sec,.tl-seg.s5 .sec,.tl-seg.s6 .sec{color:#fff}.tl-seg.s5{background:var(--rust);color:#fff}.tl-seg.s6{background:#7c2f18;color:#fff}.tl-notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));border:1px solid var(--line);border-top:0}.tl-note{padding:18px 20px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}.tl-note .t{font-size:12px;color:var(--rust);letter-spacing:.12em;font-weight:700}.tl-note q{font-family:"Noto Serif SC","Songti SC",serif;color:var(--ink);font-weight:700;font-size:14.5px}.tl-note .fn{margin-top:8px;font-size:12.5px;color:var(--ink-3);line-height:1.7}.points{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:44px}.point{background:var(--fill);padding:17px 22px}.point .no{font-family:Georgia,serif;font-size:20px;color:var(--rust);font-weight:700}.point h4{font-size:15.5px;font-weight:700}.point p{margin-top:6px;font-size:13.5px;color:var(--ink-2);line-height:1.75}.quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-top:40px}.quote{background:var(--fill);border:1px solid var(--line);padding:20px 22px}.quote q{display:block;font-size:14px;color:var(--ink);line-height:1.75;font-weight:600}.quote .ip{margin-top:8px;font-size:12px;color:var(--ink-3);letter-spacing:.1em}.causes{margin-top:8px;border-top:1px solid var(--ink)}.cause{display:grid;grid-template-columns:44px 200px 1fr;column-gap:20px;align-items:baseline;padding:15px 4px;border-bottom:1px solid var(--line)}.cause .cno{font-family:Georgia,serif;font-size:17px;color:var(--rust);font-weight:700}.cause h4{font-size:15px}.cause p{font-size:13.5px;color:var(--ink-2);line-height:1.75}.risks{display:grid;gap:0;border:1px solid var(--rust);margin-top:36px}.risk{display:flex;gap:20px;align-items:center;padding:18px 24px;background:#fdf6f1;border-bottom:1px solid #e8c9bb}.risk:last-child{border-bottom:0}.risk .tag{flex:none;width:92px;text-align:center;font-size:11px;letter-spacing:.14em;color:#fff;background:var(--rust);padding:6px 0;font-weight:600}.risk p{font-size:13.5px;color:var(--ink-2);line-height:1.75}.formula{background:var(--ink);color:var(--paper);padding:44px 40px;margin:44px 0;font-size:clamp(17px,2.4vw,23px);line-height:2;font-weight:700}.formula .x{color:var(--rust-soft);font-family:Georgia,serif;margin:0 10px;font-weight:400}.formula small{display:block;font-size:12px;font-weight:400;color:#9a917f;letter-spacing:.2em;margin-top:18px}.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;margin-top:36px}.step{border:1px solid var(--line);background:var(--fill);padding:26px 24px}.step .t{font-size:12px;color:var(--rust);letter-spacing:.16em;font-weight:700}.step h4{font-size:16px;font-weight:800;margin:10px 0 8px;font-family:"Noto Serif SC","Songti SC",serif}.step p{font-size:13px;color:var(--ink-2)}.frame-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.frame{margin:0;border:1px solid var(--line);background:#ebe9e4}.frame img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;background:#d9dddc}.frame figcaption{padding:11px 12px 13px;color:var(--ink-3);font-size:12px}.frame figcaption strong{display:block;color:var(--ink);font-size:13px}.frame figcaption span{display:block;margin-top:5px;line-height:1.55}.boundary{color:#566267}.boundary ul{padding-left:21px}.evidence-list{font-size:13px;color:#58646a}.evidence-list li{overflow-wrap:anywhere}.empty{margin:16px 0;color:var(--ink-3)}footer{padding:64px 0 88px}footer .src{font-size:13px;color:var(--ink-3);max-width:760px;line-height:2.1}footer .src b{color:var(--ink-2)}footer .end{margin-top:48px;padding-top:28px;border-top:1px solid var(--line);display:flex;justify-content:space-between;font-size:12px;letter-spacing:.12em;color:var(--ink-3)}@media(max-width:760px){.wrap{padding:0 18px}.nav{display:none}.hero{padding-top:42px}.hero-band{gap:18px}.hero .cover{width:132px;min-height:150px;box-shadow:4px 4px 0 var(--paper-2)}.stats,.hero-facts{grid-template-columns:repeat(2,1fr)}.stat:nth-child(2n),.hero-fact:nth-child(2n){border-right:0}.two-col,.fact-grid{grid-template-columns:1fr}.tl-note{border-right:0}.cause{grid-template-columns:44px 1fr;row-gap:2px}.cause p{grid-column:2}.frame-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:500px){.hero-band{display:block}.hero .cover{width:100%;height:220px;margin-bottom:22px}.hero h1{font-size:34px}.stats{grid-template-columns:repeat(2,1fr)}.frame-grid{grid-template-columns:1fr}.section-heading,.sec-head{align-items:flex-start;flex-direction:column;gap:8px}.fact-grid{grid-template-columns:1fr}.cause{grid-template-columns:36px 1fr}.cause h4{grid-column:2}.cause p{grid-column:2}.risk{align-items:flex-start;flex-direction:column;gap:10px}.formula{padding:28px 22px}.footer .end{display:block}}
+</style>
 </head>
-<body><main>
-  <section class="cover" id="top">
-    <div class="cover-top"><p class="eyebrow">内容研究 / 爆款视频拆解</p><span class="status-badge ${statusClass}">${escapeHtml(status)}</span></div>
-    <h1>爆款视频分析报告</h1>
-    <p class="cover-subtitle">${escapeHtml(workTitle)}</p>
-    <div class="summary-block"><p class="summary-label">一句话结论</p><p class="summary">${escapeHtml(summary)}</p></div>
-    <div class="hero-facts">
-      <div class="hero-fact"><span>作者</span><strong>${escapeHtml(author)}</strong></div>
-      <div class="hero-fact"><span>视频时长</span><strong>${escapeHtml(durationLabel(work.durationSeconds))}</strong></div>
-      <div class="hero-fact"><span>公开互动</span><strong>${escapeHtml(metricValue(metrics.likes))} 赞 / ${escapeHtml(metricValue(metrics.comments))} 评</strong></div>
-      <div class="hero-fact"><span>回看画面</span><strong>${escapeHtml(frameCount ? `${frameCount} 张` : "暂未生成")}</strong></div>
-    </div>
-    <div class="source-row"><span>原视频</span>${sourceLink}<span>更新于 ${escapeHtml(dateLabel(result.generatedAt))}</span></div>
-    ${statusNote ? `<aside class="notice"><strong>本次报告说明：</strong>${escapeHtml(statusNote)}</aside>` : ""}
-    <nav class="report-nav" aria-label="报告目录"><a class="nav-link" href="#summary">先看结论</a><a class="nav-link" href="#video">视频内容</a><a class="nav-link" href="#frames">关键画面</a><a class="nav-link" href="#reuse">下一步怎么做</a></nav>
-  </section>
-  <section class="section" id="summary">
-    <div class="section-heading"><span class="section-number">01</span><div><p class="section-kicker">先对齐问题</p><h2>这份报告要帮你做什么</h2></div></div>
-    <div class="two-col"><div><p class="label">适合谁</p><p class="intent-value">${escapeHtml(targetAudience)}</p></div><div><p class="label">要回答的问题</p><p class="intent-value">${escapeHtml(cleanUserText(value(result.goal || result.inputs?.goal, VIRAL_WORK_ANALYSIS_DEFAULT_GOAL)))}</p></div></div>
-    <p class="insight">这不是对视频的复述，而是把视频中能被看见、听见和核对的内容，转成创作决策：为什么可能获得关注，哪些做法值得借鉴，下一条内容应该怎么试。</p>
-  </section>
-  <section class="section" id="method">
-    <div class="section-heading"><span class="section-number">02</span><div><p class="section-kicker">判断依据</p><h2>这次怎么得出结论</h2></div></div>
-    <p class="section-lead">先看视频内容，再用公开数据和观众反馈补充验证；事实和判断分开呈现。</p>
-    <h3>我们看了哪些信息</h3>
-    <ul class="logic-list">${list(result.analysisLogic?.evidenceLayers).length
-      ? list(result.analysisLogic.evidenceLayers).map((item) => `<li><strong>${escapeHtml(displayLabel(item?.name, "信息来源"))}</strong>${escapeHtml(cleanUserText(item?.detail, "未记录"))}</li>`).join("")
-      : '<li><strong>视频内容和公开信息</strong>报告会把内容事实、视频数据、观众反馈和我们的判断分开。</li>'}</ul>
-    <h3>这次完成了什么</h3>
-    ${processItems(result).length
-      ? `<ol class="process">${processItems(result).map((item) => `<li><div><strong>${escapeHtml(displayProcessTitle(item.title))} · ${escapeHtml(processStatusLabel(item.status))}</strong><small>${escapeHtml(displayProcessDetail(item.detail))}</small></div></li>`).join("")}</ol>`
-      : '<p class="empty">暂未记录具体步骤。</p>'}
-    <h3>判断边界</h3>
-    ${htmlUserList(result.analysisLogic?.rules, "视频内容优先，未确认的内容会标明为待核对，不用互动数据替代视频观察。")}
-  </section>
-  <section class="section" id="metrics">
-    <div class="section-heading"><span class="section-number">03</span><div><p class="section-kicker">公开数据</p><h2>视频数据</h2></div></div>
-    <div class="fact-grid">
-      <div class="fact"><span>视频标题</span><p>${escapeHtml(workTitle)}</p></div>
-      <div class="fact"><span>作者</span><p>${escapeHtml(author)}</p></div>
-      <div class="fact"><span>视频编号</span><p>${escapeHtml(value(work.id, "暂无数据"))}</p></div>
-      <div class="fact"><span>视频时长</span><p>${escapeHtml(durationLabel(work.durationSeconds))}</p></div>
-      <div class="fact"><span>视频简介</span><p>${escapeHtml(description)}</p></div>
-      <div class="fact"><span>发布标签</span><p>${escapeHtml(list(work.hashtags).join("、") || "暂无数据")}</p></div>
-    </div>
-    <div class="metrics">${metricsRows.map(([label, metric]) => `<div class="metric"><strong>${escapeHtml(metric)}</strong><span>${escapeHtml(label)}</span></div>`).join("")}</div>
-  </section>
-  <section class="section" id="video">
-    <div class="section-heading"><span class="section-number">04</span><div><p class="section-kicker">内容事实</p><h2>视频内容拆解</h2></div></div>
-    <p class="section-lead">先把这条视频实际讲了什么、怎么讲清楚，再讨论它可能为什么获得传播。</p>
-    ${video.status === "completed" ? `
-    <div class="detail-grid">
-      <div class="detail"><span class="detail-label">这条视频讲了什么</span><p>${escapeHtml(cleanUserText(video.overview, "暂无内容总结"))}</p></div>
-      <div class="detail"><span class="detail-label">画面里有什么</span><p>${escapeHtml(cleanUserText(video.subject, "暂无画面总结"))}</p></div>
-      <div class="detail"><span class="detail-label">主要口播</span><p>${escapeHtml(cleanUserText(video.spokenContent, "暂无口播总结"))}</p></div>
-      <div class="detail"><span class="detail-label">开头抓手</span><p>${escapeHtml(cleanUserText(video.hook, "暂未发现明显开头抓手"))}</p></div>
-      <div class="detail"><span class="detail-label">声音与表达</span><p>${escapeHtml(cleanUserText([video.audio?.speechSummary, video.audio?.speechStyle].filter(Boolean).join("；"), "暂无声音信息"))}</p></div>
-      <div class="detail"><span class="detail-label">字幕与画面文字</span><p>${escapeHtml(cleanUserText([video.subtitles?.summary, ...(video.subtitles?.keyPhrases || []).map((item) => `关键词：${item}`)].filter(Boolean).join("；"), "暂无字幕信息"))}</p></div>
-      <div class="detail"><span class="detail-label">节奏</span><p>${escapeHtml(cleanUserText(video.pacing, "暂无节奏总结"))}</p></div>
-    </div>
-    <h3>内容怎么推进</h3>${htmlUserList(videoStructureItems(video.structure), "暂未形成视频分段")}
-    <h3>值得注意的节点</h3>${htmlUserList(videoKeyMomentItems(video.keyMoments), "暂未形成关键节点")}
-    <h3>视觉表达</h3>${htmlList(video.visual)}
-    <h3>剪辑与呈现</h3>${htmlUserList(video.editing)}
-    <h3>做得好的地方</h3>${htmlUserList(video.strengths)}
-    <h3>还可以改进的地方</h3>${htmlUserList(video.weaknesses)}
-    <h3>可能带来传播的因素</h3>${htmlUserList(video.growthSignals, "暂未形成传播因素观察")}
-    <h3>值得验证的原因</h3>${htmlUserList(video.growthHypotheses, "暂未形成可验证的原因")}` : `<p class="empty">${escapeHtml(cleanUserText(value(video.message, "视频内容暂未完成复核，当前报告不把视频简介当作内容结论。")))}</p>`}
-  </section>
-  <section class="section" id="frames">
-    <div class="section-heading"><span class="section-number">05</span><div><p class="section-kicker">回到画面</p><h2>关键画面回看</h2></div></div>
-    ${frameItems(result).length
-      ? `<p class="section-lead">${escapeHtml(frameSelectionDescription(result))}</p><div class="frame-grid">${frameItems(result).map((frame) => { const evidence = frameEvidence(frame, video); return `<figure class="frame"><img src="${escapeHtml(frame.dataUrl)}" alt="${escapeHtml(`视频 ${value(frame.timeLabel, "时间点")} 画面`)}" loading="lazy"><figcaption><strong>${escapeHtml(value(frame.timeLabel, "未标记时间"))} · ${escapeHtml(evidence.title)}</strong><span>为什么保留：${escapeHtml(evidence.reason)}</span></figcaption></figure>`; }).join("")}</div>`
-      : '<p class="empty">暂未生成回看画面，报告不会用占位图代替真实证据。</p>'}
-  </section>
-  <section class="section" id="structure">
-    <div class="section-heading"><span class="section-number">06</span><div><p class="section-kicker">提炼结构</p><h2>内容怎么组织</h2></div></div>
-    <h3>开头抓手</h3>${htmlUserList([content.hook], "暂未发现明显开头抓手")}
-    <h3>内容结构</h3>${htmlUserList(content.structure)}
-    <h3>选题与发布标签</h3>${htmlUserList(content.topics)}
-    <h3>结尾有没有引导</h3>${htmlUserList([content.cta], "暂未发现明确的行动引导")}
-    <h3>观众为什么可能愿意看完</h3>${htmlUserList(content.strengths)}
-  </section>
-  <section class="section" id="audience">
-    <div class="section-heading"><span class="section-number">07</span><div><p class="section-kicker">观众反馈</p><h2>大家在关注什么</h2></div></div>
-    <div class="stat-row"><span>已读取评论</span><strong>${escapeHtml(String(audience.collected ?? result.comments?.collected ?? 0))} 条</strong></div>
-    <div class="stat-row"><span>评论数据状态</span><strong>${escapeHtml(commentSourceLabel(result.comments?.source))}</strong></div>
-    <h3>评论主题</h3>${htmlUserList(audience.topics?.map((item) => `${cleanUserText(item.key)} · ${item.count} 条`))}
-    <h3>观众可能需要什么</h3>${htmlUserList(audience.needs)}
-    <h3>观众可能卡在哪里</h3>${htmlUserList(audience.questions)}
-    <h3>可能的疑问或阻力</h3>${htmlUserList(audience.objections)}
-    <h3>评论原话</h3>${list(audience.representativeComments).length ? list(audience.representativeComments).map((item) => `<p class="quote">${escapeHtml(cleanUserText(item))}</p>`).join("") : '<p class="empty">暂未读取到代表性评论。</p>'}
-  </section>
-  <section class="section" id="reuse">
-    <div class="section-heading"><span class="section-number">08</span><div><p class="section-kicker">转成行动</p><h2>可以借鉴什么</h2></div></div>
-    <h3>值得借鉴的做法</h3>${htmlUserList(recommendations.reusableElements)}
-    <h3>下一条可以怎么试</h3>${htmlUserList(recommendations.nextTests)}
-    <h3>先记住这几点</h3>${htmlUserList(recommendations.cautions)}
-  </section>
-  <section class="section boundary" id="evidence">
-    <div class="section-heading"><span class="section-number">09</span><div><p class="section-kicker">保持清醒</p><h2>哪些是事实，哪些是判断</h2></div></div>
-    <ul>
-      <li>视频内容结论来自对原视频的观察；公开数据和评论只做补充。</li>
-      <li>没有返回的数据不会估算，也不会用视频简介代替视频内容。</li>
-      <li>这里的“为什么可能有效”是待验证的内容假设，不等于已经证明带来转化或成交。</li>
-      <li>点赞、评论和分享不等于商业结果，下一条内容仍需要实际测试。</li>
-      <li>报告提炼的是结构和需求，不直接复制原视频素材或表达。</li>
-    </ul>
-    <h3>本次引用的依据</h3><ul class="evidence-list">${evidenceItems(result).length ? evidenceItems(result).map((item) => `<li>${escapeHtml(item)}</li>`).join("") : '<li class="empty">暂未形成可回查依据。</li>'}</ul>
-  </section>
-</main></body></html>`;
+<body><div class="topbar"><div class="wrap"><div class="brand">VIRAL <em>TEARDOWN</em> · 爆款拆解</div><nav class="nav"><a href="#sec1">数据</a><a href="#sec2">结构</a><a href="#sec3">评论</a><a href="#sec4">成因</a><a href="#sec5">风险</a><a href="#sec6">方法论</a></nav></div></div>
+<header class="hero"><div class="wrap"><div class="hero-band">${cover ? `<img class="cover" src="${escapeHtml(cover)}" alt="${escapeHtml(workTitle)} 视频画面">` : '<div class="cover cover-placeholder">视频画面待补充</div>'}<div class="ht"><div><div class="kicker">抖音爆款视频拆解 · 爆款视频分析报告</div><h1>${escapeHtml(duration)}，<br><span class="q">${escapeHtml(metricValue(metrics.shares))} 分享。</span></h1><div class="tline"><span class="lab">拆解对象</span><span class="name">《${escapeHtml(workTitle.replace(/^《|》$/g, ""))}》</span></div></div></div><div class="hero-lower"><p class="sub">${escapeHtml(author)} 的这条作品${description !== "未提供视频简介" ? `：${escapeHtml(description)}` : "已进入内容、数据和评论的完整拆解。"}</p><div class="note">${escapeHtml(`统计时间：${dateLabel(result.generatedAt)} · 作者：${author} · 视频时长：${duration} · 报告模板：${VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE.id}`)}</div></div></div></div><div class="hero-facts"><div class="hero-fact"><span>作者</span><strong>${escapeHtml(author)}</strong></div><div class="hero-fact"><span>视频时长</span><strong>${escapeHtml(duration)}</strong></div><div class="hero-fact"><span>总互动</span><strong>${escapeHtml(metricValue(totalInteractions))}</strong></div><div class="hero-fact"><span>分析状态</span><strong>${escapeHtml(statusLabel(result.status))}</strong></div></div><div class="source-row"><span>原视频：</span>${sourceLink}<span>更新于 ${escapeHtml(dateLabel(result.generatedAt))}</span></div></div></header>
+<main><section id="sec1"><div class="wrap"><div class="sec-head"><span class="sec-no">01</span><h2>数据表现拆解</h2><span class="en">DATA BREAKDOWN</span></div><p class="body lead">${escapeHtml(summary)}</p><div class="stats">${metricCards.map(([metric, label], index) => `<div class="stat${index === 2 ? " hot" : ""}"><div class="num serif">${escapeHtml(metricValue(metric))}</div><div class="lab">${escapeHtml(label)}${metric != null ? " · 公开数据" : " · 待核对"}</div></div>`).join("")}</div><div class="insight">总互动 <b>${escapeHtml(metricValue(totalInteractions))}</b> 次，分享/点赞比 <b>${escapeHtml(shareLikeRatio)}</b>。互动数据用于说明传播表现，不直接等同于成交或转化。</div><div class="fact-grid">${facts.map(([label, text]) => `<div class="fact"><span>${escapeHtml(label)}</span><p>${escapeHtml(text)}</p></div>`).join("")}</div></div></section>
+<section id="sec2"><div class="wrap"><div class="sec-head"><span class="sec-no">02</span><h2>内容结构逐帧拆解</h2><span class="en">CONTENT STRUCTURE</span></div><p class="body">${escapeHtml(cleanUserText(video.overview, "视频内容暂未完成复核，当前不把视频简介当作内容结论。"))}</p>${teardownTimeline(structure)}<h3>内容怎么组织 · 视频内容拆解</h3><div class="points">${[
+    ["开头抓手", video.hook || content.hook],
+    ["画面主体", video.subject],
+    ["主要口播", video.spokenContent],
+    ["声音与表达", [video.audio?.speechSummary, video.audio?.speechStyle].filter(Boolean).join("；")],
+    ["字幕与文字", [video.subtitles?.summary, ...(Array.isArray(video.subtitles?.keyPhrases) ? video.subtitles.keyPhrases : [])].filter(Boolean).join("；")],
+    ["剪辑与节奏", [video.pacing, ...(Array.isArray(video.editing) ? video.editing : video.editing ? [video.editing] : [])].filter(Boolean).join("；")]
+  ].filter(([, detail]) => detail).map(([label, detail], index) => `<div class="point"><div class="top"><span class="no">${String(index + 1).padStart(2, "0")}</span><h4>${escapeHtml(label)}</h4></div><p>${escapeHtml(cleanUserText(detail))}</p></div>`).join("") || '<div class="point"><p>视频内容暂未完成复核。</p></div>'}</div><h3>关键画面回看 · 挑选回看画面</h3><p class="body">${escapeHtml(frameSelectionDescription(result))}</p>${teardownFrameGrid(result, video)}</div></section>
+<section id="sec3"><div class="wrap"><div class="sec-head"><span class="sec-no">03</span><h2>评论区洞察</h2><span class="en">AUDIENCE SIGNALS</span></div><p class="body lead">大家在关注什么：评论区是验证内容共鸣、疑问和阻力的第二现场。</p><div class="hero-facts"><div class="hero-fact"><span>公开评论</span><strong>${escapeHtml(String(audience.collected ?? result.comments?.collected ?? 0))} 条</strong></div><div class="hero-fact"><span>评论状态</span><strong>${escapeHtml(commentSourceLabel(result.comments?.source))}</strong></div><div class="hero-fact"><span>评论主题</span><strong>${escapeHtml(String(topicRows.length))} 类</strong></div><div class="hero-fact"><span>代表性原话</span><strong>${escapeHtml(String(list(audience.representativeComments).length))} 条</strong></div></div>${topicTable}<h3>观众需求与疑虑</h3><div class="points">${teardownTextList([...(Array.isArray(audience.needs) ? audience.needs : []), ...(Array.isArray(audience.questions) ? audience.questions : []), ...(Array.isArray(audience.objections) ? audience.objections : [])], "暂未读取到明确需求或疑虑").slice(0, 6).map((item, index) => `<div class="point"><div class="top"><span class="no">${String(index + 1).padStart(2, "0")}</span><h4>评论信号</h4></div><p>${escapeHtml(item)}</p></div>`).join("")}</div><h3>代表性评论</h3>${teardownQuotes(audience.representativeComments)}</div></section>
+<section id="sec4"><div class="wrap"><div class="sec-head"><span class="sec-no">04</span><h2>爆款成因总结</h2><span class="en">WHY IT SPREAD</span></div><p class="body lead">这次怎么得出结论：把视频事实、公开表现和观众反馈合在一起，形成可以继续验证的判断。</p><div class="causes">${causes.slice(0, 8).map((item, index) => `<div class="cause"><div class="cno">${String(index + 1).padStart(2, "0")}</div><h4>${escapeHtml(item.title)}</h4><p>${escapeHtml(cleanUserText(item.detail))}</p></div>`).join("")}</div><div class="insight">${escapeHtml(teardownGrowthSummary(result))}</div></div></section>
+<section id="sec5"><div class="wrap"><div class="sec-head"><span class="sec-no">05</span><h2>风险与合规提示</h2><span class="en">BOUNDARIES</span></div><p class="body">哪些是事实，哪些是判断：报告只把可回看的内容、公开数据和评论作为依据，未返回的数据不会估算。</p><div class="risks">${risks.map((item, index) => `<div class="risk"><span class="tag">${index === 0 ? "先看边界" : "风险提示"}</span><p>${escapeHtml(item)}</p></div>`).join("")}</div><ul class="body" style="margin-top:28px"><li>视频内容结论来自原视频观察；公开数据和评论只做补充。</li><li>传播假设需要下一轮内容测试验证，不等于已经证明带来转化或成交。</li><li>报告提炼结构和需求，不直接复制原作品素材或表达。</li></ul></div></section>
+<section id="sec6"><div class="wrap"><div class="sec-head"><span class="sec-no">06</span><h2>可复制方法论 SOP</h2><span class="en">REUSABLE PLAYBOOK</span></div><p class="body lead">把这条作品的有效元素拆成变量，每次只改变一个变量，再用发布后的数据检验。</p><div class="formula">${escapeHtml(reuse.slice(0, 3).join(" × ") || "熟悉场景 × 具体冲突 × 可接续话题")}<small>不是复制原作，而是复用结构、需求和验证方法</small></div><div class="steps">${tests.slice(0, 6).map((item, index) => `<div class="step"><div class="t">STEP ${String(index + 1).padStart(2, "0")}</div><h4>下一轮测试</h4><p>${escapeHtml(item)}</p></div>`).join("")}</div><h3>可以借鉴什么</h3><div class="points">${reuse.slice(0, 6).map((item, index) => `<div class="point"><div class="top"><span class="no">${String(index + 1).padStart(2, "0")}</span><h4>可复用元素</h4></div><p>${escapeHtml(item)}</p></div>`).join("")}</div></div></section></main>
+<footer><div class="wrap"><p class="src"><b>本次引用的依据</b><br>${evidence.length ? evidence.map((item) => escapeHtml(item)).join("<br>") : "暂未形成可回查依据。"}</p><div class="end"><span>VIRAL TEARDOWN · 爆款拆解 · ${VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE.id}</span><span>《${escapeHtml(workTitle.replace(/^《|》$/g, ""))}》 · ${escapeHtml(author)}</span></div></div></footer></body></html>`;
+}
+
+export function buildViralWorkAnalysisReportHtml(result = {}) {
+  return buildViralTeardownReportHtml(result);
 }
 
 export function buildViralWorkAnalysisReportMarkdown(result = {}) {
@@ -564,7 +463,7 @@ export function buildViralWorkAnalysisReportMarkdown(result = {}) {
   const purpose = value(result.purpose, VIRAL_WORK_ANALYSIS_PURPOSE);
   const targetAudience = value(result.targetAudience, VIRAL_WORK_ANALYSIS_TARGET_AUDIENCE);
   const lines = [
-    "# 爆款作品分析报告",
+    "# 抖音爆款视频拆解报告",
     "",
     `> 原视频：${value(result.sourceUrl || result.inputs?.workUrl)}`,
     `> 要回答的问题：${cleanUserText(value(result.goal || result.inputs?.goal, VIRAL_WORK_ANALYSIS_DEFAULT_GOAL))}`,
@@ -653,10 +552,11 @@ function htmlSafeMarkdownList(label, items) {
   ];
 }
 
-export function viralWorkAnalysisReportFile(result = {}, { createdBy = "爆款作品分析" } = {}) {
+export function viralWorkAnalysisReportFile(result = {}, { createdBy = "抖音爆款拆解官" } = {}) {
   const taskId = value(result.taskId, `analysis-${Date.now()}`).replace(/[^a-zA-Z0-9_-]/g, "-");
+  const workTitle = cleanUserText(result.work?.title || result.work?.description?.slice?.(0, 80), "直接输入抖音作品链接");
   return {
-    name: `爆款作品分析报告-${taskId}.html`,
+    name: `抖音爆款视频拆解报告-${taskId}.html`,
     type: "html",
     content: buildViralWorkAnalysisReportHtml(result),
     projectId: "content-research",
@@ -665,11 +565,12 @@ export function viralWorkAnalysisReportFile(result = {}, { createdBy = "爆款�
     taskRunId: result.taskRunId || null,
     agentId: "mkt-viral-work-analysis",
     createdBy,
-    sourceTaskTitle: "直接输入抖音作品链接",
+    sourceTaskTitle: workTitle,
     sourceResultId: null,
     summary: reportSummary(result),
     metadata: {
       analysisKind: "viral_work",
+      reportTemplate: VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE.id,
       sourceUrl: result.sourceUrl || result.inputs?.workUrl || "",
       videoFrameCount: frameItems(result).length
     }
@@ -678,10 +579,10 @@ export function viralWorkAnalysisReportFile(result = {}, { createdBy = "爆款�
 
 export function viralWorkAnalysisReportConversationMessage(file = {}) {
   return {
-    text: "爆款作品分析报告已完成，已发送到这里，并同步保存到文件中心。",
+    text: "抖音爆款视频拆解报告已完成，已发送到这里，并同步保存到文件中心。",
     artifact: {
       id: file.id || null,
-      name: file.name || "爆款作品分析报告.html",
+      name: file.name || "抖音爆款视频拆解报告.html",
       type: file.type || "html",
       projectName: file.projectName || "内容研究",
       summary: file.summary || "点击查看 HTML 分析报告",

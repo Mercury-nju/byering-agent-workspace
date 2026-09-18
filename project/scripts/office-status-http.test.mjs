@@ -45,7 +45,7 @@ test("HTTP status keeps legacy finder operations out of the active Douyin workbe
 test("HTTP office status exposes the live viral analysis checkpoint from the core execution", async t => {
   const root = mkdtempSync(join(tmpdir(), "viral-office-progress-"));
   const employmentStore = createEmploymentStore({ stateFile: join(root, "employment.json") });
-  employmentStore.hire(null, { agentId: "mkt-viral-work-analysis", name: "爆款作品分析" });
+  employmentStore.hire(null, { agentId: "mkt-viral-work-analysis", name: "抖音爆款拆解官" });
   let release;
   let checkpoint;
   const checkpointReached = new Promise((resolve) => { checkpoint = resolve; });

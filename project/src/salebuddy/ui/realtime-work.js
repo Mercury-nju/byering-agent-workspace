@@ -17,20 +17,26 @@ import {
 import { listWorks, subscribeWork } from "../agents/work-live.js";
 import { normalizeAcquisitionTaskStatus } from "../agents/acquisition-contract.js";
 import { receptionBaseUrl, receptionRequest } from "../bridge/account-reception-client.js";
-import { listOfficeReplay, loadOfficeReplayVideo, markOfficeReplayTask, saveOfficeReplaySnapshot, saveOfficeReplayVideo } from "../bridge/office-work-replay.js";
+import { listOfficeReplay, loadOfficeReplayImage, loadOfficeReplayVideo, markOfficeReplayTask, saveOfficeReplaySnapshot, saveOfficeReplayVideo } from "../bridge/office-work-replay.js";
 
 const PROSPECT_AVATAR_SPRITE = new URL("../../../assets/prospect-avatar-sprite.png", import.meta.url).href;
 const DOUYIN_ACCOUNT_AVATAR_IMAGES = Object.freeze({
-  goods: new URL("../../../assets/accounts/store-avatar-goods.png", import.meta.url).href,
-  home: new URL("../../../assets/accounts/store-avatar-home.png", import.meta.url).href,
   select: new URL("../../../assets/accounts/store-avatar-select.png", import.meta.url).href
 });
-const DOUYIN_LIVE_ROOM_IMAGE = new URL("../../../assets/douyin-discovery-live.png", import.meta.url).href;
+const MOCK_CONSUMER_AVATAR_IMAGES = Object.freeze({
+  xiaolu: new URL("../../../assets/agents/human/generated-avatar-v3-12.png", import.meta.url).href,
+  anan: new URL("../../../assets/agents/human/generated-avatar-v3-02.png", import.meta.url).href,
+  ajie: new URL("../../../assets/agents/human/generated-avatar-v3-06.png", import.meta.url).href
+});
+const MOCK_VIRAL_ANALYSIS_REPORT_URL = new URL(
+  "../../../artifacts/抖音爆款视频拆解报告-学习压力太大了.html",
+  import.meta.url
+).href;
 const PUBLIC_TASK_EMPTY_ILLUSTRATION = new URL("../../../assets/icon-none-CLa_dC9J.svg", import.meta.url).href;
 const REALTIME_MOCK_LIVE_ROOM_IMAGES = Object.freeze({
-  automotive: DOUYIN_LIVE_ROOM_IMAGE,
-  education: new URL("../../../assets/live-commerce-intent.png", import.meta.url).href,
-  home: new URL("../../../assets/ecommerce-discovery-live.png", import.meta.url).href
+  automotive: new URL("../../../assets/mock-live-rooms/mock-live-automotive-v1.png", import.meta.url).href,
+  education: new URL("../../../assets/mock-live-rooms/mock-live-education-v1.png", import.meta.url).href,
+  home: new URL("../../../assets/mock-live-rooms/mock-live-home-v1.png", import.meta.url).href
 });
 const DEMO_PROSPECT_AVATARS = Object.freeze([
   new URL("../../../assets/agents/human/generated-avatar-v2-01.png", import.meta.url).href,
@@ -52,25 +58,31 @@ export function realtimeWorkPreviewMode(search = globalThis.location?.search, { 
 
 const REALTIME_MOCK_ACCOUNT_SCENARIOS = Object.freeze([
   {
-    id: "mock-account-automotive",
-    name: "臻选新能源 · 上海",
-    handle: "@zhenxuan_ev_sh",
-    avatar: DOUYIN_ACCOUNT_AVATAR_IMAGES.goods,
-    mockScenario: "automotive"
+    id: "mock-account-education",
+    name: "安安的升学笔记",
+    handle: "@anan_study_notes",
+    avatar: MOCK_CONSUMER_AVATAR_IMAGES.anan,
+    mockScenario: "education",
+    accountKind: "consumer",
+    consumerScenario: "student-life-notes"
   },
   {
-    id: "mock-account-education",
-    name: "启航升学规划",
-    handle: "@qihang_plan",
-    avatar: DOUYIN_ACCOUNT_AVATAR_IMAGES.select,
-    mockScenario: "education"
+    id: "mock-account-automotive",
+    name: "小鹿的新能源车日记",
+    handle: "@xiaolu_ev_diary",
+    avatar: MOCK_CONSUMER_AVATAR_IMAGES.xiaolu,
+    mockScenario: "automotive",
+    accountKind: "consumer",
+    consumerScenario: "personal-auto-owner"
   },
   {
     id: "mock-account-home",
-    name: "木作生活研究所",
-    handle: "@muzuo_home",
-    avatar: DOUYIN_ACCOUNT_AVATAR_IMAGES.home,
-    mockScenario: "home"
+    name: "阿杰的收纳好物",
+    handle: "@ajie_home_finds",
+    avatar: MOCK_CONSUMER_AVATAR_IMAGES.ajie,
+    mockScenario: "home",
+    accountKind: "consumer",
+    consumerScenario: "personal-ecommerce"
   }
 ]);
 
@@ -359,6 +371,89 @@ const LIVE_COMMERCE_WORK_UNITS = Object.freeze({
   "Search Agent": { title: "待分析对象", subtitle: "综合分析", rows: [["已找到对象", "账号、作品、评论和互动数据", "已接收"], ["内容与互动", "整理来源和关键事实", "处理中"], ["分析结论", "重点发现与待确认信息", "分析中"], ["结果整理", "输出可回查的分析结果", "持续输出"]] },
   "App Agent": { title: "首触交接队列", subtitle: "直播转化", rows: [["高意向观众", "围绕原问题生成首触", "待风控"], ["待承接回复", "到货、优惠和使用场景", "已生成"], ["低意向观众", "等待补充购买证据", "暂缓"]] }
 });
+
+const MOCK_LIVE_DANMAKU_EVENTS = Object.freeze([
+  { userId: "mock-live-user-shanghai", nickname: "上海周先生", quote: "上海店现在有现车吗？", topic: "库存与发货", score: 92, tier: "high" },
+  { userId: "mock-live-user-hangzhou", nickname: "杭州林女士", quote: "可以零首付分期吗？", topic: "价格与优惠", score: 86, tier: "high" },
+  { userId: "mock-live-user-suzhou", nickname: "苏州陈先生", quote: "这款纯电实际能跑多少公里？", topic: "使用与效果", score: 78, tier: "medium" },
+  { userId: "mock-live-user-shaoxing", nickname: "绍兴唐女士", quote: "这个价格包含购置税吗？", topic: "价格与优惠", score: 89, tier: "high" },
+  { userId: "mock-live-user-jiaxing", nickname: "嘉兴周先生", quote: "有现车的话多久能提车？", topic: "库存与发货", score: 84, tier: "high" },
+  { userId: "mock-live-user-ningbo", nickname: "宁波程女士", quote: "试驾需要提前预约吗？", topic: "使用与效果", score: 76, tier: "medium" },
+  { userId: "mock-live-user-shanghai", nickname: "上海周先生", quote: "E5 和 E6 的配置差异大吗？", topic: "比较与选择", score: 92, tier: "high" },
+  { userId: "mock-live-user-wuxi", nickname: "无锡赵先生", quote: "家用一年保养成本大概多少？", topic: "售后与保障", score: 64, tier: "medium" },
+  { userId: "mock-live-user-hangzhou", nickname: "杭州林女士", quote: "杭州这边的优惠和上海一样吗？", topic: "价格与优惠", score: 86, tier: "high" },
+  { userId: "mock-live-user-nantong", nickname: "南通许女士", quote: "后排坐三个成年人会不会挤？", topic: "使用与效果", score: 61, tier: "medium" },
+  { userId: "mock-live-user-suzhou", nickname: "苏州陈先生", quote: "如果今天订车，什么时候可以提？", topic: "库存与发货", score: 78, tier: "medium" },
+  { userId: "mock-live-user-changzhou", nickname: "常州顾先生", quote: "支持旧车置换吗？", topic: "价格与优惠", score: 70, tier: "medium" }
+]);
+
+function mockLiveAnalysisUsers(events = []) {
+  const grouped = new Map();
+  events.forEach((event) => {
+    const key = String(event?.userId || event?.nickname || "mock-live-user");
+    const current = grouped.get(key) || {
+      userId: key,
+      nickname: event?.nickname || "直播间用户",
+      score: Number(event?.score) || 0,
+      intentTier: event?.tier || "medium",
+      danmakuCount: 0,
+      topics: [],
+      evidence: []
+    };
+    current.danmakuCount += 1;
+    current.score = Math.max(current.score, Number(event?.score) || 0);
+    if (event?.topic && !current.topics.includes(event.topic)) current.topics.push(event.topic);
+    current.evidence.push({
+      quote: event?.quote || "",
+      observedAt: event?.observedAt || "2026-09-18T20:02:00+08:00",
+      roomId: "mock-live-room-e5"
+    });
+    grouped.set(key, current);
+  });
+  return [...grouped.values()].sort((left, right) => right.score - left.score || right.danmakuCount - left.danmakuCount);
+}
+
+function createMockLiveDanmakuAnalysis() {
+  const session = {
+    id: "mock-live-session-e5-20260918",
+    roomId: "mock-live-room-e5",
+    title: "新能源车型直播间 · E5 现场讲解",
+    state: "collecting",
+    startedAt: "2026-09-18T20:00:00+08:00"
+  };
+  const users = mockLiveAnalysisUsers(MOCK_LIVE_DANMAKU_EVENTS);
+  return {
+    // Start part-way through collection so the first preview paint is useful.
+    startedAt: Date.now() - 1400,
+    session,
+    events: MOCK_LIVE_DANMAKU_EVENTS,
+    finalAnalysis: {
+      summary: "本场弹幕主要围绕落地价格、现车和续航展开，价格确认是最明显的转化阻力。",
+      counts: { danmaku: MOCK_LIVE_DANMAKU_EVENTS.length, total: MOCK_LIVE_DANMAKU_EVENTS.length, uniqueUsers: users.length, questions: 11, highIntent: 4 },
+      users,
+      topics: [
+        { label: "价格与优惠", count: 4, userCount: 3, examples: ["可以零首付分期吗？", "这个价格包含购置税吗？"] },
+        { label: "库存与发货", count: 3, userCount: 3, examples: ["上海店现在有现车吗？", "有现车的话多久能提车？"] },
+        { label: "使用与效果", count: 3, userCount: 3, examples: ["这款纯电实际能跑多少公里？", "后排坐三个成年人会不会挤？"] },
+        { label: "比较与选择", count: 1, userCount: 1, examples: ["E5 和 E6 的配置差异大吗？"] },
+        { label: "售后与保障", count: 1, userCount: 1, examples: ["家用一年保养成本大概多少？"] }
+      ],
+      optimization: {
+        headline: "下一场优先优化价格与优惠的讲解顺序。",
+        priorityTopics: [
+          { label: "价格与优惠", count: 4, userCount: 3, strategy: "开场先讲清价格区间、优惠条件和适用人群，减少直播中反复问价。" },
+          { label: "库存与发货", count: 3, userCount: 3, strategy: "商品介绍时同步说明现车、发货节点和到店范围，固定一个可重复引用的口径。" },
+          { label: "使用与效果", count: 3, userCount: 3, strategy: "增加真实续航和空间演示，并明确不同用车场景的适配边界。" }
+        ],
+        nextLiveActions: [
+          "开场 10 分钟内先展示 E5 / E6 配置差异和落地价格示例。",
+          "在车型讲解后固定回应现车、提车周期和试驾预约。",
+          "用真实城市路况补充续航和后排空间演示。"
+        ]
+      }
+    }
+  };
+}
 
 const AGENTS_PER_ACCOUNT = 3;
 
@@ -745,6 +840,18 @@ export function createRealtimeMockAcquisitionWork(account = {}) {
     ],
     events: [{ message: "已识别 6 位直播间潜客，2 位已回复并留下联系方式。" }]
   };
+  const mockAcquisitionSimulation = account.mock === true ? {
+    // The preview opens mid-flow so the queue has an item on its first paint.
+    startedAt: Date.now() - 900,
+    leadTimeline: [
+      { leadId: leads[0].leadId, revealAtMs: 0, phases: [{ atMs: 0, state: "sending" }, { atMs: 2200, state: "delivered" }], replyAtMs: 3800 },
+      { leadId: leads[3].leadId, revealAtMs: 1800, phases: [{ atMs: 1800, state: "queued" }, { atMs: 2200, state: "sending" }, { atMs: 7000, state: "delivered" }] },
+      { leadId: leads[1].leadId, revealAtMs: 3200, phases: [{ atMs: 3200, state: "queued" }, { atMs: 3700, state: "sending" }, { atMs: 5400, state: "sent" }] },
+      { leadId: leads[2].leadId, revealAtMs: 2600, phases: [{ atMs: 2600, state: "queued" }, { atMs: 3000, state: "sending" }, { atMs: 5000, state: "submitted" }] },
+      { leadId: leads[4].leadId, revealAtMs: 5200, phases: [{ atMs: 5200, state: "queued" }, { atMs: 5700, state: "sending" }, { atMs: 7400, state: "sent" }] },
+      { leadId: leads[5].leadId, revealAtMs: 7000, phases: [{ atMs: 7000, state: "queued" }, { atMs: 7500, state: "sending" }, { atMs: 9300, state: "delivered" }], replyAtMs: 10000 }
+    ]
+  } : null;
   const configuration = {
     sourceScope: "authorized_account_all_signals",
     audienceRules: {
@@ -783,6 +890,7 @@ export function createRealtimeMockAcquisitionWork(account = {}) {
       taskState: "running",
       acquisitionTaskState: "running",
       mockLiveRoomImage: REALTIME_MOCK_LIVE_ROOM_IMAGES.automotive,
+      ...(mockAcquisitionSimulation ? { mockAcquisitionSimulation } : {}),
       configuration,
       acquisitionSnapshot: snapshot
     }
@@ -1101,14 +1209,161 @@ export function createRealtimeMockDomainWork(account = {}, scenarioName = accoun
   };
 }
 
+const MOCK_VIRAL_ANALYSIS_STAGE_DURATION_MS = 2600;
+const MOCK_VIRAL_ANALYSIS_STAGES = Object.freeze([
+  { phase: "校验作品链接", progress: 12, key: "link", activity: "已确认公开作品链接，开始读取基础信息" },
+  { phase: "读取公开作品详情", progress: 36, key: "metadata", activity: "已读取标题、作者、时长和公开互动指标" },
+  { phase: "整理公开评论", progress: 68, key: "comments", activity: "已抓取 178 条评论，去重后保留 140 条，正在归类主题" },
+  { phase: "解析视频内容", progress: 78, key: "video", activity: "正在对画面、口播、字幕和时间结构做标记" },
+  { phase: "选择视频代表画面", progress: 88, key: "frames", activity: "已定位关键转折，正在选择报告中的代表画面" },
+  { phase: "生成分析报告", progress: 96, key: "synthesis", activity: "正在汇总证据、爆款成因和下一轮测试" },
+  { phase: "分析报告已生成", progress: 100, key: "complete", status: "completed", activity: "报告已生成，并同步到成果中心与 Agent 私信" }
+]);
+
+export function advanceMockViralAnalysisWork(work, now = Date.now()) {
+  const metadata = work?.metadata;
+  const simulation = metadata?.mockViralSimulation;
+  if (!simulation || metadata?.mockRole !== "viral-work-analysis") return false;
+  const startedAt = Number(simulation.startedAt);
+  if (!Number.isFinite(startedAt)) return false;
+  const elapsed = Math.max(0, now - startedAt);
+  const stageIndex = Math.min(
+    MOCK_VIRAL_ANALYSIS_STAGES.length - 1,
+    Math.floor(elapsed / MOCK_VIRAL_ANALYSIS_STAGE_DURATION_MS)
+  );
+  if (Number(simulation.appliedStageIndex) === stageIndex) return false;
+  const stage = MOCK_VIRAL_ANALYSIS_STAGES[stageIndex];
+  const result = metadata.resultSnapshot && typeof metadata.resultSnapshot === "object"
+    ? metadata.resultSnapshot
+    : {};
+  const process = Array.isArray(result.analysisProcess) ? result.analysisProcess : [];
+  const stepIndex = stage.key === "complete" ? MOCK_VIRAL_ANALYSIS_STAGES.length : stageIndex;
+  const completedKeys = new Set(MOCK_VIRAL_ANALYSIS_STAGES.slice(0, stepIndex).map((item) => item.key));
+  result.analysisProcess = process.map((item) => {
+    const key = item?.key || item?.id;
+    const status = stage.key === "complete"
+      ? "completed"
+      : completedKeys.has(key)
+        ? "completed"
+        : key === stage.key
+          ? "running"
+          : "queued";
+    return { ...item, status };
+  });
+  result.status = stage.status || "running";
+  result.summary = stage.status === "completed"
+    ? "分析完成，报告已同步到成果中心并发送至 Agent 私信。"
+    : `${stage.activity}。`;
+  metadata.phase = stage.phase;
+  metadata.progress = stage.progress;
+  metadata.status = stage.status || "running";
+  metadata.taskState = stage.status === "completed" ? "completed" : "running";
+  simulation.appliedStageIndex = stageIndex;
+  work.phase = stage.phase;
+  work.progress = stage.progress;
+  work.state = stage.status === "completed" ? "done" : "working";
+  work.activities = [...(Array.isArray(work.activities) ? work.activities : []).filter((item) => item !== stage.activity).slice(-3), stage.activity];
+  return true;
+}
+
+function createMockViralWorkAnalysisSimulation() {
+  const sourceUrl = "https://www.douyin.com/video/mock-learning-pressure-2026";
+  return {
+    sourceUrl,
+    goal: "拆解这条作品的传播抓手，并把可验证的创作方法沉淀成报告。",
+    phase: "整理公开评论",
+    progress: 68,
+    status: "running",
+    reportTemplate: "viral-teardown-v1",
+    mockViralSimulation: {
+      startedAt: Date.now() - (MOCK_VIRAL_ANALYSIS_STAGE_DURATION_MS * 2 + 500),
+      appliedStageIndex: -1
+    },
+    resultSnapshot: {
+      status: "running",
+      title: "抖音爆款视频拆解报告",
+      sourceUrl,
+      reportTemplate: "viral-teardown-v1",
+      purpose: "从视频事实、公开表现和评论反馈中拆解它为什么可能获得流量。",
+      work: {
+        title: "学习压力太大了",
+        author: { name: "开心影视" },
+        description: "14 秒 AI 短剧，以家庭教育压力切入，用烟梗和开放式结尾推动转发与评论。",
+        durationSeconds: 14,
+        metrics: { likes: 51274, comments: 10239, shares: 200440, favorites: 3422 }
+      },
+      metrics: { likes: 51274, comments: 10239, shares: 200440, favorites: 3422, totalInteractions: 265375, shareLikeRatio: 3.91 },
+      videoAnalysis: {
+        status: "completed",
+        hook: "第一句就把学习压力和家庭冲突抛出来，观众无需铺垫即可进入情境。",
+        structure: [
+          { stage: "冲突开场", timeRange: "0–3 秒", description: "父亲把做抖音说成解决学习压力的方法，形成反常识冲突。" },
+          { stage: "道具推进", timeRange: "3–7 秒", description: "烟盒和人物反应连续出现，让每个镜头都有新的信息。" },
+          { stage: "情绪锚点", timeRange: "7–11 秒", description: "女儿说出标题同款台词，击中家长和学生的共同焦虑。" },
+          { stage: "开放结尾", timeRange: "11–14 秒", description: "不替观众下结论，把争议留给评论区继续接龙。" }
+        ],
+        keyMoments: [{ title: "标题台词回收", timeRange: "7–8 秒", reason: "标题、台词和情绪在同一秒对齐，形成记忆点。" }],
+        growthSignals: ["开头冲突明确", "道具梗易于复述", "结尾问题没有封口"],
+        growthHypotheses: ["转发是把视频递给具体的人", "评论区的争论延长了停留"],
+        pacing: "14 秒内连续 5 次信息转折，平均不到 3 秒一个新点。"
+      },
+      content: {
+        hook: "第一句就把学习压力和家庭冲突抛出来，观众无需铺垫即可进入情境。",
+        structure: ["冲突开场", "道具推进", "情绪锚点", "开放结尾"],
+        topics: ["学习压力", "家庭关系", "烟梗接龙"],
+        cta: "不替观众下结论，把问题留给评论区继续接龙。",
+        strengths: ["标题与台词形成回收", "每个镜头都有新信息", "争议点方便转述"]
+      },
+      audience: {
+        collected: 140,
+        topics: [
+          { key: "烟梗接龙", count: 92 },
+          { key: "家长共鸣", count: 10 },
+          { key: "生活压力", count: 9 },
+          { key: "劝戒烟", count: 6 }
+        ],
+        questions: ["利群现在多少钱？", "孩子压力大到底怎么沟通？"],
+        representativeComments: ["利群劲大", "我女儿也说学习压力太大了", "这结尾怎么还没说完"]
+      },
+      recommendations: {
+        reusableElements: ["前三秒先抛熟悉的家庭冲突", "准备一个能被复述的具体道具梗", "结尾留下可争论的问题"],
+        nextTests: ["保留标题台词回收，测试两个不同道具梗", "分别测试家长视角和学生视角的开场", "继续观察发布后 72 小时的分享占比"],
+        cautions: ["公开互动不等同于成交结果", "评论样本只代表采样范围，不外推全部观众"]
+      },
+      analysisProcess: [
+        { key: "link", title: "校验作品链接", detail: "公开链接格式有效，允许读取作品公开信息", status: "completed" },
+        { key: "metadata", title: "读取公开作品详情", detail: "已读取标题、作者、时长和四项互动指标", status: "completed" },
+        { key: "comments", title: "整理公开评论", detail: "已抓取 178 条评论，去重后保留 140 条，正在归类主题", status: "running" },
+        { key: "video", title: "解析视频内容", detail: "已完成画面、口播、字幕和时间结构解析", status: "completed" },
+        { key: "frames", title: "选择视频代表画面", detail: "等待评论主题归类后确认报告中的关键画面", status: "queued" },
+        { key: "synthesis", title: "生成分析报告", detail: "等待证据层和爆款成因汇总", status: "queued" }
+      ],
+      evidence: [
+        { type: "work_metrics", text: "公开互动指标：点赞 51,274、评论 10,239、分享 200,440、收藏 3,422", sourceUrl },
+        { type: "comment_sample", text: "评论采样 178 条，去重后 140 条，按热度排序", sourceUrl },
+        { type: "video_structure", text: "已按 0–3、3–7、7–11、11–14 秒拆分内容结构", sourceUrl }
+      ],
+      artifacts: [{ name: "抖音爆款视频拆解报告-学习压力太大了.html", url: MOCK_VIRAL_ANALYSIS_REPORT_URL }]
+    },
+    artifact: "抖音爆款视频拆解报告-学习压力太大了.html"
+  };
+}
+
 function createRealtimeMockSpecialistWork(managerWork, definition) {
   const metadata = managerWork?.metadata && typeof managerWork.metadata === "object" ? managerWork.metadata : {};
   const { acquisitionTaskState, ...managerMetadata } = metadata;
+  const liveDanmakuSimulation = definition.id === "live-danmaku-analysis"
+    ? createMockLiveDanmakuAnalysis()
+    : null;
+  const viralAnalysisSimulation = definition.agentType === "mkt-viral-work-analysis"
+    ? createMockViralWorkAnalysisSimulation()
+    : null;
   return {
     ...managerWork,
     agentType: definition.agentType,
-    phase: definition.phase,
-    task: definition.task,
+    phase: viralAnalysisSimulation?.phase || definition.phase,
+    progress: viralAnalysisSimulation?.progress ?? managerWork.progress,
+    task: viralAnalysisSimulation ? "拆解《学习压力太大了》的内容结构与流量抓手" : definition.task,
     activities: [...definition.activities],
     metadata: {
       ...managerMetadata,
@@ -1119,6 +1374,8 @@ function createRealtimeMockSpecialistWork(managerWork, definition) {
       parentTaskId: metadata.taskId || null,
       parentTaskRunId: metadata.taskRunId || null,
       mockRole: definition.id,
+      ...(liveDanmakuSimulation ? { mockLiveAnalysis: liveDanmakuSimulation } : {}),
+      ...(viralAnalysisSimulation ? viralAnalysisSimulation : {}),
       taskState: "running"
     }
   };
@@ -1146,6 +1403,24 @@ export function createRealtimeMockPreviewWorks(accounts = createRealtimeMockPrev
   });
 }
 
+export function removeRealtimeMockAccount(accounts = [], works = [], accountId = "") {
+  const id = String(accountId || "").trim();
+  const accountList = Array.isArray(accounts) ? accounts : [];
+  const target = accountList.find((account) => account?.id === id);
+  if (!id || target?.mock !== true) {
+    return {
+      accounts: [...accountList],
+      works: Array.isArray(works) ? [...works] : [],
+      removed: null
+    };
+  }
+  return {
+    accounts: accountList.filter((account) => account?.id !== id),
+    works: (Array.isArray(works) ? works : []).filter((work) => work?.metadata?.accountId !== id),
+    removed: target
+  };
+}
+
 /**
  * Build the local viewer shell for an account-scoped Douyin cloud desktop.
  * The shell obtains/refreshes the short-lived VNC target itself, so the
@@ -1155,7 +1430,8 @@ export function douyinCloudViewerUrlFor(agentId, {
   origin = globalThis.location?.origin,
   backend = globalThis.__SALEBUDDY_CONFIG__?.controlPlaneUrl
     || globalThis.document?.querySelector?.('meta[name="salebuddy-control-plane"]')?.content
-    || "http://127.0.0.1:6681"
+    || "http://127.0.0.1:6681",
+  accountId = null
 } = {}) {
   const id = String(agentId || "").trim();
   if (!id || !origin || origin === "null") return null;
@@ -1163,6 +1439,7 @@ export function douyinCloudViewerUrlFor(agentId, {
   url.searchParams.set("agentId", id);
   url.searchParams.set("embedded", "1");
   if (backend) url.searchParams.set("backend", String(backend));
+  if (String(accountId || "").trim()) url.searchParams.set("accountId", String(accountId).trim());
   return url.toString();
 }
 
@@ -1261,6 +1538,7 @@ function accountDirectoryFor(state) {
   const source = Array.isArray(state.accounts)
     ? state.accounts
     : Array.isArray(state.customAccounts) ? state.customAccounts : [];
+  if (source.length && source.every((account) => account?.mock === true)) return [...source];
   return getAuthorizedManagedAccounts(source);
 }
 
@@ -1740,7 +2018,7 @@ const CSS = `
 .sb-rw-account-avatar img{display:block;width:100%;height:100%;object-fit:cover}
 .sb-rw-account-avatar{overflow:hidden}
 .sb-rw-account-avatar[data-avatar-fallback="true"],.sb-rw-directory-avatar[data-avatar-fallback="true"]{font-size:12px;font-weight:750;line-height:1}
-.sb-realtime-page{min-height:100dvh;box-sizing:border-box;padding:26px 30px 34px;background:var(--sb-app-page-bg,#f7f8fb);color:#18201d;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+.sb-realtime-page{min-height:100dvh;box-sizing:border-box;padding:26px 30px 72px;background:var(--sb-app-page-bg,#f7f8fb);color:#18201d;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
 .sb-page.sb-page-realtime-work > .sb-page-head{display:none}
 .sb-realtime-page *{box-sizing:border-box}
 .sb-rw-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px}
@@ -1988,7 +2266,7 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.sb-rw-team-card{transition:none}}
 
 /* Personal commerce workspace: compact rails, quiet surfaces, one clear accent. */
-.sb-realtime-page{padding:22px 26px 30px;background:#f5f7f5}
+.sb-realtime-page{padding:22px 26px 72px;background:#f5f7f5}
 .sb-rw-account-section{margin-bottom:16px}
 .sb-rw-account-head{margin-bottom:8px}
 .sb-rw-account-title{font-size:16px;letter-spacing:-.01em}
@@ -2075,6 +2353,7 @@ const CSS = `
 .sb-rw-account-setup-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 22px 0}
 .sb-rw-account-setup-step{display:flex;align-items:center;gap:7px;color:#a2aca6;font-size:10px}.sb-rw-account-setup-step i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#f0f3f1;color:#87948d;font-style:normal;font-size:10px;font-weight:700}.sb-rw-account-setup-step.is-active{color:#262626;font-weight:650}.sb-rw-account-setup-step.is-active i{background:#262626;color:#fff}.sb-rw-account-setup-step.is-done{color:#2f80ed}.sb-rw-account-setup-step.is-done i{background:#eaf2ff;color:#2f80ed}
 .sb-rw-account-setup-body{padding:20px 22px 22px}.sb-rw-account-setup-copy{color:#4e5b54;font-size:12px;line-height:1.55}.sb-rw-account-setup-form{display:grid;gap:12px;margin-top:16px}.sb-rw-account-setup-field{display:grid;gap:6px;color:#66736b;font-size:11px}.sb-rw-account-setup-field input{height:38px;padding:0 11px;border:1px solid #dfe7e2;border-radius:8px;background:#fbfcfb;color:#25322b;font:inherit;font-size:12px;outline:none}.sb-rw-account-setup-field input:focus{border-color:#2f80ed;box-shadow:0 0 0 3px rgba(47,128,237,.1);background:#fff}.sb-rw-account-setup-error{margin-top:10px;color:#b34d44;font-size:11px}.sb-rw-account-setup-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.sb-rw-account-setup-button{height:34px;padding:0 14px;border:1px solid #d9e2dc;border-radius:8px;background:#fff;color:#53615a;font:inherit;font-size:11px;cursor:pointer}.sb-rw-account-setup-button:hover{background:#f6f8f7}.sb-rw-account-setup-button.is-primary{border-color:#262626;background:#262626;color:#fff}.sb-rw-account-setup-button.is-primary:hover{background:#3d3d3d}.sb-rw-account-setup-button:disabled{opacity:.55;cursor:default}.sb-rw-account-setup-progress{height:7px;margin-top:17px;border-radius:99px;background:#e9eeeb;overflow:hidden}.sb-rw-account-setup-progress i{display:block;height:100%;border-radius:inherit;background:#2f80ed;transition:width .3s ease}.sb-rw-account-setup-progress-meta{display:flex;justify-content:space-between;margin-top:7px;color:#8b9690;font-size:10px}.sb-rw-account-setup-checks{display:grid;gap:9px;margin-top:16px}.sb-rw-account-setup-check{display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid #e5ebe7;border-radius:9px;color:#55635a;font-size:11px}.sb-rw-account-setup-check i{width:14px;height:14px;border:1px solid #ccd8d0;border-radius:50%;background:#fff}.sb-rw-account-setup-check.is-done{border-color:#cfe2f8;background:#f7fbff;color:#2f80ed}.sb-rw-account-setup-check.is-done i{border-color:#2f80ed;background:#2f80ed;box-shadow:inset 0 0 0 3px #fff}
+.sb-rw-account-unbind-mask{position:fixed;inset:0;z-index:10030;display:grid;place-items:center;padding:24px;background:rgba(18,25,22,.32)}.sb-rw-account-unbind-dialog{width:min(440px,calc(100vw - 32px));border:1px solid #dfe5e2;border-radius:12px;background:#fff;box-shadow:0 24px 80px rgba(18,39,28,.18);overflow:hidden}.sb-rw-account-unbind-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 20px 15px;border-bottom:1px solid #edf1ef}.sb-rw-account-unbind-head h2{margin:0;color:#25322b;font-size:16px}.sb-rw-account-unbind-close{width:28px;height:28px;border:0;border-radius:7px;background:#f3f6f4;color:#65736b;font-size:18px;line-height:1;cursor:pointer}.sb-rw-account-unbind-close:hover{background:#e8eeea}.sb-rw-account-unbind-body{padding:18px 20px 20px}.sb-rw-account-unbind-account{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid #e6ece8;border-radius:9px;background:#fbfcfb}.sb-rw-account-unbind-account strong,.sb-rw-account-unbind-account span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-rw-account-unbind-account strong{color:#2b3931;font-size:12px}.sb-rw-account-unbind-account span{margin-top:4px;color:#829087;font-size:10px}.sb-rw-account-unbind-copy{margin:14px 0 0;color:#56645c;font-size:11px;line-height:1.6}.sb-rw-account-unbind-note{margin-top:12px;padding:9px 10px;border-radius:7px;background:#fff7f4;color:#9d5147;font-size:10px;line-height:1.55}.sb-rw-account-unbind-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.sb-rw-account-unbind-actions button{height:32px;padding:0 12px;border:1px solid #d8e2dc;border-radius:7px;background:#fff;color:#55635b;font:inherit;font-size:10px;cursor:pointer}.sb-rw-account-unbind-actions button:hover{background:#f6f8f7}.sb-rw-account-unbind-actions button.is-danger{border-color:#c85c51;background:#c85c51;color:#fff}.sb-rw-account-unbind-actions button.is-danger:hover{background:#ad4d44}
 .sb-rw-ai-team{margin-bottom:12px}
 .sb-rw-ai-team.is-completed{margin-top:2px;margin-bottom:18px}.sb-rw-ai-team.is-completed .sb-rw-ai-team-heading{margin-bottom:8px}.sb-rw-ai-team.is-completed .sb-rw-team-card{background:#fbfcfb}.sb-rw-ai-team.is-completed .sb-rw-card-meta{color:#7f8b84}
 .sb-rw-ai-team-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
@@ -2092,7 +2371,7 @@ const CSS = `
 .sb-rw-kpis{display:none}
 @media (max-width:1200px){.sb-rw-main{grid-template-columns:minmax(330px,1.1fr) minmax(240px,.9fr)}.sb-rw-prospect{grid-column:1/-1}.sb-rw-main.is-inbox-work{grid-template-columns:minmax(360px,1fr) minmax(280px,.72fr)}.sb-rw-main.is-comment-acquisition-work{grid-template-columns:minmax(0,1fr)}.sb-rw-main.is-inbox-work .sb-rw-inbox-conversations{grid-column:1/-1;min-height:0}.sb-rw-acquisition-conversations{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}.sb-rw-acquisition-empty.is-conversation{grid-column:1/-1;min-height:190px}.sb-rw-inbox-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none}.sb-rw-inbox-empty{grid-column:1/-1;min-height:190px}}
 @media (max-width:1100px){.sb-rw-account-topline{display:block}.sb-rw-account-summary{margin-top:9px;width:max-content;max-width:100%;overflow-x:auto}.sb-rw-account-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:760px){.sb-realtime-page{padding:18px 14px 24px}.sb-rw-account-summary{width:max-content;max-width:100%;overflow-x:auto}.sb-rw-account-summary-item{min-width:132px;flex:none;padding:9px 11px}.sb-rw-account-summary-icon{width:28px;height:28px;font-size:15px}.sb-rw-account-summary-copy{font-size:11px;white-space:nowrap}.sb-rw-account-summary-action{padding:0 11px;font-size:11px}.sb-rw-account-list{grid-template-columns:1fr}.sb-rw-account-card{min-width:0}.sb-rw-team{gap:10px;padding-bottom:8px}.sb-rw-team-card{flex-basis:min(84vw,340px);min-width:min(84vw,340px)}.sb-rw-main{display:block}.sb-rw-cloud-wrap{padding:8px}.sb-rw-panel{margin-bottom:10px}.sb-rw-acquisition-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-rw-acquisition-conversations,.sb-rw-inbox-list{grid-template-columns:1fr}.sb-rw-acquisition-empty.is-conversation,.sb-rw-inbox-empty{min-height:180px}}
+@media (max-width:760px){.sb-realtime-page{padding:18px 14px 56px}.sb-rw-account-summary{width:max-content;max-width:100%;overflow-x:auto}.sb-rw-account-summary-item{min-width:132px;flex:none;padding:9px 11px}.sb-rw-account-summary-icon{width:28px;height:28px;font-size:15px}.sb-rw-account-summary-copy{font-size:11px;white-space:nowrap}.sb-rw-account-summary-action{padding:0 11px;font-size:11px}.sb-rw-account-list{grid-template-columns:1fr}.sb-rw-account-card{min-width:0}.sb-rw-team{gap:10px;padding-bottom:8px}.sb-rw-team-card{flex-basis:min(84vw,340px);min-width:min(84vw,340px)}.sb-rw-main{display:block}.sb-rw-cloud-wrap{padding:8px}.sb-rw-panel{margin-bottom:10px}.sb-rw-acquisition-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-rw-acquisition-conversations,.sb-rw-inbox-list{grid-template-columns:1fr}.sb-rw-acquisition-empty.is-conversation,.sb-rw-inbox-empty{min-height:180px}}
 .sb-rw-account-card.is-active{border-color:#16b77a;box-shadow:0 0 0 2px rgba(22,183,122,.1),0 3px 8px rgba(35,57,47,.06)}
 .sb-rw-team-card.is-active{border-color:#16b77a;box-shadow:0 0 0 2px rgba(22,183,122,.1),0 3px 8px rgba(35,57,47,.06)}
 /* AI数班 neutral palette: charcoal controls, cool-blue live status, amber warnings. */
@@ -2149,8 +2428,7 @@ const CSS = `
 .sb-rw-directory-filter:hover{border-color:#a8b0b8;color:#262626}
 .sb-rw-directory-filter.is-active{border-color:#262626;background:#262626;color:#fff}
 .sb-rw-directory-list{display:grid;gap:7px;max-height:calc(100vh - 260px);overflow:auto;padding:1px 2px 2px}
-.sb-rw-directory-row{display:grid;grid-template-columns:minmax(220px,1.45fr) repeat(4,minmax(75px,.6fr)) auto;align-items:center;gap:12px;padding:11px 13px;border:1px solid #e4e8eb;border-radius:10px;background:#fff;text-align:left;cursor:pointer;transition:border-color 140ms ease,box-shadow 140ms ease,transform 140ms ease}
-.sb-rw-directory-row:hover{border-color:#aeb6bd;box-shadow:0 3px 10px rgba(24,32,39,.06);transform:translateY(-1px)}
+.sb-rw-directory-row{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 13px;border:1px solid #e4e8eb;border-radius:10px;background:#fff;transition:border-color 140ms ease,box-shadow 140ms ease,transform 140ms ease}.sb-rw-directory-row:hover{border-color:#aeb6bd;box-shadow:0 3px 10px rgba(24,32,39,.06);transform:translateY(-1px)}.sb-rw-directory-row-open{display:grid;grid-template-columns:minmax(220px,1.45fr) repeat(4,minmax(75px,.6fr)) auto;align-items:center;gap:12px;flex:1;min-width:0;padding:3px 0;border:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}.sb-rw-directory-row-open:focus-visible,.sb-rw-directory-unbind:focus-visible,.sb-rw-account-unbind-close:focus-visible,.sb-rw-account-unbind-actions button:focus-visible{outline:2px solid #2f80ed;outline-offset:2px}
 .sb-rw-directory-identity{display:flex;align-items:center;gap:9px;min-width:0}
 .sb-rw-directory-avatar{width:34px;height:34px;flex:none;border-radius:9px;overflow:hidden;background:#f0f0f0}
 .sb-rw-directory-avatar img{width:100%;height:100%;object-fit:cover}
@@ -2165,13 +2443,15 @@ const CSS = `
 .sb-rw-directory-status.is-warning{color:#c48725}.sb-rw-directory-status.is-warning i{background:#e2a23c}
 .sb-rw-directory-status.is-muted{color:#8b949c}.sb-rw-directory-status.is-muted i{background:#aab2b9}
 .sb-rw-directory-open{color:#2f80ed;font-size:15px;line-height:1}
+.sb-rw-directory-unbind{height:30px;flex:none;padding:0 10px;border:1px solid #e7c9c5;border-radius:7px;background:#fff;color:#a94c43;font:inherit;font-size:10px;font-weight:650;cursor:pointer}.sb-rw-directory-unbind:hover{border-color:#dca19a;background:#fff7f6}
 .sb-rw-directory-empty{padding:30px;text-align:center;color:#8b949c;font-size:11px;border:1px dashed #dfe4e8;border-radius:10px;background:#fff}
-@media(max-width:900px){.sb-rw-directory-head{display:block}.sb-rw-directory-summary{margin-top:14px;width:max-content;max-width:100%;overflow:auto}.sb-rw-directory-toolbar{display:block}.sb-rw-directory-search{width:100%;margin-bottom:9px}.sb-rw-directory-row{grid-template-columns:minmax(190px,1.4fr) repeat(3,minmax(70px,.65fr)) auto}.sb-rw-directory-row .sb-rw-directory-cell:nth-of-type(4){display:none}}
-@media(max-width:640px){.sb-rw-directory-row{grid-template-columns:minmax(180px,1fr) repeat(2,minmax(65px,.6fr)) auto}.sb-rw-directory-row .sb-rw-directory-cell:nth-of-type(3),.sb-rw-directory-row .sb-rw-directory-cell:nth-of-type(4){display:none}.sb-rw-directory-list{max-height:none}}
+@media(max-width:900px){.sb-rw-directory-head{display:block}.sb-rw-directory-summary{margin-top:14px;width:max-content;max-width:100%;overflow:auto}.sb-rw-directory-toolbar{display:block}.sb-rw-directory-search{width:100%;margin-bottom:9px}.sb-rw-directory-row-open{grid-template-columns:minmax(190px,1.4fr) repeat(3,minmax(70px,.65fr)) auto}.sb-rw-directory-row-open .sb-rw-directory-cell:nth-of-type(4){display:none}}
+@media(max-width:640px){.sb-rw-directory-row{gap:8px;padding-left:10px}.sb-rw-directory-row-open{grid-template-columns:minmax(180px,1fr) repeat(2,minmax(65px,.6fr)) auto}.sb-rw-directory-row-open .sb-rw-directory-cell:nth-of-type(3),.sb-rw-directory-row-open .sb-rw-directory-cell:nth-of-type(4){display:none}.sb-rw-directory-list{max-height:none}.sb-rw-account-unbind-mask{padding:16px}}
 @media(max-width:1200px){.sb-rw-inbox-shell{grid-template-columns:minmax(210px,.85fr) minmax(360px,1.4fr)}.sb-rw-inbox-details{grid-column:1/-1;border-top:1px solid #edf1ef;border-left:0}.sb-rw-inbox-detail-section{display:inline-grid;vertical-align:top;width:32%;margin-right:1.5%;border-bottom:0}.sb-rw-inbox-detail-section:last-child{margin-right:0}.sb-rw-inbox-funnel-step{padding:13px 14px}}
 @media(max-width:760px){.sb-rw-inbox-funnel{grid-template-columns:repeat(5,minmax(118px,1fr));overflow-x:auto}.sb-rw-inbox-funnel-step{min-width:118px}.sb-rw-inbox-shell{display:block;min-height:0}.sb-rw-inbox-sidebar{min-height:290px;border-right:0;border-bottom:1px solid #edf1ef}.sb-rw-inbox-thread-list{max-height:220px}.sb-rw-inbox-chat{min-height:430px}.sb-rw-inbox-details{min-height:270px}.sb-rw-inbox-detail-section{display:grid;width:auto;margin:0;padding:10px 0;border-bottom:1px solid #edf1ef}.sb-rw-inbox-detail-section:last-child{border-bottom:0}.sb-rw-inbox-composer{align-items:stretch;flex-wrap:wrap}.sb-rw-inbox-composer input{flex-basis:100%}.sb-rw-inbox-human{margin-left:auto}.sb-rw-inbox-bubble{max-width:88%}}
 .sb-rw-acquisition-scene-header{margin:0}.sb-rw-auth-recovery{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 10px;padding:12px 14px;border:1px solid #efd2c7;border-radius:10px;background:#fff8f5}.sb-rw-auth-recovery strong,.sb-rw-auth-recovery span{display:block}.sb-rw-auth-recovery strong{color:#96452d;font-size:13px}.sb-rw-auth-recovery span{margin-top:4px;color:#80645b;font-size:11px;line-height:1.5}.sb-rw-auth-recovery button{flex:none;height:32px;padding:0 13px;border:1px solid #d97b60;border-radius:7px;background:#fff;color:#a34b31;font:inherit;font-size:11px;font-weight:650;cursor:pointer}.sb-rw-auth-recovery button:hover{background:#fff1eb}.sb-rw-auth-recovery button:disabled{cursor:wait;opacity:.62}
 .sb-rw-acquisition-full-desktop-panel{grid-column:1/-1;min-height:620px;display:flex;flex-direction:column;overflow:hidden}.sb-rw-acquisition-full-desktop-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-acquisition-full-desktop-wrap{display:flex;flex:1;min-height:0;padding:0 14px 14px}.sb-rw-acquisition-full-desktop-replay{display:flex;flex:1;min-height:0;align-items:center;justify-content:center;border:1px solid #dce4ef;border-radius:14px;background:#111522;overflow:hidden}.sb-rw-acquisition-full-desktop-replay video{display:block;width:100%;height:100%;object-fit:contain;background:#111522}
+.sb-rw-mock-douyin-screen{display:flex;align-self:stretch;height:100%;box-sizing:border-box;flex:1;min-width:0;min-height:0;flex-direction:column;overflow:hidden;background:#f5f6f8;color:#24262b;font-family:Inter,"Microsoft YaHei",sans-serif}.sb-rw-mock-douyin-topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;height:48px;min-height:48px;padding:0 16px;border-bottom:1px solid #e5e6e9;background:#fff}.sb-rw-mock-douyin-brand,.sb-rw-mock-douyin-top-actions{display:flex;align-items:center;gap:8px;min-width:0}.sb-rw-mock-douyin-brand-mark{display:grid;place-items:center;width:23px;height:23px;border-radius:7px;background:#16181d;color:#fff;font-size:17px;font-weight:800;line-height:1}.sb-rw-mock-douyin-brand strong{font-size:14px;font-weight:780}.sb-rw-mock-douyin-brand span:last-child{color:#9aa0a8;font-size:10px}.sb-rw-mock-douyin-account-state{color:#29a36a;font-size:10px;white-space:nowrap}.sb-rw-mock-douyin-top-avatar{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#f04467;color:#fff;font-size:10px;font-weight:700}.sb-rw-mock-douyin-body{display:grid;grid-template-columns:82px 205px minmax(0,1fr) 164px;flex:1;min-height:0}.sb-rw-mock-douyin-nav{display:flex;align-items:center;flex-direction:column;gap:8px;padding:18px 8px;border-right:1px solid #e7e8eb;background:#fff}.sb-rw-mock-douyin-nav-item{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;width:100%;min-height:54px;padding:7px 2px;border:0;border-radius:7px;background:transparent;color:#8a8f98;font:inherit;font-size:9px;cursor:pointer}.sb-rw-mock-douyin-nav-item i{display:block;width:15px;height:15px;border:2px solid currentColor;border-radius:5px;box-sizing:border-box}.sb-rw-mock-douyin-nav-item.is-active{background:#fff0f2;color:#f04467;font-weight:700}.sb-rw-mock-douyin-thread-pane{display:flex;min-width:0;min-height:0;flex-direction:column;border-right:1px solid #e4e6ea;background:#fff}.sb-rw-mock-douyin-thread-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:17px 14px 10px}.sb-rw-mock-douyin-thread-heading strong{font-size:15px;font-weight:760}.sb-rw-mock-douyin-thread-heading span{color:#9ba1aa;font-size:9px}.sb-rw-mock-douyin-thread-pane>input{height:29px;margin:0 11px 10px;padding:0 9px;border:1px solid #eceef1;border-radius:6px;background:#f7f8f9;color:#32353b;font:inherit;font-size:10px;outline:none}.sb-rw-mock-douyin-thread-pane>input:focus{border-color:#f2a0af;background:#fff;box-shadow:0 0 0 2px rgba(240,68,103,.1)}.sb-rw-mock-douyin-thread-list{min-height:0;overflow:auto}.sb-rw-mock-douyin-thread-item{display:grid;grid-template-columns:31px minmax(0,1fr);gap:8px;width:100%;padding:11px;border:0;border-left:3px solid transparent;background:#fff;color:inherit;text-align:left;font:inherit;cursor:pointer}.sb-rw-mock-douyin-thread-item:hover{background:#fafbfc}.sb-rw-mock-douyin-thread-item.is-active{border-left-color:#f04467;background:#fff2f4}.sb-rw-mock-douyin-avatar{display:grid;place-items:center;flex:none;overflow:hidden;border-radius:50%;background:#eef1f4;color:#69717c;font-size:10px;font-weight:700}.sb-rw-mock-douyin-avatar img{width:100%;height:100%;object-fit:cover}.sb-rw-mock-douyin-thread-avatar{width:31px;height:31px}.sb-rw-mock-douyin-thread-copy{display:grid;min-width:0;align-content:center;gap:4px}.sb-rw-mock-douyin-thread-title,.sb-rw-mock-douyin-thread-preview{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-rw-mock-douyin-thread-title{color:#2b2e34;font-size:10px;font-weight:680}.sb-rw-mock-douyin-thread-preview{color:#9aa0a8;font-size:9px}.sb-rw-mock-douyin-chat-pane{display:flex;min-width:0;min-height:0;flex-direction:column;background:#f7f8fa}.sb-rw-mock-douyin-chat-head{display:flex;align-items:center;gap:9px;height:57px;min-height:57px;padding:0 16px;border-bottom:1px solid #e6e8eb;background:#fff}.sb-rw-mock-douyin-chat-avatar{width:32px;height:32px}.sb-rw-mock-douyin-chat-head-copy{display:grid;min-width:0;gap:4px}.sb-rw-mock-douyin-chat-head-copy strong{overflow:hidden;color:#24272c;font-size:12px;font-weight:720;text-overflow:ellipsis;white-space:nowrap}.sb-rw-mock-douyin-chat-head-copy span{overflow:hidden;color:#9aa1aa;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.sb-rw-mock-douyin-chat-action{margin-left:auto;padding:0;border:0;background:transparent;color:#949aa3;font-size:20px;line-height:1;cursor:pointer}.sb-rw-mock-douyin-messages{display:flex;min-height:0;flex:1;flex-direction:column;gap:12px;overflow:auto;padding:18px 20px}.sb-rw-mock-douyin-date{align-self:center;color:#b1b5bc;font-size:9px}.sb-rw-mock-douyin-message-row{display:flex;max-width:86%}.sb-rw-mock-douyin-message-row.is-inbound{align-self:flex-start}.sb-rw-mock-douyin-message-row.is-outbound{align-self:flex-end}.sb-rw-mock-douyin-bubble{padding:9px 11px;border-radius:5px;box-shadow:0 1px 2px rgba(43,50,60,.05)}.sb-rw-mock-douyin-message-row.is-inbound .sb-rw-mock-douyin-bubble{border:1px solid #e5e7ea;background:#fff}.sb-rw-mock-douyin-message-row.is-outbound .sb-rw-mock-douyin-bubble{background:#f04467;color:#fff}.sb-rw-mock-douyin-bubble p{margin:0;color:#353941;font-size:10px;line-height:1.55;word-break:break-word}.sb-rw-mock-douyin-message-row.is-outbound .sb-rw-mock-douyin-bubble p{color:#fff}.sb-rw-mock-douyin-bubble time{display:block;margin-top:5px;color:#b1b5bc;font-size:8px;text-align:right}.sb-rw-mock-douyin-message-row.is-outbound .sb-rw-mock-douyin-bubble time{color:rgba(255,255,255,.72)}.sb-rw-mock-douyin-composer{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:7px;min-height:74px;padding:10px 14px;border-top:1px solid #e4e6ea;background:#fff}.sb-rw-mock-douyin-composer input{width:100%;height:34px;padding:0 10px;border:1px solid #e4e6ea;border-radius:6px;background:#fafbfc;color:#343840;font:inherit;font-size:10px;outline:none}.sb-rw-mock-douyin-composer input:focus{border-color:#f2a0af;background:#fff;box-shadow:0 0 0 2px rgba(240,68,103,.1)}.sb-rw-mock-douyin-composer-tools{display:flex;align-items:center;gap:3px}.sb-rw-mock-douyin-composer-tool{width:25px;height:25px;padding:0;border:0;background:transparent;color:#8f96a0;font-size:14px;cursor:pointer}.sb-rw-mock-douyin-send{height:30px;padding:0 13px;border:0;border-radius:5px;background:#f04467;color:#fff;font:inherit;font-size:10px;font-weight:680;cursor:pointer}.sb-rw-mock-douyin-send:hover{background:#d93658}.sb-rw-mock-douyin-profile{display:flex;min-width:0;min-height:0;align-items:center;flex-direction:column;gap:6px;padding:20px 12px;border-left:1px solid #e4e6ea;background:#fff;text-align:center}.sb-rw-mock-douyin-profile>strong:first-child{align-self:flex-start;color:#353940;font-size:11px}.sb-rw-mock-douyin-profile-avatar{width:54px;height:54px;margin:10px 0 2px}.sb-rw-mock-douyin-profile>strong:nth-of-type(2){max-width:100%;overflow:hidden;color:#2d3138;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.sb-rw-mock-douyin-profile>span:not(.sb-rw-mock-douyin-avatar){max-width:100%;overflow:hidden;color:#9ca2ab;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.sb-rw-mock-douyin-profile-state{margin-top:7px;padding:4px 7px;border-radius:4px;background:#fff0f2;color:#e23d5d!important;font-size:9px!important}.sb-rw-mock-douyin-profile-facts{display:grid;gap:5px;width:100%;margin-top:10px;padding-top:12px;border-top:1px solid #f0f1f3;text-align:left}.sb-rw-mock-douyin-profile-facts span{color:#a0a5ad;font-size:9px}.sb-rw-mock-douyin-profile-facts strong{display:block;overflow:hidden;color:#555b64;font-size:9px;font-weight:550;line-height:1.45;text-overflow:ellipsis;white-space:nowrap}.sb-rw-mock-douyin-screen.is-compact .sb-rw-mock-douyin-nav{width:54px;padding-left:5px;padding-right:5px}.sb-rw-mock-douyin-screen.is-compact .sb-rw-mock-douyin-body{grid-template-columns:54px 140px minmax(0,1fr)}.sb-rw-mock-douyin-screen.is-compact .sb-rw-mock-douyin-profile{display:none}.sb-rw-mock-douyin-screen.is-compact .sb-rw-mock-douyin-brand span:last-child{display:none}.sb-rw-mock-douyin-screen.is-compact .sb-rw-mock-douyin-composer-tools{display:none}
 .sb-rw-acquisition-conversion-workbench{grid-column:1/-1;display:grid;grid-template-columns:minmax(220px,.8fr) minmax(390px,1.65fr) minmax(250px,.85fr);min-height:620px;overflow:hidden;border:1px solid #e1e7f0;border-radius:15px;background:#fff;box-shadow:0 1px 2px rgba(56,84,125,.035)}.sb-rw-acquisition-conversion-sidebar{display:grid;grid-template-rows:auto minmax(0,1fr);min-width:0;padding:14px 12px;background:#f8f9fb;border-right:1px solid #edf1f5}.sb-rw-acquisition-conversion-search{width:100%;height:36px;box-sizing:border-box;padding:0 11px;border:1px solid #e0e7ef;border-radius:9px;background:#fff;color:#27333d;font:inherit;font-size:11px;outline:none}.sb-rw-acquisition-conversion-search::placeholder{color:#9aa4ae}.sb-rw-acquisition-conversion-list{display:grid;align-content:start;gap:5px;margin-top:12px;overflow:auto}.sb-rw-acquisition-conversion-thread{display:grid;grid-template-columns:38px minmax(0,1fr);gap:8px;width:100%;padding:10px 8px;border:1px solid transparent;border-radius:10px;background:transparent;text-align:left;cursor:pointer}.sb-rw-acquisition-conversion-thread:hover{background:#eef3fa}.sb-rw-acquisition-conversion-thread.is-selected{border-color:#e0e8f4;background:#fff;box-shadow:0 1px 3px rgba(56,84,125,.06)}.sb-rw-acquisition-conversion-thread .sb-rw-acquisition-avatar{width:38px;height:38px}.sb-rw-acquisition-conversion-thread strong,.sb-rw-acquisition-conversion-thread span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-rw-acquisition-conversion-thread strong{color:#27333d;font-size:11px}.sb-rw-acquisition-conversion-thread span{margin-top:5px;color:#8a96a2;font-size:9px}.sb-rw-acquisition-conversion-conversation{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-width:0;background:#fff}.sb-rw-acquisition-conversation-head{display:flex;align-items:center;gap:10px;min-height:70px;padding:14px 17px;border-bottom:1px solid #edf1f5}.sb-rw-acquisition-conversation-head .sb-rw-acquisition-avatar{width:42px;height:42px}.sb-rw-acquisition-conversation-head strong,.sb-rw-acquisition-conversation-head span{display:block}.sb-rw-acquisition-conversation-head strong{color:#27333d;font-size:14px}.sb-rw-acquisition-conversation-head span{margin-top:5px;color:#2f80ed;font-size:10px}.sb-rw-acquisition-conversation-messages{display:flex;flex-direction:column;gap:14px;min-height:0;padding:28px 18px;overflow:auto}.sb-rw-acquisition-conversation-message{max-width:78%;padding:12px 14px;border-radius:13px;color:#38444f;font-size:12px;line-height:1.6}.sb-rw-acquisition-conversation-message.is-inbound{justify-self:start;align-self:start;background:#f1f3f5}.sb-rw-acquisition-conversation-message.is-outbound{align-self:end;background:#e8f0ff;color:#35527c}.sb-rw-acquisition-conversation-empty,.sb-rw-acquisition-conversion-empty{display:grid;place-items:center;min-height:260px;color:#9aa4ae;font-size:11px}.sb-rw-acquisition-conversation-footer{display:flex;align-items:center;gap:8px;margin:0 14px 14px;padding:10px 12px;border:1px solid #edf1f5;border-radius:13px;background:#fff;box-shadow:0 4px 18px rgba(56,84,125,.07)}.sb-rw-acquisition-conversation-footer .sb-rw-acquisition-avatar{width:34px;height:34px;background:#e8f0ff;color:#2f80ed;font-size:10px}.sb-rw-acquisition-conversation-footer>span:not(.sb-rw-acquisition-avatar){color:#2f80ed;font-size:10px}.sb-rw-acquisition-conversation-footer button{margin-left:auto;height:32px;padding:0 13px;border:0;border-radius:8px;background:#15181d;color:#fff;font:inherit;font-size:10px;cursor:pointer}.sb-rw-acquisition-conversion-details{min-width:0;padding:18px 15px;overflow:auto;border-left:1px solid #edf1f5}.sb-rw-acquisition-conversion-details h3{margin:0 0 15px;color:#27333d;font-size:13px}.sb-rw-acquisition-conversion-details h3:not(:first-child){margin-top:24px}.sb-rw-acquisition-conversion-fact{display:grid;grid-template-columns:72px minmax(0,1fr);gap:8px;padding:9px 0;border-bottom:1px solid #f0f3f6}.sb-rw-acquisition-conversion-fact span{color:#9aa4ae;font-size:10px}.sb-rw-acquisition-conversion-fact strong{min-width:0;overflow:hidden;color:#36434f;font-size:10px;font-weight:550;text-overflow:ellipsis;white-space:nowrap}.sb-rw-acquisition-conversion-tags{display:flex;flex-wrap:wrap;gap:5px}.sb-rw-acquisition-conversion-tags span{padding:4px 7px;border-radius:6px;background:#eef4ff;color:#3e68a3;font-size:9px}
 .sb-rw-acquisition-scene-bar{display:flex;align-items:center;justify-content:flex-end;gap:14px}.sb-rw-acquisition-scene-tabs{display:flex;gap:3px;padding:4px;border-radius:11px;background:#eceeed}.sb-rw-acquisition-scene-tab{min-width:128px;height:38px;padding:0 16px;border:0;border-radius:8px;background:transparent;color:#69756e;font:inherit;font-size:12px;cursor:pointer}.sb-rw-acquisition-scene-tab.is-active{background:#fff;color:#252d28;box-shadow:0 1px 3px rgba(35,57,47,.08);font-weight:680}
 .sb-rw-main.is-comment-acquisition-work{grid-template-columns:minmax(300px,.84fr) minmax(360px,1fr) minmax(330px,.96fr);align-items:stretch}.sb-rw-main.is-comment-acquisition-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-comment-acquisition-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-main.is-comment-acquisition-work>.sb-rw-cloud-panel>.sb-rw-panel-head,.sb-rw-main.is-comment-acquisition-work>.sb-rw-acquisition-detail-panel>.sb-rw-panel-head{align-items:flex-start}.sb-rw-main.is-comment-acquisition-work>.sb-rw-cloud-panel,.sb-rw-main.is-comment-acquisition-work>.sb-rw-acquisition-queue-panel{display:flex;flex-direction:column;align-self:stretch}.sb-rw-main.is-comment-acquisition-work>.sb-rw-cloud-panel .sb-rw-cloud-live-wrap{display:flex;flex:1;min-height:0;flex-direction:column}.sb-rw-main.is-comment-acquisition-work>.sb-rw-cloud-panel .sb-rw-cloud-live{width:100%;min-height:0;flex:1;aspect-ratio:auto}.sb-rw-main.is-comment-acquisition-work>.sb-rw-cloud-panel .sb-rw-cloud-replay-stage{width:100%;min-height:0;flex:1}.sb-rw-main.is-comment-acquisition-work>.sb-rw-cloud-panel .sb-rw-cloud-live iframe{width:100%;height:100%}.sb-rw-acquisition-queue-body{display:grid;flex:1;min-height:0;gap:12px;padding:13px 14px 14px}.sb-rw-acquisition-queue-body.is-empty{grid-template-rows:auto minmax(0,1fr)}.sb-rw-acquisition-queue-body.is-empty .sb-rw-acquisition-people{min-height:0;max-height:none}.sb-rw-acquisition-queue-body.is-empty .sb-rw-acquisition-empty{height:100%;min-height:0}.sb-rw-acquisition-queue-status{display:flex;align-items:center;gap:8px;color:#159965;font-size:11px}.sb-rw-acquisition-queue-status i{width:8px;height:8px;border-radius:50%;background:#18a86f;box-shadow:0 0 0 4px rgba(24,168,111,.1)}.sb-rw-acquisition-queue-body .sb-rw-acquisition-people{max-height:520px}.sb-rw-acquisition-queue-body .sb-rw-acquisition-person{display:grid;width:100%;padding:11px;border:1px solid #e5ebe8;text-align:left;cursor:pointer;font:inherit;transition:border-color 140ms ease,background 140ms ease,box-shadow 140ms ease}.sb-rw-acquisition-queue-body .sb-rw-acquisition-person:hover{border-color:#b8c9c0;background:#fbfdfc}.sb-rw-acquisition-queue-body .sb-rw-acquisition-person.is-selected{border-color:#bfcfc7;background:#f5faf7;box-shadow:inset 3px 0 #16a571}.sb-rw-acquisition-person-meta{display:flex;align-items:center;gap:8px;margin-top:6px;color:#89948e;font-size:9px}.sb-rw-acquisition-person-meta span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-rw-acquisition-person-meta b{flex:none;color:#159965;font-size:9px;font-weight:650}.sb-rw-acquisition-queue-body .sb-rw-acquisition-touch{margin-top:7px}.sb-rw-acquisition-detail-body{padding:16px}.sb-rw-acquisition-detail-profile{display:flex;align-items:center;gap:10px;padding-bottom:15px;border-bottom:1px solid #edf1ef}.sb-rw-acquisition-detail-profile .sb-rw-acquisition-avatar{width:44px;height:44px}.sb-rw-acquisition-detail-profile strong{display:block;color:#27332d;font-size:14px}.sb-rw-acquisition-detail-profile span{display:block;margin-top:5px;color:#89948e;font-size:10px;line-height:1.4}.sb-rw-acquisition-detail-timeline{display:grid;margin-top:15px}.sb-rw-acquisition-detail-step{position:relative;display:grid;grid-template-columns:12px minmax(0,1fr);gap:10px;min-height:68px}.sb-rw-acquisition-detail-step:not(:last-child)::before{position:absolute;top:12px;bottom:0;left:5px;border-left:1px dashed #d9e3de;content:""}.sb-rw-acquisition-detail-step i{z-index:1;width:11px;height:11px;border:2px solid #cbd6d0;border-radius:50%;background:#fff}.sb-rw-acquisition-detail-step.is-done i{border-color:#2f80ed;background:#2f80ed;box-shadow:0 0 0 3px rgba(47,128,237,.1)}.sb-rw-acquisition-detail-step strong{display:block;color:#536159;font-size:10px;font-weight:650}.sb-rw-acquisition-detail-step span{display:block;margin-top:5px;color:#7f8b84;font-size:10px;line-height:1.55;word-break:break-word}.sb-rw-acquisition-detail-step.is-done span{color:#405148}.sb-rw-acquisition-detail-empty{display:grid;place-items:center;min-height:540px;padding:26px;text-align:center}.sb-rw-acquisition-detail-empty i{width:9px;height:9px;border-radius:50%;background:#2f80ed;box-shadow:0 0 0 4px rgba(47,128,237,.1)}.sb-rw-acquisition-detail-empty strong{margin-top:14px;color:#34423a;font-size:13px}.sb-rw-acquisition-detail-empty span{max-width:240px;margin-top:6px;color:#8c9792;font-size:10px;line-height:1.6}.sb-rw-main.is-background-work{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}.sb-rw-main.is-background-work>.sb-rw-panel{min-height:420px;align-self:stretch}
@@ -2194,6 +2474,7 @@ const CSS = `
 .sb-rw-live-room-stage img,.sb-rw-live-room-stage video{display:block;width:100%;height:100%;object-fit:cover;object-position:34% center;background:#111522}
 .sb-rw-live-room-stage>img.sb-rw-live-room-fallback{transform:none}
 .sb-rw-live-room-waiting{position:absolute;inset:0;display:grid;place-items:center;padding:24px;background:linear-gradient(180deg,transparent 50%,rgba(17,21,34,.76));color:#e9eef7;font-size:12px;text-align:center;pointer-events:none}
+.sb-rw-live-room-empty{display:grid;place-items:center;width:100%;height:100%;padding:24px;box-sizing:border-box;color:#e9eef7;font-size:12px;line-height:1.6;text-align:center}
 .sb-rw-main.is-comment-acquisition-work>.sb-rw-pure-live-panel{border:1px solid #dce4ef;border-radius:15px;background:#fff;box-shadow:0 1px 2px rgba(56,84,125,.035);overflow:hidden}
 .sb-rw-main.is-comment-acquisition-work>.sb-rw-pure-live-panel .sb-rw-cloud-live-wrap{display:flex;align-items:center;justify-content:center;width:100%;box-sizing:border-box;padding:0;flex:1;min-height:0;background:transparent;flex-direction:column}
 .sb-rw-main.is-comment-acquisition-work>.sb-rw-pure-live-panel .sb-rw-live-room-stage{flex:none;width:100%;height:100%;max-height:620px;aspect-ratio:auto;border-radius:14px}
@@ -2328,16 +2609,33 @@ const CSS = `
 .sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(300px,.84fr) minmax(360px,1fr) minmax(330px,.96fr);align-items:stretch}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel{min-height:620px}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-panel>.sb-rw-panel-head,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-outreach-pending-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-outreach-sent-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-main.is-live-danmaku-outreach-work .sb-rw-outreach-specialist-list{display:grid;align-content:start;gap:16px;flex:1;min-height:0;padding:14px;overflow:auto}.sb-rw-live-danmaku-room-panel .sb-rw-cloud-live-wrap{display:flex;flex:1;min-height:0;flex-direction:column;padding:0;background:transparent}.sb-rw-live-danmaku-room-panel .sb-rw-live-room-stage{flex:1;width:100%;min-height:0;max-height:none;aspect-ratio:auto;border-radius:14px}.sb-rw-live-danmaku-room-status{display:flex;align-items:center;gap:8px;padding:11px 14px;color:#16885b;font-size:10px}.sb-rw-live-danmaku-room-status i{width:7px;height:7px;border-radius:50%;background:#18a86f;box-shadow:0 0 0 4px rgba(24,168,111,.1)}.sb-rw-live-danmaku-analysis-queue-panel,.sb-rw-live-danmaku-analysis-detail-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-queue-body,.sb-rw-live-danmaku-analysis-detail-panel .sb-rw-acquisition-detail-body{min-height:0}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-meta b{color:#6b55c7}.sb-rw-live-danmaku-analysis-queue-panel .sb-rw-acquisition-person-top>b{flex:none;padding:3px 6px;border-radius:5px;background:#f0ebff;color:#6b55c7;font-size:9px;font-weight:680}.sb-rw-live-danmaku-facts{display:grid;gap:8px}.sb-rw-live-danmaku-fact{display:grid;grid-template-columns:68px minmax(0,1fr);gap:9px;padding-bottom:9px;border-bottom:1px solid #edf1ef}.sb-rw-live-danmaku-fact span{color:#89948e;font-size:10px}.sb-rw-live-danmaku-fact strong{color:#334039;font-size:10px;line-height:1.5;word-break:break-word}.sb-rw-live-danmaku-evidence{display:grid;gap:7px}.sb-rw-live-danmaku-evidence h3{margin:0;color:#64716b;font-size:10px;font-weight:680}.sb-rw-live-danmaku-evidence p{margin:0;padding:9px 10px;border-left:3px solid #8d70e8;border-radius:0 7px 7px 0;background:#f7f4ff;color:#4b485d;font-size:10px;line-height:1.55;word-break:break-word}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(0,1fr);align-items:stretch}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:0;max-height:none}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel>.sb-rw-panel-head{height:61px;min-height:61px;box-sizing:border-box}.sb-rw-viral-source-panel,.sb-rw-viral-report-panel{display:flex;flex-direction:column;overflow:hidden}.sb-rw-viral-source-body,.sb-rw-viral-report-body{display:grid;align-content:start;gap:15px;flex:1;min-height:0;padding:16px;overflow:auto}.sb-rw-viral-source-link{display:grid;gap:6px;padding:12px;border:1px solid #e1e8f2;border-radius:9px;background:#f8faff}.sb-rw-viral-source-link span{color:#7a8797;font-size:10px}.sb-rw-viral-source-link strong,.sb-rw-viral-source-link a{color:#3a5e99;font-size:11px;line-height:1.5;overflow-wrap:anywhere}.sb-rw-viral-source-link a{text-decoration:none}.sb-rw-viral-goal{padding:11px 12px;border:1px solid #e8edf3;border-radius:8px;color:#596573;font-size:10px;line-height:1.55}.sb-rw-viral-progress{height:7px;overflow:hidden;border-radius:99px;background:#e9eef5}.sb-rw-viral-progress i{display:block;height:100%;border-radius:inherit;background:#527fd0;transition:width .35s ease}.sb-rw-viral-progress-meta{color:#647080;font-size:10px;line-height:1.55}.sb-rw-viral-process{display:grid;gap:7px}.sb-rw-viral-process-row{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:8px;padding:10px;border:1px solid #e7ebf1;border-radius:8px;background:#fbfcfe}.sb-rw-viral-process-row i{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#eef2f7;color:#8a96a4;font-size:10px;font-style:normal}.sb-rw-viral-process-row.is-done i{background:#eaf8ef;color:#197e53}.sb-rw-viral-process-row span{color:#3d4b5b;font-size:10px}.sb-rw-viral-process-row small{color:#8a96a4;font-size:9px}.sb-rw-viral-complete{padding:11px 12px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px}.sb-rw-viral-error{padding:11px 12px;border:1px solid #f1d9d9;border-radius:8px;background:#fff7f7;color:#a55454;font-size:10px;line-height:1.55}.sb-rw-viral-report-summary{margin:0;color:#394655;font-size:12px;line-height:1.65}.sb-rw-viral-report-facts{display:grid;gap:7px;padding-top:2px;color:#667382;font-size:10px;line-height:1.55}.sb-rw-viral-artifact{padding:10px 11px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px;line-height:1.5}
 .sb-rw-live-danmaku-analysis-detail-panel .sb-rw-acquisition-detail-body{gap:16px;padding:14px 15px 16px}.sb-rw-live-danmaku-analysis-process{display:grid;gap:14px}.sb-rw-live-danmaku-analysis-process-intro{display:grid;gap:5px;padding:12px 13px;border:1px solid #ebe7fb;border-radius:9px;background:#fbfaff}.sb-rw-live-danmaku-analysis-process-intro strong{color:#4a3b83;font-size:12px;font-weight:700}.sb-rw-live-danmaku-analysis-process-intro span{color:#7b748e;font-size:10px;line-height:1.55}.sb-rw-live-danmaku-analysis-process-steps{display:grid;gap:0;margin:0;padding:0;list-style:none}.sb-rw-live-danmaku-analysis-process-step{position:relative;display:grid;grid-template-columns:23px minmax(0,1fr);gap:10px;padding:0 0 16px}.sb-rw-live-danmaku-analysis-process-step:not(:last-child)::before{position:absolute;top:23px;bottom:0;left:10px;border-left:1px solid #e3dff2;content:""}.sb-rw-live-danmaku-analysis-process-marker{z-index:1;display:grid;place-items:center;width:21px;height:21px;border:1px solid #d8d2ed;border-radius:50%;background:#fff;color:#8b83a6;font-size:9px;font-style:normal;font-weight:700}.sb-rw-live-danmaku-analysis-process-step.is-running .sb-rw-live-danmaku-analysis-process-marker{border-color:#8d70e8;background:#8d70e8;color:#fff;box-shadow:0 0 0 4px rgba(141,112,232,.12)}.sb-rw-live-danmaku-analysis-process-step.is-done .sb-rw-live-danmaku-analysis-process-marker{border-color:#16a571;background:#16a571;color:#fff}.sb-rw-live-danmaku-analysis-process-copy{display:grid;gap:3px;min-width:0;padding-top:1px}.sb-rw-live-danmaku-analysis-process-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-width:0}.sb-rw-live-danmaku-analysis-process-top strong{min-width:0;color:#30363a;font-size:11px;font-weight:700}.sb-rw-live-danmaku-analysis-process-top span{flex:none;color:#9a94aa;font-size:9px}.sb-rw-live-danmaku-analysis-process-step.is-running .sb-rw-live-danmaku-analysis-process-top span{color:#765fc0}.sb-rw-live-danmaku-analysis-process-step.is-done .sb-rw-live-danmaku-analysis-process-top span{color:#159965}.sb-rw-live-danmaku-analysis-process-copy>span{color:#8b9195;font-size:9px;line-height:1.45}.sb-rw-live-danmaku-analysis-process-copy small{color:#6f55bd;font-size:9px;line-height:1.4}.sb-rw-live-danmaku-analysis-process-step.is-queued .sb-rw-live-danmaku-analysis-process-copy small{color:#a09aa9}.sb-rw-live-danmaku-analysis-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #edf1ef;border-bottom:1px solid #edf1ef}.sb-rw-live-danmaku-analysis-summary-item{display:grid;gap:3px;padding:10px 8px;text-align:center;border-right:1px solid #edf1ef}.sb-rw-live-danmaku-analysis-summary-item:last-child{border-right:0}.sb-rw-live-danmaku-analysis-summary-item strong{color:#30363a;font-size:17px;font-variant-numeric:tabular-nums}.sb-rw-live-danmaku-analysis-summary-item span{color:#8c9295;font-size:9px}.sb-rw-live-danmaku-analysis-outcome{display:grid;gap:5px;padding:12px 13px;border-top:1px solid #edf1ef}.sb-rw-live-danmaku-analysis-outcome strong{color:#3c4346;font-size:11px}.sb-rw-live-danmaku-analysis-outcome span{color:#8b9195;font-size:10px;line-height:1.55}
 .sb-rw-live-danmaku-analysis-strategy{display:grid;gap:10px;padding-top:2px}.sb-rw-live-danmaku-analysis-strategy h3{margin:0;color:#30363a;font-size:11px;font-weight:700}.sb-rw-live-danmaku-analysis-strategy-headline{margin:0;color:#6e55b9;font-size:10px;line-height:1.5}.sb-rw-live-danmaku-analysis-strategy-topics{display:grid;gap:8px}.sb-rw-live-danmaku-analysis-strategy-topic{display:grid;gap:4px;padding:10px 11px;border:1px solid #ebe7fb;border-radius:8px;background:#fbfaff}.sb-rw-live-danmaku-analysis-strategy-topic-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.sb-rw-live-danmaku-analysis-strategy-topic-top strong{color:#40336b;font-size:10px}.sb-rw-live-danmaku-analysis-strategy-topic-top span{color:#988fb0;font-size:9px}.sb-rw-live-danmaku-analysis-strategy-topic>span{color:#6f7280;font-size:9px;line-height:1.5}.sb-rw-live-danmaku-analysis-strategy-actions{display:grid;gap:5px;margin:0;padding-left:17px;color:#58606b;font-size:9px;line-height:1.5}.sb-rw-live-danmaku-analysis-strategy-actions li::marker{color:#8d70e8}
+.sb-rw-live-danmaku-session-context{display:grid;grid-template-columns:minmax(150px,.75fr) minmax(280px,1.8fr) minmax(170px,.65fr);align-items:center;gap:18px;margin:0 0 12px;padding:13px 16px;border:1px solid #dfd7fa;border-radius:11px;background:#fff;box-shadow:0 1px 2px rgba(78,58,139,.035)}.sb-rw-live-danmaku-session-head{display:flex;align-items:center;gap:9px}.sb-rw-live-danmaku-session-head>strong{color:#30363a;font-size:13px}.sb-rw-live-danmaku-session-count{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:5px;background:#f1eff6;color:#797183;font-size:9px;font-weight:680;font-variant-numeric:tabular-nums}.sb-rw-live-danmaku-session-copy{display:grid;gap:4px;min-width:0}.sb-rw-live-danmaku-session-copy strong{overflow:hidden;color:#3d3560;font-size:12px;text-overflow:ellipsis;white-space:nowrap}.sb-rw-live-danmaku-session-copy span{overflow:hidden;color:#8a829a;font-size:9px;text-overflow:ellipsis;white-space:nowrap}.sb-rw-live-danmaku-session-metrics{display:grid;grid-template-columns:minmax(0,1fr);border-left:1px solid #eeeaf8}.sb-rw-live-danmaku-session-metric{display:grid;gap:3px;padding:0 11px;border-right:0}.sb-rw-live-danmaku-session-metric span{color:#958ea4;font-size:9px}.sb-rw-live-danmaku-session-metric strong{overflow:hidden;color:#4d436c;font-size:12px;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}.sb-rw-live-danmaku-session-note{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding-top:10px;border-top:1px solid #f0edf7;color:#777084;font-size:10px;line-height:1.5}.sb-rw-live-danmaku-session-note strong{min-width:0;overflow:hidden;color:#6c55ba;font-size:10px;font-weight:650;text-overflow:ellipsis;white-space:nowrap}
+/* Viral teardown uses a two-column workbench on desktop and collapses on tablet. */
+.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr)}
+.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:620px;max-height:none}
+.sb-rw-viral-work-identity{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding-top:3px}
+.sb-rw-viral-work-identity strong{color:#26394f;font-size:13px}.sb-rw-viral-work-identity span{color:#8290a0;font-size:10px;white-space:nowrap}
+.sb-rw-viral-source-account{color:#5477a8!important;font-weight:650}
+.sb-rw-viral-process-row{align-items:start}.sb-rw-viral-process-row.is-running{border-color:#cadbf5;background:#f7faff}.sb-rw-viral-process-row.is-running i{background:#387fd5;color:#fff;box-shadow:0 0 0 3px rgba(56,127,213,.12)}.sb-rw-viral-process-row.is-failed i{background:#fdecec;color:#b95454}.sb-rw-viral-process-copy{display:grid;gap:4px;min-width:0}.sb-rw-viral-process-copy strong{color:#3d4b5b;font-size:10px;font-weight:680}.sb-rw-viral-process-copy span{color:#8290a0;font-size:9px;line-height:1.45}.sb-rw-viral-report-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));overflow:hidden;border:1px solid #e7ebf1;border-radius:9px;background:#e7ebf1;gap:1px}.sb-rw-viral-report-metric{display:grid;gap:4px;padding:10px 8px;background:#fbfcfe}.sb-rw-viral-report-metric strong{color:#26394f;font-size:16px;line-height:1;font-variant-numeric:tabular-nums}.sb-rw-viral-report-metric span{color:#8793a1;font-size:9px;white-space:nowrap}.sb-rw-viral-live-events{display:grid;gap:0;border-top:1px solid #edf1f5}.sb-rw-viral-live-event{display:grid;grid-template-columns:20px minmax(0,1fr);gap:9px;padding:11px 0;border-bottom:1px solid #edf1f5}.sb-rw-viral-live-event>i{display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#eef2f7;color:#8a96a4;font-size:10px;font-style:normal}.sb-rw-viral-live-event.is-done>i{background:#eaf8ef;color:#197e53}.sb-rw-viral-live-event.is-running>i{background:#e9f2ff;color:#347ed5;box-shadow:0 0 0 3px rgba(52,126,213,.1)}.sb-rw-viral-live-event-copy{display:grid;gap:4px;min-width:0}.sb-rw-viral-live-event-copy strong{color:#3d4b5b;font-size:10px;font-weight:680}.sb-rw-viral-live-event-copy span{color:#8290a0;font-size:9px;line-height:1.5}.sb-rw-viral-findings{display:grid;gap:8px}.sb-rw-viral-findings h3{margin:0;color:#536170;font-size:11px;font-weight:680}.sb-rw-viral-finding{display:grid;gap:4px;padding:9px 10px;border:1px solid #e8edf3;border-radius:8px;background:#fbfcfe}.sb-rw-viral-finding span{color:#8995a3;font-size:9px}.sb-rw-viral-finding strong{color:#3d4b5b;font-size:10px;line-height:1.5}.sb-rw-viral-live-empty{display:grid;place-items:center;min-height:180px;color:#7f8c9a;font-size:11px;text-align:center}.sb-rw-viral-artifact{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;border:1px solid #d9eee2;border-radius:8px;background:#f2faf5;color:#197e53;font-size:10px;line-height:1.5}.sb-rw-viral-artifact>div{display:grid;gap:4px;min-width:0}.sb-rw-viral-artifact strong{font-size:10px;overflow-wrap:anywhere}.sb-rw-viral-artifact span{color:#5e8b72;font-size:9px}.sb-rw-viral-artifact a{flex:none;color:#277a52;font-size:10px;font-weight:680;text-decoration:none}
 @media(max-width:1200px){.sb-rw-main.is-analysis-work>.sb-rw-analysis-prospects-panel{grid-column:1/-1}}
-@media(max-width:1200px){.sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(0,1fr) minmax(300px,.9fr)}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{grid-column:1/-1}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(0,1fr)}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:0;max-height:none}}
+@media(max-width:1200px){.sb-rw-main.is-live-danmaku-analysis-work,.sb-rw-main.is-live-danmaku-outreach-work{grid-template-columns:minmax(0,1fr) minmax(300px,.9fr)}.sb-rw-main.is-live-danmaku-analysis-work>.sb-rw-live-danmaku-room-panel,.sb-rw-main.is-live-danmaku-outreach-work>.sb-rw-live-danmaku-room-panel{grid-column:1/-1}.sb-rw-main.is-viral-work-analysis-work{grid-template-columns:minmax(0,1fr)}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{min-height:0;max-height:none}.sb-rw-live-danmaku-session-context{grid-template-columns:minmax(140px,.7fr) minmax(0,1fr) minmax(140px,.6fr)}.sb-rw-live-danmaku-session-metrics{border-left:0}.sb-rw-live-danmaku-session-note{grid-column:1/-1}}
+@media(max-width:760px){.sb-rw-viral-report-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.sb-rw-viral-work-identity{display:grid;gap:3px}.sb-rw-viral-work-identity span{white-space:normal}.sb-rw-viral-artifact{align-items:flex-start;flex-direction:column}}
+/* Keep live outreach selection neutral so pending users do not carry the red left marker. */
+.sb-rw-main.is-live-danmaku-outreach-work .sb-rw-outreach-specialist-person.is-selected{box-shadow:none}
 /* Keep the empty state within the page body's available height after the account rail. */
 .sb-page.sb-page-realtime-work > .sb-page-body{min-height:0}
-.sb-page.sb-page-realtime-work > .sb-page-body > .sb-realtime-page{display:flex;flex-direction:column;min-height:100%;height:100%}
+.sb-page.sb-page-realtime-work > .sb-page-body > .sb-realtime-page{display:flex;flex-direction:column;min-height:100%}
 .sb-rw-account-section{flex:0 0 auto}
 .sb-rw-no-account{display:flex;flex:1 1 auto;align-items:center;justify-content:center;min-height:320px;overflow:auto}
 .sb-rw-no-account-inner{width:min(100%,360px);max-width:100%;padding:16px 0}
 @media (max-width:760px){.sb-rw-no-account{min-height:300px;padding:32px 16px}.sb-rw-no-account-inner{width:min(100%,340px)}.sb-rw-no-account strong{font-size:16px}.sb-rw-no-account span{font-size:11px;line-height:1.6}}
-@media (max-height:720px){.sb-realtime-page{padding-top:16px;padding-bottom:20px}.sb-rw-account-section{margin-bottom:12px}.sb-rw-no-account{min-height:280px;padding-top:24px;padding-bottom:24px}.sb-rw-no-account-inner{gap:9px;padding:8px 0}.sb-rw-no-account-art{width:74px;height:68px;margin-bottom:0}.sb-rw-no-account-art img{width:64px;height:64px}.sb-rw-no-account button{margin-top:2px}}
+@media(max-width:760px){.sb-rw-live-danmaku-session-context{grid-template-columns:1fr;gap:12px;padding:13px}.sb-rw-live-danmaku-session-metrics{grid-template-columns:1fr;width:100%;border-top:1px solid #eeeaf8;border-left:0;padding-top:10px}.sb-rw-live-danmaku-session-metric{padding:0}.sb-rw-live-danmaku-session-note{display:grid;gap:5px;justify-content:stretch}.sb-rw-live-danmaku-session-note strong{white-space:normal}}
+@media (max-height:720px){.sb-realtime-page{padding-top:16px;padding-bottom:48px}.sb-rw-account-section{margin-bottom:12px}.sb-rw-no-account{min-height:280px;padding-top:24px;padding-bottom:24px}.sb-rw-no-account-inner{gap:9px;padding:8px 0}.sb-rw-no-account-art{width:74px;height:68px;margin-bottom:0}.sb-rw-no-account button{margin-top:2px}}
+.sb-rw-live-danmaku-session-context.is-waiting{grid-template-columns:auto minmax(0,1fr);gap:14px;margin-bottom:8px;padding:10px 16px;border-color:#e5e8ee;box-shadow:none}.sb-rw-live-danmaku-session-context.is-waiting .sb-rw-live-danmaku-session-head{gap:7px}.sb-rw-live-danmaku-session-context.is-waiting .sb-rw-live-danmaku-session-head>strong{font-size:12px}.sb-rw-live-danmaku-session-context.is-waiting .sb-rw-live-danmaku-session-copy{gap:2px}.sb-rw-live-danmaku-session-context.is-waiting .sb-rw-live-danmaku-session-copy strong{color:#30363a;font-size:12px}.sb-rw-live-danmaku-session-context.is-waiting .sb-rw-live-danmaku-session-copy span{font-size:9px}@media(max-width:760px){.sb-rw-live-danmaku-session-context.is-waiting{grid-template-columns:auto minmax(0,1fr);gap:10px;padding:10px 12px}}
+.sb-rw-account-card.is-provisioning{overflow:hidden;cursor:default;border-color:#cfe4da;background:#fcfffd}.sb-rw-account-card.is-provisioning::after{position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(34,180,118,.07) 49%,transparent 68%);content:"";transform:translateX(-115%);animation:sb-rw-account-onboarding-shimmer 2.6s ease-in-out infinite}.sb-rw-account-card.is-provisioning:hover{border-color:#b9dccc;transform:none}.sb-rw-account-card.is-onboarded{cursor:default}.sb-rw-account-setup-progress{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:7px;margin-top:7px;color:#2a956c;font-size:9px;font-variant-numeric:tabular-nums}.sb-rw-account-setup-progress-track{height:4px;overflow:hidden;border-radius:999px;background:#e3efe9}.sb-rw-account-setup-progress-track i{display:block;height:100%;border-radius:inherit;background:#20ad75;transition:width .7s cubic-bezier(.2,.8,.2,1)}.sb-rw-account-card.is-provisioning .sb-rw-account-status i{background:#2f80ed;box-shadow:0 0 0 3px rgba(47,128,237,.12);animation:sb-rw-account-connecting-pulse 1.35s ease-in-out infinite}.sb-rw-account-card.is-provisioning .sb-rw-account-capability-summary{color:#2f80ed}.sb-rw-acquisition-running i{animation:sb-rw-queue-live-pulse 1.45s ease-in-out infinite}.sb-rw-acquisition-queue-panel .sb-rw-acquisition-person.is-entering{animation:sb-rw-queue-person-enter .42s cubic-bezier(.2,.75,.25,1) both}.sb-rw-acquisition-queue-panel .sb-rw-acquisition-person.is-progressing .sb-rw-acquisition-progress{animation:sb-rw-queue-state-change .9s ease-out both}.sb-rw-acquisition-queue-panel .sb-rw-acquisition-person.is-progressing .sb-rw-acquisition-progress i{animation:sb-rw-queue-progress-pulse .9s ease-out both}@keyframes sb-rw-account-onboarding-shimmer{0%{transform:translateX(-115%)}56%,100%{transform:translateX(125%)}}@keyframes sb-rw-account-connecting-pulse{0%,100%{opacity:.55;transform:scale(.88)}50%{opacity:1;transform:scale(1)}}@keyframes sb-rw-queue-live-pulse{0%,100%{opacity:.55;transform:scale(.86)}50%{opacity:1;transform:scale(1)}}@keyframes sb-rw-queue-person-enter{0%{opacity:0;transform:translateY(11px)}100%{opacity:1;transform:translateY(0)}}@keyframes sb-rw-queue-state-change{0%{filter:brightness(1)}34%{filter:brightness(.74)}100%{filter:brightness(1)}}@keyframes sb-rw-queue-progress-pulse{0%{transform:scale(.75)}55%{transform:scale(1.35)}100%{transform:scale(1)}}@media(prefers-reduced-motion:reduce){.sb-rw-account-card.is-provisioning::after,.sb-rw-account-card.is-provisioning .sb-rw-account-status i,.sb-rw-acquisition-running i,.sb-rw-acquisition-queue-panel .sb-rw-acquisition-person.is-entering,.sb-rw-acquisition-queue-panel .sb-rw-acquisition-person.is-progressing .sb-rw-acquisition-progress,.sb-rw-acquisition-queue-panel .sb-rw-acquisition-person.is-progressing .sb-rw-acquisition-progress i{animation:none}}
+.sb-rw-acquisition-arrival{display:flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid #dce8f7;border-radius:8px;background:#f5f9ff;color:#2f80ed;font-size:10px;font-weight:650;animation:sb-rw-queue-arrival .4s cubic-bezier(.2,.75,.25,1) both}.sb-rw-acquisition-arrival i{width:7px;height:7px;flex:none;border-radius:50%;background:#2f80ed;box-shadow:0 0 0 4px rgba(47,128,237,.12);animation:sb-rw-queue-progress-pulse .9s ease-out both}.sb-rw-acquisition-running.is-new{color:#2f80ed;font-weight:650;animation:sb-rw-queue-arrival .35s ease-out both}@keyframes sb-rw-queue-arrival{0%{opacity:0;transform:translateY(-5px)}100%{opacity:1;transform:translateY(0)}}@media(prefers-reduced-motion:reduce){.sb-rw-acquisition-arrival,.sb-rw-acquisition-arrival i,.sb-rw-acquisition-running.is-new{animation:none}}
+@media(max-width:760px){.sb-rw-main.is-viral-work-analysis-work{display:block}.sb-rw-main.is-viral-work-analysis-work>.sb-rw-panel{margin-bottom:12px}}
+.sb-rw-viral-process-row.is-running i,.sb-rw-viral-live-event.is-running>i{animation:sb-rw-viral-live-pulse 1.35s ease-in-out infinite}@keyframes sb-rw-viral-live-pulse{0%,100%{opacity:.55;transform:scale(.88)}50%{opacity:1;transform:scale(1)}}@keyframes sb-rw-viral-progress-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}@media(prefers-reduced-motion:reduce){.sb-rw-viral-process-row.is-running i,.sb-rw-viral-live-event.is-running>i,.sb-rw-viral-progress i::after{animation:none}}
 `;
 
 function ensureStyle() {
@@ -2432,7 +2730,7 @@ export function liveDanmakuOutreachQuotaFor(work = {}) {
       work.agentName,
       metadata.agentName,
       getMarketplaceAgent(work.agentType)?.name,
-      "电商直播间未成交客户触达"
+      "直播追单助理"
     ),
     accountLabel: acquisitionText(metadata.accountLabel, work.accountLabel, "当前抖音账号"),
     ...(accountId ? { accountId } : {}),
@@ -3271,13 +3569,14 @@ export function normalizeAcquisitionRealtimeMetadata(agentId, source = {}, progr
 
 export function acquisitionRealtimeViewModel(agentId, work = {}) {
   const metadata = normalizeAcquisitionRealtimeMetadata(agentId, work, work.progress);
+  const simulatedView = work?.metadata?.mockAcquisitionSimulation ? commentAcquisitionRealtimeView(work) : null;
   return {
     agentId: String(agentId || ""),
     ...metadata,
     phase: String(work.phase || "等待真实阶段").trim(),
     task: String(work.task || "等待真实任务").trim(),
     pendingApprovalCount: metadata.pendingApprovalCount,
-    recentSignal: String(work.activities?.at(-1) || metadata.latestSignal || "等待真实工作动态").trim(),
+    recentSignal: String(simulatedView?.latestActivity || work.activities?.at(-1) || metadata.latestSignal || "等待真实工作动态").trim(),
     lastError: work.lastError || null
   };
 }
@@ -3665,6 +3964,92 @@ function acquisitionSnapshotFor(work = {}) {
   return Object.keys(resultSnapshot).length ? { resultSnapshot } : {};
 }
 
+function mockAcquisitionSnapshotFor(work = {}) {
+  const snapshot = acquisitionSnapshotFor(work);
+  const simulation = acquisitionObject(work?.metadata?.mockAcquisitionSimulation);
+  const timeline = acquisitionArray(simulation.leadTimeline);
+  const startedAt = Number(simulation.startedAt);
+  if (!timeline.length || !Number.isFinite(startedAt)) return snapshot;
+
+  const elapsed = Math.max(0, Date.now() - startedAt);
+  const baseResult = acquisitionObject(snapshot.resultSnapshot || snapshot.snapshot);
+  const baseLeads = acquisitionArray(baseResult.leads || baseResult.candidates || snapshot.leads || snapshot.candidates);
+  const leadById = new Map(baseLeads.map((lead) => [acquisitionLeadKey(lead), lead]));
+  const activeTimeline = timeline.filter((item) => {
+    const revealAt = Number(item?.revealAtMs ?? item?.revealAt ?? 0);
+    return Number.isFinite(revealAt) && elapsed >= revealAt && leadById.has(acquisitionText(item?.leadId, item?.lead_id));
+  });
+  const activeIds = new Set(activeTimeline.map((item) => acquisitionText(item?.leadId, item?.lead_id)).filter(Boolean));
+  const visibleLeads = baseLeads.filter((lead) => activeIds.has(acquisitionLeadKey(lead)));
+  const phaseFor = (leadId) => {
+    const item = timeline.find((candidate) => acquisitionText(candidate?.leadId, candidate?.lead_id) === leadId);
+    const phases = acquisitionArray(item?.phases);
+    return [...phases].reverse().find((phase) => elapsed >= Number(phase?.atMs ?? phase?.at ?? 0)) || { state: "queued" };
+  };
+  const baseQueue = acquisitionArray(snapshot.approvalQueue);
+  const visibleQueue = baseQueue
+    .filter((touch) => activeIds.has(acquisitionLeadKey(touch)))
+    .map((touch) => {
+      const leadId = acquisitionLeadKey(touch);
+      const phase = phaseFor(leadId);
+      const state = acquisitionText(phase.state, touch.state, touch.status, "queued").toLowerCase();
+      const next = { ...touch, state, status: state };
+      if (["sent", "delivered"].includes(state)) {
+        const phaseAt = Number(phase?.atMs ?? phase?.at ?? 0);
+        next.receipt = {
+          ...acquisitionObject(touch.receipt),
+          state,
+          sentAt: touch.receipt?.sentAt || new Date(startedAt + (Number.isFinite(phaseAt) ? phaseAt : 0)).toISOString()
+        };
+      } else {
+        delete next.receipt;
+      }
+      return next;
+    });
+  const replyAtFor = (leadId) => {
+    const item = timeline.find((candidate) => acquisitionText(candidate?.leadId, candidate?.lead_id) === leadId);
+    const value = item?.replyAtMs ?? item?.replyAt;
+    return value == null ? Number.POSITIVE_INFINITY : Number(value);
+  };
+  const replies = acquisitionArray(snapshot.replies).filter((reply) => {
+    const leadId = acquisitionLeadKey(reply);
+    return activeIds.has(leadId) && elapsed >= replyAtFor(leadId);
+  });
+  const sentCount = visibleQueue.filter((touch) => ["sent", "delivered"].includes(acquisitionText(touch.state, touch.status).toLowerCase())).length;
+  const deliveredCount = visibleQueue.filter((touch) => acquisitionText(touch.state, touch.status).toLowerCase() === "delivered").length;
+  const capturedCount = replies.filter((reply) => Object.keys(acquisitionObject(reply.leadCapture || reply.capture || reply.contact)).length).length;
+  const baseCounters = acquisitionObject(snapshot.counters);
+  const activity = replies.length
+    ? `已收到 ${replies.length} 位潜客回复，继续推进后续对话`
+    : visibleQueue.length
+      ? `已发现 ${visibleLeads.length} 位符合条件的潜客，正在按优先级推进`
+      : "正在监听新增评论、直播互动和账号通知";
+  return {
+    ...snapshot,
+    counters: {
+      ...baseCounters,
+      candidates: visibleLeads.length,
+      sent: sentCount,
+      delivered: deliveredCount,
+      replies: replies.length,
+      captured: capturedCount
+    },
+    lastScan: {
+      ...acquisitionObject(snapshot.lastScan),
+      notifications: Math.min(Number(baseCounters.comments || snapshot.lastScan?.notifications || 86), 12 + visibleLeads.length * 10)
+    },
+    resultSnapshot: {
+      ...baseResult,
+      leads: visibleLeads,
+      counts: { ...acquisitionObject(baseResult.counts), candidates: visibleLeads.length, captured: capturedCount }
+    },
+    candidateProfiles: Object.fromEntries(visibleLeads.map((lead) => [acquisitionLeadKey(lead), lead])),
+    approvalQueue: visibleQueue,
+    replies,
+    events: [{ message: activity }]
+  };
+}
+
 function acquisitionAvatarSource(...values) {
   for (const value of values) {
     const source = acquisitionObject(value);
@@ -3874,7 +4259,7 @@ function acquisitionWorkEntries(snapshot = {}, result = {}, lastScan = {}) {
 }
 
 export function commentAcquisitionRealtimeView(work = {}) {
-  const snapshot = acquisitionSnapshotFor(work);
+  const snapshot = mockAcquisitionSnapshotFor(work);
   const result = acquisitionObject(snapshot.resultSnapshot || snapshot.snapshot);
   const lastScan = acquisitionObject(snapshot.lastScan || result.lastScan);
   const counters = acquisitionObject(snapshot.counters);
@@ -3945,7 +4330,9 @@ export function commentAcquisitionRealtimeView(work = {}) {
     converted: acquisitionNumber(counters.converted, counters.conversions, counters.completedLeads, result.counts?.converted),
     works,
     people,
-    latestActivity: acquisitionText(work.activities?.at?.(-1), snapshot.events?.at?.(-1)?.message, snapshot.events?.at?.(-1)?.description),
+    latestActivity: work?.metadata?.mockAcquisitionSimulation
+      ? acquisitionText(snapshot.events?.at?.(-1)?.message, snapshot.events?.at?.(-1)?.description, work.activities?.at?.(-1))
+      : acquisitionText(work.activities?.at?.(-1), snapshot.events?.at?.(-1)?.message, snapshot.events?.at?.(-1)?.description),
     hasSnapshot: Boolean(Object.keys(snapshot).length)
   };
 }
@@ -3959,7 +4346,7 @@ function acquisitionConversationStatus({ incomingContent, replyContent, touchCon
 }
 
 export function commentAcquisitionConversationRows(work = {}) {
-  const snapshot = acquisitionSnapshotFor(work);
+  const snapshot = mockAcquisitionSnapshotFor(work);
   const queue = acquisitionArray(snapshot.approvalQueue);
   const replies = acquisitionArray(snapshot.replies);
   const groups = new Map();
@@ -4081,19 +4468,62 @@ function liveDanmakuOutreachRows(work = {}) {
 
 export function liveDanmakuAnalysisRealtimeView(work = {}) {
   const snapshot = acquisitionSnapshotFor(work);
-  const result = acquisitionObject(snapshot.resultSnapshot || snapshot.snapshot);
-  const analysis = acquisitionObject(
+  let result = acquisitionObject(snapshot.resultSnapshot || snapshot.snapshot);
+  let analysis = acquisitionObject(
     result.danmakuAnalysis
       || snapshot.danmakuAnalysis
       || work?.metadata?.danmakuAnalysis
   );
-  const collection = acquisitionObject(result.collectionSnapshot || snapshot.collectionSnapshot || work?.metadata?.collectionSnapshot);
+  let collection = acquisitionObject(result.collectionSnapshot || snapshot.collectionSnapshot || work?.metadata?.collectionSnapshot);
+  const mockLiveAnalysis = acquisitionObject(work?.metadata?.mockLiveAnalysis);
+  if (Array.isArray(mockLiveAnalysis.events) && mockLiveAnalysis.events.length) {
+    const elapsed = Math.max(0, Date.now() - Number(mockLiveAnalysis.startedAt || Date.now()));
+    const collectedCount = elapsed < 2000 ? 3 : elapsed < 6000 ? 7 : mockLiveAnalysis.events.length;
+    const collectedEvents = mockLiveAnalysis.events.slice(0, collectedCount);
+    const collectedUsers = mockLiveAnalysisUsers(collectedEvents);
+    const mockComplete = elapsed >= 12000;
+    const mockCounts = {
+      danmaku: collectedEvents.length,
+      total: collectedEvents.length,
+      uniqueUsers: collectedUsers.length,
+      questions: collectedEvents.filter((event) => /[？?]|吗|多少|怎么|需要|支持|能/.test(event?.quote || "")).length,
+      highIntent: collectedUsers.filter((user) => user.intentTier === "high").length
+    };
+    collection = {
+      ...collection,
+      state: mockComplete ? "ended" : "collecting",
+      sourceState: "connected",
+      sessionId: mockLiveAnalysis.session?.id || "mock-live-session",
+      roomId: mockLiveAnalysis.session?.roomId || "mock-live-room",
+      roomTitle: mockLiveAnalysis.session?.title || "当前直播场次",
+      startedAt: mockLiveAnalysis.session?.startedAt || "",
+      totalDanmaku: collectedEvents.length,
+      uniqueUsers: collectedUsers.length,
+      counts: mockCounts,
+      users: collectedUsers
+    };
+    result = {
+      ...result,
+      status: mockComplete ? "completed" : "collecting",
+      counts: mockCounts,
+      liveSession: {
+        ...mockLiveAnalysis.session,
+        state: mockComplete ? "completed" : "collecting",
+        ...(mockComplete ? { endedAt: new Date().toISOString() } : {})
+      }
+    };
+    if (mockComplete && Object.keys(mockLiveAnalysis.finalAnalysis || {}).length) {
+      analysis = { ...analysis, ...mockLiveAnalysis.finalAnalysis };
+    }
+  }
   const taskState = acquisitionText(snapshot.taskState, result.taskState, work?.metadata?.taskState).toLowerCase();
   const resultStatus = acquisitionText(result.status, snapshot.status).toLowerCase();
   const isFinal = resultStatus === "collecting"
     ? false
     : Boolean(analysis.users?.length || ["completed", "succeeded", "success", "done"].includes(taskState) || collection.state === "ended");
-  const rawUsers = isFinal ? acquisitionArray(analysis.users || result.leads || snapshot.leads) : [];
+  const rawUsers = isFinal
+    ? acquisitionArray(analysis.users || result.leads || snapshot.leads)
+    : acquisitionArray(collection.users || collection.samples || result.liveUsers || snapshot.liveUsers);
   const people = rawUsers.map((user, index) => {
     const evidence = acquisitionArray(user?.evidence).map((item) => ({
       quote: acquisitionText(item?.quote, item?.text, item?.content, item?.message),
@@ -4130,6 +4560,33 @@ export function liveDanmakuAnalysisRealtimeView(work = {}) {
     ...acquisitionObject(result.counts),
     ...acquisitionObject(analysis.counts)
   };
+  const sourceSession = acquisitionObject(result.liveSession || snapshot.liveSession || collection.session);
+  const liveSourceState = acquisitionText(snapshot.lastScan?.sources?.live?.state, result.sources?.live?.state, collection.sourceState) || "waiting";
+  const sessionState = isFinal ? "completed" : ["waiting", "offline", "idle"].includes(liveSourceState.toLowerCase()) ? "waiting" : "collecting";
+  const roomId = acquisitionText(sourceSession.roomId, sourceSession.room_id, collection.roomId, collection.room_id, analysis.roomId, analysis.room_id);
+  const sessionTitle = acquisitionText(sourceSession.title, sourceSession.roomTitle, sourceSession.room_title, collection.roomTitle, collection.room_title);
+  const session = sourceSession.id || roomId || sessionState !== "waiting"
+    ? {
+      id: acquisitionText(sourceSession.id, collection.sessionId, roomId, "current-live-session"),
+      roomId,
+      title: sessionTitle || "当前直播场次",
+      state: acquisitionText(sourceSession.state, sessionState),
+      startedAt: acquisitionText(sourceSession.startedAt, sourceSession.started_at, collection.startedAt, collection.started_at),
+      endedAt: acquisitionText(sourceSession.endedAt, sourceSession.ended_at)
+    }
+    : null;
+  const sessions = acquisitionArray(result.liveSessions || snapshot.liveSessions || work?.metadata?.liveDanmakuSessions)
+    .map((item, index) => ({
+      id: acquisitionText(item?.id, item?.sessionId, item?.roomId, `archived-live-session-${index + 1}`),
+      roomId: acquisitionText(item?.roomId, item?.room_id),
+      title: acquisitionText(item?.title, item?.roomTitle, item?.room_title, "已归档直播场次"),
+      state: acquisitionText(item?.state, "completed"),
+      startedAt: acquisitionText(item?.startedAt, item?.started_at),
+      endedAt: acquisitionText(item?.endedAt, item?.ended_at),
+      counts: acquisitionObject(item?.collectionSnapshot?.counts || item?.collectionSnapshot),
+      analysis: acquisitionObject(item?.analysis)
+    }))
+    .sort((left, right) => Date.parse(right.endedAt || right.startedAt || "") - Date.parse(left.endedAt || left.startedAt || ""));
   return {
     analysis,
     optimization,
@@ -4142,7 +4599,9 @@ export function liveDanmakuAnalysisRealtimeView(work = {}) {
       uniqueUsers: acquisitionNumber(collection.uniqueUsers, counts.uniqueUsers, counts.unique_users, people.length)
     },
     goal: acquisitionText(analysis.goal, work?.metadata?.configuration?.audienceRules?.goal, work?.metadata?.goal),
-    liveSourceState: acquisitionText(snapshot.lastScan?.sources?.live?.state, result.sources?.live?.state) || "waiting",
+    session,
+    sessions,
+    liveSourceState,
     collection,
     isFinal,
     status: acquisitionText(result.status, taskState, "collecting"),
@@ -4209,17 +4668,31 @@ export function viralWorkAnalysisRealtimeView(work = {}) {
     : "idle";
   const progress = acquisitionNumber(work.progress, metadata.progress);
   const completed = ["completed", "succeeded", "success", "done", "partial"].includes(status.toLowerCase()) || work.state === "done";
-  const process = acquisitionArray(result.analysisProcess);
+  const process = acquisitionArray(result.analysisProcess || metadata.analysisProcess);
   const phase = acquisitionText(work.phase, metadata.phase, metadata.progressPhase);
   const phaseKey = {
     "校验作品链接": "link",
     "读取公开作品详情": "metadata",
+    "读取作品公开信息": "metadata",
     "整理公开评论": "comments",
+    "分析评论区": "comments",
     "解析视频内容": "video",
+    "分析画面与口播": "video",
     "选择视频代表画面": "frames",
+    "整理爆款成因": "synthesis",
+    "输出可复制 SOP": "synthesis",
     "生成分析报告": "synthesis",
     "分析报告已生成": "synthesis"
   }[phase] || "";
+  const stepKeys = ["link", "metadata", "comments", "video", "frames", "synthesis"];
+  const stepDetails = {
+    link: "确认链接可访问，并校验公开内容读取范围",
+    metadata: "读取标题、作者、时长和公开互动指标",
+    comments: "按热度采样评论并聚类主题、问题和争议",
+    video: "解析画面、口播、字幕和时间结构",
+    frames: "从内容转折点中选择可回看的代表画面",
+    synthesis: "把证据、成因和下一轮测试整理成报告"
+  };
   const steps = [
     ["link", "校验作品链接"],
     ["metadata", "读取公开作品详情"],
@@ -4228,8 +4701,8 @@ export function viralWorkAnalysisRealtimeView(work = {}) {
     ["frames", "选择视频代表画面"],
     ["synthesis", "生成分析报告"]
   ].map(([key, title], index) => {
-    const stored = process.find((item) => item?.key === key);
-    const currentIndex = ["link", "metadata", "comments", "video", "frames", "synthesis"].indexOf(phaseKey);
+    const stored = process.find((item) => item?.key === key || item?.id === key || item?.title === title);
+    const currentIndex = stepKeys.indexOf(phaseKey);
     const fallbackStatus = completed
       ? "completed"
       : currentIndex >= 0
@@ -4238,22 +4711,32 @@ export function viralWorkAnalysisRealtimeView(work = {}) {
           ? index === 0 ? "completed" : "running"
           : "queued";
     const stepStatus = acquisitionText(stored?.status, fallbackStatus) || fallbackStatus;
-    return { key, title, status: stepStatus, detail: acquisitionText(stored?.detail) };
+    return { key, title, status: stepStatus, detail: acquisitionText(stored?.detail, stepDetails[key]) };
   });
+  const metrics = acquisitionObject(result.metrics || result.work?.metrics);
+  const videoAnalysis = acquisitionObject(result.videoAnalysis);
+  const audience = acquisitionObject(result.audience);
+  const content = acquisitionObject(result.content);
   return {
     result,
     status,
     progress,
     sourceUrl: acquisitionText(metadata.sourceUrl, metadata.source_url, result.sourceUrl, result.inputs?.workUrl),
+    accountName: acquisitionText(metadata.accountName, metadata.accountLabel),
     hasStartedTask,
     goal: acquisitionText(metadata.goal, result.goal),
     phase,
-    title: acquisitionText(result.title, "爆款作品分析报告"),
+    title: acquisitionText(result.title, "抖音爆款视频拆解报告"),
     summary: acquisitionText(result.summary, work.task, "等待分析服务回传"),
     work: acquisitionObject(result.work),
-    metrics: acquisitionObject(result.metrics || result.work?.metrics),
+    metrics,
+    content,
+    videoAnalysis,
+    audience,
+    reportTemplate: acquisitionText(result.reportTemplate, metadata.reportTemplate, "viral-teardown-v1"),
     steps,
-    artifact: acquisitionText(work.artifact),
+    artifact: acquisitionText(work.artifact, result.artifacts?.[0]?.name, result.artifacts?.[0]?.fileName),
+    artifactUrl: acquisitionText(result.artifacts?.[0]?.url, result.artifacts?.[0]?.href),
     hasResult: Boolean(Object.keys(result).length)
   };
 }
@@ -5084,18 +5567,63 @@ function renderLiveDanmakuLiveRoomPanel(selected, state, title = "", subtitle = 
   return panel;
 }
 
+function renderLiveDanmakuSessionContext(view = {}) {
+  const section = el("section", "sb-rw-live-danmaku-session-context");
+  const current = view.session;
+  const latestCompleted = view.sessions?.[0] || null;
+  const waitingForLive = !current && !view.isFinal;
+  const sessionCount = (current ? 1 : 0) + (Array.isArray(view.sessions) ? view.sessions.length : 0);
+  if (waitingForLive) section.classList.add("is-waiting");
+  const head = el("div", "sb-rw-live-danmaku-session-head");
+  head.append(
+    el("strong", null, "直播场次"),
+    el("span", "sb-rw-live-danmaku-session-count", `${sessionCount} 场`)
+  );
+  const copy = el("div", "sb-rw-live-danmaku-session-copy");
+  copy.append(
+    el("strong", null, current?.title || "等待下一场直播"),
+    el("span", null, current?.roomId ? `直播间 ID：${current.roomId}` : current ? "本场正在持续收集用户反馈" : "开播后自动创建场次并开始采集")
+  );
+  if (waitingForLive) {
+    section.append(head, copy);
+    return section;
+  }
+  const metrics = el("div", "sb-rw-live-danmaku-session-metrics");
+  const sourceState = String(view.liveSourceState || "waiting").toLowerCase();
+  [
+    ["本场弹幕", `${acquisitionNumber(view.counts?.danmaku)} 条`]
+  ].forEach(([label, value]) => {
+    const item = el("div", "sb-rw-live-danmaku-session-metric");
+    item.append(el("span", null, label), el("strong", null, value));
+    metrics.appendChild(item);
+  });
+  const note = el("div", "sb-rw-live-danmaku-session-note");
+  const noteCopy = view.isFinal
+    ? "本场报告已归档，Agent 会继续等待下一场直播。"
+    : sourceState === "waiting"
+      ? "Agent 正在持续监听已授权账号，检测到开播后会自动建立新场次。"
+      : "本场结束后会自动归档采集结果并生成报告，随后继续等待下一场直播。";
+  note.append(el("span", null, noteCopy));
+  if (latestCompleted && !view.isFinal) {
+    const count = acquisitionNumber(latestCompleted.counts?.totalDanmaku, latestCompleted.counts?.danmaku);
+    note.appendChild(el("strong", null, `最近归档：${latestCompleted.title} · ${count} 条弹幕`));
+  }
+  section.append(head, copy, metrics, note);
+  return section;
+}
+
 function renderLiveDanmakuAnalysisQueuePanel(view, activePerson, state, onChange) {
   const panel = el("article", "sb-rw-panel sb-rw-acquisition-queue-panel sb-rw-live-danmaku-analysis-queue-panel");
   const head = el("div", "sb-rw-panel-head sb-rw-acquisition-head");
   const running = el("span", "sb-rw-acquisition-running");
-    running.append(el("i"), el("span", null, view.isFinal ? `${view.people.length} 位用户反馈已整理` : `${view.counts.danmaku} 条弹幕已采集`));
-  head.append(el("div", "sb-rw-panel-title", "弹幕分析队列"), running);
+    running.append(el("i"), el("span", null, view.isFinal ? `${view.people.length} 位用户反馈已整理` : `本场 ${view.counts.danmaku} 条弹幕已采集`));
+  head.append(el("div", "sb-rw-panel-title", "本场弹幕采集"), running);
   panel.appendChild(head);
   const body = el("div", `sb-rw-acquisition-queue-body${view.people.length ? "" : " is-empty"}`);
   const list = el("div", "sb-rw-acquisition-people");
   if (!view.people.length) {
     const empty = el("div", "sb-rw-acquisition-empty");
-    empty.append(el("i"), el("strong", null, view.isFinal ? "整场暂无可整理弹幕" : "持续采集直播间弹幕"), el("span", null, view.isFinal ? "本场没有可用于分析的文字弹幕。" : "直播结束后，我会基于整场弹幕统一生成优化策略。"));
+    empty.append(el("i"), el("strong", null, view.isFinal ? "本场暂无可整理弹幕" : view.session ? "持续采集本场直播弹幕" : "等待下一场直播"), el("span", null, view.isFinal ? "本场没有可用于分析的文字弹幕。" : view.session ? "本场结束后，我会基于整场弹幕统一生成优化策略。" : "检测到授权账号开播后，会自动创建新场次并开始采集。"));
     list.appendChild(empty);
   } else {
     view.people.slice(0, 30).forEach((person) => {
@@ -5191,15 +5719,15 @@ function renderLiveDanmakuAnalysisProcessPanel(view) {
 function renderLiveDanmakuAnalysisDetailPanel(view, person) {
   const panel = el("article", "sb-rw-panel sb-rw-acquisition-detail-panel sb-rw-live-danmaku-analysis-detail-panel");
   const head = el("div", "sb-rw-panel-head");
-  head.append(el("div", "sb-rw-panel-title", person ? "分析过程与用户反馈" : "分析过程"), el("span", "sb-rw-panel-sub", view.isFinal ? "本场已完成" : "直播结束后统一运行"));
+  head.append(el("div", "sb-rw-panel-title", person ? "本场分析过程与用户反馈" : "本场分析过程"), el("span", "sb-rw-panel-sub", view.isFinal ? "本场已归档" : view.session ? "本场结束后统一运行" : "等待下一场直播"));
   panel.appendChild(head);
   const body = el("div", "sb-rw-acquisition-detail-body");
   body.appendChild(renderLiveDanmakuAnalysisProcessPanel(view));
   if (!person) {
     const empty = el("div", "sb-rw-live-danmaku-analysis-outcome");
     empty.append(
-      el("strong", null, view.isFinal ? "本场暂无可分析用户" : "分析结果将在直播结束后生成"),
-      el("span", null, view.isFinal ? "本场没有返回可用于分析的文字弹幕。" : "中间列展示采集到的原始弹幕，这里展示 Agent 如何把原始内容整理成结论。")
+      el("strong", null, view.isFinal ? "本场暂无可分析用户" : view.session ? "分析结果将在本场结束后生成" : "等待下一场直播开始"),
+      el("span", null, view.isFinal ? "本场没有返回可用于分析的文字弹幕。" : view.session ? "中间列展示本场采集到的原始弹幕；报告归档后，Agent 会继续等待下一场直播。" : "Agent 会持续监听已授权账号，并在检测到开播后创建新的直播场次。")
     );
     body.appendChild(empty);
     panel.appendChild(body);
@@ -5233,8 +5761,8 @@ function renderLiveDanmakuAnalysisDetailPanel(view, person) {
   return panel;
 }
 
-function renderLiveDanmakuAnalysisWorksite(selected, state, onChange) {
-  const view = liveDanmakuAnalysisRealtimeView(selected.liveWork || {});
+function renderLiveDanmakuAnalysisWorksite(selected, state, onChange, existingView = null) {
+  const view = existingView || liveDanmakuAnalysisRealtimeView(selected.liveWork || {});
   const person = acquisitionSelectedPerson({ people: view.people }, state);
   return {
     liveRoomPanel: renderLiveDanmakuLiveRoomPanel(selected, state, "", "", { showHeader: false }),
@@ -5256,14 +5784,25 @@ function viralRealtimeMetricValue(value) {
   return Number.isFinite(Number(value)) ? Number(value).toLocaleString("zh-CN") : String(value);
 }
 
+function viralRealtimeStepState(step = {}) {
+  const state = String(step.status || "queued").toLowerCase();
+  if (["completed", "succeeded", "success", "done"].includes(state)) return "done";
+  if (["running", "processing", "in_progress"].includes(state)) return "running";
+  if (["failed", "error"].includes(state)) return "failed";
+  return "queued";
+}
+
 function renderViralWorkAnalysisSourcePanel(view) {
   const panel = el("article", "sb-rw-panel sb-rw-viral-source-panel");
   const head = el("div", "sb-rw-panel-head");
-  head.append(el("div", "sb-rw-panel-title", "作品输入与分析进度"), el("span", "sb-rw-panel-sub", view.status === "running" ? "执行中" : view.status === "failed" ? "异常" : "已回传"));
+  const normalizedStatus = String(view.status || "idle").toLowerCase();
+  const statusLabel = normalizedStatus === "running" ? "执行中" : ["failed", "error"].includes(normalizedStatus) ? "异常" : normalizedStatus === "idle" ? "等待输入" : normalizedStatus === "partial" ? "部分完成" : "已完成";
+  head.append(el("div", "sb-rw-panel-title", "作品输入与分析进度"), el("span", "sb-rw-panel-sub", statusLabel));
   panel.appendChild(head);
   const body = el("div", "sb-rw-viral-source-body");
   const source = el("div", "sb-rw-viral-source-link");
   source.appendChild(el("span", null, view.hasStartedTask ? "分析作品" : "任务状态"));
+  if (view.accountName) source.appendChild(el("span", "sb-rw-viral-source-account", `当前账号：${view.accountName}`));
   if (/^https?:\/\//i.test(view.sourceUrl)) {
     const link = el("a", null, view.sourceUrl);
     link.href = view.sourceUrl;
@@ -5271,6 +5810,14 @@ function renderViralWorkAnalysisSourcePanel(view) {
     link.rel = "noopener noreferrer";
     source.appendChild(link);
   } else source.appendChild(el("strong", null, view.hasStartedTask ? "作品链接未回传" : "尚未开启作品分析任务"));
+  if (view.work?.title) {
+    const identity = el("div", "sb-rw-viral-work-identity");
+    identity.append(
+      el("strong", null, `《${view.work.title}》`),
+      el("span", null, [view.work.author?.name, view.work.durationSeconds ? `${view.work.durationSeconds} 秒` : ""].filter(Boolean).join(" · "))
+    );
+    source.appendChild(identity);
+  }
   body.appendChild(source);
   if (view.goal) body.appendChild(el("div", "sb-rw-viral-goal", `分析目标：${view.goal}`));
   if (view.status === "idle") {
@@ -5278,7 +5825,7 @@ function renderViralWorkAnalysisSourcePanel(view) {
   } else if (view.status === "running") {
     const progress = el("div", "sb-rw-viral-progress");
     const fill = el("i");
-    fill.style.width = `${Math.max(0, Math.min(96, view.progress || 0))}%`;
+    fill.style.width = `${Math.max(0, Math.min(100, view.progress || 0))}%`;
     progress.appendChild(fill);
     body.append(progress, el("div", "sb-rw-viral-progress-meta", `${Math.max(0, view.progress || 0)}% · ${view.phase || view.summary}`));
   } else if (view.status === "failed" || view.status === "error") {
@@ -5288,9 +5835,11 @@ function renderViralWorkAnalysisSourcePanel(view) {
   }
   const steps = el("div", "sb-rw-viral-process");
   view.steps.forEach((step) => {
-    const done = ["completed", "succeeded", "success", "done"].includes(step.status.toLowerCase());
-    const row = el("div", `sb-rw-viral-process-row${done ? " is-done" : ""}`);
-    row.append(el("i", null, done ? "✓" : "·"), el("span", null, step.title), el("small", null, done ? "完成" : step.status === "running" ? "进行中" : "待处理"));
+    const state = viralRealtimeStepState(step);
+    const row = el("div", `sb-rw-viral-process-row is-${state}`);
+    const copy = el("div", "sb-rw-viral-process-copy");
+    copy.append(el("strong", null, step.title), el("span", null, step.detail));
+    row.append(el("i", null, state === "done" ? "✓" : state === "running" ? "•" : state === "failed" ? "!" : "·"), copy, el("small", null, state === "done" ? "完成" : state === "running" ? "进行中" : state === "failed" ? "异常" : "待处理"));
     steps.appendChild(row);
   });
   body.appendChild(steps);
@@ -5298,33 +5847,108 @@ function renderViralWorkAnalysisSourcePanel(view) {
   return panel;
 }
 
+function viralRealtimeEvents(view) {
+  const work = view.work || {};
+  const metrics = view.metrics || {};
+  const audience = view.audience || {};
+  const video = view.videoAnalysis || {};
+  const currentStep = view.steps.find((step) => viralRealtimeStepState(step) === "running");
+  const stepStateFor = (key) => viralRealtimeStepState(view.steps.find((step) => step.key === key));
+  const events = [];
+  if (view.sourceUrl) events.push({ state: "done", title: "已确认公开作品链接", detail: `${work.title ? `《${work.title}》` : "作品"}${work.author?.name ? ` · ${work.author.name}` : ""}` });
+  if (metrics.likes || metrics.comments || metrics.shares || metrics.favorites) {
+    events.push({ state: "done", title: "已读取公开互动指标", detail: `点赞 ${viralRealtimeMetricValue(metrics.likes)} · 评论 ${viralRealtimeMetricValue(metrics.comments)} · 分享 ${viralRealtimeMetricValue(metrics.shares)} · 收藏 ${viralRealtimeMetricValue(metrics.favorites)}` });
+  }
+  if (video.hook || video.structure?.length) {
+    const videoState = stepStateFor("video");
+    events.push({
+      state: videoState,
+      title: videoState === "running" ? "正在解析画面、口播和时间结构" : videoState === "queued" ? "等待解析视频内容" : "已完成画面、口播和时间结构解析",
+      detail: video.pacing || video.hook || `${video.structure?.length || 0} 个内容段落已识别`
+    });
+  }
+  if (audience.collected || audience.topics?.length) {
+    const topics = audience.topics?.slice(0, 3).map((topic) => `${topic.key || topic.label} ${topic.count || 0} 条`).join(" · ");
+    const commentsState = stepStateFor("comments");
+    events.push({ state: commentsState, title: commentsState === "running" ? "正在归类评论区主题" : commentsState === "queued" ? "等待整理公开评论" : "评论区主题已归类", detail: `${audience.collected ? `去重样本 ${audience.collected} 条` : "已获得评论样本"}${topics ? ` · ${topics}` : ""}` });
+  }
+  if (currentStep && !events.some((event) => event.state === "running")) events.push({ state: "running", title: currentStep.title, detail: currentStep.detail });
+  if (view.status === "completed") events.push({ state: "done", title: "报告已生成并同步", detail: view.artifact || "成果中心和 Agent 私信均已可查看" });
+  else if (view.status === "partial") events.push({ state: "done", title: "部分报告已生成并同步", detail: view.artifact || "可查看已形成的证据和判断，缺失数据已标注" });
+  else if (view.status === "running") events.push({ state: "queued", title: "下一步：汇总爆款成因并生成报告", detail: "证据层、风险提示和可复制 SOP 将写入同一份报告" });
+  return events;
+}
+
 function renderViralWorkAnalysisReportPanel(view) {
   const panel = el("article", "sb-rw-panel sb-rw-viral-report-panel");
   const head = el("div", "sb-rw-panel-head");
-  head.append(el("div", "sb-rw-panel-title", "实时工作动态"), el("span", "sb-rw-panel-sub", view.status === "idle" ? "尚未启动" : view.status === "running" ? "实时执行中" : "结果已发送"));
+  head.append(el("div", "sb-rw-panel-title", "实时工作动态"), el("span", "sb-rw-panel-sub", view.status === "idle" ? "尚未启动" : view.status === "running" ? "实时执行中" : view.status === "partial" ? "部分结果已发送" : "结果已发送"));
   panel.appendChild(head);
   const body = el("div", "sb-rw-viral-report-body");
   if (!view.hasResult) {
-    const empty = el("div", "sb-rw-acquisition-detail-empty");
-    empty.append(el("i"), el("strong", null, "分析完成后会通过 Agent 私信通知你"), el("span", null, "完整报告会沉淀到成果中心，这里只展示实时执行状态。"));
-    body.appendChild(empty);
+    if (view.status === "idle") {
+      const empty = el("div", "sb-rw-acquisition-detail-empty");
+      empty.append(el("i"), el("strong", null, "提交作品链接后开始分析"), el("span", null, "实时执行状态、证据和最终报告会在这里连续更新。"));
+      body.appendChild(empty);
+    } else {
+      body.appendChild(el("p", "sb-rw-viral-report-summary", view.summary || "等待分析服务回传阶段性结果"));
+      const events = el("div", "sb-rw-viral-live-events");
+      viralRealtimeEvents(view).forEach((event) => {
+        const row = el("div", `sb-rw-viral-live-event is-${event.state}`);
+        row.append(el("i", null, event.state === "done" ? "✓" : event.state === "running" ? "•" : "·"));
+        const copy = el("div", "sb-rw-viral-live-event-copy");
+        copy.append(el("strong", null, event.title), el("span", null, event.detail));
+        row.appendChild(copy);
+        events.appendChild(row);
+      });
+      if (events.children.length) body.appendChild(events);
+    }
     panel.appendChild(body);
     return panel;
   }
-  body.appendChild(el("p", "sb-rw-viral-report-summary", view.status === "completed" || view.status === "partial" ? "分析已完成，结果已发送到 Agent 私信并沉淀到成果中心。" : view.summary));
+  body.appendChild(el("p", "sb-rw-viral-report-summary", view.status === "completed" ? "分析已完成，结果已发送到 Agent 私信并沉淀到成果中心。" : view.status === "partial" ? "报告已生成并发送，但部分数据暂不可用，缺失项已在报告中标注。" : view.summary));
   const metrics = el("div", "sb-rw-viral-report-metrics");
-  [[view.metrics.views, "播放量"], [view.metrics.likes, "点赞"], [view.metrics.comments, "评论"], [view.metrics.shares, "分享"], [view.metrics.interactionRate == null ? "未返回" : `${view.metrics.interactionRate}%`, "可见互动率"]].forEach(([value, label]) => {
+  [[view.metrics.likes, "点赞"], [view.metrics.comments, "评论"], [view.metrics.shares, "分享"], [view.metrics.favorites, "收藏"], [view.metrics.shareLikeRatio == null ? "未返回" : view.metrics.shareLikeRatio, "分享 / 点赞"]].forEach(([value, label]) => {
     const item = el("div", "sb-rw-viral-report-metric");
     item.append(el("strong", null, viralRealtimeMetricValue(value)), el("span", null, label));
     metrics.appendChild(item);
   });
   body.appendChild(metrics);
-  const work = view.work || {};
-  const content = view.result.content || {};
-  const facts = el("div", "sb-rw-viral-report-facts");
-  [["作品", work.title || work.description], ["作者", work.author?.name], ["开头抓手", content.hook], ["下一步验证", view.result.recommendations?.nextTests?.[0]]].filter(([, value]) => value).forEach(([label, value]) => facts.appendChild(el("div", null, `${label}：${value}`)));
-  body.appendChild(facts);
-  if (view.artifact) body.appendChild(el("div", "sb-rw-viral-artifact", `已生成报告：${view.artifact}`));
+  const events = el("div", "sb-rw-viral-live-events");
+  viralRealtimeEvents(view).forEach((event) => {
+    const row = el("div", `sb-rw-viral-live-event is-${event.state}`);
+    row.append(el("i", null, event.state === "done" ? "✓" : event.state === "running" ? "•" : "·"));
+    const copy = el("div", "sb-rw-viral-live-event-copy");
+    copy.append(el("strong", null, event.title), el("span", null, event.detail));
+    row.appendChild(copy);
+    events.appendChild(row);
+  });
+  body.appendChild(events);
+  const content = view.content || {};
+  const video = view.videoAnalysis || {};
+  const nextTest = view.result.recommendations?.nextTests?.[0];
+  const findings = el("div", "sb-rw-viral-findings");
+  findings.appendChild(el("h3", null, "当前已形成的判断"));
+  [["内容抓手", content.hook || video.hook], ["评论信号", view.audience?.representativeComments?.[0] || view.audience?.questions?.[0]], ["下一步测试", nextTest]].filter(([, value]) => value).forEach(([label, value]) => {
+    const item = el("div", "sb-rw-viral-finding");
+    item.append(el("span", null, label), el("strong", null, value));
+    findings.appendChild(item);
+  });
+  if (findings.children.length > 1) body.appendChild(findings);
+  if (view.artifact) {
+    const artifact = el("div", "sb-rw-viral-artifact");
+    const copy = el("div");
+    copy.append(el("strong", null, `报告产出：${view.artifact}`), el("span", null, `模板 ${view.reportTemplate} · 数据、结构、评论、成因、风险和 SOP`));
+    artifact.appendChild(copy);
+    if (view.artifactUrl) {
+      const link = el("a", null, "查看报告");
+      link.href = view.artifactUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      artifact.appendChild(link);
+    }
+    body.appendChild(artifact);
+  }
   panel.appendChild(body);
   return panel;
 }
@@ -5357,6 +5981,158 @@ async function loadAcquisitionReceptionConversations(selected, state) {
   }
 }
 
+function renderMockDouyinPrivateMessageScreen({ people = [], activePerson = null, compact = false, onSelect = null } = {}) {
+  const fallbackPeople = [
+    { id: "mock-msg-1", nickname: "上海周先生", sourceLabel: "直播间互动", quote: "请问现在还有现车吗？", avatar: MOCK_CONSUMER_AVATAR_IMAGES.xiaolu, outreachState: "sent", touchContent: "你好，看到你在直播间咨询现车，我把最新到店和试驾安排发给你。" },
+    { id: "mock-msg-2", nickname: "杭州林女士", sourceLabel: "评论区互动", quote: "金融方案可以分期吗？", avatar: MOCK_CONSUMER_AVATAR_IMAGES.anan, outreachState: "sent", touchContent: "你好，关于分期方案，我整理了当前可选的金融政策，方便时可以继续沟通。" },
+    { id: "mock-msg-3", nickname: "绍兴唐女士", sourceLabel: "直播间互动", quote: "周末能安排试驾吗？", avatar: MOCK_CONSUMER_AVATAR_IMAGES.ajie, outreachState: "pending", touchContent: "" }
+  ];
+  const contacts = (Array.isArray(people) ? people : []).filter(Boolean).slice(0, 6);
+  const threadPeople = contacts.length ? contacts : fallbackPeople;
+  let currentPerson = threadPeople.find((person) => person.id === activePerson?.id) || threadPeople[0];
+  const screen = el("div", `sb-rw-mock-douyin-screen${compact ? " is-compact" : ""}`);
+  screen.dataset.mockPage = "douyin-private-message";
+
+  const topbar = el("header", "sb-rw-mock-douyin-topbar");
+  const brand = el("div", "sb-rw-mock-douyin-brand");
+  brand.append(el("span", "sb-rw-mock-douyin-brand-mark", "♪"), el("strong", null, "抖音"), el("span", null, "创作者服务中心"));
+  const topActions = el("div", "sb-rw-mock-douyin-top-actions");
+  topActions.append(el("span", "sb-rw-mock-douyin-account-state", "● 账号已连接"), el("span", "sb-rw-mock-douyin-top-avatar", "H"));
+  topbar.append(brand, topActions);
+
+  const body = el("div", "sb-rw-mock-douyin-body");
+  const nav = el("nav", "sb-rw-mock-douyin-nav");
+  nav.setAttribute("aria-label", "抖音工作台导航");
+  ["首页", "内容管理", "数据中心", "私信"].forEach((label) => {
+    const item = el("button", `sb-rw-mock-douyin-nav-item${label === "私信" ? " is-active" : ""}`);
+    item.type = "button";
+    item.append(el("i"), el("span", null, label));
+    nav.appendChild(item);
+  });
+  body.appendChild(nav);
+
+  const threadPane = el("section", "sb-rw-mock-douyin-thread-pane");
+  const threadHeading = el("div", "sb-rw-mock-douyin-thread-heading");
+  threadHeading.append(el("strong", null, "私信"), el("span", null, `${threadPeople.length} 个会话`));
+  const threadSearch = document.createElement("input");
+  threadSearch.type = "search";
+  threadSearch.placeholder = "搜索用户";
+  threadSearch.setAttribute("aria-label", "搜索私信用户");
+  const threadList = el("div", "sb-rw-mock-douyin-thread-list");
+  const threadButtons = [];
+  threadPane.append(threadHeading, threadSearch, threadList);
+  body.appendChild(threadPane);
+
+  const chatPane = el("section", "sb-rw-mock-douyin-chat-pane");
+  const chatHead = el("div", "sb-rw-mock-douyin-chat-head");
+  const chatAvatar = el("span", "sb-rw-mock-douyin-avatar sb-rw-mock-douyin-chat-avatar");
+  const chatHeadCopy = el("div", "sb-rw-mock-douyin-chat-head-copy");
+  const chatName = el("strong");
+  const chatMeta = el("span");
+  chatHeadCopy.append(chatName, chatMeta);
+  const chatHeadAction = el("button", "sb-rw-mock-douyin-chat-action", "⋯");
+  chatHeadAction.type = "button";
+  chatHeadAction.setAttribute("aria-label", "更多会话操作");
+  chatHead.append(chatAvatar, chatHeadCopy, chatHeadAction);
+
+  const messages = el("div", "sb-rw-mock-douyin-messages");
+  const composer = el("form", "sb-rw-mock-douyin-composer");
+  const composerInput = document.createElement("input");
+  composerInput.type = "text";
+  composerInput.placeholder = "发消息...";
+  composerInput.setAttribute("aria-label", "发送私信");
+  const composerTools = el("div", "sb-rw-mock-douyin-composer-tools");
+  ["☺", "▧", "▣"].forEach((label) => {
+    const tool = el("button", "sb-rw-mock-douyin-composer-tool", label);
+    tool.type = "button";
+    tool.setAttribute("aria-label", "编辑工具");
+    composerTools.appendChild(tool);
+  });
+  const send = el("button", "sb-rw-mock-douyin-send", "发送");
+  send.type = "submit";
+  composer.append(composerInput, composerTools, send);
+  composer.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const content = composerInput.value.trim();
+    if (!content) return;
+    messages.appendChild(renderMockMessageBubble(content, "outbound", "刚刚"));
+    messages.scrollTop = messages.scrollHeight;
+    composerInput.value = "";
+  });
+
+  chatPane.append(chatHead, messages, composer);
+  body.appendChild(chatPane);
+
+  const profile = el("aside", "sb-rw-mock-douyin-profile");
+  const profileTitle = el("strong", null, "用户资料");
+  const profileAvatar = el("span", "sb-rw-mock-douyin-avatar sb-rw-mock-douyin-profile-avatar");
+  const profileName = el("strong");
+  const profileHandle = el("span");
+  const profileState = el("span", "sb-rw-mock-douyin-profile-state");
+  const profileFacts = el("div", "sb-rw-mock-douyin-profile-facts");
+  profile.append(profileTitle, profileAvatar, profileName, profileHandle, profileState, profileFacts);
+  body.appendChild(profile);
+  screen.append(topbar, body);
+
+  function renderMockMessageBubble(content, direction, time) {
+    const row = el("div", `sb-rw-mock-douyin-message-row is-${direction}`);
+    const bubble = el("div", "sb-rw-mock-douyin-bubble");
+    bubble.append(el("p", null, content), el("time", null, time));
+    row.appendChild(bubble);
+    return row;
+  }
+
+  function renderCurrentConversation(person) {
+    currentPerson = person || threadPeople[0];
+    const nickname = acquisitionText(currentPerson.nickname, currentPerson.name, "抖音用户");
+    const incoming = acquisitionText(currentPerson.incomingContent, currentPerson.quote, "你好，想了解一下你直播间提到的车型。");
+    const outbound = acquisitionText(currentPerson.touchContent, "你好，看到你在直播间的留言，我来为你补充车型和试驾信息。");
+    const sent = currentPerson.outreachState === "sent" || Boolean(currentPerson.touchContent);
+    mountAcquisitionPersonAvatar(chatAvatar, currentPerson);
+    chatName.textContent = nickname;
+    chatMeta.textContent = `${acquisitionText(currentPerson.sourceLabel, "互动消息")} · ${sent ? "已发送私信" : "待发送"}`;
+    mountAcquisitionPersonAvatar(profileAvatar, currentPerson);
+    profileName.textContent = nickname;
+    profileHandle.textContent = `抖音用户 · ${acquisitionText(currentPerson.sourceLabel, "互动消息")}`;
+    profileState.textContent = sent ? "已完成首轮触达" : "已加入触达队列";
+    profileFacts.replaceChildren(
+      el("span", null, "最近互动"),
+      el("strong", null, acquisitionText(currentPerson.quote, "等待用户回复")),
+      el("span", null, "触达状态"),
+      el("strong", null, sent ? "平台已返回发送成功" : "等待 Agent 执行")
+    );
+    messages.replaceChildren(
+      el("div", "sb-rw-mock-douyin-date", "今天 09:18"),
+      renderMockMessageBubble(incoming, "inbound", "09:18"),
+      renderMockMessageBubble(outbound, "outbound", sent ? "09:19" : "待发送")
+    );
+    threadButtons.forEach((button) => button.classList.toggle("is-active", button.dataset.personId === currentPerson.id));
+  }
+
+  threadPeople.forEach((person) => {
+    const item = el("button", "sb-rw-mock-douyin-thread-item");
+    item.type = "button";
+    item.dataset.personId = person.id || "";
+    const avatar = el("span", "sb-rw-mock-douyin-avatar sb-rw-mock-douyin-thread-avatar");
+    const copy = el("span", "sb-rw-mock-douyin-thread-copy");
+    const title = el("span", "sb-rw-mock-douyin-thread-title");
+    const preview = el("span", "sb-rw-mock-douyin-thread-preview");
+    title.textContent = acquisitionText(person.nickname, person.name, "抖音用户");
+    preview.textContent = acquisitionText(person.touchContent, person.quote, "等待新消息");
+    copy.append(title, preview);
+    item.append(avatar, copy);
+    mountAcquisitionPersonAvatar(avatar, person);
+    item.addEventListener("click", () => {
+      onSelect?.(person);
+      renderCurrentConversation(person);
+    });
+    threadButtons.push(item);
+    threadList.appendChild(item);
+  });
+  renderCurrentConversation(currentPerson);
+  return screen;
+}
+
 function renderAcquisitionFullDesktopView(selected, state) {
   const work = selected.liveWork || {};
   const replay = state.cloudViewerReplays.get(selected.id);
@@ -5367,7 +6143,14 @@ function renderAcquisitionFullDesktopView(selected, state) {
   panel.appendChild(head);
   const wrap = el("div", "sb-rw-acquisition-full-desktop-wrap");
   const replayStage = el("div", "sb-rw-cloud-replay-stage sb-rw-acquisition-full-desktop-replay");
-  if (!replay) {
+  if (state.stylePreview) {
+    const people = commentAcquisitionOutreachRows(work);
+    replayStage.appendChild(renderMockDouyinPrivateMessageScreen({
+      people,
+      activePerson: acquisitionSelectedPerson({ people }, state),
+      onSelect: (person) => { state.acquisitionProspectId = person.id; }
+    }));
+  } else if (!replay) {
     replayStage.append(el("div", "sb-rw-cloud-replay-empty", replayPresentation.emptyText));
   } else if (replay.segments?.length) {
     const video = document.createElement("video");
@@ -5477,7 +6260,14 @@ function renderOutreachSpecialistWorksite(selected, state, onChange) {
   replayPanel.appendChild(replayHead);
   const replayWrap = el("div", "sb-rw-outreach-specialist-replay-wrap");
   const replayStage = el("div", "sb-rw-cloud-replay-stage sb-rw-outreach-specialist-replay-stage");
-  if (!replay) {
+  if (state.stylePreview) {
+    replayStage.appendChild(renderMockDouyinPrivateMessageScreen({
+      people: rows,
+      activePerson,
+      compact: true,
+      onSelect: (person) => { state.acquisitionProspectId = person.id; }
+    }));
+  } else if (!replay) {
     replayStage.appendChild(el("div", "sb-rw-cloud-replay-empty", replayPresentation.emptyText));
   } else if (replay.segments?.length) {
     const video = document.createElement("video");
@@ -5528,7 +6318,7 @@ function renderLiveDanmakuOutreachPanels(selected, state, onChange) {
   const pendingPanel = el("article", "sb-rw-panel sb-rw-live-danmaku-outreach-pending-panel");
   const pendingHead = el("div", "sb-rw-panel-head");
   pendingHead.append(
-    el("div", "sb-rw-panel-title", "直播弹幕"),
+    el("div", "sb-rw-panel-title", "未成交用户"),
     el("span", "sb-rw-panel-sub", `${pending.length} 位待触达`)
   );
   pendingPanel.append(pendingHead, renderOutreachSpecialistList(pending, activePerson, state, onChange, "暂无待触达弹幕"));
@@ -5561,19 +6351,54 @@ function acquisitionLiveRoomVideoUrl(work = {}) {
   return candidates.map((value) => acquisitionText(value)).find((value) => /^(https?:|\/|blob:)/.test(value)) || "";
 }
 
+function liveRoomMediaUrl(value) {
+  const url = acquisitionText(value);
+  return /^(https?:|\/|blob:|data:image\/)/i.test(url) ? url : "";
+}
+
+export function acquisitionLiveRoomImageUrl(work = {}) {
+  const metadata = acquisitionObject(work.metadata);
+  const snapshot = acquisitionSnapshotFor(work);
+  const result = acquisitionObject(snapshot.resultSnapshot || snapshot.snapshot);
+  const lastScan = acquisitionObject(snapshot.lastScan || result.lastScan);
+  const liveRoom = acquisitionObject(snapshot.liveRoom || snapshot.live_room);
+  const candidates = [
+    work.liveRoomImageUrl, work.live_room_image_url, work.liveRoomScreenshotUrl, work.live_room_screenshot_url,
+    work.liveRoomCoverUrl, work.live_room_cover_url, work.liveRoomThumbnailUrl, work.live_room_thumbnail_url,
+    metadata.liveRoomImageUrl, metadata.live_room_image_url, metadata.liveRoomScreenshotUrl, metadata.live_room_screenshot_url,
+    metadata.liveRoomCoverUrl, metadata.live_room_cover_url, metadata.liveRoomThumbnailUrl, metadata.live_room_thumbnail_url,
+    snapshot.liveRoomImageUrl, snapshot.live_room_image_url, snapshot.liveRoomScreenshotUrl, snapshot.live_room_screenshot_url,
+    snapshot.liveRoomCoverUrl, snapshot.live_room_cover_url, snapshot.liveRoomThumbnailUrl, snapshot.live_room_thumbnail_url,
+    result.liveRoomImageUrl, result.live_room_image_url, result.liveRoomScreenshotUrl, result.live_room_screenshot_url,
+    result.liveRoomCoverUrl, result.live_room_cover_url, result.liveRoomThumbnailUrl, result.live_room_thumbnail_url,
+    lastScan.liveRoomImageUrl, lastScan.live_room_image_url, lastScan.liveRoomScreenshotUrl, lastScan.live_room_screenshot_url,
+    lastScan.liveRoomCoverUrl, lastScan.live_room_cover_url, lastScan.liveRoomThumbnailUrl, lastScan.live_room_thumbnail_url,
+    liveRoom.imageUrl, liveRoom.image_url, liveRoom.screenshotUrl, liveRoom.screenshot_url,
+    liveRoom.coverUrl, liveRoom.cover_url, liveRoom.thumbnailUrl, liveRoom.thumbnail_url
+  ];
+  return candidates.map(liveRoomMediaUrl).find(Boolean) || "";
+}
+
 function renderCommentAcquisitionLiveRoomStage(replay, replayPresentation, work = {}) {
   const stage = el("div", "sb-rw-live-room-stage");
   const videoUrl = acquisitionLiveRoomVideoUrl(work);
-  const image = document.createElement("img");
-  image.className = "sb-rw-live-room-fallback";
+  const replayImageUrl = replay?.snapshots?.[0]?.url || "";
+  const liveRoomImageUrl = acquisitionLiveRoomImageUrl(work);
   const mockLiveRoomImage = work?.metadata?.mock
     ? acquisitionText(work.metadata.mockLiveRoomImage)
     : "";
-  image.src = mockLiveRoomImage || DOUYIN_LIVE_ROOM_IMAGE;
-  image.alt = "直播间工作现场";
-  image.decoding = "async";
-  image.loading = "eager";
+  const fallbackImageUrl = replayImageUrl || liveRoomImageUrl || mockLiveRoomImage;
   const mountFallback = () => {
+    if (!fallbackImageUrl) {
+      stage.replaceChildren(el("div", "sb-rw-live-room-empty", replayPresentation?.emptyText || "正在获取当前账号的直播间画面"));
+      return;
+    }
+    const image = document.createElement("img");
+    image.className = "sb-rw-live-room-fallback";
+    image.src = fallbackImageUrl;
+    image.alt = "当前账号直播间工作现场";
+    image.decoding = "async";
+    image.loading = "eager";
     stage.replaceChildren(image);
   };
 
@@ -5613,7 +6438,7 @@ function renderCommentAcquisitionLiveRoomStage(replay, replayPresentation, work 
     mountFallback();
   }
 
-  if (!replay?.segments?.length && !videoUrl && replayPresentation?.mode === "waiting") {
+  if (!work?.metadata?.mock && !replay?.segments?.length && !videoUrl && replayPresentation?.mode === "waiting") {
     stage.appendChild(el("div", "sb-rw-live-room-waiting", replayPresentation.emptyText));
   }
   return stage;
@@ -5625,6 +6450,29 @@ function renderCommentAcquisitionQueuePanel(selected, state, onChange) {
   const view = commentAcquisitionRealtimeView(work);
   const people = commentAcquisitionQueueRows(work);
   const activePerson = acquisitionSelectedPerson({ people }, state);
+  const queueAccountId = String(work.metadata?.accountId || work.metadata?.accountKey || "preview");
+  const visibleIds = new Set(people.map((person) => person.id));
+  const previousVisibleIds = state.mockQueueVisibleByAccount?.get(queueAccountId) || new Set();
+  const newPeople = work.metadata?.mock
+    ? people.filter((person) => !previousVisibleIds.has(person.id))
+    : [];
+  if (work.metadata?.mock) {
+    state.mockQueueVisibleByAccount ||= new Map();
+    state.mockQueueVisibleByAccount.set(queueAccountId, visibleIds);
+    if (newPeople.length) {
+      state.mockQueueArrival = {
+        accountId: queueAccountId,
+        names: newPeople.slice(0, 2).map((person) => person.nickname),
+        count: newPeople.length,
+        expiresAt: Date.now() + 1800
+      };
+    }
+  }
+  const queueArrival = state.mockQueueArrival?.accountId === queueAccountId
+    && state.mockQueueArrival.expiresAt > Date.now()
+    ? state.mockQueueArrival
+    : null;
+  if (!queueArrival && state.mockQueueArrival?.accountId === queueAccountId) state.mockQueueArrival = null;
   const panel = el("article", "sb-rw-panel sb-rw-acquisition-queue-panel");
   const head = el("div", "sb-rw-panel-head sb-rw-acquisition-head");
   const heading = el("div");
@@ -5632,17 +6480,49 @@ function renderCommentAcquisitionQueuePanel(selected, state, onChange) {
   title.append(el("span", null, "实施工作队列"));
   if (work.metadata?.mock) title.append(el("span", "sb-rw-mock-badge", "MOCK"));
   heading.append(title);
-  const running = el("span", "sb-rw-acquisition-running");
-  running.append(el("i"), el("span", null, recovery ? recovery.label : work.lastError ? "需要处理" : people.length ? `${people.length}位潜客正在同时推进` : "等待潜客进入队列"));
+  const running = el("span", `sb-rw-acquisition-running${queueArrival ? " is-new" : ""}`);
+  const sendingCount = people.filter((person) => person.touchProgressState === "sending").length;
+  const queuedCount = people.filter((person) => person.touchProgressState === "queued").length;
+  const runningLabel = recovery
+    ? recovery.label
+    : work.lastError
+      ? "需要处理"
+      : sendingCount
+        ? `正在发送 ${sendingCount} 条触达`
+        : queuedCount
+          ? `${queuedCount} 条触达正在排队`
+          : people.length
+            ? `${people.length} 位潜客正在跟进`
+            : "等待潜客进入队列";
+  running.append(el("i"), el("span", null, queueArrival ? `新发现 ${queueArrival.count} 位潜客` : runningLabel));
   head.append(heading, running);
   panel.appendChild(head);
 
   const isEmpty = !people.length;
   const body = el("div", `sb-rw-acquisition-queue-body${isEmpty ? " is-empty" : ""}`);
   const list = el("div", "sb-rw-acquisition-people");
+  if (queueArrival) {
+    const arrival = el("div", "sb-rw-acquisition-arrival");
+    const names = queueArrival.names.join("、");
+    arrival.append(el("i"), el("span", null, `${names}${queueArrival.count > queueArrival.names.length ? "等" : ""} 已加入实施队列`));
+    body.appendChild(arrival);
+  }
   if (!isEmpty) {
     people.slice(0, 8).forEach((person) => {
-      const item = el("button", `sb-rw-acquisition-person${person.id === activePerson?.id ? " is-selected" : ""}`);
+      const motionKey = `${queueAccountId}:${person.id}`;
+      const previousState = state.mockQueueMotion?.get(motionKey);
+      const motionClass = work.metadata?.mock
+        ? !previousState
+          ? " is-entering"
+          : previousState !== person.touchProgressState
+            ? " is-progressing"
+            : ""
+        : "";
+      if (work.metadata?.mock) {
+        state.mockQueueMotion ||= new Map();
+        state.mockQueueMotion.set(motionKey, person.touchProgressState);
+      }
+      const item = el("button", `sb-rw-acquisition-person${person.id === activePerson?.id ? " is-selected" : ""}${motionClass}`);
       item.type = "button";
       item.dataset.prospectId = person.id;
       const avatarNode = el("span", "sb-rw-acquisition-avatar");
@@ -6526,7 +7406,63 @@ function renderWorkUnitPanel(selected, state, onChange) {
   return panel;
 }
 
-function renderAccountDirectory(root, state, { onBack, onSelect }) {
+function openAccountUnbindDialog({ account = {}, onConfirm = null } = {}) {
+  if (typeof document === "undefined" || !account?.id) return null;
+  const isMock = account.mock === true;
+  const mask = el("div", "sb-rw-account-unbind-mask");
+  const dialog = el("section", "sb-rw-account-unbind-dialog");
+  dialog.setAttribute("role", "dialog");
+  dialog.setAttribute("aria-modal", "true");
+  dialog.setAttribute("aria-labelledby", "sb-rw-account-unbind-title");
+
+  const close = () => mask.remove();
+  const head = el("div", "sb-rw-account-unbind-head");
+  const title = el("h2", null, isMock ? "解绑模拟账号" : "解除抖音账号绑定");
+  title.id = "sb-rw-account-unbind-title";
+  const closeButton = el("button", "sb-rw-account-unbind-close", "×");
+  closeButton.type = "button";
+  closeButton.setAttribute("aria-label", "关闭解绑确认");
+  closeButton.addEventListener("click", close);
+  head.append(title, closeButton);
+
+  const body = el("div", "sb-rw-account-unbind-body");
+  const accountInfo = el("div", "sb-rw-account-unbind-account");
+  const accountCopy = el("div");
+  accountCopy.append(el("strong", null, account.name || "抖音账号"), el("span", null, account.handle || ""));
+  accountInfo.appendChild(accountCopy);
+  body.appendChild(accountInfo);
+  body.appendChild(el("p", "sb-rw-account-unbind-copy", isMock
+    ? "解绑后，该账号和它的模拟 Agent 会从本次预览中移除。刷新页面后会恢复默认演示数据。"
+    : "账号解绑服务正在接入。当前不会关闭云电脑、清除登录态或撤销抖音授权。"));
+  if (!isMock) {
+    body.appendChild(el("div", "sb-rw-account-unbind-note", "正式解绑会停止该账号任务、清除本地登录资料，并调用抖音授权撤销接口。"));
+  }
+
+  const actions = el("div", "sb-rw-account-unbind-actions");
+  const cancel = el("button", null, isMock ? "取消" : "知道了");
+  cancel.type = "button";
+  cancel.addEventListener("click", close);
+  actions.appendChild(cancel);
+  if (isMock) {
+    const confirm = el("button", "is-danger", "确认解绑");
+    confirm.type = "button";
+    confirm.addEventListener("click", () => {
+      onConfirm?.(account);
+      close();
+    });
+    actions.appendChild(confirm);
+  }
+  body.appendChild(actions);
+  dialog.append(head, body);
+  mask.appendChild(dialog);
+  mask.addEventListener("mousedown", (event) => {
+    if (event.target === mask) close();
+  });
+  document.body.appendChild(mask);
+  return { close };
+}
+
+function renderAccountDirectory(root, state, { onBack, onSelect, onUnbind }) {
   root.classList.add("sb-rw-account-directory");
   root.textContent = "";
   const directory = accountDirectoryFor(state);
@@ -6540,7 +7476,7 @@ function renderAccountDirectory(root, state, { onBack, onSelect }) {
   back.type = "button";
   back.addEventListener("click", onBack);
   headCopy.appendChild(back);
-  headCopy.append(el("h1", "sb-rw-directory-title", "全部账号"), el("div", "sb-rw-directory-subtitle", `统一管理 ${managedCount} 个抖音小店账号、独立云电脑和账号级 Agent 团队。`));
+  headCopy.append(el("h1", "sb-rw-directory-title", "全部账号"), el("div", "sb-rw-directory-subtitle", `统一管理 ${managedCount} 个抖音账号、独立云电脑和账号级 Agent 团队。`));
   const summary = el("div", "sb-rw-directory-summary");
   [[managedCount, "托管账号"], [cloudCount, "独立云电脑"], [runningAgentCount, "运行中 Agent"]].forEach(([value, label]) => {
     const item = el("div", "sb-rw-directory-summary-item");
@@ -6553,7 +7489,7 @@ function renderAccountDirectory(root, state, { onBack, onSelect }) {
   const toolbar = el("div", "sb-rw-directory-toolbar");
   const search = el("input", "sb-rw-directory-search");
   search.type = "search";
-  search.placeholder = "搜索店铺名称或抖音号";
+  search.placeholder = "搜索账号名称或抖音号";
   search.value = state.accountSearch || "";
   const filters = el("div", "sb-rw-directory-filters");
   const filterOptions = ["全部", "已连接", "需重新登录", "已暂停"];
@@ -6572,8 +7508,9 @@ function renderAccountDirectory(root, state, { onBack, onSelect }) {
       return;
     }
     matches.forEach((account) => {
-      const row = el("button", "sb-rw-directory-row");
-      row.type = "button";
+      const row = el("div", "sb-rw-directory-row");
+      const open = el("button", "sb-rw-directory-row-open");
+      open.type = "button";
       const identity = el("span", "sb-rw-directory-identity");
       const avatarEl = el("span", "sb-rw-directory-avatar");
       mountAccountAvatar(avatarEl, account);
@@ -6598,8 +7535,13 @@ function renderAccountDirectory(root, state, { onBack, onSelect }) {
       hot.append(el("strong", null, account.hot), el("span", null, "高意向线索"));
       const progress = el("span", "sb-rw-directory-cell");
       progress.append(el("strong", null, account.progress), el("span", null, "策略完成"));
-      row.append(identity, statusCell, fans, agents, hot, progress, el("span", "sb-rw-directory-open", "→"));
-      row.addEventListener("click", () => onSelect(account.id));
+      open.append(identity, statusCell, fans, agents, hot, progress, el("span", "sb-rw-directory-open", "→"));
+      open.addEventListener("click", () => onSelect(account.id));
+      const unbind = el("button", "sb-rw-directory-unbind", "解绑");
+      unbind.type = "button";
+      unbind.setAttribute("aria-label", `解绑 ${account.name || "抖音账号"}`);
+      unbind.addEventListener("click", () => onUnbind?.(account));
+      row.append(open, unbind);
       list.appendChild(row);
     });
   };
@@ -6609,7 +7551,7 @@ function renderAccountDirectory(root, state, { onBack, onSelect }) {
     button.type = "button";
     button.addEventListener("click", () => {
       state.accountFilter = option;
-      renderAccountDirectory(root, state, { onBack, onSelect });
+      renderAccountDirectory(root, state, { onBack, onSelect, onUnbind });
     });
     filters.appendChild(button);
   });
@@ -6883,6 +7825,9 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     previewWorks,
     accountId: initialAccount?.id || "",
     accounts,
+    mockQueueMotion: new Map(),
+    mockQueueVisibleByAccount: new Map(),
+    mockQueueArrival: null,
     customAccounts,
     accountSetup: openAccountSetup ? createAccountSetup(accounts) : null,
     accountSearch: "",
@@ -6932,6 +7877,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
   let unsubscribe = null;
   let unsubscribeLiveWork = null;
   let remoteOfficeTimer = null;
+  let mockLiveAnalysisTimer = null;
   let remoteOfficeRefreshPending = null;
   let remoteOfficeRefreshTimer = null;
   let durableTaskGateway = null;
@@ -7064,27 +8010,57 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     const metadata = work?.metadata || {};
     return String(metadata.taskId || metadata.task_id || work?.taskId || "").trim() || null;
   };
+  const replayScopeKeyForWork = (work) => {
+    const metadata = work?.metadata || {};
+    const taskId = replayTaskIdForWork(work) || "";
+    const accountId = String(metadata.accountId || metadata.account_id || metadata.accountKey || metadata.account_key || "").trim();
+    return `${taskId}:${accountId}`;
+  };
   const clearCloudReplay = (agentId) => {
     const replay = state.cloudViewerReplays.get(agentId);
     replay?.segments?.forEach(({ url }) => { try { globalThis.URL?.revokeObjectURL?.(url); } catch {} });
+    replay?.snapshots?.forEach(({ url }) => { try { globalThis.URL?.revokeObjectURL?.(url); } catch {} });
     state.cloudViewerReplays.delete(agentId);
   };
   const ensureCloudReplay = (agentId) => {
-    if (state.cloudViewerReplays.has(agentId) || state.cloudViewerReplayLoads.has(agentId)) return;
-    state.cloudViewerReplayLoads.set(agentId, true);
     const work = state.agents.find((item) => item.id === agentId)?.liveWork;
     const taskId = replayTaskIdForWork(work);
-    void listOfficeReplay(agentId, { taskId, limit: 8, latestOnly: true, successfulOnly: true }).then(async (result) => {
+    const scopeKey = replayScopeKeyForWork(work);
+    if (state.cloudViewerReplays.get(agentId)?.scopeKey === scopeKey || state.cloudViewerReplayLoads.get(agentId) === scopeKey) return;
+    clearCloudReplay(agentId);
+    if (!taskId) {
+      state.cloudViewerReplays.set(agentId, { status: "ready", taskId: null, scopeKey, segments: [], snapshots: [] });
+      return;
+    }
+    state.cloudViewerReplayLoads.set(agentId, scopeKey);
+    void Promise.all([
+      listOfficeReplay(agentId, { taskId, limit: 8, latestOnly: true, successfulOnly: true }),
+      listOfficeReplay(agentId, { taskId, limit: 1, latestOnly: true, successfulOnly: false })
+    ]).then(async ([result, latestCapture]) => {
       const segments = [];
       for (const segment of (Array.isArray(result?.segments) ? result.segments.slice().reverse() : [])) {
         try { segments.push({ segment, url: await loadOfficeReplayVideo(segment) }); } catch {}
       }
-      state.cloudViewerReplays.set(agentId, { status: "ready", taskId: result?.taskId || null, segments });
+      const snapshots = [];
+      for (const snapshot of (Array.isArray(latestCapture?.snapshots) ? latestCapture.snapshots.slice(0, 1) : [])) {
+        try { snapshots.push({ snapshot, url: await loadOfficeReplayImage(snapshot) }); } catch {}
+      }
+      const currentWork = state.agents.find((item) => item.id === agentId)?.liveWork;
+      if (replayScopeKeyForWork(currentWork) !== scopeKey) {
+        segments.forEach(({ url }) => { try { globalThis.URL?.revokeObjectURL?.(url); } catch {} });
+        snapshots.forEach(({ url }) => { try { globalThis.URL?.revokeObjectURL?.(url); } catch {} });
+        return;
+      }
+      state.cloudViewerReplays.set(agentId, { status: "ready", taskId, scopeKey, segments, snapshots });
       if (!disposed && state.selected === agentId) renderRealtimeViewPreservingScroll();
     }).catch(() => {
-      state.cloudViewerReplays.set(agentId, { status: "ready", taskId: null, segments: [], error: true });
+      const currentWork = state.agents.find((item) => item.id === agentId)?.liveWork;
+      if (replayScopeKeyForWork(currentWork) !== scopeKey) return;
+      state.cloudViewerReplays.set(agentId, { status: "ready", taskId, scopeKey, segments: [], snapshots: [], error: true });
       if (!disposed && state.selected === agentId) renderRealtimeViewPreservingScroll();
-    }).finally(() => state.cloudViewerReplayLoads.delete(agentId));
+    }).finally(() => {
+      if (state.cloudViewerReplayLoads.get(agentId) === scopeKey) state.cloudViewerReplayLoads.delete(agentId);
+    });
   };
   const refreshCloudReplay = (agentId) => {
     clearCloudReplay(agentId);
@@ -7114,6 +8090,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
       if (!capture || !data.imageData) return;
       void saveOfficeReplaySnapshot({ ...capture, imageData: data.imageData }).then(() => {
         state.cloudViewerCaptureSignatures.set(capture.agentId, capture.eventKey);
+        refreshCloudReplay(capture.agentId);
       }).catch(() => {});
       return;
     }
@@ -7141,6 +8118,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     const taskFinished = currentWork?.state === "done"
       || ["completed", "succeeded", "failed", "error", "cancelled", "canceled", "stopped"].includes(currentTaskState);
     if (viewer.status === "connected" && !taskFinished) {
+      requestCloudReplayCapture(data.agentId);
       globalThis.setTimeout?.(() => requestCloudReplayRecording(data.agentId, { force: true }), 900);
     }
     if (viewer.status === "recording-unavailable") requestCloudReplayCapture(data.agentId);
@@ -7503,7 +8481,28 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     if (state.view === "accounts") {
       renderAccountDirectory(root, state, {
         onBack: () => { state.view = "realtime"; render(); },
-        onSelect: (accountId) => { state.accountId = accountId; state.view = "realtime"; render(); }
+        onSelect: (accountId) => { state.accountId = accountId; state.view = "realtime"; render(); },
+        onUnbind: (target) => {
+          openAccountUnbindDialog({
+            account: target,
+            onConfirm: () => {
+              const next = removeRealtimeMockAccount(state.accounts, state.previewWorks, target.id);
+              if (!next.removed) return;
+              state.accounts = next.accounts;
+              state.customAccounts = next.accounts;
+              state.previewWorks = next.works;
+              state.previewWork = next.works[0] || null;
+              const selectedAccount = next.accounts.find((account) => account.id === state.accountId)
+                || next.accounts[0]
+                || null;
+              state.accountId = selectedAccount?.id || "";
+              state.accountKey = selectedAccount?.accountKey || douyinAccountWorkKey(selectedAccount?.identity, "");
+              state.acquisitionProspectId = null;
+              state.events = [`${target.name}：已从本次模拟中解绑`, ...state.events].slice(0, 8);
+              render();
+            }
+          });
+        }
       });
       if (!root.isConnected) page.body.appendChild(root);
       return;
@@ -7685,6 +8684,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     const liveDanmakuAnalysisWork = specialistWorksite === "live-analysis";
     const liveDanmakuOutreachWork = specialistWorksite === "live-outreach";
     const viralWorkAnalysisWork = specialistWorksite === "viral-analysis";
+    const liveDanmakuAnalysisView = liveDanmakuAnalysisWork ? liveDanmakuAnalysisRealtimeView(selected.liveWork || {}) : null;
     const inboxWork = ["mkt-dm-inbox", GOLD_CUSTOMER_SERVICE_AGENT_ID].includes(selected.id) && Boolean(selected.liveWork) && !specialistWork;
     const commentAcquisitionWork = selected.id === "mkt-comment-acquisition" && Boolean(selected.liveWork);
     const acquisitionWorkView = commentAcquisitionWork ? acquisitionWorkViewFor(state) : DEFAULT_ACQUISITION_WORK_VIEW;
@@ -7696,6 +8696,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     if (commentAcquisitionWork) workbar.appendChild(renderCommentAcquisitionSceneHeader(state, refreshRealtimeView));
     if (conversionWork) void loadAcquisitionReceptionConversations(selected, state);
     root.appendChild(workbar);
+    if (liveDanmakuAnalysisView) root.appendChild(renderLiveDanmakuSessionContext(liveDanmakuAnalysisView));
     const main = el("section", `sb-rw-main${inboxWork ? " is-inbox-work" : ""}${commentAcquisitionWork ? " is-comment-acquisition-work" : ""}${specialistWork ? " is-specialist-acquisition-work" : ""}${finderWork ? " is-finder-work" : ""}${analysisWork ? " is-analysis-work" : ""}${specialistWorksite === "outreach" ? " is-outreach-work" : ""}${liveDanmakuAnalysisWork ? " is-live-danmaku-analysis-work" : ""}${liveDanmakuOutreachWork ? " is-live-danmaku-outreach-work" : ""}${viralWorkAnalysisWork ? " is-viral-work-analysis-work" : ""}${fullDesktopOutreachWork ? " is-acquisition-full-desktop-work" : ""}${backgroundWork ? " is-background-work" : ""}`);
     if (fullDesktopOutreachWork) {
       ensureCloudReplay(selected.id);
@@ -7709,8 +8710,6 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     if (!specialistWork && !inboxWork && !backgroundWork && !conversionWork) {
       const cloudPanel = el("article", `sb-rw-panel sb-rw-cloud-panel${commentAcquisitionWork ? " sb-rw-pure-live-panel" : ""}`);
       const douyinLiveWork = Boolean(selected?.liveWork && isDouyinCloudAgent(selected.id, selected.liveWork));
-      const replay = state.cloudViewerReplays.get(selected.id);
-      const replayPresentation = managedAccount ? cloudReplayPresentation(replay, selected.liveWork) : null;
       if (!commentAcquisitionWork && !douyinLiveWork) {
         const cloudHead = el("div", "sb-rw-panel-head");
         cloudHead.append(el("div", "sb-rw-panel-title", "任务实时状态"));
@@ -7726,6 +8725,8 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
       if (douyinLiveWork) {
         const cloudWrap = el("div", "sb-rw-cloud-live-wrap");
         ensureCloudReplay(selected.id);
+        const replay = state.cloudViewerReplays.get(selected.id);
+        const replayPresentation = managedAccount ? cloudReplayPresentation(replay, selected.liveWork) : null;
         const visibleStage = commentAcquisitionWork
           ? renderCommentAcquisitionLiveRoomStage(replay, replayPresentation, selected.liveWork)
           : (() => {
@@ -7761,7 +8762,26 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
         const viewer = state.cloudViewerStatuses.get(selected.id) || (recovery
           ? { status: "auth-expired", message: recovery.detail, reason: "auth-expired" }
           : { status: cloudStatus, message: "正在准备录屏采集", reason: "" });
+        const viewerAccountId = selected.liveWork?.metadata?.mock
+          ? ""
+          : String(selected.liveWork?.metadata?.accountId || selected.liveWork?.metadata?.account_id || state.accountId || "").trim();
         let frame = state.cloudViewerFrames.get(selected.id);
+        if (!recovery && frame && frame.dataset.accountId !== viewerAccountId) {
+          try { frame.src = "about:blank"; } catch {}
+          frame.remove();
+          state.cloudViewerFrames.delete(selected.id);
+          state.cloudViewerStatuses.delete(selected.id);
+          state.cloudViewerCaptureSignatures.delete(selected.id);
+          state.cloudViewerRecordingSignatures.delete(selected.id);
+          for (const [captureId, capture] of state.cloudViewerCaptures) {
+            if (capture.agentId === selected.id) state.cloudViewerCaptures.delete(captureId);
+          }
+          for (const [recordingId, recording] of state.cloudViewerRecordings) {
+            if (recording.agentId === selected.id) state.cloudViewerRecordings.delete(recordingId);
+          }
+          clearCloudReplay(selected.id);
+          frame = null;
+        }
         if (!recovery && !frame) {
           frame = document.createElement("iframe");
           frame.title = `后台云电脑采集源 · ${selected.name}`;
@@ -7769,7 +8789,8 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
           frame.setAttribute("loading", "eager");
           frame.setAttribute("aria-hidden", "true");
           frame.tabIndex = -1;
-          frame.src = douyinCloudViewerUrlFor(selected.id);
+          frame.dataset.accountId = viewerAccountId;
+          frame.src = douyinCloudViewerUrlFor(selected.id, { accountId: viewerAccountId });
           state.cloudViewerFrames.set(selected.id, frame);
         }
         if (recovery && frame) {
@@ -7826,7 +8847,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
       const outreachPanels = renderOutreachSpecialistWorksite(selected, state, refreshRealtimeView);
       main.append(outreachPanels.prospectPanel, outreachPanels.replayPanel);
     } else if (liveDanmakuAnalysisWork) {
-      const liveAnalysisPanels = renderLiveDanmakuAnalysisWorksite(selected, state, refreshRealtimeView);
+      const liveAnalysisPanels = renderLiveDanmakuAnalysisWorksite(selected, state, refreshRealtimeView, liveDanmakuAnalysisView);
       main.append(liveAnalysisPanels.liveRoomPanel, liveAnalysisPanels.queuePanel, liveAnalysisPanels.detailPanel);
     } else if (liveDanmakuOutreachWork) {
       const liveOutreachPanels = renderLiveDanmakuOutreachWorksite(selected, state, refreshRealtimeView);
@@ -8017,7 +9038,8 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     if (activeSelected?.id === "mkt-viral-work-analysis" && activeSelected.liveWork) {
       const taskState = String(activeSelected.liveWork.taskState || activeSelected.liveWork.task_status || activeSelected.liveWork.metadata?.status || "").toLowerCase();
       const finished = activeSelected.liveWork.state === "done" || ["completed", "succeeded", "success", "partial", "failed", "error", "cancelled", "canceled", "stopped"].includes(taskState);
-      if (finished && !state.viralCompletionClosed) {
+      const isMockWork = activeSelected.liveWork.metadata?.mock === true;
+      if (finished && !isMockWork && !state.viralCompletionClosed) {
         state.viralCompletionClosed = true;
         page.close();
         return;
@@ -8262,6 +9284,16 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     void refreshAuthorizedAccounts();
     void refreshRemoteOfficeStatus();
     remoteOfficeTimer = globalThis.setInterval?.(() => { void refreshRemoteOfficeStatus(); }, 3000) || null;
+  } else {
+    // Keep each mock worksite timeline moving while the style preview is open.
+    mockLiveAnalysisTimer = globalThis.setInterval?.(() => {
+      if (disposed) return;
+      const selectedWork = state.liveWorks.find((work) => work.agentType === state.selected);
+      const viralChanged = state.selected === "mkt-viral-work-analysis"
+        && advanceMockViralAnalysisWork(selectedWork);
+      const timelineWork = ["mkt-comment-acquisition", "mkt-live-danmaku-analysis"].includes(state.selected);
+      if (viralChanged || timelineWork) refreshRealtimeView();
+    }, 1000) || null;
   }
   const originalClose = page.close;
   page.close = () => {
@@ -8269,6 +9301,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     disposed = true;
     if (state.accountSetup?.timer != null) globalThis.clearInterval(state.accountSetup.timer);
     if (remoteOfficeTimer != null) globalThis.clearInterval(remoteOfficeTimer);
+    if (mockLiveAnalysisTimer != null) globalThis.clearInterval(mockLiveAnalysisTimer);
     if (remoteOfficeRefreshTimer != null) globalThis.clearTimeout(remoteOfficeRefreshTimer);
     remoteOfficeRefreshTimer = null;
     durableTaskEventUnsubscribe?.();
@@ -8292,6 +9325,7 @@ export function openRealtimeWorkPage({ teamLive = null, gateway = null, onClose 
     state.cloudViewerRecordingSignatures.clear();
     for (const replay of state.cloudViewerReplays.values()) {
       replay?.segments?.forEach(({ url }) => { try { globalThis.URL?.revokeObjectURL?.(url); } catch {} });
+      replay?.snapshots?.forEach(({ url }) => { try { globalThis.URL?.revokeObjectURL?.(url); } catch {} });
     }
     state.cloudViewerReplays.clear();
     state.cloudViewerReplayLoads.clear();

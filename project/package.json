@@ -6,9 +6,9 @@
   "description": "Byering - AI chief of staff web application",
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "dev:demo": "BYERING_RUNTIME_MODE=mock node scripts/dev.mjs",
-    "dev:mock": "BYERING_RUNTIME_MODE=mock MARVIS_PORT=8890 BYERING_BACKEND_PORT=6690 MARVIS_GATEWAY_PORT=5190 node scripts/dev.mjs",
-    "dev:production": "BYERING_RUNTIME_MODE=production MARVIS_PORT=8888 BYERING_BACKEND_PORT=6681 node scripts/dev.mjs",
+    "dev:demo": "node scripts/dev.mjs --mock",
+    "dev:mock": "node scripts/dev.mjs --mock --web-port=8890 --backend-port=6690 --gateway-port=5190",
+    "dev:production": "node scripts/dev.mjs --production --web-port=8888 --backend-port=6681",
     "serve": "node scripts/static-server.mjs",
     "check:office": "node scripts/check-office-integrity.mjs",
     "test:office": "node scripts/office-baseline.test.mjs",

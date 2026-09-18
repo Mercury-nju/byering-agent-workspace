@@ -201,8 +201,8 @@ export function renderViralWorkAnalysisOverview(container, result = {}, { compac
   const metrics = result.metrics || work.metrics || {};
   const overview = el("section", "sb-viral-report-overview");
   overview.append(
-    el("div", "sb-viral-report-kicker", "爆款作品分析 · 面向自媒体博主的增长拆解"),
-    el("strong", "sb-viral-report-title", value(result.title, "爆款作品分析报告")),
+    el("div", "sb-viral-report-kicker", "抖音爆款拆解官 · 面向自媒体博主的增长拆解"),
+    el("strong", "sb-viral-report-title", value(result.title, "抖音爆款视频拆解报告")),
     el("p", "sb-viral-report-summary", value(result.summary, "暂无总结"))
   );
   sourceLink(overview, result.sourceUrl || result.inputs?.workUrl);

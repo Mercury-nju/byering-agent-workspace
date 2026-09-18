@@ -122,12 +122,12 @@ const PACKAGE_ROLE_ALIASES = Object.freeze({
 });
 
 export const GROK_AVATAR_CATALOG = Object.freeze({
-  main: Object.freeze({ shape: "blob", color: "blue" }),
+  main: Object.freeze({ shape: "blob", color: "black" }),
   "mkt-comment-acquisition": Object.freeze({ shape: "blob", color: "blue" }),
   "mkt-dm-inbox": Object.freeze({ shape: "cloud", color: "orange" }),
   "mkt-gold-customer-service": Object.freeze({ shape: "cloud", color: "cyan" }),
   "mkt-live-danmaku-analysis": Object.freeze({ shape: "wedge", color: "violet" }),
-  "mkt-live-danmaku-outreach": Object.freeze({ shape: "teardrop", color: "cyan" }),
+  "mkt-live-danmaku-outreach": Object.freeze({ shape: "teardrop", color: "orange" }),
   "mkt-viral-work-analysis": Object.freeze({ shape: "blob", color: "red" }),
   "mkt-find-people": Object.freeze({ shape: "wedge", color: "blue" }),
   prospect_researcher: Object.freeze({ shape: "teardrop", color: "cyan" }),

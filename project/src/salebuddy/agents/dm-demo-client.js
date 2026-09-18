@@ -8,7 +8,7 @@
  */
 import { mockChiefDecision, mockConversationTurn, roleReply, seedDmMessages } from "./dm-scenarios.js";
 
-export const DEMO_DM_SEED_VERSION = "20260914-business-memory-2";
+export const DEMO_DM_SEED_VERSION = "20260918-chief-task-handoffs-3";
 
 const memoryStorage = new Map();
 
@@ -37,6 +37,20 @@ function readJson(key, fallback) {
 function writeJson(key, value) {
   try { storage().setItem(key, JSON.stringify(value)); } catch { /* storage may be unavailable */ }
   return value;
+}
+
+function migrateSeedArtifacts(agentType, current, seeds) {
+  if (agentType !== "mkt-viral-work-analysis" || !Array.isArray(current) || !Array.isArray(seeds)) return current;
+  const seededMessages = new Map(seeds.filter((message) => message?.id && message.artifact?.url).map((message) => [message.id, message]));
+  if (!seededMessages.size) return current;
+  let changed = false;
+  const migrated = current.map((message) => {
+    const seeded = seededMessages.get(message?.id);
+    if (!seeded || !message?.artifact || (message.artifact.url === seeded.artifact.url && message.text === seeded.text && message.fromName === seeded.fromName)) return message;
+    changed = true;
+    return { ...message, fromName: seeded.fromName, text: seeded.text, artifact: { ...seeded.artifact } };
+  });
+  return changed ? writeJson(dmKey(agentType), migrated) : current;
 }
 
 function dmKey(agentType) {
@@ -89,7 +103,9 @@ function readMessages(agentType) {
   if (!seeds.length) return Array.isArray(current) ? current : [];
 
   const version = storage().getItem(dmVersionKey(agentType)) || "";
-  if (version === DEMO_DM_SEED_VERSION && Array.isArray(current) && current.length) return current;
+  if (version === DEMO_DM_SEED_VERSION && Array.isArray(current) && current.length) {
+    return migrateSeedArtifacts(agentType, current, seeds);
+  }
 
   const preserved = (Array.isArray(current) ? current : [])
     .filter(message => !String(message?.id || "").startsWith("dm-seed-"));

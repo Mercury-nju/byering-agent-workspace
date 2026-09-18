@@ -520,7 +520,7 @@ test("gold customer service opens a goal-first objective composer", t => {
   setup.renderers.renderInboxSetup(setup.panel, setup.flow);
 
   assert.match(setup.panel.textContent, /我来帮你接住私信/);
-  assert.match(setup.panel.textContent, /你想让我帮你达成什么/);
+  assert.match(setup.panel.textContent, /你想让我帮你获得什么样的客户，并推进到哪一步/);
   const heroMark = setup.panel.all().find((node) => node.className.split(" ").includes("sb-as-gold-hero-mark"));
   assert.equal(heroMark.dataset.sbGrokAvatar, "1");
   assert.equal(heroMark.dataset.sbGrokShape, "cloud");
@@ -722,7 +722,7 @@ test("获客专家在同一个页面完成自动识别和接待策略", t => {
   assert.match(panel.textContent, /持续承接/);
   assert.doesNotMatch(panel.textContent, /你想找什么样的人|补充说明（选填）|首次怎么联系/);
   assert.doesNotMatch(panel.textContent, /监听方式|持续监听新的作品评论、直播互动和账号互动通知，不回扫历史内容/);
-  assert.match(panel.textContent, /你想让我帮你达成什么/);
+  assert.match(panel.textContent, /你想让我帮你获得什么样的客户，并推进到哪一步/);
   assert.doesNotMatch(panel.textContent, /你想让我先帮你达成什么/);
   assert.doesNotMatch(panel.textContent, /我希望抖音获客管家达成/);
   assert.match(panel.textContent, /启动抖音获客管家/);

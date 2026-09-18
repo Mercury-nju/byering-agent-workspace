@@ -743,7 +743,7 @@ test("Agent result ingestion is durable and tenant-scoped for the chief data led
     taskId: "browser-result-1",
     taskRunId: "browser-run-1",
     agentId: "mkt-viral-work-analysis",
-    agentName: "爆款作品分析",
+    agentName: "抖音爆款拆解官",
     status: "completed",
     resultSnapshot: {
       generatedAt: "2026-09-15T08:00:00.000Z",

@@ -256,7 +256,7 @@ function resultTitleFor(type, { agentId, agentName, resultSnapshot = {} } = {}) 
   if (type === "抖音找人") return `${text(resultSnapshot?.goal || resultSnapshot?.query, "抖音候选账号")} · 找人结果`;
   if (type === "互动用户") return "账号互动用户汇总";
   if (agentId === "mkt-intent-analyst") return "客户分析结果";
-  if (agentId === "mkt-viral-work-analysis") return "爆款作品分析报告";
+  if (agentId === "mkt-viral-work-analysis") return "抖音爆款视频拆解报告";
   return {
     潜客: "潜客意向表单",
     互动用户: "账号互动用户汇总",

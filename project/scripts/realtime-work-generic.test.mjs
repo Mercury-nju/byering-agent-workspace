@@ -34,6 +34,28 @@ test("douyin realtime work points to the persistent local cloud viewer", () => {
   assert.equal(viewerUrl.searchParams.get("embedded"), "1");
   assert.equal(viewerUrl.searchParams.get("agentId"), "mkt-cold-writer");
   assert.equal(viewerUrl.searchParams.get("backend"), "http://127.0.0.1:6681");
+
+  const accountViewerUrl = new URL(douyinCloudViewerUrlFor("mkt-cold-writer", {
+    origin: "http://127.0.0.1:8888",
+    accountId: "account-home"
+  }));
+  assert.equal(accountViewerUrl.searchParams.get("accountId"), "account-home");
+});
+
+test("live-room media comes from the active account work payload", () => {
+  assert.equal(realtimeWork.acquisitionLiveRoomImageUrl({
+    metadata: { liveRoomScreenshotUrl: "https://cdn.example.test/live-account-a.jpg" }
+  }), "https://cdn.example.test/live-account-a.jpg");
+  assert.equal(realtimeWork.acquisitionLiveRoomImageUrl({
+    metadata: {
+      acquisitionSnapshot: { live_room: { cover_url: "/v1/media/live-account-b.jpg" } }
+    }
+  }), "/v1/media/live-account-b.jpg");
+  assert.equal(realtimeWork.acquisitionLiveRoomImageUrl({
+    metadata: { liveRoomImageUrl: "javascript:alert(1)" }
+  }), "");
+  assert.match(realtimeWorkSource, /loadOfficeReplayImage/);
+  assert.match(realtimeWorkSource, /frame\.dataset\.accountId = viewerAccountId/);
 });
 
 test("generic realtime output context tolerates partial live-work metadata", () => {
@@ -94,6 +116,14 @@ test("style preview is explicit and seeds the acquisition work surface", () => {
   assert.equal(realtimeWork.commentAcquisitionDetailModel(energyQuestion).evidence.quote, "这是电还是油？");
 });
 
+test("realtime work keeps scroll-end space below the workspace", () => {
+  assert.match(realtimeWorkSource, /\.sb-realtime-page\{padding:22px 26px 72px;background:#f5f7f5\}/);
+  assert.match(realtimeWorkSource, /@media \(max-width:760px\)\{\.sb-realtime-page\{padding:18px 14px 56px\}/);
+  assert.match(realtimeWorkSource, /@media \(max-height:720px\)\{\.sb-realtime-page\{padding-top:16px;padding-bottom:48px\}/);
+  assert.match(realtimeWorkSource, /\.sb-page\.sb-page-realtime-work > \.sb-page-body > \.sb-realtime-page\{display:flex;flex-direction:column;min-height:100%\}/);
+  assert.doesNotMatch(realtimeWorkSource, /\.sb-page\.sb-page-realtime-work > \.sb-page-body > \.sb-realtime-page\{display:flex;flex-direction:column;min-height:100%;height:100%\}/);
+});
+
 test("realtime fallback roster only uses active product agents", () => {
   const start = realtimeWorkSource.indexOf("function createAgentsForMatch");
   const end = realtimeWorkSource.indexOf("const CSS =", start);
@@ -113,13 +143,49 @@ test("active product Agent empty states use their own work model instead of old 
   assert.match(realtimeWorkSource, /const config = activeWorkUnitConfig\(selected\)/);
 });
 
+test("Mock accounts use generated livestream work-scene assets", () => {
+  const accounts = realtimeWork.createRealtimeMockPreviewAccounts();
+  const works = realtimeWork.createRealtimeMockPreviewWorks(accounts)
+    .filter((work) => work.agentType === "mkt-comment-acquisition");
+
+  assert.equal(works.length, 3);
+  assert.ok(works.every((work) => /mock-live-\w+-v1\.png$/.test(work.metadata?.mockLiveRoomImage || "")));
+  assert.match(realtimeWorkSource, /mock-live-automotive-v1\.png/);
+  assert.match(realtimeWorkSource, /mock-live-education-v1\.png/);
+  assert.match(realtimeWorkSource, /mock-live-home-v1\.png/);
+});
+
+test("Mock implementation queue adds high-intent customers over time", () => {
+  const savedNow = Date.now;
+  try {
+    Date.now = () => 1_000_000;
+    const work = realtimeWork.createRealtimeMockAcquisitionWork({ id: "preview-account", name: "一以万真", mock: true });
+    const initialRows = realtimeWork.commentAcquisitionQueueRows(work);
+
+    Date.now = () => 1_004_000;
+    const laterRows = realtimeWork.commentAcquisitionQueueRows(work);
+
+    assert.equal(initialRows.length, 1);
+    assert.equal(laterRows.length, 3);
+    assert.ok(laterRows.every((person) => person.intentTier === "high"));
+    assert.match(realtimeWorkSource, /mockQueueVisibleByAccount/);
+    assert.match(realtimeWorkSource, /已加入实施队列/);
+  } finally {
+    Date.now = savedNow;
+  }
+});
+
 test("style preview provides isolated mock accounts with different domain data", () => {
   const accounts = realtimeWork.createRealtimeMockPreviewAccounts();
   const works = realtimeWork.createRealtimeMockPreviewWorks(accounts);
 
   assert.equal(accounts.length, 3);
   assert.ok(accounts.every((account) => account.mock === true));
-  assert.deepEqual(accounts.map((account) => account.mockScenario), ["automotive", "education", "home"]);
+  assert.deepEqual(accounts.map((account) => account.name), ["安安的升学笔记", "小鹿的新能源车日记", "阿杰的收纳好物"]);
+  assert.ok(accounts.every((account) => account.accountKind === "consumer"));
+  assert.ok(accounts.some((account) => account.consumerScenario === "personal-ecommerce"));
+  assert.ok(accounts.every((account) => realtimeWork.accountAvatarSource(account).includes("generated-avatar-v3-")));
+  assert.deepEqual(accounts.map((account) => account.mockScenario), ["education", "automotive", "home"]);
   assert.ok(accounts.every((account) => account.agentIds.length === MARKETPLACE_LATEST_AGENT_IDS.length));
   assert.ok(accounts.every((account) => account.agentIds[0] === DOUYIN_ACQUISITION_COMPLETE_AGENT_ID));
   assert.ok(accounts.every((account) => account.agents === MARKETPLACE_LATEST_AGENT_IDS.length));
@@ -146,6 +212,22 @@ test("style preview provides isolated mock accounts with different domain data",
   assert.match(educationPeople[0].profileEvidence.dynamicTraits[0]?.[1] || "", /中考/);
   assert.match(homePeople[0].profileEvidence.dynamicTraits[0]?.[1] || "", /89㎡/);
   assert.notEqual(educationPeople[0].quote, homePeople[0].quote);
+});
+
+test("style preview unbind removes only the selected mock account and its work", () => {
+  const accounts = realtimeWork.createRealtimeMockPreviewAccounts();
+  const works = realtimeWork.createRealtimeMockPreviewWorks(accounts);
+  const target = accounts[1];
+  const result = realtimeWork.removeRealtimeMockAccount(accounts, works, target.id);
+
+  assert.equal(result.removed?.id, target.id);
+  assert.equal(result.accounts.length, accounts.length - 1);
+  assert.equal(result.works.length, works.length - MARKETPLACE_LATEST_AGENT_IDS.length);
+  assert.ok(result.accounts.every((account) => account.id !== target.id));
+  assert.ok(result.works.every((work) => work.metadata?.accountId !== target.id));
+  assert.match(realtimeWorkSource, /解绑模拟账号/);
+  assert.match(realtimeWorkSource, /确认解绑/);
+  assert.match(realtimeWorkSource, /sb-rw-directory-unbind/);
 });
 
 test("style preview keeps the latest five Agent cards in product order", () => {
@@ -326,6 +408,54 @@ test("live danmaku realtime view keeps collecting state free of premature intent
   assert.equal(liveView.counts.highIntent, 0);
 });
 
+test("live danmaku realtime view keeps the current session separate from archived sessions", () => {
+  const liveView = realtimeWork.liveDanmakuAnalysisRealtimeView({
+    metadata: {
+      acquisitionSnapshot: {
+        taskState: "running",
+        resultSnapshot: {
+          status: "collecting",
+          collectionSnapshot: {
+            state: "collecting",
+            totalDanmaku: 8,
+            uniqueUsers: 4,
+            sourceState: "receiving",
+            session: { id: "room:live-room-2", roomId: "live-room-2", title: "秋季新品专场", state: "collecting" }
+          },
+          liveSessions: [{
+            id: "room:live-room-1",
+            roomId: "live-room-1",
+            title: "上周末试驾专场",
+            state: "completed",
+            endedAt: "2026-09-17T12:00:00.000Z",
+            collectionSnapshot: { totalDanmaku: 32, uniqueUsers: 18 }
+          }]
+        },
+        lastScan: { sources: { live: { state: "receiving" } } }
+      }
+    }
+  });
+
+  assert.equal(liveView.session.id, "room:live-room-2");
+  assert.equal(liveView.session.title, "秋季新品专场");
+  assert.equal(liveView.sessions.length, 1);
+  assert.equal(liveView.sessions[0].roomId, "live-room-1");
+  assert.equal(liveView.sessions[0].counts.totalDanmaku, 32);
+  assert.match(realtimeWorkSource, /function renderLiveDanmakuSessionContext/);
+  assert.match(realtimeWorkSource, /本场结束后会自动归档采集结果并生成报告/);
+  assert.match(realtimeWorkSource, /本场弹幕采集/);
+  assert.match(realtimeWorkSource, /const waitingForLive = !current && !view\.isFinal;/);
+  assert.match(realtimeWorkSource, /if \(waitingForLive\) \{[\s\S]*return section;/);
+  assert.match(realtimeWorkSource, /sb-rw-live-danmaku-session-context\.is-waiting\{grid-template-columns:auto minmax\(0,1fr\)/);
+  const sessionContextStart = realtimeWorkSource.indexOf("function renderLiveDanmakuSessionContext");
+  const sessionContextEnd = realtimeWorkSource.indexOf("function renderLiveDanmakuAnalysisQueuePanel", sessionContextStart);
+  const sessionContext = realtimeWorkSource.slice(sessionContextStart, sessionContextEnd);
+  assert.match(sessionContext, /const sessionCount = \(current \? 1 : 0\)/);
+  assert.match(sessionContext, /sb-rw-live-danmaku-session-count/);
+  assert.match(sessionContext, /\["本场弹幕"/);
+  assert.doesNotMatch(sessionContext, /互动用户|已归档场次|sb-rw-live-danmaku-session-history/);
+});
+
 test("live danmaku analysis process closes the loop after collection", () => {
   const collecting = liveDanmakuAnalysisProcess({
     isFinal: false,
@@ -376,6 +506,47 @@ test("viral work realtime view reflects backend lifecycle without fabricated pro
     "queued",
     "queued"
   ]);
+});
+
+test("viral mock worksite carries the report production lifecycle and evidence", () => {
+  const accounts = realtimeWork.createRealtimeMockPreviewAccounts();
+  const works = realtimeWork.createRealtimeMockPreviewWorks(accounts);
+  const work = works.find((item) => item.agentType === "mkt-viral-work-analysis");
+  const view = realtimeWork.viralWorkAnalysisRealtimeView(work);
+
+  assert.equal(view.status, "running");
+  assert.equal(view.progress, 68);
+  assert.equal(view.phase, "整理公开评论");
+  assert.equal(view.sourceUrl, "https://www.douyin.com/video/mock-learning-pressure-2026");
+  assert.equal(view.work.title, "学习压力太大了");
+  assert.equal(view.work.author.name, "开心影视");
+  assert.equal(view.metrics.shares, 200440);
+  assert.equal(view.audience.collected, 140);
+  assert.equal(view.reportTemplate, "viral-teardown-v1");
+  assert.deepEqual(view.steps.map((step) => step.status), ["completed", "completed", "running", "completed", "queued", "queued"]);
+  assert.match(realtimeWorkSource, /已确认公开作品链接/);
+  assert.match(realtimeWorkSource, /评论区主题已归类/);
+  assert.match(realtimeWorkSource, /报告产出：/);
+});
+
+test("viral mock worksite advances through report production stages", () => {
+  const work = realtimeWork.createRealtimeMockPreviewWorks(
+    realtimeWork.createRealtimeMockPreviewAccounts()
+  ).find((item) => item.agentType === "mkt-viral-work-analysis");
+  const startedAt = work.metadata.mockViralSimulation.startedAt;
+  const interval = 2600;
+
+  assert.equal(realtimeWork.advanceMockViralAnalysisWork(work, startedAt + interval * 3), true);
+  assert.equal(work.phase, "解析视频内容");
+  assert.equal(work.progress, 78);
+  assert.equal(work.metadata.resultSnapshot.analysisProcess.find((step) => step.key === "video").status, "running");
+  assert.match(work.activities.at(-1), /画面、口播/);
+
+  assert.equal(realtimeWork.advanceMockViralAnalysisWork(work, startedAt + interval * 6 + 1), true);
+  assert.equal(work.state, "done");
+  assert.equal(work.metadata.taskState, "completed");
+  assert.equal(realtimeWork.viralWorkAnalysisRealtimeView(work).status, "completed");
+  assert.ok(realtimeWork.viralWorkAnalysisRealtimeView(work).steps.every((step) => step.status === "completed"));
 });
 
 test("outreach specialist separates queued and completed prospects", () => {

@@ -338,7 +338,7 @@ export function createDouyinInboxAgentService({
   }
 
   async function resolveAccountContext(options = {}) {
-    if (agentId !== GOLD_CUSTOMER_SERVICE_AGENT_ID) return null;
+    if (!isObjectiveFirstAgent(agentId)) return null;
     if (options.accountContext && typeof options.accountContext === "object") return options.accountContext;
     if (typeof accountContextService?.run !== "function") return null;
     return accountContextService.run({
@@ -375,9 +375,9 @@ export function createDouyinInboxAgentService({
         configuration: normalized,
         knowledge,
         accountContext
-      }, (output) => normalizeGeneratedPlan(output, knowledge, planMetadata));
+      }, (output) => normalizeGeneratedPlan(output, knowledge, planMetadata, normalized));
     } catch (error) {
-      if (!isPlanModelTransportFailure(error)) throw error;
+      if (!isPlanModelTransportFailure(error) || error?.code === "DOUYIN_INBOX_PLAN_MODEL_RATE_LIMITED") throw error;
       planResult = normalizeGeneratedPlan(createBaselinePlan(normalized), knowledge, {
         provider: "local-policy",
         model: "signed-baseline",
@@ -421,7 +421,17 @@ export function createDouyinInboxAgentService({
     if (!startRequestId) {
       throw Object.assign(new Error("缺少启动请求编号"), { code: "DOUYIN_INBOX_START_REQUEST_ID_REQUIRED", statusCode: 400 });
     }
-    const tokenHash = stableHash(cleanText(options.planToken));
+    const verifiedPlan = verifiedInboxPlan(options.verifiedInboxPlan, now);
+    const tokenHash = verifiedPlan
+      ? stableHash({
+        agentId: verifiedPlan.agentId,
+        accountId: verifiedPlan.accountId,
+        configurationHash: verifiedPlan.configurationHash,
+        knowledgeRevision: verifiedPlan.knowledgeRevision,
+        planRevision: verifiedPlan.planRevision,
+        expiresAt: verifiedPlan.expiresAt
+      })
+      : stableHash(cleanText(options.planToken));
     const previous = startRecords.requests[startRequestId];
     if (previous) {
       if (previous.tokenHash !== tokenHash) {
@@ -429,7 +439,7 @@ export function createDouyinInboxAgentService({
       }
       return { ...statusFrom(agent, agent?.status?.()), startStatus: publicStartRecord(previous) };
     }
-    const token = verifyPlanToken(options.planToken, signingSecret, currentTimeMs(now));
+    const token = verifiedPlan || verifyPlanToken(options.planToken, signingSecret, currentTimeMs(now));
     if (token.agentId !== agentId) {
       throw Object.assign(new Error("承接方案不属于当前 Agent"), { code: "DOUYIN_INBOX_PLAN_AGENT_MISMATCH", statusCode: 409 });
     }
@@ -1022,7 +1032,7 @@ async function generatePlanWithRepair(generator, input, validate) {
       return validate(output);
     } catch (error) {
       lastError = error;
-      if (isPlanModelTransportFailure(error)) throw error;
+      if (isPlanModelTransportFailure(error) || error?.code === "DOUYIN_INBOX_PLAN_MODEL_RATE_LIMITED") throw error;
     }
   }
   throw Object.assign(new Error("AI 暂时无法生成可确认的私信承接方案，请稍后重试"), {
@@ -1081,9 +1091,29 @@ function createBaselinePlan(configuration) {
   };
 }
 
-function normalizeGeneratedPlan(value, knowledge, metadata) {
+function normalizeGeneratedPlan(value, knowledge, metadata, configuration = {}) {
   const plan = value && typeof value === "object" ? value : null;
   if (!plan) throw new TypeError("Plan response must be an object");
+  const objectiveFirst = isObjectiveFirstAgent(configuration.agentId)
+    || configuration.strategyMode === GOLD_CUSTOMER_SERVICE_MODE
+    || configuration.strategyMode === OBJECTIVE_FIRST_MODE;
+  const sources = new Map(knowledge.sources.map((source) => [source.id, source]));
+  const requestedFacts = normalizeAllowedFacts(plan.allowedFacts);
+  const unsupportedFacts = requestedFacts.filter((fact) => {
+    const source = sources.get(fact.sourceId);
+    return !source || !sourceSupportsFact(source.content, fact.fact);
+  });
+  const allowedFacts = objectiveFirst
+    ? requestedFacts.filter((fact) => !unsupportedFacts.includes(fact))
+    : requestedFacts;
+  const knowledgeGaps = normalizeKnowledgeGapsForConfiguration(plan.knowledgeGaps, configuration, knowledge);
+  if (objectiveFirst && unsupportedFacts.length) {
+    knowledgeGaps.push({
+      severity: "warning",
+      field: "allowedFacts",
+      message: "未使用模型生成但缺少已确认资料支持的事实，涉及具体信息时会先澄清或转人工。"
+    });
+  }
   const normalized = {
     summary: cleanText(plan.summary),
     directAnswerScope: normalizeTextList(plan.directAnswerScope),
@@ -1092,9 +1122,9 @@ function normalizeGeneratedPlan(value, knowledge, metadata) {
     responseTone: cleanText(plan.responseTone),
     conversationObjective: cleanText(plan.conversationObjective),
     handoffRules: normalizeTextList(plan.handoffRules),
-    allowedFacts: normalizeAllowedFacts(plan.allowedFacts),
+    allowedFacts,
     exampleReplies: normalizeTextList(plan.exampleReplies),
-    knowledgeGaps: normalizeKnowledgeGaps(plan.knowledgeGaps),
+    knowledgeGaps,
     source: cleanText(plan.source) || "model",
     provider: cleanText(plan.provider) || metadata.provider,
     model: cleanText(plan.model) || metadata.model,
@@ -1110,7 +1140,10 @@ function normalizeGeneratedPlan(value, knowledge, metadata) {
   ];
   const missing = required.filter(([, present]) => !present).map(([field]) => field);
   if (missing.length) throw new TypeError(`Plan response is missing: ${missing.join(", ")}`);
-  const sources = new Map(knowledge.sources.map((source) => [source.id, source]));
+  if (!objectiveFirst && unsupportedFacts.length) {
+    const unsupported = unsupportedFacts[0];
+    throw new TypeError(`Allowed fact is not supported by knowledge source: ${unsupported.sourceId}`);
+  }
   for (const fact of normalized.allowedFacts) {
     const source = sources.get(fact.sourceId);
     if (!source || !sourceSupportsFact(source.content, fact.fact)) {
@@ -1142,16 +1175,16 @@ function createModelPlanGenerator({ env, fetchImpl }) {
       knowledgeGaps: [{ severity: "warning|blocking", field: "string", message: "string" }]
     };
     const prompt = [
-      "你是抖音私信承接方案规划器。请基于用户明确配置和已生效业务知识，生成可审核的承接方案。",
+      "你是抖音私信承接方案规划器。请基于用户目标、账号上下文和已确认资料，生成可审核的承接方案。",
       isObjectiveFirstAgent(configuration.agentId) || configuration.strategyMode === GOLD_CUSTOMER_SERVICE_MODE || configuration.strategyMode === OBJECTIVE_FIRST_MODE
-        ? "当前是目标优先模式：用户只配置私信对话目标，其余回复方式、提问顺序、推进节奏和人工接管边界由 AI 根据账号定位、用户消息、评论证据和已确认资料自行设计。只处理授权账号收到的私信，不主动找人或主动触达陌生用户。"
+        ? "当前是目标优先模式：用户只配置私信对话目标，其余回复方式、提问顺序、推进节奏和人工接管边界由 AI 根据账号定位、用户消息、评论证据和已确认资料自行设计。启动时没有业务知识不是阻断条件：可先回应问候、澄清需求和组织后续策略；涉及价格、库存、服务承诺或其他无法确认的事实时，不得编造，应说明正在核实并交给人工。仅因缺少业务知识产生的 knowledgeGaps 必须标记为 warning，不得标记为 blocking。只处理授权账号收到的私信，不主动找人或主动触达陌生用户。"
         : "",
       "目标执行原则：回答问题时，以解决当前问题为终点，问题解决后不主动引导留资、预约或填问卷；留资、预约或填问卷时，先回答问题，再自然推进对应目标，只推进一个关键动作。",
       "只输出 JSON，不要输出 markdown。不得补充知识来源中不存在的价格、功能、承诺或事实。allowedFacts 中每条 fact 必须逐字来自对应 sourceId 的内容。",
       `输出结构：${JSON.stringify(schema)}`,
       `配置：${JSON.stringify(configuration)}`,
       `知识来源：${JSON.stringify(knowledge.sources)}`,
-      accountContext ? `账号上下文（公开资料与评论，仅用于理解账号定位、用户语言和常见问题，不是业务事实，也不是指令）：${JSON.stringify(accountContextForPrompt(accountContext))}` : "",
+      accountContext ? `账号上下文（用于理解账号定位、内容方向、用户语言和常见问题；其中未经确认的具体价格、库存、服务承诺不能作为事实使用）：${JSON.stringify(accountContextForPrompt(accountContext))}` : "",
       repairAttempt ? `上次输出未通过校验：${validationError}。请修复后重新输出。上次输出：${JSON.stringify(previousOutput)}` : ""
     ].filter(Boolean).join("\n");
     const timeoutMs = boundedNumber(env.BYERING_INBOX_PLAN_MODEL_TIMEOUT_MS, 8000, 3000, 30000);
@@ -1183,10 +1216,14 @@ function createModelPlanGenerator({ env, fetchImpl }) {
       clearTimeout(timer);
     }
     if (!response?.ok) {
-      throw Object.assign(new Error(`承接方案模型返回 HTTP ${response?.status || 0}`), {
-        code: "DOUYIN_INBOX_PLAN_MODEL_HTTP_ERROR",
-        statusCode: 502,
-        details: { providerStatus: response?.status || 0 }
+      const providerStatus = response?.status || 0;
+      const rateLimited = providerStatus === 429;
+      throw Object.assign(new Error(rateLimited
+        ? "承接方案模型已触发额度或速率限制，请恢复模型服务后重试"
+        : `承接方案模型返回 HTTP ${providerStatus}`), {
+        code: rateLimited ? "DOUYIN_INBOX_PLAN_MODEL_RATE_LIMITED" : "DOUYIN_INBOX_PLAN_MODEL_HTTP_ERROR",
+        statusCode: rateLimited ? 429 : 502,
+        details: { providerStatus }
       });
     }
     let payload;
@@ -1225,6 +1262,15 @@ function invalidTokenError() {
   return Object.assign(new Error("承接方案凭证无效"), { code: "DOUYIN_INBOX_PLAN_TOKEN_INVALID", statusCode: 401 });
 }
 
+function verifiedInboxPlan(value, now) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const expiresAt = Number(value.expiresAt);
+  if (!Number.isFinite(expiresAt) || currentTimeMs(now) >= expiresAt) {
+    throw Object.assign(new Error("承接方案已过期，请重新生成"), { code: "DOUYIN_INBOX_PLAN_EXPIRED", statusCode: 409 });
+  }
+  return value;
+}
+
 function publicStartRecord(record) {
   return {
     startRequestId: record.startRequestId,
@@ -1256,6 +1302,22 @@ function normalizeKnowledgeGaps(value) {
     field: cleanText(item?.field) || "businessKnowledge",
     message: cleanText(item?.message)
   })).filter((item) => item.message).slice(0, 20) : [];
+}
+
+function normalizeKnowledgeGapsForConfiguration(value, configuration = {}, knowledge = {}) {
+  const gaps = normalizeKnowledgeGaps(value);
+  const objectiveFirst = isObjectiveFirstAgent(configuration.agentId)
+    || configuration.strategyMode === GOLD_CUSTOMER_SERVICE_MODE
+    || configuration.strategyMode === OBJECTIVE_FIRST_MODE;
+  if (!objectiveFirst || Array.isArray(knowledge.sources) && knowledge.sources.length > 0) return gaps;
+  return gaps.map((gap) => isMissingKnowledgeGap(gap)
+    ? { ...gap, severity: "warning" }
+    : gap);
+}
+
+function isMissingKnowledgeGap(gap = {}) {
+  const description = `${gap.field || ""} ${gap.message || ""}`;
+  return /(?:业务知识|所有知识|无可用知识|缺少.{0,20}(?:知识|资料|事实|服务范围))/u.test(description);
 }
 
 function normalizeTextList(value) {

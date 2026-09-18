@@ -15,6 +15,7 @@ import {
 } from "../src/salebuddy/ui/viral-work-analysis-config.js";
 import {
   buildViralWorkAnalysisReportHtml,
+  VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE,
   viralWorkAnalysisReportFile
 } from "../src/salebuddy/agents/viral-work-analysis-report.js";
 import {
@@ -532,6 +533,7 @@ test("viral work analysis report includes facts, audience needs, reusable playbo
     },
     comments: ["请问怎么买？", "求链接"]
   });
+  assert.equal(result.reportTemplate, "viral-teardown-v1");
   result.taskId = "viral-report-1";
   result.analysisProcess = [{ title: "选择视频代表画面", status: "completed", detail: "选择 2 张画面" }];
   result.analysisLogic = {
@@ -552,6 +554,10 @@ test("viral work analysis report includes facts, audience needs, reusable playbo
   };
 
   const html = buildViralWorkAnalysisReportHtml(result);
+  assert.equal(VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE.id, "viral-teardown-v1");
+  assert.deepEqual(VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE.sections, ["数据表现拆解", "内容结构逐帧拆解", "评论区洞察", "爆款成因总结", "风险与合规提示", "可复制方法论 SOP"]);
+  assert.match(html, /report-template.*viral-teardown-v1/);
+  assert.match(html, /VIRAL <em>TEARDOWN<\/em> · 爆款拆解/);
   assert.match(html, /爆款视频分析报告/);
   assert.match(html, /这次怎么得出结论/);
   assert.match(html, /挑选回看画面/);
@@ -569,11 +575,12 @@ test("viral work analysis report includes facts, audience needs, reusable playbo
   assert.match(html, /更新于/);
   assert.match(html, /本次引用的依据/);
 
-  const file = viralWorkAnalysisReportFile(result, { createdBy: "爆款作品分析" });
+  const file = viralWorkAnalysisReportFile(result, { createdBy: "抖音爆款拆解官" });
   assert.equal(file.type, "html");
   assert.equal(file.projectName, "内容研究");
-  assert.match(file.name, /viral-report-1/);
-  assert.equal(file.createdBy, "爆款作品分析");
+  assert.match(file.name, /抖音爆款视频拆解报告-viral-report-1/);
+  assert.equal(file.createdBy, "抖音爆款拆解官");
+  assert.equal(file.metadata.reportTemplate, "viral-teardown-v1");
 });
 
 test("file store returns the generated id for newly created analysis reports", () => {

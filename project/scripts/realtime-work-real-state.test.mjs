@@ -58,7 +58,7 @@ test("live outreach quota detection is provider-driven and includes the account 
     }
   }), {
     agentId: "mkt-live-danmaku-outreach",
-    agentLabel: "电商直播间未成交客户触达",
+    agentLabel: "直播追单助理",
     accountLabel: "品牌直播间",
     sentCount: 37,
     source: "provider",
@@ -86,7 +86,7 @@ test("live outreach quota detection is provider-driven and includes the account 
 
 test("realtime work contains the quota dialog copy and does not use a fixed count", () => {
   assert.match(source, /今日私信触达额度已达上限/);
-  assert.match(source, /电商直播间未成交客户触达/);
+  assert.match(source, /直播追单助理/);
   assert.match(source, /发生账号/);
   assert.match(source, /今日已完成触达/);
   assert.match(source, /B 端业务方案/);
@@ -596,7 +596,7 @@ test("Morgan realtime work only shows acquisition progress", () => {
   const workScene = source.slice(workSceneStart, workSceneEnd);
   assert.match(source, /sb-rw-cloud-panel/);
   assert.match(source, /sb-rw-acquisition-full-desktop-panel/);
-  assert.match(source, /douyinCloudViewerUrlFor\(selected\.id\)/);
+  assert.match(source, /douyinCloudViewerUrlFor\(selected\.id, \{ accountId: viewerAccountId \}\)/);
   assert.match(source, /cloudLive\.setAttribute\("aria-hidden", "true"\)/);
   assert.match(source, /frame\.setAttribute\("aria-hidden", "true"\)/);
   assert.doesNotMatch(workScene, /最近一次成功工作录屏/);
@@ -647,7 +647,8 @@ test("live outreach worksite separates pending danmaku from contacted users", ()
   const end = source.indexOf("function acquisitionLiveRoomVideoUrl", start);
   const worksite = source.slice(start, end);
   assert.match(worksite, /const rows = liveDanmakuOutreachRows\(work\)/);
-  assert.match(worksite, /直播弹幕/);
+  assert.match(worksite, /未成交用户/);
+  assert.match(source, /\.sb-rw-main\.is-live-danmaku-outreach-work \.sb-rw-outreach-specialist-person\.is-selected\{box-shadow:none\}/);
   assert.match(worksite, /\$\{pending\.length\} 位待触达/);
   assert.match(worksite, /已触达列表/);
   assert.match(worksite, /\$\{sent\.length\} 位/);
@@ -939,6 +940,7 @@ test("realtime cloud panel uses the latest successful recording instead of a liv
   assert.equal(realtimeWork.isSuccessfulReplayWork({ state: "done", artifact: "任务已取消" }), false);
   assert.equal(realtimeWork.isSuccessfulReplayWork({ state: "done", lastError: { message: "失败" } }), false);
   assert.match(source, /listOfficeReplay\(agentId, \{[^}]*successfulOnly:\s*true/);
+  assert.match(source, /loadOfficeReplayImage/);
   assert.match(source, /loadOfficeReplayVideo/);
   assert.match(source, /sb-rw-cloud-replay/);
   assert.match(source, /sb-rw-cloud-capture-source/);
@@ -953,6 +955,7 @@ test("realtime cloud panel uses the latest successful recording instead of a liv
 
 test("realtime cloud replay is scoped to the current task and successful segments", () => {
   assert.match(source, /const taskId = replayTaskIdForWork\(work\);/);
+  assert.match(source, /const scopeKey = replayScopeKeyForWork\(work\);/);
   assert.match(source, /listOfficeReplay\(agentId, \{ taskId, limit: 8, latestOnly: true, successfulOnly: true \}\)/);
   assert.match(source, /durationMs: Number\(data\.durationMs\) \|\| 5_000/);
 });

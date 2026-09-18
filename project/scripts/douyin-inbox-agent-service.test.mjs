@@ -215,6 +215,58 @@ test("complete acquisition inbox accepts only the conversation objective without
   assert.deepEqual(requests[0].knowledge.sources, []);
 });
 
+test("complete acquisition ignores unsupported model facts when no business knowledge is available", async () => {
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-comment-acquisition",
+    douyinMcpService: fakeMcp(),
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    planGenerator: async () => completeModelPlan({ conversationObjective: "回答问题" })
+  });
+
+  const result = await service.plan({
+    accountId: "account-1",
+    accountName: "测试账号",
+    replyObjective: "回答问题",
+    strategyMode: "objective_first"
+  });
+
+  assert.equal(result.confirmable, true);
+  assert.deepEqual(result.plan.allowedFacts, []);
+  assert.ok(result.plan.knowledgeGaps.some((gap) => gap.field === "allowedFacts" && gap.severity === "warning"));
+});
+
+test("complete acquisition uses account context and keeps missing knowledge as a warning", async () => {
+  const contexts = [];
+  const service = createDouyinInboxAgentService({
+    agentId: "mkt-comment-acquisition",
+    douyinMcpService: fakeMcp(),
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    accountContextService: {
+      async run(input) {
+        contexts.push(input);
+        return { status: "ready", account: { nickname: "测试账号" }, videos: [], analysis: {}, evidence: [] };
+      }
+    },
+    planGenerator: async () => completeModelPlan({
+      allowedFacts: [],
+      knowledgeGaps: [{ severity: "blocking", field: "所有业务知识", message: "当前无可用知识来源" }]
+    })
+  });
+
+  const result = await service.plan({
+    accountId: "account-1",
+    accountName: "测试账号",
+    accountIdentity: { secUid: "sec-1" },
+    replyObjective: "回答客户问题，必要时澄清需求。",
+    strategyMode: "objective_first"
+  });
+
+  assert.equal(result.confirmable, true);
+  assert.equal(result.plan.knowledgeGaps[0].severity, "warning");
+  assert.equal(contexts.length, 1);
+  assert.equal(contexts[0].accountIdentity.secUid, "sec-1");
+});
+
 test("gold customer service planner treats answer-only and lead-capture goals differently", async () => {
   const requests = [];
   const service = createDouyinInboxAgentService({
@@ -472,24 +524,21 @@ test("inbox preflight falls back to a signed baseline when the plan provider tim
   assert.match(result.planToken, /^[^.]+\.[^.]+$/);
 });
 
-test("inbox preflight falls back to a signed baseline when the plan provider rate limits", async () => {
+test("inbox preflight blocks when the plan provider rate limits", async () => {
   const service = createDouyinInboxAgentService({
     douyinMcpService: fakeMcp(),
     env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
     planGenerator: async () => {
       throw Object.assign(new Error("provider rate limited"), {
-        code: "DOUYIN_INBOX_PLAN_MODEL_HTTP_ERROR",
+        code: "DOUYIN_INBOX_PLAN_MODEL_RATE_LIMITED",
         details: { providerStatus: 429 }
       });
     }
   });
 
-  const result = await service.plan(completePlanInput());
-
-  assert.equal(result.confirmable, true);
-  assert.equal(result.plan.source, "configuration");
-  assert.equal(result.plan.provider, "local-policy");
-  assert.equal(result.plan.model, "signed-baseline");
+  await assert.rejects(() => service.plan(completePlanInput()), {
+    code: "DOUYIN_INBOX_PLAN_MODEL_RATE_LIMITED"
+  });
 });
 
 test("client knowledgeContext cannot bypass required business knowledge", async () => {
@@ -524,6 +573,28 @@ test("inbox start rejects forged, expired, and stale plan tokens", async () => {
   await assert.rejects(() => service.start({ ...completePlanInput({ replyTone: "活泼" }), planToken: planned.planToken, startRequestId: "start-stale" }), { code: "DOUYIN_INBOX_PLAN_STALE" });
   clock += 31 * 60 * 1000;
   await assert.rejects(() => service.start({ ...completePlanInput(), planToken: planned.planToken, startRequestId: "start-expired" }), { code: "DOUYIN_INBOX_PLAN_EXPIRED" });
+});
+
+test("a core-verified plan remains valid when generic transport redacts its bearer token", async () => {
+  const service = createDouyinInboxAgentService({
+    douyinMcpService: fakeMcp(),
+    env: { BYERING_LLM_API_KEY: "test-key", BYERING_INBOX_PLAN_SIGNING_SECRET: "test-signing-secret-32-bytes-long" },
+    planGenerator: async () => completeModelPlan()
+  });
+  const input = completePlanInput({ startPolling: false });
+  const planned = await service.plan(input);
+  const [encoded] = planned.planToken.split(".");
+  const verifiedInboxPlan = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8"));
+  const startRequestId = `core-verified-${Math.random().toString(36).slice(2)}`;
+
+  const result = await service.start({
+    ...input,
+    planToken: "[REDACTED]",
+    verifiedInboxPlan,
+    startRequestId
+  });
+
+  assert.equal(result.startStatus.state, "running");
 });
 
 test("blocking plan gaps cannot be started", async () => {

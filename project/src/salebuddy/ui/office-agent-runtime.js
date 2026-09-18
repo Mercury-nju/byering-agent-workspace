@@ -1,10 +1,13 @@
 import { listWorks, subscribeWork } from "../agents/work-live.js";
 import { createOfficeStatusStore } from "../bridge/office-status.js";
 import { receptionBaseUrl } from "../bridge/account-reception-client.js";
+import { createResultsMockPreviewOfficeWorks, isResultsMockPreview } from "./results-mock-preview.js";
 import { officeWorkState } from "./office-workspace-state.js";
 import {
   getMarketplaceAgent,
   listActivatedMarketplaceAgents,
+  MARKETPLACE_LATEST_AGENT_IDS,
+  MARKETPLACE_STANDALONE_AGENT_IDS,
   sortMarketplaceAgentsForDisplay
 } from "../agents/marketplace.js";
 import { createOfficeWorkspace } from "./office-workspace.js";
@@ -32,11 +35,11 @@ const VIDEO_LAYER_ID = "salebuddy-office-role-video-layer";
 
 const CSS = `
 .office-dashboard [class*="_pageTitleText_"]{display:none !important}
-[data-sb-office-simple-host="1"]{position:relative!important;overflow:hidden!important;background:#f6f7f9!important}
+[data-sb-office-simple-host="1"]{--sb-office-role-background:#f4f4f4;position:relative!important;overflow:hidden!important;background:var(--sb-office-role-background)!important}
 [data-sb-office-simple-host="1"]>:not(#${VIDEO_LAYER_ID}){display:none!important}
-#${VIDEO_LAYER_ID}{position:absolute;inset:0;z-index:6;box-sizing:border-box;overflow:auto;padding:24px 0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;scrollbar-width:none}
+#${VIDEO_LAYER_ID}{position:absolute;inset:0;z-index:6;box-sizing:border-box;overflow:auto;padding:24px 0;background:var(--sb-office-role-background,#f4f4f4);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;scrollbar-width:none}
 #${VIDEO_LAYER_ID}::-webkit-scrollbar{display:none}
-#${VIDEO_LAYER_ID} .sb-office-agent-stage{display:grid;grid-template-columns:repeat(2,minmax(300px,300px));justify-content:center;align-content:start;gap:28px 12px;min-height:100%;box-sizing:border-box;padding:0 12px}
+#${VIDEO_LAYER_ID} .sb-office-agent-stage{display:grid;grid-template-columns:repeat(3,minmax(300px,300px));justify-content:center;align-content:start;gap:28px 12px;min-height:100%;box-sizing:border-box;padding:0 12px;background:var(--sb-office-role-background,#f4f4f4)}
 #${VIDEO_LAYER_ID} .sb-office-agent-figure{width:300px;min-width:300px;margin:0;display:flex;flex-direction:column;align-items:center;gap:8px}
 #${VIDEO_LAYER_ID} .sb-office-agent-badge{position:relative;display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:center;gap:10px;width:292px;max-width:calc(100% - 8px);min-width:0;height:58px;box-sizing:border-box;padding:7px 14px 7px 6px;border:1px solid rgba(8,8,8,.04);border-radius:999px;background:#fff;box-shadow:0 4px 18px rgba(8,8,8,.06);color:#080808;text-align:left;z-index:2}
 #${VIDEO_LAYER_ID} .sb-office-agent-badge:hover{box-shadow:0 6px 22px rgba(8,8,8,.1)}
@@ -56,12 +59,13 @@ const CSS = `
 #${VIDEO_LAYER_ID} .sb-office-agent-badge[data-state="done"] .sb-office-agent-dot,#${VIDEO_LAYER_ID} .sb-office-agent-badge[data-state="listening"] .sb-office-agent-dot{background:#3f7ee8}
 #${VIDEO_LAYER_ID} .sb-office-agent-badge[data-state="paused"] .sb-office-agent-dot{background:#ba852d}
 #${VIDEO_LAYER_ID} .sb-office-agent-avatar-fallback{font-size:12px}
-#${VIDEO_LAYER_ID} .sb-office-agent-video-button{position:relative;display:block;width:300px;height:300px;flex:0 0 300px;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer;overflow:hidden}
+#${VIDEO_LAYER_ID} .sb-office-agent-video-button{position:relative;display:block;width:300px;height:300px;flex:0 0 300px;padding:0;border:0;border-radius:0;background:var(--sb-office-role-background,#f4f4f4);cursor:pointer;overflow:hidden}
 #${VIDEO_LAYER_ID} .sb-office-agent-video-button:hover{filter:brightness(.985)}
 #${VIDEO_LAYER_ID} .sb-office-agent-video-button:focus-visible{outline:2px solid rgba(48,99,219,.38);outline-offset:2px}
 #${VIDEO_LAYER_ID} .sb-office-agent-video{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;background:transparent;pointer-events:none}
 #${VIDEO_LAYER_ID} .sb-office-agent-video[hidden]{display:none}
 #${VIDEO_LAYER_ID} .sb-office-empty{display:grid;place-items:center;min-height:100%;padding:32px;color:#89929b;font-size:13px;text-align:center}
+@media(max-width:1500px){#${VIDEO_LAYER_ID} .sb-office-agent-stage{grid-template-columns:repeat(2,minmax(300px,300px))}}
 @media(max-width:900px){.office-dashboard [class*="_contentRow_"]{position:relative!important;min-width:0!important}.office-dashboard [class*="_leftPanel_"]{width:100%!important;min-width:0!important;flex:1 1 auto!important}.office-dashboard [class*="_rightPanel_"]{position:absolute!important;top:0!important;right:0!important;bottom:auto!important;left:auto!important;width:min(294px,calc(100% - 24px))!important;min-width:0!important;height:calc(100% - 26px)!important;margin:0!important;z-index:20!important}}
 @media(max-width:640px){#${VIDEO_LAYER_ID}{padding:16px 8px}#${VIDEO_LAYER_ID} .sb-office-agent-stage{grid-template-columns:minmax(0,1fr);gap:24px 0;padding:0}#${VIDEO_LAYER_ID} .sb-office-agent-figure{width:100%;min-width:0}#${VIDEO_LAYER_ID} .sb-office-agent-badge,#${VIDEO_LAYER_ID} .sb-office-agent-video-button{width:100%;max-width:100%}#${VIDEO_LAYER_ID} .sb-office-agent-video-button{height:auto;aspect-ratio:1}}
 `;
@@ -90,7 +94,9 @@ function officeBadgeStateLabel(agent) {
 }
 
 export function officeAgentAriaLabel(agent = {}) {
-  const account = agent.id === OFFICE_CHIEF_AGENT_ID ? "" : `，抖音账号：${agent.accountLabel || "抖音账号待同步"}`;
+  const account = agent.id === OFFICE_CHIEF_AGENT_ID ? "" : agent.accountLabelKind === "source"
+    ? `，工作来源：${agent.accountLabel}`
+    : `，抖音账号：${agent.accountLabel || "抖音账号待同步"}`;
   return `查看 ${agent.name || "数字员工"}${account}，当前状态：${agent.stateLabel || officeBadgeStateLabel(agent)}`;
 }
 
@@ -226,7 +232,10 @@ function addOfficeAccount(accounts, seen, reference, explicitName = "") {
 
 function officeAccountPresentation(agentId, works = [], accounts = null) {
   if (agentId === OFFICE_CHIEF_AGENT_ID) {
-    return { accountIds: [], accountNames: [], accountLabel: "" };
+    return { accountIds: [], accountNames: [], accountLabel: "", accountLabelKind: null };
+  }
+  if (MARKETPLACE_STANDALONE_AGENT_IDS.includes(agentId)) {
+    return { accountIds: [], accountNames: [], accountLabel: "公开作品分析", accountLabelKind: "source" };
   }
   const directory = officeAccountDirectory(accounts);
   const accountEntries = [];
@@ -254,7 +263,8 @@ function officeAccountPresentation(agentId, works = [], accounts = null) {
   return {
     accountIds: accountEntries.map((entry) => entry.id).filter(Boolean),
     accountNames,
-    accountLabel: accountLabel || "抖音账号待同步"
+    accountLabel: accountLabel || "抖音账号待同步",
+    accountLabelKind: "account"
   };
 }
 
@@ -572,7 +582,16 @@ export function mountOfficeAgentRuntime({ teamLive = null, gateway = null, onCon
   let officeStage = null;
   let accountDirectory = officeAccountDirectory();
   let accountDirectoryPending = null;
-  const statusStore = createOfficeStatusStore({ getLocalWorks: getWorks, getAgentIds: () => getActivatedAgents().map(agent => agent.id) });
+  const mockPreview = isResultsMockPreview();
+  const resolvedActivatedAgents = () => mockPreview
+    ? MARKETPLACE_LATEST_AGENT_IDS.map((agentId) => getMarketplaceAgent(agentId)).filter(Boolean)
+    : getActivatedAgents();
+  const resolvedLocalWorks = () => mockPreview ? createResultsMockPreviewOfficeWorks() : getWorks();
+  const statusStore = createOfficeStatusStore({
+    getLocalWorks: resolvedLocalWorks,
+    getAgentIds: () => resolvedActivatedAgents().map(agent => agent.id),
+    fetchSnapshot: mockPreview ? async () => ({ works: createResultsMockPreviewOfficeWorks() }) : undefined
+  });
   const workspace = createOfficeWorkspace({ teamLive, gateway, onConfigure, onOpenResult, onAnalyze, onOpenWork,
     getWorks: statusStore.getWorks, getWork: statusStore.getWork, onRetryStatus: () => statusStore.refresh() });
   const onOpenAgent = agentId => {
@@ -622,7 +641,7 @@ export function mountOfficeAgentRuntime({ teamLive = null, gateway = null, onCon
       signature = "";
     }
     if (panelHost) workspace.mount(panelHost);
-    const snapshot = buildOfficeAgentRoster({ activatedAgents: getActivatedAgents(), works: statusStore.getWorks(), accounts: accountDirectory, teamLive });
+    const snapshot = buildOfficeAgentRoster({ activatedAgents: resolvedActivatedAgents(), works: statusStore.getWorks(), accounts: accountDirectory, teamLive });
     roleBindings.assign(snapshot.roster);
     workspace.refresh();
     const nextSignature = snapshot.roster.map((agent) => [agent.id, agent.name, agent.accountLabel, agent.state, agent.stateLabel, roleBindings.get(agent.id)].join(":"))

@@ -147,7 +147,9 @@ export function createDouyinMcpService({
       const stderr = workerStderr.trim();
       if (stderr) console.error(`[douyin-mcp] worker exited code=${code ?? "null"} signal=${signal || "none"}: ${stderr}`);
       rejectPending(Object.assign(new Error(stderr || "Douyin MCP worker exited"), {
-        code: "DOUYIN_MCP_WORKER_EXITED",
+        code: stderr.includes("DOUYIN_MCP_WORKER_ALREADY_RUNNING")
+          ? "DOUYIN_MCP_WORKER_ALREADY_RUNNING"
+          : "DOUYIN_MCP_WORKER_EXITED",
         details: { code, signal, stderr: stderr || null }
       }), worker);
     });

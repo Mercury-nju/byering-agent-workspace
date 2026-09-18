@@ -4,26 +4,46 @@
  */
 import { resolveBusinessPrompt } from "../business/prompt-catalog.js";
 import { getConversationScenario } from "./conversation-scenarios.js";
+import { MARKETPLACE_LATEST_AGENT_IDS } from "./marketplace.js";
 
 const PROJECT_LEADS = { projectId: "room-lead-expansion", projectName: "潜在客户拓展项目组" };
 const PROJECT_CONTENT = { projectId: "room-content", projectName: "触达内容共创项目组" };
+const TASK_ACQUISITION = { taskId: "mock-task-acquisition", sourceTaskTitle: "潜客拓展" };
+const VIRAL_REPORT_TEMPLATE_URL = new URL(
+  "../../../artifacts/抖音爆款视频拆解报告-学习压力太大了.html",
+  import.meta.url
+).href;
+const VIRAL_REPORT_ARTIFACT = Object.freeze({
+  name: "抖音爆款视频拆解报告-学习压力太大了.html",
+  type: "html",
+  summary: "从数据、结构、评论、爆款成因到可复制 SOP，完整拆解 14 秒短剧《学习压力太大了》。",
+  status: "已完成",
+  projectId: "room-content",
+  projectName: "内容共创项目组",
+  createdBy: "抖音爆款拆解官",
+  sourceTaskTitle: "《学习压力太大了》",
+  reportTemplate: "viral-teardown-v1",
+  url: VIRAL_REPORT_TEMPLATE_URL,
+  // The URL is the source of truth; this fallback keeps the artifact previewable in offline DM tests.
+  content: "<h1>抖音爆款视频拆解报告</h1><p>完整报告已替换为《学习压力太大了》的真实拆解 HTML，请打开报告查看数据、结构、评论、成因和可复制 SOP。</p>"
+});
 
 const SCENARIOS = Object.freeze({
   main: {
     name: "Byering · 幕僚长",
     startedAt: "2026-08-10T00:36:00.000Z",
     messages: [
-      ["user", "我", "今天先盯潜客拓展项目组。重点不是抓了多少人，而是高意向客户能不能顺利进入私信跟进。"],
-      ["main", "Byering · 幕僚长", "明白。我把目标拆成三道检查：线索有效性、意向评分、触达承接。线索猎人和线索分析师先交叉核验，触达策略师只接收 A 级客户。"],
+      ["user", "我", "今天先看臻选新能源·上海账号的获客进展。重点不是收集多少互动，而是高意向客户能不能顺利进入私信跟进。"],
+      ["main", "Byering · 幕僚长", "明白。我会按找人、意向分析和首次触达三个环节汇总进展：找客专员保留互动证据，客户分析员确认优先级，潜客触达专员只接收已确认的 A 级潜客。"],
       ["user", "我", "下午复盘前给我一版可决策的结论，异常也要写出来。"],
-      ["main", "Byering · 幕僚长", "首轮已收口：新增有效潜客 214 位，其中 A 级 47 位；已触达 31 位，收到有效回复 12 位。当前卡点是 6 位客户主页信息不足，我已安排二次核验。", {
-        name: "潜客拓展项目执行简报-0810.md",
+      ["main", "Byering · 幕僚长", "首轮数据已汇总：新增有效潜客 214 位，其中 A 级 47 位；已触达 31 位，收到有效回复 12 位。当前有 6 位客户主页信息不足，已标记为待核验，暂不进入触达。", {
+        name: "潜客拓展任务简报-0810.md",
         type: "doc",
         summary: "214 位有效潜客 · 47 位 A 级 · 12 位有效回复",
         status: "已汇总",
-        ...PROJECT_LEADS,
+        ...TASK_ACQUISITION,
         createdBy: "Byering · 幕僚长",
-        content: "# 潜客拓展项目执行简报\n\n## 今日结论\n\n- 新增有效潜客：214 位\n- A 级高意向：47 位\n- 已发送私信：31 位\n- 有效回复：12 位\n- 待二次核验：6 位\n\n## 决策建议\n\n优先让触达策略师承接明确提到预算、车型或到店时间的 12 位客户；信息不足的客户暂不触达，避免浪费账号额度。\n\n## 风险\n\n晚间直播场次评论增速较快，建议 20:00 前扩容一次采集队列。"
+        content: "# 潜客拓展任务简报\n\n## 今日结论\n\n- 新增有效潜客：214 位\n- A 级高意向：47 位\n- 已发送私信：31 位\n- 有效回复：12 位\n- 待二次核验：6 位\n\n## 决策建议\n\n优先让潜客触达专员承接明确提到预算、车型或到店时间的 12 位客户；信息不足的客户暂不触达，避免浪费账号额度。\n\n## 风险\n\n晚间直播场次评论增速较快，建议 20:00 前扩容一次采集队列。"
       }]
     ]
   },
@@ -242,17 +262,68 @@ const SCENARIOS = Object.freeze({
         content: "<h1>金牌客服目标执行记录</h1><table><tr><th>客户</th><th>目标</th><th>当前状态</th><th>关键原话</th><th>处理结果</th></tr><tr><td>南京徐女士</td><td>获取可跟进线索</td><td>已回应并确认需求</td><td>可以加微信发一下现车颜色和周末档期吗？</td><td>按目标询问必要的联系方式</td></tr><tr><td>合肥赵先生</td><td>引导预约</td><td>待人工确认</td><td>周六下午两点可以到店，留个微信方便确认。</td><td>涉及确认性承诺，保留给人工</td></tr><tr><td>宁波程女士</td><td>解答咨询</td><td>跟进中</td><td>先看看家用空间和续航表现。</td><td>继续回答车型问题，不扩展无关话题</td></tr></table>"
       }]
     ]
+  },
+  "mkt-live-danmaku-analysis": {
+    name: "直播间弹幕分析",
+    startedAt: "2026-09-13T12:06:00.000Z",
+    messages: [
+      ["user", "我", "分析昨晚直播间的新弹幕，看看观众最关心什么。"],
+      ["mkt-live-danmaku-analysis", "直播间弹幕分析", "可以。我只读取授权账号当前直播间的新弹幕，整理高频问题、需求和转化阻力，不读取点赞、送礼、关注或进场信号。"],
+      ["user", "我", "把高频问题、转化阻力和下一场直播建议分开。"],
+      ["mkt-live-danmaku-analysis", "直播间弹幕分析", "分析完成：共读取 1,284 条弹幕，车价与续航是最高频问题；31% 的用户卡在落地价格确认，下一场建议先用真实配置对比承接这两类问题。", {
+        name: "直播间弹幕分析报告-2026-09-14.html",
+        type: "html",
+        summary: "1,284 条弹幕 · 车价与续航为高频问题 · 31% 卡在价格确认",
+        status: "已完成",
+        projectId: "room-live-growth",
+        projectName: "直播转化优化项目组",
+        createdBy: "直播间弹幕分析",
+        content: "<h1>直播间弹幕分析报告</h1><h2>高频问题</h2><p>落地价格、续航和现车颜色是出现最多的三类问题。</p><h2>转化阻力</h2><p>31% 的有效弹幕停留在价格确认，部分用户还缺少配置对比。</p><h2>下一场直播</h2><p>开场先展示真实配置差异，再安排价格和到店问题的集中答疑。</p>"
+      }],
+      ["user", "我", "下一场直播先优化哪一段？"],
+      ["mkt-live-danmaku-analysis", "直播间弹幕分析", "建议先调整开场 10 分钟：先讲配置差异和真实用车场景，再集中回答价格、续航和到店时间。分析结论只用于优化直播，不会自动触达观众。"]
+    ]
+  },
+  "mkt-live-danmaku-outreach": {
+    name: "电商直播间未成交客户触达",
+    startedAt: "2026-09-13T12:28:00.000Z",
+    messages: [
+      ["user", "我", "把直播间问价格和到店的观众逐一触达，先给我看结果。"],
+      ["mkt-live-danmaku-outreach", "电商直播间未成交客户触达", "收到。我会只处理本场直播里有明确发言的观众，逐一核验身份后发送首次私信；拒绝联系、投诉或身份不明的用户会转人工，不会重复发送。"],
+      ["user", "我", "重点看发送成功、失败和需要人工的原因。"],
+      ["mkt-live-danmaku-outreach", "电商直播间未成交客户触达", "本场共识别 24 位可触达观众：成功发送 18 位、账号限制失败 3 位、身份待核验 3 位。每条结果都保留了弹幕原话、发送账号和平台回执。", {
+        name: "直播间观众首次触达记录-2026-09-14.html",
+        type: "html",
+        summary: "24 位可触达观众 · 18 条成功回执 · 6 条异常记录",
+        status: "已完成",
+        projectId: "room-live-growth",
+        projectName: "直播转化优化项目组",
+        createdBy: "电商直播间未成交客户触达",
+        content: "<h1>直播间观众首次触达记录</h1><p>成功发送 18 位，账号限制失败 3 位，身份待核验 3 位。</p><h2>异常</h2><p>失败与待核验用户已暂停重试，避免重复触达。</p>"
+      }],
+      ["user", "我", "下一场直播继续按这个规则执行。"],
+      ["mkt-live-danmaku-outreach", "电商直播间未成交客户触达", "可以。下一场仍会先校验发言用户身份，再按每位用户逐一发送；出现投诉、拒绝或身份异常时立即停止该用户的自动动作并保留回执。"]
+    ]
+  },
+  "mkt-viral-work-analysis": {
+    name: "抖音爆款拆解官",
+    startedAt: "2026-09-13T12:50:00.000Z",
+    messages: [
+      ["user", "我", "拆解这条公开爆款视频《学习压力太大了》，重点看它为什么能持续带来互动。"],
+      ["mkt-viral-work-analysis", "抖音爆款拆解官", "可以。我会按真实报告模板分析公开作品本身、作品数据和评论，把内容结构、流量假设、评论需求和可验证的创作测试分开，不把互动直接当成成交。"],
+      ["user", "我", "把下一轮可验证的创作测试也列出来。"],
+      ["mkt-viral-work-analysis", "抖音爆款拆解官", "分析完成：报告已按数据、内容结构、评论区、爆款成因、风险边界和可复制 SOP 完整生成；下一轮建议分别测试开场钩子、道具梗和评论区开放结尾。", {
+        ...VIRAL_REPORT_ARTIFACT
+      }],
+      ["user", "我", "先做哪组测试？"],
+      ["mkt-viral-work-analysis", "抖音爆款拆解官", "建议先测试开场钩子，因为它最直接影响停留和后续评论；每组测试只改一个变量，发布后再对比 3 秒留存、有效评论和分享率。"]
+    ]
   }
 });
 
 export const DEMO_DM_AGENT_TYPES = Object.freeze([
   "main",
-  "mkt-comment-acquisition",
-  "mkt-find-people",
-  "mkt-intent-analyst",
-  "mkt-cold-writer",
-  "mkt-dm-inbox",
-  "mkt-gold-customer-service"
+  ...MARKETPLACE_LATEST_AGENT_IDS
 ]);
 
 /**
@@ -397,6 +468,66 @@ const DEMO_AGENT_MEMORY = Object.freeze({
         { field: "replySla", label: "回复时限", to: "15 分钟" },
         { field: "goalDriven", label: "对话方式", to: "先回应问题，再按用户目标推进" },
         { field: "handoffRule", label: "人工边界", to: "无法确认或涉及敏感信息时交人工" }
+      ]
+    }
+  },
+  "mkt-live-danmaku-analysis": {
+    businessContext: "负责分析授权账号直播间的新弹幕，提炼高频问题、需求和转化阻力，输出下一场直播的可验证优化建议。",
+    account: { name: "臻选新能源·上海", handle: "@58262205543" },
+    metrics: { liveRooms: 4, danmakuCount: 1284, topQuestion: "落地价格", conversionBlock: "价格确认" },
+    yesterday: { liveRooms: 1, danmakuCount: 1284, answeredQuestions: 86, conversionBlockRate: "31%" },
+    diagnosis: [
+      "弹幕高峰集中在开场价格和续航介绍之后，用户需要更快看到配置差异",
+      "31% 的有效弹幕停留在落地价格确认，缺少统一的真实配置对比",
+      "当前分析样本足够支撑开场和答疑优化，但不能直接推断成交结果"
+    ],
+    config: { scope: "当前直播间新弹幕", focus: "问题 + 需求 + 转化阻力", reportMode: "按场次沉淀" },
+    proposal: {
+      title: "优化直播开场与集中答疑",
+      changes: [
+        { field: "focus", label: "分析重点", to: "优先拆解价格、续航和配置对比问题" },
+        { field: "reportMode", label: "报告方式", to: "按场次对比高频问题和转化阻力" },
+        { field: "scope", label: "读取范围", to: "保持只读取当前直播间新弹幕" }
+      ]
+    }
+  },
+  "mkt-live-danmaku-outreach": {
+    businessContext: "负责把直播间明确发言且身份可核验的观众逐一执行首次私信触达，保留发送回执并记录异常。",
+    account: { name: "臻选新能源·上海", handle: "@58262205543" },
+    metrics: { eligibleViewers: 24, sentUsers: 18, failedUsers: 3, reviewUsers: 3, deliveryRate: "75%" },
+    yesterday: { eligibleViewers: 24, sentUsers: 18, failedUsers: 3, reviewUsers: 3, replyUsers: 7, deliveryRate: "75%" },
+    diagnosis: [
+      "24 位可触达观众中 18 位收到成功回执，账号限制和身份核验是主要异常来源",
+      "部分用户在弹幕发言后等待过久，错过了首次触达的有效窗口",
+      "当前逐一发送和异常暂停规则有效，不应为了覆盖率跳过身份核验"
+    ],
+    config: { sendWindow: "直播结束后 2 小时内", identityCheck: "发送前核验", exceptionRule: "失败或投诉立即暂停" },
+    proposal: {
+      title: "缩短直播观众首次触达窗口",
+      changes: [
+        { field: "sendWindow", label: "触达时间窗", to: "直播结束后 30 分钟内" },
+        { field: "identityCheck", label: "身份规则", to: "保留主页与弹幕双重核验" },
+        { field: "exceptionRule", label: "异常处理", to: "失败、拒绝、投诉和身份异常均暂停该用户" }
+      ]
+    }
+  },
+  "mkt-viral-work-analysis": {
+    businessContext: "负责分析公开爆款作品的内容结构、数据和评论需求，拆解流量假设并输出下一轮创作测试。",
+    account: { name: "公开作品数据" },
+    metrics: { analyzedWorks: 6, likes: 51274, comments: 10239, shares: 200440, favorites: 3422, testGroups: 3 },
+    yesterday: { analyzedWorks: 1, likes: 51274, comments: 10239, shares: 200440, favorites: 3422, conversionRate: "待验证" },
+    diagnosis: [
+      "前 3 秒的家庭冲突和道具反差带来主要停留，开场变量值得单独验证",
+      "评论集中在烟梗接龙、家长共鸣和生活压力，说明用户会继续讨论开放结尾",
+      "作品数据能支持内容优化假设，但播放和互动不能直接写成成交"
+    ],
+    config: { scope: "公开作品 + 评论", focus: "内容机制和评论需求", testMode: "一次只改一个变量" },
+    proposal: {
+      title: "建立爆款作品的分组创作测试",
+      changes: [
+        { field: "focus", label: "分析重点", to: "优先验证开场钩子、配置对比和评论答疑" },
+        { field: "testMode", label: "测试方式", to: "每组只调整一个内容变量" },
+        { field: "scope", label: "作品范围", to: "保持公开作品和评论的只读分析" }
       ]
     }
   },
@@ -645,6 +776,9 @@ const ROLE_CAPABILITIES = Object.freeze({
   "mkt-cold-writer": "承接已经确认的潜客名单，配置首轮私信，发送前让你确认，发送后返回平台结果。",
   "mkt-dm-inbox": "监听授权账号的新私信，结合对话策略继续承接客户，需要人工决定的节点会先交给你。",
   "mkt-gold-customer-service": "承接授权账号的新私信，根据用户设定的目标自动设计回复和推进方式；需要人工决定的节点会先交给你。",
+  "mkt-live-danmaku-analysis": "分析授权账号直播间的新弹幕，提炼高频问题、需求和转化阻力，并给出下一场直播的优化建议。",
+  "mkt-live-danmaku-outreach": "把直播间明确发言且身份可核验的观众逐一执行首次私信触达，保留平台回执并记录异常。",
+  "mkt-viral-work-analysis": "分析公开爆款作品的内容结构、数据和评论需求，拆解流量假设并输出下一轮创作测试。",
   "Browser Agent": "从公开视频、评论、粉丝和直播互动里发现潜在客户，并保留原始来源。",
   "Search Agent": "合并重复账号、核验来源，并按购买意向给线索分层。",
   "App Agent": "按客户原问题匹配首触话术，记录回复和下一步跟进动作。",
@@ -656,6 +790,9 @@ const BUSINESS_REPLIES = Object.freeze({
   "mkt-find-people": "我只汇总已授权抖音账号启用后新产生的作品评论、直播互动和账号互动通知，保留全部用户与来源证据，交给客户分析员判断；不会把互动直接当成潜客，也不会自动发私信。",
   "mkt-cold-writer": "我会解析指定抖音用户主页，确认私信内容后通过已授权云电脑发送一条，并返回真实发送结果。",
   "mkt-gold-customer-service": "我会承接授权账号的新私信，根据用户设定的目标自动设计回复和推进方式；需要人工决定的节点会先交给你。",
+  "mkt-live-danmaku-analysis": "我会只分析当前直播间新弹幕，整理高频问题和转化阻力，并把下一场直播建议写成可验证的测试。",
+  "mkt-live-danmaku-outreach": "我会逐一核验直播观众身份后执行首次触达，成功、失败和需要人工的结果都会保留回执。",
+  "mkt-viral-work-analysis": "我会拆解公开作品的内容机制和评论需求，输出下一轮只改一个变量的创作测试。",
 });
 
 export function seedDmMessages(agentType) {
@@ -772,6 +909,16 @@ function demoMetricsReply(agentType, memory) {
   }
   if (agentType === "mkt-gold-customer-service") {
     return `我记得昨天承接了 ${data.activeSessions} 个私信会话，${data.answeredSessions} 个都已得到回复，其中 ${data.nextStepSessions} 个按用户设定目标完成了关键对话动作，形成可跟进结果 ${data.capturedLeads} 个，另外 ${data.followingSessions} 个仍在跟进中。`;
+  }
+  if (agentType === "mkt-live-danmaku-analysis") {
+    return `我记得昨天分析了 ${data.liveRooms} 场直播的 ${data.danmakuCount.toLocaleString("zh-CN")} 条弹幕，已归纳 ${data.answeredQuestions} 条有效问题；当前主要转化阻力是${data.conversionBlock}，阻力占比约 ${data.conversionBlockRate}。`;
+  }
+  if (agentType === "mkt-live-danmaku-outreach") {
+    return `我记得昨天识别出 ${data.eligibleViewers} 位可触达观众，成功发送 ${data.sentUsers} 位，失败 ${data.failedUsers} 位，${data.reviewUsers} 位待人工核验，收到回复 ${data.replyUsers} 位，实际送达率为 ${data.deliveryRate}。`;
+  }
+  if (agentType === "mkt-viral-work-analysis") {
+    const views = data.views == null ? "暂无播放数据" : Number(data.views).toLocaleString("zh-CN");
+    return `我记得昨天分析了 ${data.analyzedWorks} 条公开作品，单条最高有 ${views} 播放和 ${Number(data.likes || 0).toLocaleString("zh-CN")} 点赞；评论需求集中在烟梗接龙、家长共鸣和生活压力，成交转化仍待后续验证。`;
   }
   return `我记得昨天完成了 ${data.completedTasks || data.analyzedUsers || data.foundUsers || data.sentUsers || data.activeSessions || 0} 项核心工作，结果已经沉淀在当前 Agent 的工作记录里。`;
 }
@@ -920,6 +1067,24 @@ export function mockConversationReply(agentType, taskText = "") {
     }
     if (hasAny(text, [/(?:接待|监听|自动回复|持续|客服)/u])) {
       return "可以。我会持续监听授权账号的新私信，根据用户设定的目标设计对话节奏，先回应当前问题，再推进与目标直接相关的动作，并保留原始消息、回复记录和人工边界。";
+    }
+  }
+
+  if (agentType === "mkt-live-danmaku-analysis") {
+    if (hasAny(text, [/(?:直播|弹幕|分析|问题|需求|阻力|优化)/u])) {
+      return "收到。我会只读取当前直播间的新弹幕，按高频问题、用户需求和转化阻力整理证据，并把下一场直播建议写成可验证的内容测试。";
+    }
+  }
+
+  if (agentType === "mkt-live-danmaku-outreach") {
+    if (hasAny(text, [/(?:直播|弹幕|触达|发送|观众|回执)/u])) {
+      return "收到。我会逐一核验直播观众身份后执行首次私信触达，成功、失败、拒绝和待人工核验都会分别记录平台回执，不会重复发送。";
+    }
+  }
+
+  if (agentType === "mkt-viral-work-analysis") {
+    if (hasAny(text, [/(?:作品|爆款|视频|分析|评论|创作|测试)/u])) {
+      return "可以。我会拆解公开作品的内容结构、数据和评论需求，区分事实与流量假设，并输出下一轮一次只改一个变量的创作测试。";
     }
   }
 

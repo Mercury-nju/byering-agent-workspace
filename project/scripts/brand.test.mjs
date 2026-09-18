@@ -129,6 +129,13 @@ test("early brand guard precedes recovered bundle", () => {
   assert.ok(bootstrap.indexOf("main-BaWVt8Sl.js") < bootstrap.indexOf('import("./index.js'));
 });
 
+test("results routes keep the application shell for navigation", () => {
+  const bootstrap = readFileSync(path.join(projectRoot, "src/salebuddy/app-bootstrap.js"), "utf8");
+  assert.doesNotMatch(bootstrap, /standaloneResultsPreview/);
+  assert.match(bootstrap, /import\("\.\.\/\.\.\/assets\/main-BaWVt8Sl\.js"\)/);
+  assert.match(bootstrap, /import\("\.\/index\.js\?v=20260917-results-mock-preview-fix-1"\)/);
+});
+
 test("root URL opens the workspace instead of hiding it as marketing", () => {
   const html = readFileSync(path.join(projectRoot, "index.html"), "utf8");
   assert.match(html, /byeringPage===\"marketing\"\|\|byeringPage===\"landing\"/);

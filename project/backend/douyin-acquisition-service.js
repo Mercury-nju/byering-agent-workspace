@@ -296,6 +296,9 @@ export function createDouyinAcquisitionService({
       suppressedRecipients: {},
       replies: [],
       liveDanmakuSignals: [],
+      liveDanmakuCurrentSession: null,
+      liveDanmakuSessions: [],
+      liveDanmakuSessionSequence: 0,
       events: [],
       eventSeq: 0,
       retryCounts: { scan: 0, touch: 0, receipt: 0 },
@@ -505,14 +508,23 @@ export function createDouyinAcquisitionService({
       : await processCandidates(task, scan.leads, executionConfig, executionConfigVersion);
     let danmakuAnalysis = null;
     let collectionSnapshot = null;
+    let completedLiveSession = null;
     if (liveAnalysisTask) {
-      task.liveDanmakuSignals = appendLiveDanmakuSignals(task.liveDanmakuSignals, scan.liveSignals || []);
-      collectionSnapshot = buildLiveCollectionSnapshot(task.liveDanmakuSignals, scan.snapshot?.sources?.live, now());
-      const liveEnded = scan.snapshot?.sources?.live?.state === "ended";
-      if (liveEnded) {
+      const liveSource = scan.snapshot?.sources?.live || {};
+      const liveSourceState = String(liveSource.state || "waiting").toLowerCase();
+      const incomingSignals = Array.isArray(scan.liveSignals) ? scan.liveSignals : [];
+      const hasLiveSession = incomingSignals.length > 0 || !["waiting", "offline", "idle"].includes(liveSourceState);
+      const currentLiveSession = hasLiveSession
+        ? ensureLiveDanmakuSession(task, incomingSignals, liveSource, now())
+        : task.liveDanmakuCurrentSession;
+      task.liveDanmakuSignals = appendLiveDanmakuSignals(task.liveDanmakuSignals, incomingSignals);
+      collectionSnapshot = buildLiveCollectionSnapshot(task.liveDanmakuSignals, liveSource, now(), currentLiveSession);
+      const liveEnded = liveSourceState === "ended";
+      if (liveEnded && currentLiveSession && task.liveDanmakuSignals.length) {
         danmakuAnalysis = typeof comprehensiveSource?.finalizeLiveDanmakuAnalysis === "function"
           ? await comprehensiveSource.finalizeLiveDanmakuAnalysis({ signals: task.liveDanmakuSignals, goal: executionConfig.audienceRules.goal, account, now: now() })
           : analyzeLiveDanmakuSignals({ signals: task.liveDanmakuSignals, goal: executionConfig.audienceRules.goal, now: now() });
+        completedLiveSession = archiveLiveDanmakuSession(task, currentLiveSession, collectionSnapshot, danmakuAnalysis, now());
       }
     }
     if (isComprehensive(task) || usesAuthorizedInteractionListener(task)) {
@@ -532,10 +544,16 @@ export function createDouyinAcquisitionService({
     task.lastAnalysis = clone(danmakuAnalysis || task.lastScan.analysis || null);
     task.resultSnapshot = {
       ...clone(task.lastScan),
-      status: liveAnalysisTask && !danmakuAnalysis ? "collecting" : "completed",
+      status: liveAnalysisTask
+        ? danmakuAnalysis ? "completed" : collectionSnapshot?.state === "waiting" ? "waiting" : "collecting"
+        : "completed",
       leads: danmakuAnalysis ? clone(danmakuAnalysis.users) : clone(scan.leads),
       ...(collectionSnapshot ? { collectionSnapshot: clone(collectionSnapshot) } : {}),
       ...(danmakuAnalysis ? { danmakuAnalysis: clone(danmakuAnalysis) } : {}),
+      ...(liveAnalysisTask ? {
+        liveSession: clone(completedLiveSession || task.liveDanmakuCurrentSession),
+        liveSessions: clone(task.liveDanmakuSessions || [])
+      } : {}),
       counts: {
         ...(task.lastScan.counts || {}),
         ...(danmakuAnalysis ? danmakuAnalysis.counts : {}),
@@ -549,10 +567,7 @@ export function createDouyinAcquisitionService({
     };
     const degradedSources = Object.entries(scan.snapshot?.sources || {}).filter(([, source]) => source.state === "degraded");
     task.lastError = degradedSources.length ? { code: "DOUYIN_SOURCE_DEGRADED", message: "部分数据源暂不可用，其他来源继续运行", sources: Object.fromEntries(degradedSources) } : null;
-    if (danmakuAnalysis && [TASK_STATES.RUNNING, TASK_STATES.DEGRADED].includes(task.state)) {
-      task.state = transitionTask(task.state, TASK_STATES.COMPLETED);
-      task.completionReason = "live_ended";
-    } else if (task.state === TASK_STATES.DEGRADED) task.state = TASK_STATES.RUNNING;
+    if (task.state === TASK_STATES.DEGRADED) task.state = TASK_STATES.RUNNING;
     task.health = degradedSources.length ? "DEGRADED" : "OK";
     task.updatedAt = now();
     persist();
@@ -2731,16 +2746,86 @@ function liveSignalEvents(signals = []) {
   });
 }
 
-function buildLiveCollectionSnapshot(signals = [], source = {}, observedAt = null) {
+function liveSessionText(...values) {
+  for (const value of values) {
+    const text = String(value || "").trim();
+    if (text) return text;
+  }
+  return "";
+}
+
+function liveSessionRoomId(signals = [], source = {}) {
+  const sourceRoom = source && typeof source === "object" ? source : {};
+  const events = liveSignalEvents(signals);
+  return liveSessionText(
+    sourceRoom.roomId, sourceRoom.room_id, sourceRoom.webRid, sourceRoom.web_rid,
+    sourceRoom.room?.id, sourceRoom.room?.roomId, sourceRoom.liveRoom?.id,
+    ...events.map(item => item?.roomId || item?.room_id || item?.source?.roomId || item?.source?.room_id)
+  );
+}
+
+function liveSessionTitle(signals = [], source = {}) {
+  const sourceRoom = source && typeof source === "object" ? source : {};
+  const events = liveSignalEvents(signals);
+  return liveSessionText(
+    sourceRoom.title, sourceRoom.roomTitle, sourceRoom.room_title,
+    sourceRoom.room?.title, sourceRoom.liveRoom?.title,
+    ...events.map(item => item?.roomTitle || item?.room_title || item?.source?.roomTitle || item?.source?.room_title)
+  ) || "当前直播间";
+}
+
+function ensureLiveDanmakuSession(task, signals = [], source = {}, observedAt = null) {
+  const roomId = liveSessionRoomId(signals, source);
+  const title = liveSessionTitle(signals, source);
+  const current = task.liveDanmakuCurrentSession && typeof task.liveDanmakuCurrentSession === "object"
+    ? task.liveDanmakuCurrentSession
+    : null;
+  if (current && (!roomId || !current.roomId || current.roomId === roomId)) {
+    current.roomId ||= roomId;
+    current.title = title || current.title || "当前直播间";
+    task.liveDanmakuCurrentSession = current;
+    return current;
+  }
+
+  task.liveDanmakuSessionSequence = Number(task.liveDanmakuSessionSequence || 0) + 1;
+  const session = {
+    id: `${task.context.taskId}:live:${task.liveDanmakuSessionSequence}`,
+    roomId,
+    title,
+    state: "collecting",
+    startedAt: observedAt || null
+  };
+  task.liveDanmakuCurrentSession = session;
+  return session;
+}
+
+function archiveLiveDanmakuSession(task, session = {}, collectionSnapshot = {}, analysis = {}, observedAt = null) {
+  const completed = {
+    ...clone(session),
+    state: "completed",
+    endedAt: observedAt || null,
+    collectionSnapshot: clone(collectionSnapshot),
+    analysis: clone(analysis)
+  };
+  const previous = Array.isArray(task.liveDanmakuSessions) ? task.liveDanmakuSessions : [];
+  task.liveDanmakuSessions = [completed, ...previous.filter(item => item?.id !== completed.id)].slice(0, 20);
+  task.liveDanmakuSignals = [];
+  task.liveDanmakuCurrentSession = null;
+  return completed;
+}
+
+function buildLiveCollectionSnapshot(signals = [], source = {}, observedAt = null, session = null) {
   const events = liveSignalEvents(signals);
   const users = new Set(events.map(item => item?.userId || item?.user_id || item?.secUid || item?.sec_uid || item?.secId || item?.sec_id).filter(Boolean));
+  const sourceState = String(source?.state || "waiting").toLowerCase();
   return {
-    state: source?.state === "ended" ? "ended" : "collecting",
+    state: sourceState === "ended" ? "ended" : ["waiting", "offline", "idle"].includes(sourceState) ? "waiting" : "collecting",
     totalDanmaku: events.length,
     uniqueUsers: users.size,
     lastBatchDanmaku: Number(source?.count || 0),
     lastCollectedAt: observedAt,
-    sourceState: source?.state || "waiting",
+    sourceState,
+    ...(session ? { session: clone(session), sessionId: session.id, roomId: session.roomId, roomTitle: session.title, startedAt: session.startedAt || null } : {}),
     ...(source?.reason ? { reason: source.reason } : {})
   };
 }

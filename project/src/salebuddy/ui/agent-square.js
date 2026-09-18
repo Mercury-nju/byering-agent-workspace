@@ -36,7 +36,7 @@ import {
   normalizeLiveDanmakuOutreachSettings,
   validateLiveDanmakuOutreachSetup
 } from "./live-danmaku-outreach-config.js";
-import { VIRAL_WORK_ANALYSIS_DEFAULT_GOAL, buildViralWorkAnalysisTaskPayload, validateViralWorkAnalysisSetup } from "./viral-work-analysis-config.js";
+import { buildViralWorkAnalysisTaskPayload, validateViralWorkAnalysisSetup } from "./viral-work-analysis-config.js";
 import { openAccountReceptionPage } from "./account-reception-page.js?v=20260914-grid-alignment-1";
 import { buildCommentAcquisitionResultRecord, commentAcquisitionCapabilityState } from "./comment-acquisition-results.js";
 import { mergePrivateOutreachUrls, readPrivateOutreachFile } from "./private-outreach.js";
@@ -700,6 +700,22 @@ const AGENT_SQUARE_PLACEHOLDER_AGENTS = Object.freeze([
     category: "找人",
     desc: "Tiktok 获客能力正在准备中，敬请期待。",
     skills: ["发现潜在客户", "筛选互动信号", "沉淀获客线索"]
+  }),
+  Object.freeze({
+    id: "mkt-live-room-control",
+    displayName: "直播间场控",
+    displayTitle: "让直播节奏更稳，互动更顺",
+    category: "分析",
+    desc: "实时关注直播间节奏、互动和场景变化，协助主播推进讲品、答疑与转场。",
+    skills: ["识别直播节奏", "提醒互动机会", "辅助讲品转场"]
+  }),
+  Object.freeze({
+    id: "mkt-live-returning-outreach",
+    displayName: "直播间老客触达",
+    displayTitle: "识别老客回访机会，及时跟进",
+    category: "触达",
+    desc: "识别直播间里的老客和回访信号，整理适合继续沟通的触达机会。",
+    skills: ["识别老客信号", "整理回访机会", "生成跟进建议"]
   })
 ]);
 
@@ -1548,7 +1564,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       liveDanmakuSignals: savedLiveDanmakuOutreach ? ["danmaku"] : [...DEFAULT_LIVE_SIGNALS],
       liveDanmakuAnalysis: saved?.liveDanmakuAnalysis ? structuredClone(saved.liveDanmakuAnalysis) : null,
       workUrl: saved?.workUrl || saved?.inputs?.workUrl || saved?.resultSnapshot?.sourceUrl || "",
-      viralWorkGoal: saved?.viralWorkGoal || saved?.inputs?.goal || VIRAL_WORK_ANALYSIS_DEFAULT_GOAL,
+      viralWorkGoal: saved?.viralWorkGoal || saved?.inputs?.goal || "",
       viralWorkFresh: saved?.viralWorkFresh === true,
       commentLimit: saved?.commentLimit || saved?.inputs?.commentLimit || 100,
       viralWorkAnalysis: saved?.viralWorkAnalysis ? structuredClone(saved.viralWorkAnalysis) : saved?.analysisResult ? structuredClone(saved.analysisResult) : saved?.resultSnapshot ? structuredClone(saved.resultSnapshot) : null,
@@ -2535,6 +2551,8 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       ? "这台 Agent 与其他 Agent 共用了抖音云电脑配置，请先为它配置独立 API Key。"
       : code === "DOUYIN_RPA_WORKER_OFFLINE"
       ? "云电脑已创建，云端桌面仍在上线，请稍后检查本次会话，不要重复创建"
+      : code === "DOUYIN_MCP_WORKER_ALREADY_RUNNING"
+      ? "这台云电脑正在被另一项启动任务占用，请关闭重复运行的服务后再重试；如果是新增账号，请为它配置独立的抖音 API Key。"
       : code === "DOUYIN_MCP_TIMEOUT" || code === "CONTROL_PLANE_TIMEOUT"
       ? "云电脑启动请求超时，当前会话状态已保留。请检查状态，若仍未就绪可重启云电脑。"
       : code === "DOUYIN_MCP_UNAVAILABLE"
@@ -3364,6 +3382,10 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     return false;
   }
 
+  function isCommentFilterAgent(agent) {
+    return agent?.id === "mkt-comment-filter";
+  }
+
   function isInboxAgent(agent) {
     return INBOX_AGENT_IDS.has(agent?.id);
   }
@@ -3627,7 +3649,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     }
   }
 
-  function appendGoalFirstComposer(container, flow, kicker = "你想让我帮你达成什么？") {
+  function appendGoalFirstComposer(container, flow, kicker = "你想让我帮你获得什么样的客户，并推进到哪一步？") {
     const composer = el("section", "sb-as-gold-composer");
     composer.appendChild(el("div", "sb-as-gold-composer-kicker", kicker));
     const objective = document.createElement("textarea");
@@ -3635,7 +3657,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     objective.className = "sb-as-gold-composer-input";
     objective.setAttribute("aria-label", "私信对话目标");
     objective.value = flow.replyObjective || "";
-    objective.placeholder = "例如：回答客户咨询，并在客户有明确需求时帮助我获取联系方式。";
+    objective.placeholder = "例如：帮我找到咨询过保温杯、愿意了解价格的人；先解答问题，再邀请他们领取试用装。";
     objective.addEventListener("input", () => {
       const selectionStart = objective.selectionStart;
       const selectionEnd = objective.selectionEnd;
@@ -3657,12 +3679,13 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
       }
     });
     composer.appendChild(objective);
+    composer.appendChild(el("span", "sb-as-gold-composer-help", "请写清客户特征和希望达成的结果，例如产品、地区、需求或下一步动作。"));
     const suggestions = el("div", "sb-as-gold-suggestions");
     suggestions.appendChild(el("span", "sb-as-gold-suggestions-label", "你也可以直接选一个目标"));
     [
       ["解答客户咨询", "回答客户在私信中的问题，必要时澄清解决问题所必需的信息。"],
-      ["获取客户线索", "在解答问题后识别真实需求，适时收集可跟进的客户信息。"],
-      ["引导预约或成交", "围绕客户需求沟通，合适时引导预约、到店或完成下一步转化。"]
+      ["筛选有购买意向的人", "找出主动咨询价格、使用方法或购买时间的人，收集可跟进的客户信息。"],
+      ["预约到店或成交", "围绕客户需求沟通，合适时引导领取试用、预约到店或完成下一步转化。"]
     ].forEach(([label, value]) => {
       const suggestion = el("button", "sb-as-gold-suggestion", label);
       suggestion.type = "button";
@@ -3812,7 +3835,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     if (flow.authorizing || ["starting", "opening", "waiting_login"].includes(flow.authPhase)) shell.appendChild(buildCloudAuthorizationStatus(flow));
     if (flow.authError) shell.appendChild(el("div", "sb-as-use-notice is-error sb-as-gold-error", flow.authError));
 
-    appendGoalFirstComposer(shell, flow, "你想让我帮你达成什么？");
+    appendGoalFirstComposer(shell, flow, "你想让我帮你获得什么样的客户，并推进到哪一步？");
 
     const launch = el("footer", "sb-as-gold-launch");
     const start = el("button", "sb-as-gold-launch-button", flow.starting || flow.planLoading ? "正在启动…" : "开始使用金牌客服");
@@ -3957,7 +3980,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     automation.append(automationHead, automationList);
     shell.appendChild(automation);
 
-    appendGoalFirstComposer(shell, flow, "你想让我帮你达成什么？");
+    appendGoalFirstComposer(shell, flow, "你想让我帮你获得什么样的客户，并推进到哪一步？");
 
     const launch = el("footer", "sb-as-gold-launch sb-as-manager-launch");
     const launchCopy = el("div", "sb-as-manager-launch-copy");
@@ -4161,7 +4184,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         ? "登录账号后，只需填写希望通过私信达成的目标。"
         : "登录账号后，就可以在这里设置回复的人设、目标、业务资料和需要交给你的情况。"));
     } else if (managerInbox) {
-      appendGoalFirstComposer(policySection, flow, "你想让我帮你达成什么？");
+      appendGoalFirstComposer(policySection, flow, "你想让我帮你获得什么样的客户，并推进到哪一步？");
     } else {
       flow.receptionEditor?.page?.close?.();
       const host = el("div", "sb-as-inbox-policy-editor");
@@ -6416,7 +6439,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
 
     const hero = el("header", "sb-as-gold-hero");
     const heroMark = el("div", "sb-as-gold-hero-mark");
-    mountGrokBotAvatar(heroMark, "mkt-live-danmaku-outreach", { alt: "电商直播间未成交客户触达", state: "idle", trackPointer: false, mode: "agent-square" });
+    mountGrokBotAvatar(heroMark, "mkt-live-danmaku-outreach", { alt: "直播追单助理", state: "idle", trackPointer: false, mode: "agent-square" });
     const heroCopy = el("div", "sb-as-gold-hero-copy");
     heroCopy.append(
       el("h1", "sb-as-gold-title", "我来接住直播间的新客户"),
@@ -6750,7 +6773,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
   function appendViralWorkAnalysisHero(shell, title, subtitle) {
     const hero = el("header", "sb-as-gold-hero");
     const heroMark = el("div", "sb-as-gold-hero-mark");
-    mountGrokBotAvatar(heroMark, "mkt-viral-work-analysis", { alt: "爆款作品分析", state: "idle", trackPointer: false, mode: "agent-square" });
+    mountGrokBotAvatar(heroMark, "mkt-viral-work-analysis", { alt: "抖音爆款拆解官", state: "idle", trackPointer: false, mode: "agent-square" });
     const heroCopy = el("div", "sb-as-gold-hero-copy");
     heroCopy.append(
       el("h1", "sb-as-gold-title", title),
@@ -6800,9 +6823,9 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const goal = document.createElement("textarea");
     goal.rows = 3;
     goal.className = "sb-as-viral-focus-input";
-    goal.value = flow.viralWorkGoal || VIRAL_WORK_ANALYSIS_DEFAULT_GOAL;
+    goal.value = flow.viralWorkGoal || "";
     goal.placeholder = "例如：重点拆解前 3 秒的流量抓手、信息密度和下一条怎么测试";
-    goal.setAttribute("aria-label", "爆款作品分析目标");
+    goal.setAttribute("aria-label", "抖音爆款拆解官目标");
     goal.addEventListener("input", () => {
       flow.viralWorkGoal = goal.value;
       flow.setupError = null;
@@ -6849,7 +6872,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     panel.classList.add("sb-as-viral-work-analysis-running");
     const result = flow.viralWorkAnalysis || flow.resultSnapshot || null;
     const failed = flow.status === "failed" || Boolean(flow.error);
-    const title = failed ? "爆款作品分析异常" : result ? "爆款作品分析结果" : "爆款作品分析中";
+    const title = failed ? "抖音爆款拆解官异常" : result ? "抖音爆款拆解官结果" : "抖音爆款拆解官工作中";
     const copy = failed
       ? flow.error?.message || "这条作品暂时没有完成分析"
       : result
@@ -7038,7 +7061,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         agentName: agent.name,
         taskId: flow.taskId,
         taskRunId: flow.taskRunId,
-        title: flow.viralWorkAnalysis.title || "爆款作品分析报告",
+        title: flow.viralWorkAnalysis.title || "抖音爆款视频拆解报告",
         summary: flow.viralWorkAnalysis.summary,
         source: "抖音公开作品链接",
         status: flow.status === "partial" ? "partial" : "completed",
@@ -7069,15 +7092,15 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           resultSnapshot: realtimeSnapshot
         }
       });
-      finishWork(agent.id, flow.viralWorkAnalysis.summary || "爆款作品分析报告", { taskId: flow.taskId, taskRunId: flow.taskRunId, suppressCompletionNotification: true });
-      pushActivity(agent.id, flow.status === "partial" ? "作品数据已读取，评论数据部分可用；结果已发送到 Agent 私信并沉淀到成果中心。" : "爆款作品分析已完成；结果已发送到 Agent 私信并沉淀到成果中心。 ");
+      finishWork(agent.id, flow.viralWorkAnalysis.summary || "抖音爆款视频拆解报告", { taskId: flow.taskId, taskRunId: flow.taskRunId, suppressCompletionNotification: true });
+      pushActivity(agent.id, flow.status === "partial" ? "作品数据已读取，评论数据部分可用；结果已发送到 Agent 私信并沉淀到成果中心。" : "抖音爆款拆解官已完成；结果已发送到 Agent 私信并沉淀到成果中心。 ");
       globalThis.setTimeout(() => {
         globalThis.__SALEBUDDY__?.navFrameworkReady?.then?.((framework) => framework?.closeRealtimeWork?.());
       }, 800);
     } catch (error) {
       flow.status = "failed";
       flow.progress = 0;
-      flow.error = { code: error?.code || "VIRAL_WORK_ANALYSIS_FAILED", message: error?.message || "爆款作品分析失败" };
+      flow.error = { code: error?.code || "VIRAL_WORK_ANALYSIS_FAILED", message: error?.message || "抖音爆款拆解官失败" };
       updateWork(agent.id, {
         progress: 0,
         phase: "执行失败",
@@ -7093,7 +7116,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           taskRunId: flow.taskRunId
         }
       });
-      reportWorkError(agent.id, `爆款作品分析未完成：${flow.error.message}`, { taskId: flow.taskId, taskRunId: flow.taskRunId });
+      reportWorkError(agent.id, `抖音爆款拆解官未完成：${flow.error.message}`, { taskId: flow.taskId, taskRunId: flow.taskRunId });
     } finally {
       flow.requesting = false;
       if (!disposed && state.useFlow === flow) render();
@@ -8968,8 +8991,15 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     const collection = snapshot.resultSnapshot?.collectionSnapshot || snapshot.collectionSnapshot || {};
     const counts = analysis?.counts || snapshot.resultSnapshot?.counts || {};
     const items = Array.isArray(analysis?.users) ? analysis.users : [];
+    const liveSession = snapshot.resultSnapshot?.liveSession
+      || snapshot.liveSession
+      || collection.session
+      || {};
+    const liveSessionId = String(liveSession.id || liveSession.sessionId || collection.sessionId || analysis?.roomId || analysis?.room_id || "").trim();
+    const liveSessionTitle = String(liveSession.title || liveSession.roomTitle || collection.roomTitle || "").trim();
     const signature = JSON.stringify({
       status,
+      liveSessionId,
       counts,
       collection,
       topics: (analysis?.topics || []).map((topic) => [topic.key, topic.count]),
@@ -8978,16 +9008,37 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
     if (signature === flow.lastRecordedLiveDanmakuSignature) return null;
     flow.lastRecordedLiveDanmakuSignature = signature;
     if (completed && analysis) {
-      const reportResult = { ...snapshot.resultSnapshot, ...analysis, danmakuAnalysis: analysis, taskId, taskRunId: flow.taskRunId || snapshot.context?.taskRunId || snapshot.taskRunId || "", generatedAt: analysis.observedAt || new Date().toISOString(), status: "completed" };
+      const reportSessionKey = (liveSessionId || analysis.observedAt || new Date().toISOString())
+        .replace(/[^a-zA-Z0-9_-]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "completed-session";
+      const reportTaskId = `${taskId}:live-session:${reportSessionKey}`;
+      const reportTitle = liveSessionTitle && liveSessionTitle !== "当前直播间"
+        ? `直播间弹幕分析报告 · ${liveSessionTitle}`
+        : "直播间弹幕分析报告";
+      const reportResult = {
+        ...snapshot.resultSnapshot,
+        ...analysis,
+        danmakuAnalysis: analysis,
+        taskId: reportTaskId,
+        sourceTaskId: taskId,
+        taskRunId: flow.taskRunId || snapshot.context?.taskRunId || snapshot.taskRunId || "",
+        liveSession: {
+          ...liveSession,
+          id: liveSessionId || reportSessionKey,
+          title: liveSessionTitle || "已归档直播场次"
+        },
+        generatedAt: analysis.observedAt || new Date().toISOString(),
+        status: "completed"
+      };
       const reportFile = liveDanmakuAnalysisReportFile(reportResult, { createdBy: "直播间弹幕分析" });
-      const fileId = addFile({ ...reportFile, id: `live-danmaku-report:${taskId}`, taskId, taskRunId: reportResult.taskRunId, agentId: "mkt-live-danmaku-analysis" });
-      const artifact = { id: fileId, name: reportFile.name, type: reportFile.type, projectName: reportFile.projectName, summary: "可在文件中心预览完整直播间分析报告", sourceTaskTitle: "直播间弹幕分析" };
+      const fileId = addFile({ ...reportFile, id: `live-danmaku-report:${taskId}:${reportSessionKey}`, taskId: reportTaskId, taskRunId: reportResult.taskRunId, sourceTaskId: taskId, agentId: "mkt-live-danmaku-analysis" });
+      const artifact = { id: fileId, name: reportFile.name, type: reportFile.type, projectName: reportFile.projectName, summary: "可在文件中心预览完整直播间分析报告", sourceTaskTitle: reportTitle };
       const conversation = liveDanmakuAnalysisReportConversationMessage({ ...reportFile, ...artifact });
       recordAgentActivity("mkt-live-danmaku-analysis", {
         type: "completed",
         taskId,
         taskRunId: reportResult.taskRunId,
-        activityKey: `live-danmaku-analysis-report:${taskId}`,
+        activityKey: `live-danmaku-analysis-report:${taskId}:${reportSessionKey}`,
         metadata: { deliverToConversation: true }
       }, {
         journal: agentActivityJournal,
@@ -8999,7 +9050,7 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
         ...reportResult,
         agentId: "mkt-live-danmaku-analysis",
         agentName: "直播间弹幕分析",
-        title: "直播间弹幕分析报告",
+        title: reportTitle,
         summary: analysis.summary || "直播间弹幕分析报告已完成。",
         source: "抖音直播间弹幕",
         status,
@@ -9012,32 +9063,15 @@ export function openAgentSquarePage({ teamLive, gateway = null, onChat, onClose,
           sourceScope: "authorized_account_live",
           signals: [...DEFAULT_LIVE_SIGNALS],
           accountId: flow.accountId || snapshot.context?.accountId || "",
-          accountName: flow.account || ""
+          accountName: flow.account || "",
+          sourceTaskId: taskId,
+          liveSessionId: reportResult.liveSession.id,
+          liveSessionTitle: reportResult.liveSession.title,
+          liveRoomId: reportResult.liveSession.roomId || collection.roomId || analysis.roomId || ""
         }
       });
     }
-    return agentResultRecorder.record({
-      agentId: "mkt-live-danmaku-analysis",
-      agentName: "直播间弹幕分析",
-      taskId,
-      taskRunId: flow.taskRunId || snapshot.context?.taskRunId || snapshot.taskRunId || "",
-      title: "直播间弹幕分析",
-      summary: `已采集${collection.totalDanmaku || counts.danmaku || 0}条弹幕，直播结束后统一生成分析报告。`,
-      source: "抖音直播间弹幕",
-      status,
-      counts,
-      items: [],
-      analysis: null,
-      inputs: {
-        goal: flow.liveDanmakuGoal || analysis.goal || "",
-        sourceScope: "authorized_account_live",
-        signals: [...DEFAULT_LIVE_SIGNALS],
-        accountId: flow.accountId || snapshot.context?.accountId || "",
-        accountName: flow.account || ""
-      },
-      artifacts: [],
-      collectionSnapshot: collection
-    });
+    return null;
   }
 
   async function startLiveDanmakuOutreach(agent, flow, { authorizedAccount = null } = {}) {

@@ -14,7 +14,8 @@ import {
   demoMemoryFor,
   mockChiefDecision,
   mockConversationReply,
-  mockConversationTurn
+  mockConversationTurn,
+  seedDmMessages
 } from "../src/salebuddy/agents/dm-scenarios.js";
 import { createDemoDmGateway } from "../src/salebuddy/agents/dm-demo-client.js";
 import { isPrivateConversationMessage } from "../src/salebuddy/agents/direct-message-contract.js";
@@ -71,6 +72,17 @@ await run("mock conversation: chief routes status, guidance, and capability ques
   assert(/全局运营管家/.test(capability.message), "幕僚长没有返回能力说明");
   assert(capability.shouldCreateTask === false, "幕僚长咨询不应创建任务");
   assert(mockChiefDecision("") === null, "空消息不应生成幕僚长回复");
+});
+
+await run("mock conversation: chief demo uses task handoffs instead of project groups", () => {
+  const messages = seedDmMessages("main");
+  const transcript = JSON.stringify(messages);
+  const artifact = messages.find((message) => message.artifact)?.artifact;
+  assert(!/(?:项目组|组群|room-)/u.test(transcript), "幕僚长模拟对话不应包含项目组或房间标识");
+  assert(/找客专员/.test(transcript) && /客户分析员/.test(transcript) && /潜客触达专员/.test(transcript), "幕僚长模拟对话应使用当前 Agent 职责");
+  assert(artifact?.taskId === "mock-task-acquisition", "幕僚长简报应关联到任务");
+  assert(artifact?.sourceTaskTitle === "潜客拓展", "幕僚长简报缺少任务标题");
+  assert(!artifact?.projectId && !artifact?.projectName, "幕僚长简报不应包含项目组元数据");
 });
 
 await run("mock conversation: business memory supports metrics, diagnosis, solution, and applied config", () => {

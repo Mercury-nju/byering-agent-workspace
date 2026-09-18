@@ -86,6 +86,17 @@ test("mounted navigation restores the office entry as the first work row", () =>
   instance.unmount();
 });
 
+test("activating the native office clears the bootstrap custom-page guard", () => {
+  const { document, fixture, instance } = mountFixture();
+  document.documentElement.dataset.byeringCustomPage = "1";
+
+  fixture.office.click();
+  FakeMutationObserver.flush();
+
+  assert.equal(document.documentElement.dataset.byeringCustomPage, undefined);
+  instance.unmount();
+});
+
 test("mounted work area keeps the unified results center beside realtime work", () => {
   const { document, instance } = mountFixture();
   const realtimeGroup = document.querySelector('[data-sb-realtime-group="1"]');

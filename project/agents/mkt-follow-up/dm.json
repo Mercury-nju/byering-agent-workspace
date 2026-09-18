@@ -19,5 +19,89 @@
       "inReplyTo": "dm-mu5kjdpk-arfw"
     },
     "createdAt": "2026-09-17T13:31:48.831Z"
+  },
+  {
+    "id": "dm-mu5yijhn-4x0y",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-09-17T20:03:03.083Z"
+  },
+  {
+    "id": "dm-mu5yikfc-jw85",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "mkt-follow-up",
+    "text": "我收到你的要求了。根据已声明能力处理当前业务请求。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu5yijhn-4x0y"
+    },
+    "createdAt": "2026-09-17T20:03:04.296Z"
+  },
+  {
+    "id": "dm-mu60fehn-fwu7",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-09-17T20:56:35.867Z"
+  },
+  {
+    "id": "dm-mu60fff8-xnst",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "mkt-follow-up",
+    "text": "我收到你的要求了。根据已声明能力处理当前业务请求。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu60fehn-fwu7"
+    },
+    "createdAt": "2026-09-17T20:56:37.076Z"
+  },
+  {
+    "id": "dm-mu61bl1t-f5xl",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-09-17T21:21:37.361Z"
+  },
+  {
+    "id": "dm-mu61bm07-wd2f",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "mkt-follow-up",
+    "text": "我收到你的要求了。根据已声明能力处理当前业务请求。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu61bl1t-f5xl"
+    },
+    "createdAt": "2026-09-17T21:21:38.599Z"
+  },
+  {
+    "id": "dm-mu65ipy1-z3e3",
+    "agentType": "mkt-follow-up",
+    "from": "user",
+    "fromName": "我",
+    "text": "帮我排一下本周跟进",
+    "createdAt": "2026-09-17T23:19:08.761Z"
+  },
+  {
+    "id": "dm-mu65iqvq-8tpv",
+    "agentType": "mkt-follow-up",
+    "from": "mkt-follow-up",
+    "fromName": "mkt-follow-up",
+    "text": "我收到你的要求了。根据已声明能力处理当前业务请求。我会先确认输入是否足够，再给你可执行的下一步，不会把尚未完成的结果当成已完成。",
+    "metadata": {
+      "source": "member-conversation",
+      "conversationRole": "specialist-executor",
+      "inReplyTo": "dm-mu65ipy1-z3e3"
+    },
+    "createdAt": "2026-09-17T23:19:09.974Z"
   }
 ]

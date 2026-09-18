@@ -1146,6 +1146,10 @@ test("Agent Square makes employment request failures visible", () => {
   assert.match(hire, /state\.employmentError = null;\s*await employMarketplaceAgent/);
 });
 
+test("Agent Square defines the legacy comment-filter predicate used by its setup flow", () => {
+  assert.match(source, /function isCommentFilterAgent\(agent\) \{\s*return agent\?\.id === "mkt-comment-filter";\s*\}/);
+});
+
 test("Agent startup uses one global busy-account guard and actionable dialog", () => {
   assert.match(source, /export function activeAgentSquareWorkForAccount\(/);
   assert.match(source, /async function guardAccountBusyBeforeStart\(agent, flow\)/);
@@ -1261,9 +1265,9 @@ test("comment acquisition keeps the conversation objective in the same setup pag
   assert.match(setup, /持续承接/);
   assert.doesNotMatch(setup, /你想找什么样的人|补充说明（选填）|首次怎么联系/);
   assert.doesNotMatch(setup, /监听方式|持续监听新的作品评论、直播互动和账号互动通知，不回扫历史内容/);
-  assert.match(composer, /你想让我帮你达成什么/);
+  assert.match(composer, /你想让我帮你获得什么样的客户，并推进到哪一步/);
   assert.doesNotMatch(composer, /我希望通过私信达成/);
-  assert.match(setup, /appendGoalFirstComposer\(shell, flow, "你想让我帮你达成什么？"\)/);
+  assert.match(setup, /appendGoalFirstComposer\(shell, flow, "你想让我帮你获得什么样的客户，并推进到哪一步？"\)/);
   assert.doesNotMatch(setup, /appendGoalFirstComposer\(shell, flow, "你想让我先帮你达成什么？"\)/);
   assert.doesNotMatch(setup, /appendGoalFirstComposer\(shell, flow, "我希望抖音获客管家达成…"\)/);
   assert.match(setup, /const hasObjective = Boolean\(String\(flow\.replyObjective \|\| ""\)\.trim\(\)\)/);
@@ -1296,7 +1300,7 @@ test("gold customer service setup speaks as the Agent", () => {
   assert.doesNotMatch(setup, /sb-as-gold-eyebrow.*金牌客服/);
   assert.match(setup, /我来帮你接住私信/);
   assert.match(setup, /连接账号后，我会按你的目标接待新私信/);
-  assert.match(setup, /appendGoalFirstComposer\(shell, flow, "你想让我帮你达成什么？"\)/);
+  assert.match(setup, /appendGoalFirstComposer\(shell, flow, "你想让我帮你获得什么样的客户，并推进到哪一步？"\)/);
   assert.doesNotMatch(setup, /把私信交给金牌客服/);
   assert.doesNotMatch(setup, /告诉我希望通过私信达成什么/);
 });
@@ -1484,6 +1488,10 @@ test("Agent Center shows the Tiktok acquisition placeholder as unavailable", () 
   assert.match(source, /const AGENT_SQUARE_PLACEHOLDER_AGENTS = Object\.freeze\(\[/);
   assert.match(source, /id: "mkt-tiktok-acquisition"/);
   assert.match(source, /displayName: "Tiktok获客管家"/);
+  assert.match(source, /id: "mkt-live-room-control"/);
+  assert.match(source, /displayName: "直播间场控"/);
+  assert.match(source, /id: "mkt-live-returning-outreach"/);
+  assert.match(source, /displayName: "直播间老客触达"/);
   assert.match(source, /function buildUnavailableButton\(label = "即将开放"\)/);
   assert.match(source, /const placeholderAgents = AGENT_SQUARE_PLACEHOLDER_AGENTS\.filter/);
   assert.match(source, /buildCard\(agent, \{ placeholder: isPlaceholder \}\)/);
@@ -1547,6 +1555,21 @@ test("live danmaku analysis speaks as an Agent throughout setup", () => {
   assert.doesNotMatch(source, /系统只分析：当前直播间的新弹幕/);
   assert.match(setup, /账号已连接，我可以开始分析/);
   assert.match(setup, /我会把分析结果保留在任务记录中/);
+});
+
+test("live danmaku reports use the completed livestream session as their result identity", () => {
+  const recordStart = source.indexOf("function recordLiveDanmakuAnalysisResult");
+  const recordEnd = source.indexOf("async function startLiveDanmakuOutreach", recordStart);
+  assert.ok(recordStart >= 0 && recordEnd > recordStart);
+  const recorder = source.slice(recordStart, recordEnd);
+
+  assert.match(recorder, /const liveSessionId = String\(liveSession\.id/);
+  assert.match(recorder, /const reportTaskId = `\$\{taskId\}:live-session:\$\{reportSessionKey\}`;/);
+  assert.match(recorder, /id: `live-danmaku-report:\$\{taskId\}:\$\{reportSessionKey\}`/);
+  assert.match(recorder, /activityKey: `live-danmaku-analysis-report:\$\{taskId\}:\$\{reportSessionKey\}`/);
+  assert.match(recorder, /sourceTaskId: taskId,/);
+  assert.match(recorder, /liveSessionId: reportResult\.liveSession\.id,/);
+  assert.match(recorder, /return null;/);
 });
 
 test("live danmaku outreach has a dedicated no-analysis setup and durable running state", () => {

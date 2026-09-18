@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createOfficeWorkspace } from "../src/salebuddy/ui/office-workspace.js";
 import { OFFICE_START_ACTIONS } from "../src/salebuddy/ui/office-workspace-state.js";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 class Element {
   constructor(tag) { this.tagName = tag; this.children = []; this.style = {}; this.dataset = {}; this.listeners = {}; this.attributes = {}; this.isConnected = true; this.value = ""; this.scrollHeight = 100; this.scrollTop = 0; this.clientHeight = 100; }
@@ -117,6 +117,15 @@ test("selecting an Agent reuses its task capture channel above the conversation 
   assert.match(host.textContent, /私信客服/);
 });
 
+test("selecting the chief of staff opens its direct conversation workspace", t => {
+  const { host, controller } = setup(t, { action: async () => ({ data: { messages: [] } }) });
+  controller.select("main");
+  const workspace = host.querySelector("#sb-office-workspace");
+  assert.equal(workspace.dataset.agentId, "main");
+  assert.match(host.textContent, /Byering · 幕僚长/);
+  assert.ok(host.all().find(node => node.tagName === "textarea"));
+});
+
 test("cloud workspaces reserve the task area for the current task capture without duplicate status copy", t => {
   const { host, controller } = setup(t, { action: async () => ({ data: { messages: [] } }) });
   controller.select("mkt-dm-inbox");
@@ -149,6 +158,26 @@ test("idle guidance does not duplicate a real private-message conversation", asy
   await tick();
   assert.match(host.textContent, /我已经准备好了，请直接告诉我目标。/);
   assert.doesNotMatch(host.textContent, /接下来想做点什么？直接发消息告诉我。/);
+});
+
+test("office Agent messages include the same mounted avatar treatment as private messages", async t => {
+  const mounts = [];
+  const { host, controller } = setup(t, { action: async () => ({ data: { messages: [
+    { id: "agent-message", from: "mkt-cold-writer", text: "我已经准备好了，请直接告诉我目标。", metadata: { companion: { phase: "ready" } } },
+    { id: "user-message", from: "user", text: "先看一下最近的线索。" }
+  ] } }) }, {
+    getWork: () => null,
+    mountAvatar: (container, agentId, options) => mounts.push({ container, agentId, options })
+  });
+  controller.select("mkt-cold-writer");
+  await tick();
+  const agentRow = host.all().find(node => node.className?.includes("sb-ow-message is-agent"));
+  const userRow = host.all().find(node => node.className?.includes("sb-ow-message is-user"));
+  assert.ok(agentRow);
+  assert.ok(userRow);
+  assert.ok(agentRow.all().find(node => node.className?.includes("sb-ow-message-avatar")));
+  assert.equal(userRow.all().find(node => node.className?.includes("sb-ow-message-avatar")), undefined);
+  assert.ok(mounts.some(({ agentId, options }) => agentId === "mkt-cold-writer" && options.mode === "office-workspace-message"));
 });
 
 test("idle cloud agents cannot render a replay placeholder", () => {
@@ -271,6 +300,20 @@ test("sending stays bound to selected Agent and does not fabricate an assistant 
   assert.equal(sent.payload.agentType, "mkt-intent-analyst"); assert.equal(sent.payload.from, "user");
   assert.equal(sent.payload.text, "现在找到了哪些人？");
   assert.doesNotMatch(host.textContent, /收到，我会继续/);
+});
+
+test("sending shows an Agent thinking animation before its reply is loaded", async t => {
+  let finish;
+  const { host, controller } = setup(t, { action: async name => name === "dm.message.send" ? new Promise(resolve => { finish = resolve; }) : { data: { messages: [] } } });
+  controller.select("mkt-intent-analyst"); await tick();
+  const input = host.all().find(node => node.tagName === "textarea"); input.value = "帮我判断这些线索"; input.listeners.input();
+  const pending = host.all().find(node => node.attributes["aria-label"] === "发送消息").listeners.click();
+  await tick();
+  assert.match(host.textContent, /帮我判断这些线索/);
+  assert.match(host.textContent, /正在思考/);
+  finish({ accepted: true, data: { messages: [] } });
+  await pending;
+  assert.doesNotMatch(host.textContent, /正在思考/);
 });
 
 test("late messages from the previous Agent never replace the new conversation", async t => {
@@ -441,6 +484,20 @@ test("office work replays recorded WebM segments and only falls back to screensh
   assert.match(source, /const justConnected = event\.data\.status === "connected" && viewerConnectionStatus !== "connected"/);
   assert.match(source, /event\.data\.status === "recording-unavailable"\) requestReplayCapture\(\)/);
   assert.match(source, /if \(replay\.videoNode\?\.ended\) advance\(\)/);
+});
+
+test("mock office replays use local Agent work videos only when the mock preview is active", () => {
+  const source = readFileSync(new URL("../src/salebuddy/ui/office-workspace.js", import.meta.url), "utf8");
+  assert.match(source, /import \{ isResultsMockPreview \} from "\.\/results-mock-preview\.js"/);
+  assert.match(source, /function mockReplaySegment\(agentId\)/);
+  assert.match(source, /assets\/mock-office-replays\/comment-acquisition\.mp4/);
+  assert.doesNotMatch(source, /assets\/office-characters\/.*\/working/);
+  assert.match(source, /const mock = recorded\.length \? null : mockReplaySegment\(selected\)/);
+  assert.match(source, /replay\.videoNode\.loop = Boolean\(current\.segment\.isMock\)/);
+  assert.match(source, /video\.style\.objectFit = "cover"/);
+  for (const file of ["comment-acquisition", "gold-customer-service", "live-danmaku-analysis", "live-danmaku-outreach", "viral-work-analysis"]) {
+    assert.ok(existsSync(new URL(`../assets/mock-office-replays/${file}.mp4`, import.meta.url)));
+  }
 });
 
 test("non-working guidance is kept in the private-message stream", () => {

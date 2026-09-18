@@ -3,6 +3,7 @@ const RECORD_KEYS = Object.freeze(["data", "result", "entity", "aweme_detail", "
 export const VIRAL_WORK_ANALYSIS_TARGET_AUDIENCE = "准备做或正在做自媒体、希望通过学习爆款视频增长流量的博主";
 export const VIRAL_WORK_ANALYSIS_PURPOSE = "从视频本身和公开表现中拆解它为什么可能获得流量，帮助博主找到可复用、可验证的创作方法。";
 export const VIRAL_WORK_ANALYSIS_DEFAULT_GOAL = "帮助正在做或准备做自媒体的博主，拆解这条视频为什么可能获得流量，并提炼下一轮可验证的创作打法。";
+export const VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE_ID = "viral-teardown-v1";
 
 function isRecord(value) {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -260,7 +261,8 @@ export function analyzeViralWork({ sourceUrl = "", work = {}, comments = [], goa
   return {
     schemaVersion: 1,
     analysisKind: "viral_work",
-    title: "爆款作品分析报告",
+    reportTemplate: VIRAL_WORK_ANALYSIS_REPORT_TEMPLATE_ID,
+    title: "抖音爆款视频拆解报告",
     purpose: VIRAL_WORK_ANALYSIS_PURPOSE,
     targetAudience: VIRAL_WORK_ANALYSIS_TARGET_AUDIENCE,
     sourceUrl: normalizedWork.url || sourceUrl,

@@ -16,6 +16,7 @@ import HeartHandshake from "../../../node_modules/lucide/dist/esm/icons/heart-ha
 import { appendCompanionCards, mountCompanionStatus, openCompanionPreferences } from "./agent-companion-ui.js";
 import { companionRequest, companionCardAction, latestCompanionPhase } from "../bridge/companion-client.js";
 import { listOfficeReplay, loadOfficeReplayImage, loadOfficeReplayVideo, markOfficeReplayTask, saveOfficeReplaySnapshot, saveOfficeReplayVideo } from "../bridge/office-work-replay.js";
+import { isResultsMockPreview } from "./results-mock-preview.js";
 
 const CLOUD_AGENTS = new Set(["mkt-comment-acquisition", "mkt-find-people", "mkt-cold-writer", "mkt-dm-inbox", "mkt-gold-customer-service", "mkt-live-danmaku-outreach"]);
 const ID = "sb-office-workspace";
@@ -24,6 +25,30 @@ const REPLAY_SAMPLE_MS = 3_000;
 const REPLAY_FRAME_LIMIT = Math.ceil(REPLAY_WINDOW_MS / REPLAY_SAMPLE_MS);
 const REPLAY_SEGMENT_MS = 5_000;
 const REPLAY_SEGMENT_LIMIT = Math.ceil(REPLAY_WINDOW_MS / REPLAY_SEGMENT_MS);
+const THINKING_MIN_VISIBLE_MS = 850;
+const CHIEF_AGENT = Object.freeze({
+  id: "main",
+  name: "Byering · 幕僚长",
+  displayName: "Byering · 幕僚长",
+  title: "智能组织负责人",
+  displayTitle: "智能组织负责人"
+});
+const MOCK_REPLAY_VIDEOS = Object.freeze({
+  "mkt-comment-acquisition": new URL("../../../assets/mock-office-replays/comment-acquisition.mp4", import.meta.url).href,
+  "mkt-gold-customer-service": new URL("../../../assets/mock-office-replays/gold-customer-service.mp4", import.meta.url).href,
+  "mkt-live-danmaku-analysis": new URL("../../../assets/mock-office-replays/live-danmaku-analysis.mp4", import.meta.url).href,
+  "mkt-live-danmaku-outreach": new URL("../../../assets/mock-office-replays/live-danmaku-outreach.mp4", import.meta.url).href,
+  "mkt-viral-work-analysis": new URL("../../../assets/mock-office-replays/viral-work-analysis.mp4", import.meta.url).href
+});
+
+function mockReplaySegment(agentId) {
+  const videoUrl = isResultsMockPreview() ? MOCK_REPLAY_VIDEOS[agentId] : null;
+  return videoUrl ? { id: `mock-office-replay:${agentId}`, title: "Agent 工作回放", videoUrl, isMock: true } : null;
+}
+
+function getOfficeAgent(agentId) {
+  return agentId === CHIEF_AGENT.id ? CHIEF_AGENT : getMarketplaceAgent(agentId);
+}
 
 function isSuccessfulReplayWork(work) {
   if (!work || work.lastError || work.metadata?.error) return false;
@@ -64,17 +89,19 @@ const CSS = `
 .sb-ow-work{min-width:0;overflow:hidden;display:flex;flex-direction:column;min-height:0;border-bottom:1px solid #e4e8eb}.sb-ow-work-head{display:flex;justify-content:space-between;gap:8px;padding:8px 16px;flex:none;font-size:12px;color:#717f88}.sb-ow-screen{width:100%;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:6px;background:#f1f3f4}#${ID}[data-mode="work"][data-view="live"] .sb-ow-screen{flex:0 1 auto;width:100%;height:auto;max-height:100%;aspect-ratio:4/3;margin:auto 0}.sb-ow-screen iframe{display:block;flex:0 0 auto;border:0;width:100%;height:100%;max-width:100%;max-height:100%;aspect-ratio:auto}.sb-ow-screen:fullscreen{height:100vh;flex:none;background:#111;border-radius:0}.sb-ow-task{height:100%;padding:24px 18px;display:flex;flex-direction:column;justify-content:center;gap:12px;overflow:auto}.sb-ow-task strong{font-size:15px;font-weight:550;line-height:1.5}.sb-ow-task p{font-size:13px;line-height:1.6;margin:0;color:#707a83;overflow-wrap:anywhere}
 .sb-ow-dialogue{min-width:0;min-height:0;overflow:hidden;display:flex;flex-direction:column;background:#fff}
 .sb-ow-messages{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px 18px 12px;display:flex;flex-direction:column;gap:16px;scrollbar-gutter:stable}
-.sb-ow-message{display:flex;flex-shrink:0;flex-direction:column;gap:5px;max-width:94%;align-self:flex-start}.sb-ow-message.is-user{align-self:flex-end}
+.sb-ow-message{display:flex;flex-shrink:0;flex-direction:column;gap:5px;max-width:94%;align-self:flex-start}.sb-ow-message.is-user{align-self:flex-end}.sb-ow-message.is-thinking{max-width:none}
+.sb-ow-message-line{display:flex;align-items:flex-start;gap:8px;min-width:0}.sb-ow-message-avatar{width:30px;height:30px;flex:none}.sb-ow-message-avatar.sb-grok-avatar{border-radius:0;overflow:visible;background:transparent}.sb-ow-message-avatar.sb-grok-avatar .sb-grok-avatar-svg{display:block;width:100%;height:100%;overflow:visible}.sb-ow-message-content{min-width:0}.sb-ow-message.is-user .sb-ow-message-content{display:flex;flex-direction:column;align-items:flex-end}
 .sb-ow-message time{font-size:10px;line-height:1.4;color:#929ba2}.sb-ow-message.is-user time{text-align:right}
 .sb-ow-bubble{border:0;border-radius:8px;background:transparent;padding:2px 0;color:#343d45;font-size:13px;line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere}
 .sb-ow-message.is-user .sb-ow-bubble{background:#f0f2f4;color:#303840;padding:9px 12px}
+.sb-ow-thinking{display:inline-flex;align-items:center;gap:8px;width:max-content;min-height:30px;padding:5px 0;color:#6f7b86;font-size:12px;line-height:1.4}.sb-ow-thinking-dots{display:inline-flex;align-items:center;gap:4px;height:12px}.sb-ow-thinking-dots i{width:5px;height:5px;border-radius:50%;background:#6c93b7;animation:sb-ow-thinking-dot 1.1s ease-in-out infinite}.sb-ow-thinking-dots i:nth-child(2){animation-delay:.16s}.sb-ow-thinking-dots i:nth-child(3){animation-delay:.32s}@keyframes sb-ow-thinking-dot{0%,70%,100%{transform:translateY(0);opacity:.36}35%{transform:translateY(-3px);opacity:1}}
 .sb-ow-message-empty{color:#89929b;font-size:13px;line-height:1.7;margin:auto 0;text-align:center;padding:24px 0}
 .sb-ow-history{flex-shrink:0;color:#7b858f;font-size:12px}.sb-ow-history summary{cursor:pointer;padding:8px 0}.sb-ow-history-body{display:flex;flex-direction:column;gap:14px;padding:12px 0 18px;border-bottom:1px solid #eceff1}.sb-ow-history .sb-ow-bubble{color:#737e87;font-size:12px}
 .sb-ow-error{flex:none;max-height:48px;overflow:auto;font-size:12px;color:#a74141;padding:0 16px;line-height:1.5}
 .sb-ow-compose{display:flex;flex-shrink:0;align-items:flex-end;gap:8px;margin:10px 14px 16px;padding:10px;border:1px solid #dce1e5;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(25,35,45,.03)}
 .sb-ow-compose:focus-within{border-color:#909ba5;box-shadow:0 0 0 2px rgba(90,107,123,.08)}
 .sb-ow-compose textarea{flex:1;min-width:0;height:44px;min-height:44px;max-height:112px;resize:none;overflow-y:auto;border:0;outline:0;background:transparent;padding:10px 2px;font:inherit;font-size:13px;line-height:1.7;color:#343d45}
-.sb-ow-compose textarea::placeholder{color:#929aa2}.sb-ow-compose button{width:36px;height:36px;margin-bottom:3px;flex:none;display:grid;place-items:center;border:0;border-radius:8px;background:#292d32;color:#fff;cursor:pointer}.sb-ow-compose button svg{width:20px;height:20px}.sb-ow-compose button:disabled{background:#e8ecef;color:#a1a9b0;cursor:default}.sb-ow-compose button[aria-busy="true"]{position:relative;color:transparent}.sb-ow-compose button[aria-busy="true"]::after{content:"";position:absolute;width:14px;height:14px;border:2px solid rgba(255,255,255,.42);border-top-color:#fff;border-radius:50%;animation:sb-ow-spin .7s linear infinite}.sb-ow-error{flex:none;min-height:0;max-height:48px;overflow:auto;font-size:12px;color:#8b9299;padding:0 16px;line-height:1.5;transition:color .18s ease}.sb-ow-error:empty{display:none}.sb-ow-error[data-state="error"]{color:#b04a4a}@keyframes sb-ow-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.sb-ow-compose button[aria-busy="true"]::after{animation:none}.sb-ow-error{transition:none}}
+.sb-ow-compose textarea::placeholder{color:#929aa2}.sb-ow-compose button{width:36px;height:36px;margin-bottom:3px;flex:none;display:grid;place-items:center;border:0;border-radius:8px;background:#292d32;color:#fff;cursor:pointer}.sb-ow-compose button svg{width:20px;height:20px}.sb-ow-compose button:disabled{background:#e8ecef;color:#a1a9b0;cursor:default}.sb-ow-compose button[aria-busy="true"]{position:relative;color:transparent}.sb-ow-compose button[aria-busy="true"]::after{content:"";position:absolute;width:14px;height:14px;border:2px solid rgba(255,255,255,.42);border-top-color:#fff;border-radius:50%;animation:sb-ow-spin .7s linear infinite}.sb-ow-error{flex:none;min-height:0;max-height:48px;overflow:auto;font-size:12px;color:#8b9299;padding:0 16px;line-height:1.5;transition:color .18s ease}.sb-ow-error:empty{display:none}.sb-ow-error[data-state="error"]{color:#b04a4a}@keyframes sb-ow-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.sb-ow-thinking-dots i,.sb-ow-compose button[aria-busy="true"]::after{animation:none}.sb-ow-error{transition:none}}
 @media(max-height:700px){.sb-ow-head{padding:10px 12px}}
 `;
 
@@ -95,7 +122,11 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
   let suspended = false;
   let manualSelection = false, layoutKey = "";
   const drafts = new Map();
-  const historyExpanded = new Map(), acknowledged = new Map(), pendingSends = new Set();
+  const historyExpanded = new Map(), acknowledged = new Map(), pendingSends = new Set(), thinking = new Map();
+  function persistDraft(agentId, value) {
+    if (!agentId || (pendingSends.has(agentId) && !String(value || "").trim())) return;
+    drafts.set(agentId, value);
+  }
   const replay = { loadedKey: "", loadingKey: "", snapshots: [], segments: [], captureSignature: "", recordingSignature: "", markedTasks: new Set(), captures: new Map(), recordings: new Map(), images: new Map(), videos: new Map(), imageLoads: new Set(), videoLoads: new Set(), imageNode: null, videoNode: null, playbackIndex: 0, playbackTimer: null };
   let companionStatus = null, companionStatusKey = "", viewerConnectionStatus = "", disposeCompanionStatus = () => {};
   const cardDisposers = [];
@@ -147,7 +178,7 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
   }
   function mount(nextHost) {
     if (disposed || !nextHost || (host === nextHost && root?.isConnected)) return;
-    if (selected && input) drafts.set(selected, input.value);
+    if (selected && input) persistDraft(selected, input.value);
     generation++; inFlight = null; releaseFrame(); root?.remove(); releaseHost();
     host = nextHost; host.classList.add("sb-office-workspace-host");
     syncHeight(); resizeObserver?.observe(host); if (host.parentElement) resizeObserver?.observe(host.parentElement);
@@ -156,10 +187,10 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
     build();
   }
   function select(agentId) {
-    if (disposed || !getMarketplaceAgent(agentId)) return;
+    if (disposed || !getOfficeAgent(agentId)) return;
     manualSelection = true;
     if (selected === agentId) { refresh(); return; }
-    if (selected && input) drafts.set(selected, input.value);
+    if (selected && input) persistDraft(selected, input.value);
     generation++; inFlight = null; remote = []; sending = false; messageSignature = ""; replay.captureSignature = ""; clearReplayImages(); selected = agentId;
     releaseFrame(); build();
   }
@@ -183,7 +214,7 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
     root.dataset.officeState = selected ? state.kind : "";
     if (!selected) { buildHome(); return; }
     delete root.dataset.homeState;
-    const agent = getMarketplaceAgent(selected);
+    const agent = getOfficeAgent(selected);
     root.dataset.agentId = selected;
     const head = el("header", "sb-ow-head"), avatar = el("span", "sb-ow-avatar"), identity = el("div", "sb-ow-identity");
     mountAvatar(avatar, selected, { alt: agent.name, trackPointer: false, mode: "office-workspace" });
@@ -259,7 +290,7 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
       parent.appendChild(section);
       return;
     }
-    const sourceAgent = getMarketplaceAgent(result.agentId);
+    const sourceAgent = getOfficeAgent(result.agentId);
     if (sourceAgent?.name) section.appendChild(el("div", "sb-ow-recent-source", sourceAgent.name));
     section.appendChild(el("strong", null, result.title || "上次的工作结果"));
     if (result.summary) section.appendChild(el("p", null, result.summary));
@@ -339,7 +370,9 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
     return replay.snapshots.slice().reverse().map(snapshot => ({ snapshot, imageUrl: replay.images.get(snapshot.id) })).filter(frame => frame.imageUrl);
   }
   function replaySegments() {
-    return replay.segments.slice().reverse().map(segment => ({ segment, videoUrl: replay.videos.get(segment.id) })).filter(item => item.videoUrl);
+    const recorded = replay.segments.slice().reverse().map(segment => ({ segment, videoUrl: replay.videos.get(segment.id) })).filter(item => item.videoUrl);
+    const mock = recorded.length ? null : mockReplaySegment(selected);
+    return mock ? [{ segment: mock, videoUrl: mock.videoUrl }] : recorded;
   }
   function updateReplayPlayback() {
     const frames = replayFrames();
@@ -362,6 +395,7 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
     if (!replay.videoNode || !segments.length) return;
     const current = segments[replay.playbackIndex % segments.length];
     replay.videoNode.src = current.videoUrl;
+    replay.videoNode.loop = Boolean(current.segment.isMock);
     replay.videoNode.setAttribute("aria-label", current.segment.title || "本次任务工作片段");
     const play = replay.videoNode.play?.();
     play?.catch?.(() => {});
@@ -397,6 +431,7 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
     const stage = el("div", "sb-ow-replay-stage");
     if (segments.length) {
       const video = document.createElement("video"); video.muted = true; video.autoplay = true; video.playsInline = true; video.preload = "auto";
+      if (segments[0].segment.isMock) { video.className = "is-mock"; video.style.objectFit = "cover"; video.style.background = "#f7f8f8"; }
       replay.videoNode = video; stage.appendChild(video);
     } else if (frames.length) {
       const image = document.createElement("img"); image.loading = "eager"; replay.imageNode = image;
@@ -518,7 +553,8 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
         await companionRequest("POST", "/v1/direct-messages/retry", { agentId, messageId: status.messageId }); await loadMessages();
       } });
     }
-    const signature = JSON.stringify([history.map(message => message.id), combined.map(message => [message.id, message.from, message.text, message.createdAt, message.metadata?.companion])]);
+    const activeThinking = thinking.get(selected);
+    const signature = JSON.stringify([history.map(message => message.id), combined.map(message => [message.id, message.from, message.text, message.createdAt, message.metadata?.companion]), activeThinking?.id || null]);
     if (signature === messageSignature) return;
     const nearBottom = !messageSignature || messages.scrollHeight - messages.scrollTop - messages.clientHeight < 60;
     const scrollTop = messages.scrollTop;
@@ -527,22 +563,33 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
       let previousTime = null;
       entries.slice(-100).forEach(message => {
         if (!message.text) return;
-        const row = el("div", `sb-ow-message${message.from === "user" ? " is-user" : ""}`);
+        const isUser = message.from === "user";
+        const row = el("div", `sb-ow-message${isUser ? " is-user" : " is-agent"}`);
         if (!displayedMessages.has(message.id)) { row.className += " sb-companion-arrive"; displayedMessages.add(message.id); }
-        row.setAttribute("aria-label", message.from === "user" ? "我" : getMarketplaceAgent(selected).name);
+        const agent = getOfficeAgent(selected);
+        row.setAttribute("aria-label", isUser ? "我" : agent.name);
+        const content = el("div", "sb-ow-message-content");
         const date = new Date(message.createdAt || "");
         const timestamp = Number.isFinite(date.getTime()) ? date.toLocaleString("zh-CN", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }) : null;
         if (timestamp && timestamp !== previousTime) {
           const time = el("time", null, timestamp);
           if (Number.isFinite(date.getTime())) time.setAttribute("datetime", date.toISOString());
-          row.appendChild(time); previousTime = timestamp;
+          content.appendChild(time); previousTime = timestamp;
         }
-        row.appendChild(el("div", "sb-ow-bubble", message.text));
+        content.appendChild(el("div", "sb-ow-bubble", message.text));
         const agentId = selected;
-        cardDisposers.push(appendCompanionCards(row, message, { onAction: async action => {
+        cardDisposers.push(appendCompanionCards(content, message, { onAction: async action => {
           const result = await companionCardAction(agentId, action, { onConfigure, onOpenWork: id => onOpenWork?.(id, getWork(id)) });
           await loadMessages(); return result;
         } }));
+        if (isUser) {
+          row.appendChild(content);
+        } else {
+          const line = el("div", "sb-ow-message-line");
+          const avatar = el("span", "sb-ow-message-avatar");
+          mountAvatar(avatar, selected, { alt: agent.name, trackPointer: false, mode: "office-workspace-message" });
+          line.append(avatar, content); row.appendChild(line);
+        }
         parent.appendChild(row);
       });
     };
@@ -554,6 +601,18 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
     }
     if (!visibleCurrent.length) messages.appendChild(el("div", "sb-ow-message-empty", history.length ? "暂时没有新的对话" : "暂时没有对话记录"));
     appendMessages(messages, visibleCurrent);
+    if (activeThinking) {
+      const agent = getOfficeAgent(selected);
+      const row = el("div", "sb-ow-message is-agent is-thinking");
+      row.setAttribute("aria-label", `${agent.name}正在思考`);
+      const line = el("div", "sb-ow-message-line");
+      const avatar = el("span", "sb-ow-message-avatar");
+      mountAvatar(avatar, selected, { alt: agent.name, trackPointer: false, mode: "office-workspace-message" });
+      const bubble = el("div", "sb-ow-thinking");
+      const dots = el("span", "sb-ow-thinking-dots");
+      dots.append(el("i"), el("i"), el("i"));
+      bubble.append(el("span", null, "正在思考"), dots); line.append(avatar, bubble); row.appendChild(line); messages.appendChild(row);
+    }
     if (nearBottom) messages.scrollTop = messages.scrollHeight;
     else messages.scrollTop = scrollTop;
   }
@@ -580,41 +639,57 @@ export function createOfficeWorkspace({ gateway = null, teamLive = null, onConfi
     }
     const text = input.value.trim(); if (!text) return;
     const agentId = selected, token = generation, context = officeConversationContext(agentId, getWork(agentId));
+    const clientMessageId = globalThis.crypto?.randomUUID?.() || `message-${Date.now()}`;
+    const localMessageId = `local-sent:${clientMessageId}`;
+    const startedAt = Date.now();
+    const sent = { id: localMessageId, from: "user", text, createdAt: new Date().toISOString() };
     sending = true; pendingSends.add(agentId); updateComposer(); errorNode.textContent = "";
+    acknowledged.set(agentId, [...(acknowledged.get(agentId) || []), sent].slice(-100));
+    thinking.set(agentId, { id: `office-thinking:${clientMessageId}` });
+    if (input?.value.trim() === text) input.value = "";
+    renderMessages();
     try {
-      const result = await gateway.action("dm.message.send", { ...context, from: "user", fromName: "我", text, clientMessageId: globalThis.crypto?.randomUUID?.() || `message-${Date.now()}` });
+      const result = await gateway.action("dm.message.send", { ...context, from: "user", fromName: "我", text, clientMessageId });
       if (result?.ok === false || result?.accepted === false) throw new Error(result?.message || "消息未被接收");
       const saved = result?.data?.message || result?.message;
-      const sent = { id: saved?.id || `local-sent:${Date.now()}`, from: "user", text, metadata: saved?.metadata, createdAt: saved?.createdAt || new Date().toISOString() };
-      acknowledged.set(agentId, [...(acknowledged.get(agentId) || []), sent].slice(-100));
-      if (drafts.get(agentId)?.trim() === text || (token === generation && input?.value.trim() === text)) drafts.delete(agentId);
+      const confirmed = { ...sent, id: saved?.id || sent.id, metadata: saved?.metadata, createdAt: saved?.createdAt || sent.createdAt };
+      acknowledged.set(agentId, (acknowledged.get(agentId) || []).map(message => message.id === localMessageId ? confirmed : message).slice(-100));
+      if (drafts.get(agentId)?.trim() === text) drafts.delete(agentId);
       if (selected !== agentId || disposed) return;
       if (input?.value.trim() === text) input.value = "";
-      updateComposer();
-      renderMessages(); await loadMessages();
-    } catch (error) { if (selected === agentId && !disposed) errorNode.textContent = error.message || "发送失败，请重试"; }
-    finally { pendingSends.delete(agentId); if (selected === agentId && !disposed) { sending = false; updateComposer(); } }
+      renderMessages();
+      const remaining = THINKING_MIN_VISIBLE_MS - (Date.now() - startedAt);
+      if (remaining > 0) await new Promise(resolve => globalThis.setTimeout(resolve, remaining));
+      await loadMessages();
+    } catch (error) {
+      acknowledged.set(agentId, (acknowledged.get(agentId) || []).filter(message => message.id !== localMessageId));
+      drafts.set(agentId, text);
+      if (selected === agentId && !disposed) { if (input) input.value = text; errorNode.textContent = error.message || "发送失败，请重试"; renderMessages(); }
+    } finally {
+      thinking.delete(agentId); pendingSends.delete(agentId);
+      if (selected === agentId && !disposed) { sending = false; updateComposer(); renderMessages(); }
+    }
   }
   function refresh() {
     if (disposed) return;
     syncHeight();
     const bounds = host?.getBoundingClientRect?.();
     if (!root?.isConnected || !isVisible() || (bounds && (!bounds.width || !bounds.height))) {
-      if (!suspended) { suspended = true; generation++; inFlight = null; if (selected && input) drafts.set(selected, input.value); releaseFrame(); clearReplayPlayback(); }
+      if (!suspended) { suspended = true; generation++; inFlight = null; if (selected && input) persistDraft(selected, input.value); releaseFrame(); clearReplayPlayback(); }
       return;
     }
     if (suspended) { suspended = false; sending = false; build(); return; }
     if (!manualSelection) {
       const next = selectOfficeWork(getWorks(), selected);
       if (next !== selected && (next || !selected)) {
-      if (selected && input) drafts.set(selected, input.value);
+      if (selected && input) persistDraft(selected, input.value);
         generation++; inFlight = null; remote = []; sending = false; replay.captureSignature = ""; clearReplayImages(); selected = next; build(); return;
       }
     }
     const work = selected ? getWork(selected) : null;
     const state = officeDisplayState(officeWorkState(work));
     if (viewKey(state) !== layoutKey) {
-      if (selected && input) drafts.set(selected, input.value);
+      if (selected && input) persistDraft(selected, input.value);
       generation++; inFlight = null; sending = false; build(); return;
     }
     if (!selected) return;

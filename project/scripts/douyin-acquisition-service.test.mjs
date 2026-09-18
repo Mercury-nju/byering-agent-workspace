@@ -1505,7 +1505,7 @@ test("live danmaku analysis finalizes once after livestream ends with all collec
   assert.equal(finalizerCalls.length, 1);
   assert.equal(finalizerCalls[0].signals.length, 2);
   assert.equal(finalizerCalls[0].goal, "识别价格和库存问题");
-  assert.equal(snapshot.state, "completed");
+  assert.equal(snapshot.state, "running");
   assert.equal(snapshot.resultSnapshot.status, "completed");
   assert.deepEqual(snapshot.resultSnapshot.danmakuAnalysis.counts, {
     total: 2,
@@ -1518,6 +1518,61 @@ test("live danmaku analysis finalizes once after livestream ends with all collec
   });
   assert.equal(snapshot.resultSnapshot.collectionSnapshot.totalDanmaku, 2);
   assert.equal(snapshot.resultSnapshot.leads.length, 2);
+  assert.equal(snapshot.resultSnapshot.liveSessions.length, 1);
+  assert.equal(snapshot.resultSnapshot.liveSessions[0].roomId, "room-1");
+  assert.equal(snapshot.resultSnapshot.liveSessions[0].state, "completed");
+  assert.equal(snapshot.liveDanmakuCurrentSession, null);
+  assert.deepEqual(snapshot.liveDanmakuSignals, []);
+});
+
+test("live danmaku analysis keeps listening and archives each completed livestream separately", async t => {
+  const directory = await mkdtemp(join(tmpdir(), "byering-live-danmaku-sessions-"));
+  let scanCount = 0;
+  const finalizedRooms = [];
+  const frames = [
+    { state: "receiving", roomId: "room-1", userId: "user-1", text: "这款多少钱？" },
+    { state: "ended", roomId: "room-1", userId: "user-2", text: "现货什么时候发？" },
+    { state: "receiving", roomId: "room-1", userId: "user-3", text: "支持试驾吗？" },
+    { state: "ended", roomId: "room-1", userId: "user-4", text: "周末有活动吗？" }
+  ];
+  const interactionSource = {
+    async scan() {
+      const frame = frames[scanCount++];
+      return {
+        leads: [],
+        liveSignals: [{ userId: frame.userId, nickname: frame.userId, type: "live_chat", text: frame.text, roomId: frame.roomId, roomTitle: `${frame.roomId} 专场` }],
+        profiles: {},
+        nextCursor: { live: scanCount, notifications: 0 },
+        snapshot: { sources: { live: { state: frame.state, count: 1, roomId: frame.roomId, title: `${frame.roomId} 专场` } }, counts: { signals: 1 } }
+      };
+    },
+    async finalizeLiveDanmakuAnalysis({ signals, goal }) {
+      finalizedRooms.push(signals[0]?.roomId);
+      return analyzeLiveDanmakuSignals({ signals, goal, now: `2026-09-16T10:0${finalizedRooms.length}:00.000Z` });
+    }
+  };
+  const { service } = build(directory, { interactionSource, prospect: null });
+  t.after(() => service.close());
+  const task = await service.createTask(
+    context({ agentId: "mkt-live-danmaku-analysis", executionAgentId: "mkt-comment-acquisition", taskId: "live-danmaku-sessions-task", taskRunId: "live-danmaku-sessions-run" }),
+    config({ sourceScope: { kind: "authorized_account_live" }, discoveryOnly: true, analysisOnly: true, analysisKind: "live_danmaku", liveSignals: ["danmaku"], autoStartCloud: false, audienceRules: { goal: "持续了解每场直播的用户问题", minScore: 0 } })
+  );
+
+  await service.start(task.key, { runImmediately: false });
+  await service.runOnce(task.key);
+  await service.runOnce(task.key);
+  await service.runOnce(task.key);
+  await service.runOnce(task.key);
+
+  const snapshot = service.status(task.key);
+  assert.equal(snapshot.state, "running");
+  assert.deepEqual(finalizedRooms, ["room-1", "room-1"]);
+  assert.deepEqual(snapshot.liveDanmakuSessions.map((session) => session.roomId), ["room-1", "room-1"]);
+  assert.notEqual(snapshot.liveDanmakuSessions[0].id, snapshot.liveDanmakuSessions[1].id);
+  assert.equal(snapshot.liveDanmakuSessions.every((session) => session.state === "completed"), true);
+  assert.equal(snapshot.liveDanmakuCurrentSession, null);
+  assert.equal(snapshot.resultSnapshot.liveSession.roomId, "room-1");
+  assert.equal(snapshot.resultSnapshot.liveSessions.length, 2);
 });
 
 test("live danmaku outreach touches every unique danmaku user without intent analysis", async t => {

@@ -57,7 +57,7 @@ test("stores viral work analysis as a research brief instead of a contactable pr
     },
     taskId: "viral-task-store",
     agentId: "mkt-viral-work-analysis",
-    agentName: "爆款作品分析",
+    agentName: "抖音爆款拆解官",
     sourceContext: { source: "抖音公开作品链接", sourceScope: "public_work_link" }
   });
 

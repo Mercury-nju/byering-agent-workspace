@@ -41,14 +41,8 @@ async function registerOfficeAssetWorker() {
 
 void registerOfficeAssetWorker();
 
-const query = new URLSearchParams(globalThis.location?.search || "");
-const runtimeMode = globalThis.__SALEBUDDY_CONFIG__?.runtimeMode || "production";
-const standaloneResultsPreview = runtimeMode === "mock" && query.get("page") === "prospects";
-
 await import("../../browser-shim.js?v=20260914-business-memory-demo-1");
-if (standaloneResultsPreview) {
-  await import("./mock-results-preview-entry.js?v=20260917-results-mock-preview-entry-1");
-} else {
-  await import("../../assets/main-BaWVt8Sl.js");
-  await import("./index.js?v=20260917-results-mock-preview-fix-1");
-}
+// All routes, including the mock results preview, use the same shell so the
+// document-level navigation remains available on direct page loads.
+await import("../../assets/main-BaWVt8Sl.js");
+await import("./index.js?v=20260917-results-mock-preview-fix-1");

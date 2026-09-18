@@ -3,10 +3,24 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const runtimeMode = process.env.BYERING_RUNTIME_MODE === "mock" ? "mock" : "production";
+const commandArgs = process.argv.slice(2);
+
+function commandOption(name) {
+  const prefix = `${name}=`;
+  return commandArgs.find((arg) => arg.startsWith(prefix))?.slice(prefix.length);
+}
+
+const runtimeMode = commandArgs.includes("--mock")
+  ? "mock"
+  : commandArgs.includes("--production")
+    ? "production"
+    : process.env.BYERING_RUNTIME_MODE === "mock"
+      ? "mock"
+      : "production";
 const defaultPorts = runtimeMode === "mock" ? { web: 8890, backend: 6690 } : { web: 8888, backend: 6681 };
-const webPort = Number(process.env.MARVIS_PORT || defaultPorts.web);
-const backendPort = Number(process.env.BYERING_BACKEND_PORT || defaultPorts.backend);
+const webPort = Number(commandOption("--web-port") || process.env.MARVIS_PORT || defaultPorts.web);
+const backendPort = Number(commandOption("--backend-port") || process.env.BYERING_BACKEND_PORT || defaultPorts.backend);
+const gatewayPort = commandOption("--gateway-port") || process.env.MARVIS_GATEWAY_PORT;
 
 const children = [
   spawn(process.execPath, ["--env-file-if-exists=.env.local", "backend/http-server.js"], {
@@ -21,7 +35,13 @@ const children = [
   }),
   spawn(process.execPath, ["scripts/static-server.mjs", "--port", String(webPort)], {
     cwd: root,
-    env: { ...process.env, BYERING_RUNTIME_MODE: runtimeMode },
+    env: {
+      ...process.env,
+      BYERING_RUNTIME_MODE: runtimeMode,
+      BYERING_BACKEND_PORT: String(backendPort),
+      BYERING_CONTROL_PLANE_URL: `http://127.0.0.1:${backendPort}`,
+      ...(gatewayPort ? { MARVIS_GATEWAY_PORT: gatewayPort } : {})
+    },
     stdio: "inherit"
   })
 ];

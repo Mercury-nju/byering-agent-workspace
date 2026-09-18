@@ -3,7 +3,7 @@ import { createCompanionService } from "./agent-companion.js";
 import { companionTaskFacts } from "../src/salebuddy/runtime/assignment-handoff.js";
 import { applyCompanionExecution } from "./companion-execution.js";
 import { buildOfficeStatus, createOfficeOperations, officeReceiptState, OFFICE_AGENT_IDS } from "./office-status.js";
-import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -474,6 +474,7 @@ export function createControlPlaneHttpServer({
   const resolvedAgentResultRunStore = agentResultRunStore || createAgentResultRunStore();
   const resolvedBusinessDemandStore = businessDemandStore || createBusinessDemandStore();
   const resolvedEmploymentStore = employmentStore || createEmploymentStore();
+  const inboxPlanRegistry = createInboxPlanRegistry();
   const authoritativeDouyinAgentCloudRegistry = douyinAgentCloudRegistry;
   const authoritativeDouyinAccountActionCoordinator = douyinAccountActionCoordinator || createDouyinAccountActionCoordinator();
   const resolvedAgentStore = agentStore || createAgentStore(resolve(
@@ -789,14 +790,16 @@ export function createControlPlaneHttpServer({
         });
       }
       try {
-        const result = await service.start({
+        const startPlanToken = requiredText(input.planToken, "planToken");
+        const startOptions = Object.freeze({
           ...input,
           accountId: cloudScope.accountId,
           accountIdentity: authorized.account,
           accountCoordinationKey: douyinAccountCoordinationKey(authorized.account, cloudScope.accountId),
-          planToken: requiredText(input.planToken, "planToken"),
+          planToken: startPlanToken,
           startRequestId: requiredText(input.startRequestId, "startRequestId")
         });
+        const result = await service.start(startOptions);
         const privateReception = receptionStore.enablePrivateReception({
           tenantId: cloudScope.tenantId,
           account: authorized.account
@@ -1281,6 +1284,7 @@ export function createControlPlaneHttpServer({
         accountAnalysisService: authoritativeAccountAnalysisService,
         accountAnalysisRuns,
         accountReceptionStore: receptionStore,
+        inboxPlanRegistry,
         businessDemandStore: resolvedBusinessDemandStore,
         employmentStore: resolvedEmploymentStore,
         prospectRecordStore: resolvedProspectRecordStore,
@@ -1361,7 +1365,17 @@ export function startControlPlaneServer({ port = Number(process.env.BYERING_BACK
     createService: options.douyinAgentCloudCreateService,
     serviceOptions: options.douyinAgentCloudServiceOptions || {},
     serviceOptionsByAgent: options.douyinAgentCloudServiceOptionsByAgent
-      || createDouyinAgentServiceOptionsByAgent()
+      || createDouyinAgentServiceOptionsByAgent(),
+    // A production request must eventually surface a failed provider startup
+    // instead of re-queuing the same persisted record forever. Keep the
+    // registry's library default unbounded for callers that explicitly need
+    // provider-owned startup, while the HTTP service gets a bounded default.
+    provisioningTimeoutMs: options.douyinProvisioningTimeoutMs != null
+      ? Number(options.douyinProvisioningTimeoutMs)
+      : Number(process.env.BYERING_DOUYIN_PROVISIONING_TIMEOUT_MS) || 10 * 60 * 1000,
+    recoveryTimeoutMs: options.douyinRecoveryTimeoutMs != null
+      ? Number(options.douyinRecoveryTimeoutMs)
+      : Number(process.env.BYERING_DOUYIN_RECOVERY_TIMEOUT_MS) || 180000
     });
   const douyinInboxAgentService = options.douyinInboxAgentService || null;
   const accountResolver = options.accountResolver || createAccountResolver();
@@ -1489,7 +1503,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       const demand = store.create(principal.tenantId || null, {
         kind: optionalText(body.kind) || "live_outreach_capacity",
         agentId,
-        agentName: optionalText(body.agentName) || "电商直播间未成交客户触达",
+        agentName: optionalText(body.agentName) || "直播追单助理",
         accountId,
         accountName: optionalText(body.accountName) || "当前抖音账号",
         sentCount: parseNonNegativeInteger(body.sentCount ?? body.sent_count, 0),
@@ -1541,6 +1555,7 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       { prospectRecordStore: security.prospectRecordStore, principal }
     );
     requested = await security.preflightCoreExecution?.(requested, principal) || requested;
+    requested = attachVerifiedInboxPlan(security, requested);
     const contract = requireActiveCoreAgentEmployment(security.employmentStore, principal, requested.agentId);
     const durableTask = ensureCoreExecutionTask(controlPlane, requested, principal, security);
     const body = {
@@ -2472,6 +2487,12 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
     const mcp = selectDouyinMcpService(security, agentId, cloudScope);
     assertInboxAgentConfigured(service);
     assertDouyinMcpConfigured(mcp, "生成私信承接方案");
+    if (service.planModelConfigured === false) {
+      throw new ControlPlaneError("承接方案模型未配置，无法生成真实私信承接方案，请配置 BYERING_LLM_API_KEY", {
+        code: "DOUYIN_PLAN_MODEL_NOT_CONFIGURED",
+        statusCode: 503
+      });
+    }
     const resumedStatus = await resumeDouyinAgent(security, agentId, cloudScope);
     const authorizedStatus = await requireDouyinAuthorization(mcp, resumedStatus);
     security.assertDouyinAccountAgentAvailable?.({
@@ -2480,7 +2501,14 @@ async function route(request, response, controlPlane, browserWorkspace, clueHunt
       accountIdentity: authorizedStatus.account,
       accountId: cloudScope.accountId
     });
-    return sendJson(response, 200, await service.plan({ ...inboxConfigurationFromBody(body), tenantId: cloudScope.tenantId, accountId: cloudScope.accountId, accountIdentity: authorizedStatus.account }));
+    const planned = await service.plan({
+      ...inboxConfigurationFromBody(body),
+      tenantId: cloudScope.tenantId,
+      accountId: cloudScope.accountId,
+      accountIdentity: authorizedStatus.account
+    });
+    security.inboxPlanRegistry?.remember(planned.planToken);
+    return sendJson(response, 200, planned);
   }
 
   if (url.pathname === "/v1/douyin/inbox-agent/start-status" && request.method === "GET") {
@@ -5285,11 +5313,83 @@ function ensureCoreExecutionTask(controlPlane, body = {}, principal = null, secu
       skillId: optionalText(body.skillId) || agentId,
       mode: optionalText(body.analysisMode || body.analysisScope || body.mode || body.operation) || null,
       ...(body.config && typeof body.config === "object"
-        ? Object.fromEntries(Object.entries(body.config).filter(([key]) => !["planToken", "startRequestId"].includes(key)))
+        ? Object.fromEntries(Object.entries(body.config).filter(([key]) => !["planToken", "startRequestId", "verifiedInboxPlan"].includes(key)))
         : {})
     },
     isTaskActuallyActive: (task) => managedRuntimeTaskIsActuallyActive(security, task)
   });
+}
+
+function attachVerifiedInboxPlan(security = {}, request = {}) {
+  if (optionalText(request.operation) !== "inbox_hosting") return request;
+  const config = request.config && typeof request.config === "object" && !Array.isArray(request.config)
+    ? request.config
+    : {};
+  const planToken = optionalText(config.planToken || request.planToken);
+  if (!planToken) {
+    throw new ControlPlaneError("planToken 不能为空", { code: "DOUYIN_INPUT_REQUIRED", statusCode: 400, details: { field: "planToken" } });
+  }
+  if (!security.inboxPlanRegistry?.resolve) {
+    throw new ControlPlaneError("承接方案凭证无效", { code: "DOUYIN_INBOX_PLAN_TOKEN_INVALID", statusCode: 401 });
+  }
+  const verifiedInboxPlan = security.inboxPlanRegistry.resolve(planToken, {
+    agentId: request.agentId,
+    accountId: request.accountId
+  });
+  return {
+    ...request,
+    config: {
+      ...config,
+      verifiedInboxPlan
+    }
+  };
+}
+
+function createInboxPlanRegistry() {
+  const plans = new Map();
+  const fingerprint = (token) => createHash("sha256").update(String(token || "")).digest("hex");
+  const decode = (token) => {
+    const [encoded, signature, extra] = String(token || "").trim().split(".");
+    if (!encoded || !signature || extra) return null;
+    try {
+      const payload = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8"));
+      return payload && typeof payload === "object" ? payload : null;
+    } catch {
+      return null;
+    }
+  };
+  const expired = (payload) => !Number.isFinite(Number(payload?.expiresAt)) || Date.now() >= Number(payload.expiresAt);
+  const cleanup = () => {
+    for (const [key, payload] of plans.entries()) if (expired(payload)) plans.delete(key);
+  };
+  return {
+    remember(token) {
+      const payload = decode(token);
+      if (!payload || expired(payload)) return;
+      cleanup();
+      plans.set(fingerprint(token), payload);
+    },
+    resolve(token, { agentId = "", accountId = "" } = {}) {
+      cleanup();
+      const payload = plans.get(fingerprint(token));
+      if (!payload) {
+        throw new ControlPlaneError("承接方案凭证无效", { code: "DOUYIN_INBOX_PLAN_TOKEN_INVALID", statusCode: 401 });
+      }
+      if (expired(payload)) {
+        throw new ControlPlaneError("承接方案已过期，请重新生成", { code: "DOUYIN_INBOX_PLAN_EXPIRED", statusCode: 409 });
+      }
+      if (optionalText(payload.agentId) !== optionalText(agentId)) {
+        throw new ControlPlaneError("承接方案不属于当前 Agent", { code: "DOUYIN_INBOX_PLAN_AGENT_MISMATCH", statusCode: 409 });
+      }
+      if (optionalText(payload.accountId) !== optionalText(accountId)) {
+        throw new ControlPlaneError("承接方案与当前抖音账号不一致", { code: "DOUYIN_INBOX_PLAN_ACCOUNT_MISMATCH", statusCode: 409 });
+      }
+      if (payload.confirmable !== true) {
+        throw new ControlPlaneError("承接方案仍有阻断项，暂不能启用", { code: "DOUYIN_INBOX_PLAN_NOT_CONFIRMABLE", statusCode: 409 });
+      }
+      return payload;
+    }
+  };
 }
 
 function findProspectRun(security, controlPlane, taskId, principal) {
